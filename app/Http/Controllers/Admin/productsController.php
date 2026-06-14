@@ -11,10 +11,17 @@ use App\Models\publishers;
 
 class productsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $products = products::all();
         $categories = categories::all();
+        $query = products::query();
+
+        if ($request->category_id) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        $products = $query->get();
         return view('admin.products', compact('products', 'categories'));
     }
 
@@ -33,6 +40,7 @@ class productsController extends Controller
             'category_id' => 'required|exists:categories,id',
             'publisher_id' => 'required|exists:publishers,id',
             'author_id' => 'required|exists:authors,id',
+            'description' => 'required|string',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -45,7 +53,7 @@ class productsController extends Controller
         $product->author_id = $request->author_id;
         $product->price = $request->price;
         $product->stock = $request->stock;
-
+        $product->description = $request->description;
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = md5_file($image->getRealPath()) . '.' . $image->getClientOriginalExtension();
@@ -74,6 +82,7 @@ class productsController extends Controller
             'category_id' => 'required|exists:categories,id',
             'publisher_id' => 'required|exists:publishers,id',
             'author_id' => 'required|exists:authors,id',
+            'description' => 'required|string',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -84,6 +93,7 @@ class productsController extends Controller
         $product->category_id = $request->category_id;
         $product->publisher_id = $request->publisher_id;
         $product->author_id = $request->author_id;
+        $product->description = $request->description;
         $product->price = $request->price;
         $product->stock = $request->stock;
 

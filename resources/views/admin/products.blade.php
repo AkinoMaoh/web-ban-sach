@@ -21,7 +21,19 @@
                                         <tr>
                                             <th>ID</th>
                                             <th>Tên sách</th>
-                                            <th>Danh mục</th>
+                                            <th>
+                                                <form method="GET" action="{{ route('admin.products') }}">
+                                                    <select name="category_id" onchange="this.form.submit()">
+                                                        <option value="">All danh mục</option>
+                                                        @foreach($categories as $cat)
+                                                            <option value="{{ $cat->id }}"
+                                                                {{ request('category_id') == $cat->id ? 'selected' : '' }}>
+                                                                {{ $cat->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </form>
+                                            </th>
                                             <th>Giá</th>
                                             <th>Số lượng</th>
                                             <th>Ảnh</th>
