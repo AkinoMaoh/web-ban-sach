@@ -8,7 +8,7 @@
 
     <hr class="sidebar-divider my-0">
 
-    <li class="nav-item active">
+    <li class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
         <a class="nav-link" href="{{ url('/admin/dashboard') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span>
@@ -19,8 +19,8 @@
 
     <div class="sidebar-heading">Quản lý hệ thống</div>
 
-    <li class="nav-item">
-        <a class="nav-link" href="#">
+    <li class="nav-item {{ request()->routeIs('admin.products*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('admin.products') }}">
             <i class="fas fa-fw fa-box"></i>
             <span>Quản lý Sản phẩm</span>
         </a>
