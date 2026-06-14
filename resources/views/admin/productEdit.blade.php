@@ -55,6 +55,10 @@
                                             @endforeach
                                         </select>
                                     </div>
+                                       <div class="form-group">
+                                        <label for="description">Đánh giá</label>
+                                        <input type="text" class="form-control" id="description" name="description" value="{{ $product->description }}" required>
+                                    </div>
                                     <div class="form-group">
                                         <label for="price">Giá</label>
                                         <input type="number" class="form-control" id="price" name="price" value="{{ $product->price }}" required>

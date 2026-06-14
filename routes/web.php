@@ -25,12 +25,11 @@ Route::get('/', [trangChuController::class, 'index'])->name('user.index');
 Route::get('/dashboard', function () {
     // Giả sử bạn phân biệt Admin bằng email hoặc bằng một cột 'role' trong DB.
     // Ở đây mình ví dụ nếu email là 'admin@gmail.com' thì vào admin, còn lại về trang chủ.
-    if (Auth::user()->email === 'admin@gmail.com') {
-        return redirect()->route('admin.dashboard');
+    if (Auth::user()->role != 1) {
+        abort(403); // cấm truy cập
     }
 
-    // Nếu là người dùng mua sách bình thường, trả họ về trang chủ User
-    return redirect()->route('user.index');
+    return view('admin.dashboard');
 })->middleware(['auth'])->name('dashboard');
 
 

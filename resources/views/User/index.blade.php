@@ -85,19 +85,23 @@
                         <h2>Featured Product</h2>
                     </div>
                     <div class="featured__controls">
-                        <ul>
-                            <li class="active" data-filter="*">All</li>
-                            <li data-filter=".oranges">Oranges</li>
-                            <li data-filter=".fresh-meat">Fresh Meat</li>
-                            <li data-filter=".vegetables">Vegetables</li>
-                            <li data-filter=".fastfood">Fastfood</li>
+                       
+                         <ul>
+                             <li class="active" data-filter="*">All danh mục</li>
+                           @foreach ($categories as $category)
+                            <li data-filter=".cat-{{ $category->id }}">
+                                {{ $category->name }}
+                            </li>
+                        @endforeach
                         </ul>
+                        
+                      
                     </div>
                 </div>
             </div>
             <div class="row featured__filter">
                 @foreach ($products as $product)
-                <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat"> <!-- chỗ này sửa để theo danh mục luôn -->
+                <div class="col-lg-3 col-md-4 col-sm-6 mix mix cat-{{ $product->category_id }}"> <!-- chỗ này sửa để theo danh mục luôn -->
                     <div class="featured__item">
                         <div class="featured__item__pic set-bg" data-setbg="{{ asset('uploads/products/' . $product->image) }}">
                             <ul class="featured__item__pic__hover">
