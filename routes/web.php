@@ -47,11 +47,31 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         return view('admin/dashboard');
     })->name('admin.dashboard');
 
-    // Trang quản lý danh sách sách
-    Route::get('/products', [ProductController::class, 'index'])->name('admin.products.index');
+    // Quản lý sản phẩm
+    Route::get('/products', [productsController::class, 'index'])
+        ->name('admin.products');
 
+    Route::get('/products/create', [productsController::class, 'create'])
+        ->name('admin.productAdd');
+
+    Route::post('/products/store', [productsController::class, 'store'])
+        ->name('admin.products.store');
+
+    Route::get('/products/{id}/edit', [productsController::class, 'edit'])
+        ->name('admin.products.edit');
+
+    Route::put('/products/{id}/update', [productsController::class, 'update'])
+        ->name('admin.products.update');
+
+    Route::post('/products/{id}/toggleStatus', [productsController::class, 'toggleStatus'])
+        ->name('admin.products.toggleStatus');
+
+    Route::get('/products/{id}', [productsController::class, 'show'])
+        ->name('admin.products.show');
+
+    Route::get('/products/{id}/destroy', [productsController::class, 'destroy'])
+        ->name('admin.products.destroy');
 });
-
 
 /*
 |--------------------------------------------------------------------------
