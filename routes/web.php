@@ -1,7 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Admin\ProductController; 
+use App\Http\Controllers\Admin\productsController;
+use App\Http\Controllers\User\trangChuController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,9 +12,7 @@ use Illuminate\Support\Facades\Auth;
 |--------------------------------------------------------------------------
 */
 // Trang chủ hiển thị danh sách sách cho mọi đối tượng
-Route::get('/', function () {
-    return view('User/index');
-})->name('user.index');
+Route::get('/', [trangChuController::class, 'index'])->name('user.index');
 
 
 /*
@@ -26,7 +25,7 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     // Giả sử bạn phân biệt Admin bằng email hoặc bằng một cột 'role' trong DB.
     // Ở đây mình ví dụ nếu email là 'admin@gmail.com' thì vào admin, còn lại về trang chủ.
-    if (Auth::user()->email === 'admin@gmail.com') { 
+    if (Auth::user()->email === 'admin@gmail.com') {
         return redirect()->route('admin.dashboard');
     }
 
@@ -41,7 +40,7 @@ Route::get('/dashboard', function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->middleware('auth')->group(function () {
-    
+
     // Trang tổng quan Admin
     Route::get('/dashboard', function () {
         return view('admin/dashboard');
@@ -85,4 +84,4 @@ Route::middleware('auth')->group(function () {
 });
 
 // Nạp các file xử lý đăng nhập, đăng xuất tự động từ gói Breeze
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
