@@ -25,6 +25,12 @@
             <span>Quản lý Sản phẩm</span>
         </a>
     </li>
+    <li class="nav-item {{ request()->routeIs('admin.authors*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('admin.authors') }}">
+            <i class="fas fa-fw fa-user"></i>
+            <span>Quản lý Nhà xuất bản</span>
+        </a>
+    </li>
     <li class="nav-item">
         <a class="nav-link" href="#">
             <i class="fas fa-fw fa-shopping-cart"></i>
