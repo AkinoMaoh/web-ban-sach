@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\productsController;
+use App\Http\Controllers\Admin\authorsController;
 use App\Http\Controllers\User\trangChuController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +28,7 @@ Route::get('/dashboard', function () {
     // Giả sử bạn phân biệt Admin bằng email hoặc bằng một cột 'role' trong DB.
     // Ở đây mình ví dụ nếu email là 'admin@gmail.com' thì vào admin, còn lại về trang chủ.
     if (Auth::user()->role != 1) {
-        abort(403); // cấm truy cập
+        return redirect('/');
     }
 
     return view('admin.dashboard');
@@ -43,6 +44,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // Trang tổng quan Admin
     Route::get('/dashboard', function () {
+        if (Auth::user()->role != 1) {
+            return redirect('/');
+        }
+
         return view('admin/dashboard');
     })->name('admin.dashboard');
 
@@ -79,6 +84,29 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         );
     });
 
+    Route::get('/authors', [authorsController::class, 'index'])
+        ->name('admin.authors');
+
+    Route::get('/authors/create', [authorsController::class, 'authorCreate'])
+        ->name('admin.authorAdd');
+
+    Route::post('/authors/store', [authorsController::class, 'authorStore'])
+        ->name('admin.authors.store');
+
+    Route::get('/authors/{id}/edit', [authorsController::class, 'authorEdit'])
+        ->name('admin.authors.edit');
+
+    Route::put('/authors/{id}/update', [authorsController::class, 'authorUpdate'])
+        ->name('admin.authors.update');
+
+    Route::get('/authors/{id}/destroy', [authorsController::class, 'authorDestroy'])
+        ->name('admin.authors.destroy');
+
+    Route::post('/authors/{id}/toggleStatus', [authorsController::class, 'authorToggleStatus'])
+        ->name('admin.authors.toggleStatus');
+
+    Route::get('/authors/{id}', [authorsController::class, 'authorShow'])
+        ->name('admin.authors.show');
 });
 
 /*

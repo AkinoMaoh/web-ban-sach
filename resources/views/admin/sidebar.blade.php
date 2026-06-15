@@ -29,6 +29,10 @@
         <a class="nav-link" href="{{ route('admin.publishers.index') }}">
             <i class="fas fa-fw fa-building"></i>
             <span>Quản lý Nhà xuất bản</span>
+    <li class="nav-item {{ request()->routeIs('admin.authors*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('admin.authors') }}">
+            <i class="fas fa-fw fa-user"></i>
+            <span>Quản lý tác giả</span>
         </a>
     </li>
     <li class="nav-item">
