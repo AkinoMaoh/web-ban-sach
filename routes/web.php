@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\productsController;
+use App\Http\Controllers\Admin\authorsController;
 use App\Http\Controllers\User\trangChuController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -69,6 +70,31 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     Route::get('/products/{id}/destroy', [productsController::class, 'destroy'])
         ->name('admin.products.destroy');
+
+    // Quản lý nhà xuất bản
+    Route::get('/authors', [authorsController::class, 'index'])
+        ->name('admin.authors');
+
+    Route::get('/authors/create', [authorsController::class, 'authorCreate'])
+        ->name('admin.authorAdd');
+
+    Route::post('/authors/store', [authorsController::class, 'authorStore'])
+        ->name('admin.authors.store');
+
+    Route::get('/authors/{id}/edit', [authorsController::class, 'authorEdit'])
+        ->name('admin.authors.edit');
+
+    Route::put('/authors/{id}/update', [authorsController::class, 'authorUpdate'])
+        ->name('admin.authors.update');
+
+    Route::get('/authors/{id}/destroy', [authorsController::class, 'authorDestroy'])
+        ->name('admin.authors.destroy');
+
+    Route::post('/authors/{id}/toggleStatus', [authorsController::class, 'authorToggleStatus'])
+        ->name('admin.authors.toggleStatus');
+
+    Route::get('/authors/{id}', [authorsController::class, 'authorShow'])
+        ->name('admin.authors.show');
 });
 
 /*

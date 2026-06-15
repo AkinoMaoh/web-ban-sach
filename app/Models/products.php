@@ -13,7 +13,7 @@ class products extends Model
 
     public function authors()
     {
-        return $this->belongsTo(authors::class, 'author_id');
+        return $this->hasMany(products::class, 'author_id');
     }
 
     public function publishers()
