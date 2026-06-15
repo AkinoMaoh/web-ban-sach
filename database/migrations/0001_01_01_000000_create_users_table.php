@@ -17,6 +17,14 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            
+            // Các cột bổ sung theo database của bạn
+            $table->string('phone', 20)->nullable();
+            $table->text('address')->nullable();
+            $table->string('avatar')->nullable();
+            $table->tinyInteger('status')->default(1);
+            $table->integer('role')->default(0); // 0: User, 1: Admin
+            
             $table->rememberToken();
             $table->timestamps();
         });
