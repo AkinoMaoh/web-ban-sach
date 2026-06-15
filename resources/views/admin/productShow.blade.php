@@ -28,7 +28,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="author_id">Tác giả</label>
-                                        <input type="text" class="form-control" id="author_id" name="author_id" value="{{ $product->authors->name ?? 'N/A' }}" readonly>
+                                        <input type="text" class="form-control" id="author_id" name="author_id" value="{{ $product->author->name ?? 'N/A' }}" readonly>
                                     </div>
                                     <div class="form-group">
                                         <label for="publisher_id">NXB</label>
