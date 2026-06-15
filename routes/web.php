@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\productsController;
 use App\Http\Controllers\User\trangChuController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\publisherController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,6 +70,15 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     Route::get('/products/{id}/destroy', [productsController::class, 'destroy'])
         ->name('admin.products.destroy');
+
+    // Quản lý nhà xuất bản
+    Route::prefix('admin')->name('admin.')->group(function(){
+        Route::resource(
+            'publishers',
+            publisherController::class
+        );
+    });
+
 });
 
 /*
