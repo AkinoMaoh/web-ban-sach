@@ -120,6 +120,12 @@ return new class extends Migration
             $table->decimal('total_amount', 15, 2);
             $table->string('status', 50)->default('pending');
             $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent();
+            $table->string('shipping_name')->nullable();
+            $table->string('shipping_phone')->nullable();
+            $table->string('shipping_address')->nullable();
+            $table->text('notes')->nullable();
+            $table->string('payment_method')->nullable();
         });
 
         // Bảng order_details
