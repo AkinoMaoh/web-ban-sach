@@ -11,9 +11,9 @@ class products extends Model
         return $this->belongsTo(categories::class, 'category_id');
     }
 
-    public function authors()
+    public function author()
     {
-        return $this->hasMany(products::class, 'author_id');
+        return $this->belongsTo(authors::class, 'author_id');
     }
 
     public function publishers()

@@ -63,7 +63,7 @@
                                                     </button>
                                                 </form>
                                                 <a href="{{ route('admin.products.destroy', $product->id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')">Xóa</a>
-                                               
+                                               <a href="{{ route('admin.products.variants.create', $product->id) }}" class="btn btn-sm btn-info">Thêm biến thể</a>
                                             </td>
                                         </tr>
                                        @endforeach

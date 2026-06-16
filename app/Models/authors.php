@@ -10,7 +10,8 @@ class authors extends Model
     {
         return $this->hasMany(products::class, 'author_id');
     }
+    public $timestamps = false;
     protected $table = 'authors';
     protected $primaryKey = 'id';
-    protected $fillable = ['name', 'bio', 'avatar', 'status', 'created_at', 'updated_at'];
+    protected $fillable = ['name', 'bio', 'avatar', 'status'];
 }
