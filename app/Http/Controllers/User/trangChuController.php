@@ -13,9 +13,17 @@ class trangChuController extends Controller
 {
     public function index()
     {
-        $products = products::where('status', 1)->get();
-        $categories = categories::all();
-        $authors = authors::where('status', 1)->get();
-        return view('User.index', compact('products', 'categories', 'authors'));
+        $categories = categories::where('status', 1)->get();
+
+        $products = products::where('status', 1)
+            ->whereHas('author', function ($q) {
+                $q->where('status', 1);
+            })
+            ->get();
+
+        return view('User.index', compact(
+            'products',
+            'categories'
+        ));
     }
 }
