@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon; // Thêm thư viện Carbon để lấy thời gian thực (nếu cần)
 
 class DatabaseSeeder extends Seeder
 {
@@ -63,8 +64,7 @@ class DatabaseSeeder extends Seeder
             ['id' => 8, 'name' => 'NXB Lao Động', 'address' => '175 Tây Sơn, Trung Liệt, Đống Đa, Hà Nội', 'website' => 'http://nxblaodong.com.vn'],
         ]);
 
-        // 6. Seed Products (Lọc một số bản ghi nổi bật nhất để tránh file quá dài)
-        // Vui lòng thêm các bản ghi khác theo mẫu nếu cần thiết.
+        // 6. Seed Products
         DB::table('products')->insert([
             // Thể loại: Kinh dị
             ['id' => 1, 'category_id' => 1, 'author_id' => 1, 'publisher_id' => 1, 'name' => 'Shining (Chói Sòa)', 'description' => 'Cuốn tiểu thuyết kinh dị kinh điển của Stephen King về khách sạn Overlook bị ám.', 'price' => 155000.00, 'stock' => 45, 'image' => 'images/shining.jpg', 'status' => 1],
@@ -201,6 +201,80 @@ class DatabaseSeeder extends Seeder
             ['id' => 118, 'category_id' => 8, 'author_id' => 5, 'publisher_id' => 5, 'name' => 'Lối Sống Tối Giản Của Người Nhật', 'description' => 'Triết lý từ bỏ bớt vật chất để tìm kiếm hạnh phúc đích thực của Sasaki Fumio.', 'price' => 95000.00, 'stock' => 130, 'image' => 'images/loi_song_toi_gian.jpg', 'status' => 1],
             ['id' => 119, 'category_id' => 8, 'author_id' => 6, 'publisher_id' => 6, 'name' => 'Bốn Thỏa Ước', 'description' => 'Chỉ dẫn thực tế để đạt đến tự do cá nhân từ trí tuệ cổ xưa của người Toltec.', 'price' => 72000.00, 'stock' => 85, 'image' => 'images/bon_thoa_uoc.jpg', 'status' => 1],
             ['id' => 120, 'category_id' => 8, 'author_id' => 7, 'publisher_id' => 2, 'name' => 'Dám Bị Ghét', 'description' => 'Triết lý tâm lý học Adler giúp bạn tự do và hạnh phúc trong các mối quan hệ.', 'price' => 96000.00, 'stock' => 160, 'image' => 'images/dam_bi_ghet.jpg', 'status' => 1],
+        ]);
+
+        // 7. Seed Orders (BẢN GHI MỚI THÊM VÀO)
+        DB::table('orders')->insert([
+            [
+                'id' => 1,
+                'user_id' => 2, // Ứng với User: akino
+                'voucher_id' => null,
+                'discount_id' => null,
+                'total_amount' => 250000.00,
+                'status' => 'pending', // Chờ xử lý
+                'shipping_name' => 'akino',
+                'shipping_phone' => '0987654321',
+                'shipping_address' => '123 Đường A, Quận 1, TP.HCM',
+                'notes' => 'Giao giờ hành chính',
+                'payment_method' => 'COD',
+                'created_at' => Carbon::now()->subDays(2),
+            ],
+            [
+                'id' => 2,
+                'user_id' => 3, // Ứng với User: Quốc anh
+                'voucher_id' => null,
+                'discount_id' => null,
+                'total_amount' => 155000.00,
+                'status' => 'confirmed', // Đã xác nhận
+                'shipping_name' => 'Quốc anh',
+                'shipping_phone' => '0912345678',
+                'shipping_address' => '456 Đường B, Quận 2, TP.HCM',
+                'notes' => null,
+                'payment_method' => 'VNPAY',
+                'created_at' => Carbon::now()->subDays(1),
+            ],
+            [
+                'id' => 3,
+                'user_id' => 4, // Ứng với User: mike
+                'voucher_id' => null,
+                'discount_id' => null,
+                'total_amount' => 500000.00,
+                'status' => 'shipping', // Đang giao
+                'shipping_name' => 'mike',
+                'shipping_phone' => '0933334444',
+                'shipping_address' => '789 Đường C, Ba Đình, Hà Nội',
+                'notes' => 'Gọi trước khi giao nhé',
+                'payment_method' => 'COD',
+                'created_at' => Carbon::now()->subHours(10),
+            ],
+            [
+                'id' => 4,
+                'user_id' => 5, // Ứng với User: qưa
+                'voucher_id' => null,
+                'discount_id' => null,
+                'total_amount' => 95000.00,
+                'status' => 'completed', // Hoàn thành
+                'shipping_name' => 'qưa',
+                'shipping_phone' => '0900111222',
+                'shipping_address' => '101 Đường D, Hải Châu, Đà Nẵng',
+                'notes' => null,
+                'payment_method' => 'VNPAY',
+                'created_at' => Carbon::now()->subDays(5),
+            ],
+            [
+                'id' => 5,
+                'user_id' => 2, // Đơn thứ 2 của User: akino
+                'voucher_id' => null,
+                'discount_id' => null,
+                'total_amount' => 345000.00,
+                'status' => 'cancelled', // Đã hủy
+                'shipping_name' => 'akino',
+                'shipping_phone' => '0987654321',
+                'shipping_address' => '123 Đường A, Quận 1, TP.HCM',
+                'notes' => 'Hủy do đổi ý',
+                'payment_method' => 'COD',
+                'created_at' => Carbon::now()->subHours(2),
+            ]
         ]);
     }
 }
