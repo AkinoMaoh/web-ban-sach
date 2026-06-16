@@ -77,7 +77,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         ->name('admin.products.destroy');
 
     // Quản lý nhà xuất bản
-    Route::prefix('admin')->name('admin.')->group(function(){
+    Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource(
             'publishers',
             publisherController::class

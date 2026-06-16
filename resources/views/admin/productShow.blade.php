@@ -38,6 +38,16 @@
                                         <label for="description">Đánh giá</label>
                                         <input type="text" class="form-control" id="description" name="description" value="{{ $product->description }}" readonly>
                                     </div>
+                                    @php
+                                        $variant = $productVariants->first();
+                                    @endphp
+
+                                    <div class="form-group">
+                                        <label for="edition">Phiên bản</label>
+                                        <input type="text" class="form-control"
+                                            name="edition"
+                                            value="{{ $variant->edition ?? '' }}" readonly>
+                                    </div>      
                                     <div class="form-group">
                                         <label for="price">Giá</label>
                                         <input type="number" class="form-control" id="price" name="price" value="{{ $product->price }}" readonly>
