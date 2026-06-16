@@ -56,14 +56,33 @@
                                         <label for="price">Giá</label>
                                         <input type="number" class="form-control" id="price" name="price" required>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="stock">Số lượng</label>
-                                        <input type="number" class="form-control" id="stock" name="stock" required>
-                                    </div>
-                                    <div class="form-group">
+                                     <div class="form-group">
                                         <label for="image">Hình ảnh</label>
                                         <input type="file" class="form-control" id="image" name="image" required>
                                     </div>
+                                    <div class="form-group">
+                                                                       
+                                        <label for="edition">Phiên bản</label>
+                                       <select class="form-control" name="edition">
+                                            <option value="Standard">Standard</option>
+                                            <option value="Special">Special</option>
+                                        </select>
+                                      
+                                    </div>
+                                    <div class="form-group">
+                                        
+                                        <label for="volume_number">Số tập </label>
+                                        <input type="number" class="form-control" id="volume_number" name="volume_number" required>
+                                        
+                                    </div>
+                                        
+                                    <div class="form-group">
+                                    
+                                        <label for="stock">Số lượng</label>
+                                        <input type="number" class="form-control" id="stock" name="stock" required>
+                                       
+                                    </div>
+                                   
                                     <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
                                 </form>
                             </div>
