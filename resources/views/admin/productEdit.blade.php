@@ -59,54 +59,19 @@
                                         <label for="description">Đánh giá</label>
                                         <input type="text" class="form-control" id="description" name="description" value="{{ $product->description }}" required>
                                     </div>
-                                  <div class="form-group">
-                                        <label>Danh sách biến thể</label>
+                                   @php
+                                        $variant = $productVariants->first();
+                                    @endphp
 
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>Phiên bản</th>
-                                                    <th>Giá</th>
-                                                    <th>Số lượng</th>
-                                                </tr>
-                                            </thead>
-
-                                           <tbody>
-                                                @foreach($productVariants as $variant)
-                                                    <tr>
-                                                        <td>
-                                                            {{ $variant->edition == 'Standard' ? 'Bản thường' : 'Bản đặc biệt' }}
-                                                            <input type="hidden" name="variants[{{ $variant->id }}][edition]" value="{{ $variant->edition }}">
-                                                        </td>
-
-                                                        {{-- GIÁ --}}
-                                                        <td>
-                                                            @if($variant->edition == 'Standard')
-                                                                <input type="number"
-                                                                    class="form-control"
-                                                                    name="variants[{{ $variant->id }}][price]"
-                                                                    value="{{ $variant->price }}"
-                                                                    required>
-                                                            @else
-                                                                <input type="number"
-                                                                    class="form-control"
-                                                                    name="variants[{{ $variant->id }}][price]"
-                                                                    value="{{ $variant->price }}"
-                                                                    readonly>
-                                                            @endif
-                                                        </td>
-
-                                                        {{-- SỐ LƯỢNG --}}
-                                                        <td>
-                                                            <input type="number"
-                                                                class="form-control"
-                                                                name="variants[{{ $variant->id }}][stock]"
-                                                                value="{{ $variant->stock }}">
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
+                                    <div class="form-group">
+                                        <label for="edition">Phiên bản</label>
+                                        <input type="text" class="form-control"
+                                            name="edition"
+                                            value="{{ $variant->edition ?? '' }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="price">Giá</label>
+                                        <input type="number" class="form-control" id="price" name="price" value="{{ $product->price }}" required>
                                     </div>
 
                                     <div class="form-group">

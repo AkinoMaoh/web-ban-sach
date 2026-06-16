@@ -38,42 +38,19 @@
                                         <label for="description">Đánh giá</label>
                                         <input type="text" class="form-control" id="description" name="description" value="{{ $product->description }}" readonly>
                                     </div>
-                                  <div class="form-group">
-                                        <label>Danh sách biến thể</label>
+                                    @php
+                                        $variant = $productVariants->first();
+                                    @endphp
 
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>Phiên bản</th>
-                                                    <th>Giá</th>
-                                                    <th>Số lượng</th>
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                                @forelse($productVariants as $variant)
-                                                    <tr>
-                                                        <td>
-                                                            {{ $variant->edition == 'Standard' ? 'Bản thường' : 'Bản đặc biệt' }}
-                                                        </td>
-
-                                                        <td>
-                                                            {{ number_format($variant->price, 0, ',', '.') }} đ
-                                                        </td>
-
-                                                        <td>
-                                                            {{ $variant->stock }}
-                                                        </td>
-                                                    </tr>
-                                                @empty
-                                                    <tr>
-                                                        <td colspan="3" class="text-center">
-                                                            Chưa có biến thể nào
-                                                        </td>
-                                                    </tr>
-                                                @endforelse
-                                            </tbody>
-                                        </table>
+                                    <div class="form-group">
+                                        <label for="edition">Phiên bản</label>
+                                        <input type="text" class="form-control"
+                                            name="edition"
+                                            value="{{ $variant->edition ?? '' }}" readonly>
+                                    </div>      
+                                    <div class="form-group">
+                                        <label for="price">Giá</label>
+                                        <input type="number" class="form-control" id="price" name="price" value="{{ $product->price }}" readonly>
                                     </div>
 
                                     <div class="form-group">

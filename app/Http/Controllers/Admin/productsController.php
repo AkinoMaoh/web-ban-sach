@@ -31,7 +31,8 @@ class productsController extends Controller
         $categories = categories::all();
         $publishers = publishers::all();
         $authors = authors::all();
-        return view('admin.productAdd', compact('categories', 'publishers', 'authors'));
+        $productVariants = productVariants::all();
+        return view('admin.productAdd', compact('categories', 'publishers', 'authors', 'productVariants'));
     }
 
     public function store(Request $request)
@@ -68,6 +69,37 @@ class productsController extends Controller
         }
 
         $product->save();
+
+        // ======================
+        // 2. CALCULATE VARIANT PRICE
+        // ======================
+        $basePrice = $product->price;
+        $price = $basePrice;
+
+        // Edition
+        if ($request->edition === 'Special') {
+            $price += $basePrice * 0.30;
+        }
+
+        if ($request->edition === 'Signed') {
+            $price += $basePrice * 0.20;
+        }
+
+        // Volume
+        if ($request->volume_number) {
+            $price += $basePrice * (0.01 * $request->volume_number);
+        }
+
+        // ======================
+        // 3. CREATE VARIANT
+        // ======================
+        $variant = new productVariants();
+        $variant->product_id = $product->id;
+        $variant->stock = $request->stock;
+        $variant->edition = $request->edition;
+        $variant->volume_number = $request->volume_number;
+        $variant->price = $price;
+        $variant->save();
 
         return redirect()->route('admin.products')
             ->with('success', 'Product created successfully.');
@@ -113,6 +145,10 @@ class productsController extends Controller
             $image->move(public_path('uploads/products'), $imageName);
             $product->image = $imageName;
         }
+        $product->stock = productVariants::where(
+            'product_id',
+            $id
+        )->sum('stock');
 
         $product->save();
 
@@ -162,18 +198,12 @@ class productsController extends Controller
     public function show($id)
     {
         $product = products::findOrFail($id);
-
-        $productVariants = productVariants::where(
+        $product->stock = productVariants::where(
             'product_id',
             $id
-        )->get();
-
-        $product->stock = $productVariants->sum('stock');
-
-        return view(
-            'admin.productShow',
-            compact('product', 'productVariants')
-        );
+        )->sum('stock');
+        $productVariants = productVariants::all();
+        return view('admin.productShow', compact('product', 'productVariants'));
     }
 
     public function destroy($id)
