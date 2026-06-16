@@ -53,6 +53,20 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/products/{id}', [productsController::class, 'show'])->name('admin.products.show');
     Route::get('/products/{id}/destroy', [productsController::class, 'destroy'])->name('admin.products.destroy');
 
+    Route::get('/products/{id}/variants', [productsController::class, 'variants'])
+        ->name('admin.products.variants');
+
+    Route::get('/products/{id}/variantsCreate', [productsController::class, 'variantsCreate'])
+        ->name('admin.products.variants.create');
+
+    Route::post('/products/{id}/variants/store', [productsController::class, 'variantsStore'])
+        ->name('admin.products.variants.store');
+
+    Route::put('/products/{id}/variants/{variantId}/update', [productsController::class, 'variantsUpdate'])
+        ->name('admin.products.variants.update');
+
+    Route::get('/products/{id}/variants/{variantId}/destroy', [productsController::class, 'variantsDestroy'])
+        ->name('admin.products.variants.destroy');
     // Quản lý nhà xuất bản
     Route::resource('publishers', publisherController::class)->names('admin.publishers');
 
