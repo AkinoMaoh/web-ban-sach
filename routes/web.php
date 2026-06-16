@@ -7,6 +7,7 @@ use App\Http\Controllers\User\trangChuController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\publisherController;
+use App\Http\Controllers\User\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -119,6 +120,21 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+/*
+|--------------------------------------------------------------------------
+| 5. ROUTE THANH TOÁN (NGƯỜI DÙNG ĐÃ ĐĂNG NHẬP)
+|--------------------------------------------------------------------------
+*/
 
+Route::middleware('auth')->group(function () {
+    // 1. Trang Checkout (hiển thị form điền thông tin và chọn VNPAY/COD)
+    Route::get('/checkout', [PaymentController::class, 'index'])->name('checkout.index');
+
+    // 2. Xử lý khi bấm nút "Đặt Hàng"
+    Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
+
+    // 3. Đường link để VNPAY trả kết quả về sau khi quẹt thẻ
+    Route::get('/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
+});
 // Nạp các file xử lý đăng nhập, đăng xuất tự động từ gói Breeze
 require __DIR__ . '/auth.php';
