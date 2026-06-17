@@ -23,13 +23,14 @@
                 <div class="col-lg-9">
                     <div class="hero__search">
                         <div class="hero__search__form">
-                            <form action="#">
-                                {{-- <div class="hero__search__categories">
-                                    All Categories
-                                    <span class="arrow_carrot-down"></span>
-                                </div> --}}
-                                <input type="text" placeholder="Tìm kiếm sản phẩm ...">
-                                <button type="submit" class="site-btn">TÌM KIẾN</button>
+                            <form action="{{ route('user.search') }}" method="GET">
+                                <input 
+                                    type="text"
+                                    name="keyword"
+                                    placeholder="Tìm kiếm sản phẩm ..."
+                                    value="{{ request('keyword') }}"
+                                >
+                                <button type="submit" class="site-btn">TÌM KIẾM</button>
                             </form>
                         </div>
                         <div class="hero__search__phone">

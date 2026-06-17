@@ -16,6 +16,8 @@ use App\Http\Controllers\User\PaymentController;
 |--------------------------------------------------------------------------
 */
 Route::get('/', [trangChuController::class, 'index'])->name('user.index');
+// Tìm kiếm sản phẩm
+Route::get('/search', [trangChuController::class,'search'])->name('user.search');
 
 /*
 |--------------------------------------------------------------------------
@@ -67,6 +69,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     Route::get('/products/{id}/variants/{variantId}/destroy', [productsController::class, 'variantsDestroy'])
         ->name('admin.products.variants.destroy');
+
     // Quản lý nhà xuất bản
     Route::resource('publishers', publisherController::class)->names('admin.publishers');
 
