@@ -179,9 +179,17 @@ return new class extends Migration
         Schema::create('product_variants', function (Blueprint $table) {
             $table->id();
             $table->integer('product_id');
-            $table->string('sku', 100)->unique()->nullable();
+            $table->enum('edition', [
+                'Standard',
+                'Special',
+                'Special Signed'
+            ])->default('Standard');
+            $table->string('sku', 100)
+                ->unique()
+                ->nullable();
             $table->decimal('price', 15, 2);
             $table->integer('stock')->default(0);
+            $table->timestamps();
         });
 
         // Bảng publishers
@@ -261,12 +269,34 @@ return new class extends Migration
     public function down(): void
     {
         $tables = [
-            'wishlists', 'vouchers', 'user_roles', 'users', 'roles', 'reveneus', 
-            'replies', 'publishers', 'product_variants', 'product_genres', 
-            'product_categories', 'products', 'payments', 'order_details', 
-            'orders', 'news_categories', 'news', 'genres', 'discounts', 
-            'comments', 'categories', 'cart_items', 'carts', 'brands', 
-            'book_authors', 'authors', 'attribute_values', 'attributes'
+            'wishlists',
+            'vouchers',
+            'user_roles',
+            'users',
+            'roles',
+            'reveneus',
+            'replies',
+            'publishers',
+            'product_variants',
+            'product_genres',
+            'product_categories',
+            'products',
+            'payments',
+            'order_details',
+            'orders',
+            'news_categories',
+            'news',
+            'genres',
+            'discounts',
+            'comments',
+            'categories',
+            'cart_items',
+            'carts',
+            'brands',
+            'book_authors',
+            'authors',
+            'attribute_values',
+            'attributes'
         ];
 
         foreach ($tables as $table) {
