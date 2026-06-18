@@ -18,7 +18,10 @@ use App\Http\Controllers\User\PaymentController;
 
 Route::get('/', [trangChuController::class, 'index'])->name('user.index');
 // Tìm kiếm sản phẩm
-Route::get('/search', [trangChuController::class,'search'])->name('user.search');
+Route::get('/search', [trangChuController::class, 'search'])->name('user.search');
+// Chi tiết sản phẩm
+Route::get('/product/{id}', [trangChuController::class, 'productDetails'])->name('user.productDetails');
+
 
 /*
 |--------------------------------------------------------------------------
