@@ -28,19 +28,30 @@ class trangChuController extends Controller
     }
 
     // Tìm kiếm sản phẩm
-   public function search(Request $request)
+    public function search(Request $request)
     {
         $keyword = $request->keyword;
 
         $categories = categories::where('status', 1)->get();
 
-        $products = products::where('name','like','%'.$keyword.'%')
+        $products = products::where('name', 'like', '%' . $keyword . '%')
             ->get();
 
         return view('User.index', compact(
             'products',
             'categories',
             'keyword'
+        ));
+    }
+    public function productDetails($id)
+    {
+        $product = products::with('variants')->findOrFail($id);
+
+        $categories = categories::where('status', 1)->get();
+
+        return view('User.shop-details', compact(
+            'product',
+            'categories'
         ));
     }
 }
