@@ -3,23 +3,21 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\productsController;
 use App\Http\Controllers\Admin\authorsController;
-use App\Http\Controllers\Admin\ordersController; // Đã sửa tên ở đây
+use App\Http\Controllers\Admin\ordersController;
 use App\Http\Controllers\User\trangChuController;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\publisherController;
 use App\Http\Controllers\User\PaymentController;
+use App\Http\Controllers\Auth\AdminAuthController;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
-| 1. ROUTE CÔNG KHAI
+| 1. ROUTE CÔNG KHAI (DÀNH CHO KHÁCH HÀNG)
 |--------------------------------------------------------------------------
 */
-
 Route::get('/', [trangChuController::class, 'index'])->name('user.index');
-// Tìm kiếm sản phẩm
 Route::get('/search', [trangChuController::class, 'search'])->name('user.search');
-// Chi tiết sản phẩm
 Route::get('/product/{id}', [trangChuController::class, 'productDetails'])->name('user.productDetails');
 
 
@@ -29,25 +27,43 @@ Route::get('/product/{id}', [trangChuController::class, 'productDetails'])->name
 |--------------------------------------------------------------------------
 */
 Route::get('/dashboard', function () {
-    if (Auth::user()->role != 1) {
+    if ((int)Auth::user()->role !== 1) {
         return redirect('/');
     }
-    return view('admin.dashboard');
+    return redirect()->route('admin.dashboard');
 })->middleware(['auth'])->name('dashboard');
+
 
 /*
 |--------------------------------------------------------------------------
-| 3. ROUTE DÀNH CHO QUẢN TRỊ VIÊN (ADMIN)
+| 3. ROUTE VÀO CỔNG ĐĂNG KÝ / ĐĂNG NHẬP CỦA ADMIN (CHƯA ĐĂNG NHẬP)
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->middleware('auth')->group(function () {
+Route::middleware('guest')->prefix('admin')->group(function () {
+    // Đăng nhập Admin
+    Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+    Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
 
+    // Đăng ký Admin
+    Route::get('/register', [AdminAuthController::class, 'showRegisterForm'])->name('admin.register');
+    Route::post('/register', [AdminAuthController::class, 'register'])->name('admin.register.submit');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| 4. KHU VỰC QUẢN TRỊ VIÊN (ADMIN PANEL) - ĐÃ QUA PHÊ DUYỆT BẢO MẬT
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+
+    // Trang chủ quản trị (Đã trỏ chuẩn về file view cấu trúc admin/dashboard.blade.php của bạn)
     Route::get('/dashboard', function () {
-        if (Auth::user()->role != 1) {
-            return redirect('/');
-        }
-        return view('admin/dashboard');
+        return view('admin.dashboard'); 
     })->name('admin.dashboard');
+
+    // Đăng xuất Admin
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
     // Quản lý sản phẩm
     Route::get('/products', [productsController::class, 'index'])->name('admin.products');
@@ -58,7 +74,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/products/{id}/toggleStatus', [productsController::class, 'toggleStatus'])->name('admin.products.toggleStatus');
     Route::get('/products/{id}', [productsController::class, 'show'])->name('admin.products.show');
     Route::get('/products/{id}/destroy', [productsController::class, 'destroy'])->name('admin.products.destroy');
-
 
     // Quản lý nhà xuất bản
     Route::resource('publishers', publisherController::class)->names('admin.publishers');
@@ -73,7 +88,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/authors/{id}/toggleStatus', [authorsController::class, 'authorToggleStatus'])->name('admin.authors.toggleStatus');
     Route::get('/authors/{id}', [authorsController::class, 'authorShow'])->name('admin.authors.show');
 
-    // Quản lý đơn hàng (Đã đồng bộ dùng ordersController và admin.orders)
+    // Quản lý đơn hàng
     Route::get('/orders', [ordersController::class, 'index'])->name('admin.orders');
     Route::get('/orders/{id}', [ordersController::class, 'show'])->name('admin.orders.show');
     Route::get('/orders/{id}/edit', [ordersController::class, 'edit'])->name('admin.orders.edit');
@@ -82,9 +97,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/orders/{id}/toggleStatus', [ordersController::class, 'toggleStatus'])->name('admin.orders.toggleStatus');
 });
 
+
 /*
 |--------------------------------------------------------------------------
-| 4. ROUTE PROFILE
+| 5. ROUTE PROFILE (USER THƯỜNG / ADMIN CHUNG)
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
@@ -93,9 +109,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
 /*
 |--------------------------------------------------------------------------
-| 5. ROUTE THANH TOÁN
+| 6. ROUTE THANH TOÁN (DÀNH CHO KHÁCH HÀNG)
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
@@ -104,4 +121,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
 });
 
+// Các tuyến đường auth mặc định của hệ thống
 require __DIR__ . '/auth.php';
