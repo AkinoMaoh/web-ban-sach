@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\publisherController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\User\shopDetailsController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,8 +20,8 @@ use Illuminate\Support\Facades\Auth;
 */
 Route::get('/', [trangChuController::class, 'index'])->name('user.index');
 Route::get('/search', [trangChuController::class, 'search'])->name('user.search');
-Route::get('/product/{id}', [trangChuController::class, 'productDetails'])->name('user.productDetails');
-
+Route::get('/product/{id}', [shopDetailsController::class, 'index'])->name('user.productDetails');
+Route::post('/cart/add', [App\Http\Controllers\User\CartController::class, 'addToCart'])->name('cart.add');
 
 /*
 |--------------------------------------------------------------------------

@@ -61,17 +61,4 @@ class trangChuController extends Controller
             'publishers'
         ));
     }
-
-    // Xem chi tiết sản phẩm
-    public function productDetails($id)
-    {
-        // Tự động load các biến thể sản phẩm (nếu có bảng variants)
-        $product = products::with('variants')->findOrFail($id);
-        $categories = categories::where('status', 1)->get();
-
-        return view('User.shop-details', compact(
-            'product',
-            'categories'
-        ));
-    }
 }
