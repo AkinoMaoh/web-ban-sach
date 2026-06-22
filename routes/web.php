@@ -8,6 +8,7 @@ use App\Http\Controllers\User\trangChuController;
 use App\Http\Controllers\Admin\publisherController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -58,9 +59,7 @@ Route::middleware('guest')->prefix('admin')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     // Trang chủ quản trị (Đã trỏ chuẩn về file view cấu trúc admin/dashboard.blade.php của bạn)
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard'); 
-    })->name('admin.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     // Đăng xuất Admin
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
