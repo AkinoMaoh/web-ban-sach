@@ -5,7 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB; // Nhớ thêm dòng này để dùng DB Query Builder
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
