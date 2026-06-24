@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Comment;
 use App\Models\products;
+use App\Models\productVariants;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -102,8 +103,10 @@ class DashboardController extends Controller
 
         // Sản phẩm sắp hết hàng (kho < 5)
         // Sản phẩm sắp hết hàng (kho < 5)
-        $sapHetHang = products::where('stock', '<', 5)->take(5)->get();
-
+        $sapHetHang = ProductVariants::with('product') // Lấy kèm thông tin sản phẩm cha
+                ->where('stock', '<', 5)
+                ->take(5)
+                ->get();
         return compact('topSanPham', 'sapHetHang');
     }
 
