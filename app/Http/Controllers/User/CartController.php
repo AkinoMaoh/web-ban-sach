@@ -110,10 +110,6 @@ class CartController extends Controller
                 $maBienTheCu = (int)$sanPhamTrongGio->product_variant_id;
                 $bienThe = ProductVariants::find($maBienTheMoi);
 
-                \Log::info("--- San pham ID: $id ---");
-                \Log::info("Ma bien the cu: $maBienTheCu | Ma bien the moi: $maBienTheMoi");
-                \Log::info("Co doi bien the: " . ($maBienTheMoi !== $maBienTheCu ? 'co' : 'khong'));
-
                 // Kiểm tra số lượng không vượt stock
                 if ($bienThe && $soLuong > $bienThe->stock) {
                     $danhSachLoi[] = "'{$bienThe->edition}' chỉ còn {$bienThe->stock} sản phẩm trong kho!";
@@ -124,9 +120,6 @@ class CartController extends Controller
                     $sanPhamTrungBienThe = Cart::where('user_id', Auth::id())
                                     ->where('product_variant_id', $maBienTheMoi)
                                     ->first();
-
-                    \Log::info("San pham trung bien the: " . ($sanPhamTrungBienThe ? 'co (so luong: ' . $sanPhamTrungBienThe->quantity . ')' : 'khong'));
-                    \Log::info("Stock bien the dich: " . ($bienThe ? $bienThe->stock : 'null'));
 
                     if ($sanPhamTrungBienThe) {
                         // Dùng số lượng mới nhất trong request (nếu đã được update trước đó), không dùng DB cũ
@@ -142,7 +135,6 @@ class CartController extends Controller
                         }
 
                         $soLuongSauMerge = $soLuongDich + $soLuong;
-                        \Log::info("So luong moi sau cong don: $soLuongSauMerge");
                         $sanPhamTrungBienThe->update(['quantity' => $soLuongSauMerge]);
                         $sanPhamTrongGio->delete();
 
