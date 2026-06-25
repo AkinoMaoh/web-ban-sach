@@ -89,7 +89,19 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="primary-btn mt-4" style="border:none;">Thêm vào giỏ hàng</button>
+                      <button type="submit" class="primary-btn mt-4" style="border:none;">
+                            Thêm vào giỏ hàng
+                        </button>
+                           @if($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    
                         <a href="#" class="heart-icon"><span class="icon_heart_alt"></span></a>
                     </div>
                 </div>
@@ -123,6 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
             oHienThiGia.innerHTML = gia.toLocaleString('vi-VN') + ' VNĐ';
             oSoLuong.value = 1;
         });
+
     });
 
     // Khi nhập số lượng → tự điều chỉnh không hiện popup browser
@@ -182,4 +195,48 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+    // Chỉ cho nhập số
+    qtyInput.addEventListener('input', function () {
+
+        this.value = this.value.replace(/[^0-9]/g, '');
+
+        let qty = parseInt(this.value);
+
+        if (isNaN(qty) || qty < 1) {
+            this.value = 1;
+        }
+
+        if (maxQty > 0 && qty > maxQty) {
+            this.value = maxQty;
+        }
+
+        updateButtons();
+    });
+
+    plusBtn.addEventListener('click', function () {
+
+        let qty = parseInt(qtyInput.value) || 1;
+
+        if (qty < maxQty) {
+            qtyInput.value = qty + 1;
+        }
+
+        updateButtons();
+    });
+
+    minusBtn.addEventListener('click', function () {
+
+        let qty = parseInt(qtyInput.value) || 1;
+
+        if (qty > 1) {
+            qtyInput.value = qty - 1;
+        }
+
+        updateButtons();
+    });
+
+    updateButtons();
+
+});
+</script>
 @include('User.footer')
