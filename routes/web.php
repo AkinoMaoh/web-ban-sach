@@ -10,6 +10,7 @@ use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\User\shopDetailsController;
+use App\Http\Controllers\User\CartController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,7 +23,12 @@ Route::get('/', [trangChuController::class, 'index'])->name('user.index');
 Route::get('/search', [trangChuController::class, 'search'])->name('user.search');
 Route::get('/product/{id}', [shopDetailsController::class, 'index'])->name('user.productDetails');
 Route::post('/cart/add', [App\Http\Controllers\User\CartController::class, 'addToCart'])->name('cart.add');
-
+Route::prefix('cart')->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/', [CartController::class, 'updateCart'])->name('cart.update');
+    Route::post('/add', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::delete('/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+});
 /*
 |--------------------------------------------------------------------------
 | 2. TUYẾN ĐƯỜNG TRUNG GIAN ĐIỀU HƯỚNG TỰ ĐỘNG

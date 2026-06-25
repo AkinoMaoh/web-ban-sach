@@ -1,5 +1,10 @@
 @include('User.header')
-
+<style>
+    /* Ép animation lướt mượt mà cho banner */
+    #bookBanner .carousel-item {
+        transition: transform 0.8s ease-in-out !important;
+    }
+</style>
     <section class="hero">
         <div class="container">
             <div class="row">
@@ -99,13 +104,62 @@
                             </div>
                         </div>
                     </div>
-                    <div class="hero__item set-bg" data-setbg="img/hero/banner.jpg">
-                        <div class="hero__text">
-                            <span>FRUIT FRESH</span>
-                            <h2>Vegetable <br />100% Organic</h2>
-                            <p>Free Pickup and Delivery Available</p>
-                            <a href="#" class="primary-btn">SHOP NOW</a>
+                    <div id="bookBanner" class="carousel slide" data-ride="carousel">
+
+                        <div class="carousel-inner">
+
+                            @foreach($bannerBooks as $book)
+                                <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+
+                                    <div class="hero__item"
+                                        style="
+                                            height:430px;
+                                            background:url('{{ asset('uploads/products/'.$book->image) }}');
+                                            background-size:cover;
+                                            background-position:center;
+                                            position:relative;
+                                        ">
+
+                                        <div style="
+                                            position:absolute;
+                                            inset:0;
+                                            background:rgba(0,0,0,.45);
+                                        "></div>
+
+                                        <div class="hero__text"
+                                            style="
+                                                position:relative;
+                                                z-index:2;
+                                                color:white;
+                                                padding:80px;
+                                            ">
+
+                                            <span>SÁCH NỔI BẬT</span>
+
+                                            <h2>
+                                                {{ $book->name }}
+                                            </h2>
+
+                                            <p>
+                                                Giá:
+                                                {{ number_format($book->price,0,',','.') }}
+                                                VNĐ
+                                            </p>
+
+                                            <a href="{{ route('user.productDetails',$book->id) }}"
+                                                class="primary-btn">
+                                                XEM CHI TIẾT
+                                            </a>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            @endforeach
+
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -145,20 +199,22 @@
                     </div>
                 @else
                     @foreach ($products as $product)
-                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4"> 
-                            <div class="featured__item">
-                                <div class="featured__item__pic set-bg" data-setbg="{{ asset('uploads/products/' . $product->image) }}">
-                                    <ul class="featured__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                            <a href="{{ route('user.productDetails', $product->id) }}"
+                            style="display:block;text-decoration:none;color:inherit;">
+
+                                <div class="featured__item">
+                                    <div class="featured__item__pic set-bg"
+                                        data-setbg="{{ asset('uploads/products/' . $product->image) }}">
+                                    </div>
+
+                                    <div class="featured__item__text">
+                                        <h6>{{ $product->name }}</h6>
+                                        <h5>{{ number_format($product->price, 0, ',', '.') }} VND</h5>
+                                    </div>
                                 </div>
-                                <div class="featured__item__text">
-                                    <h6><a href="{{ route('user.productDetails', $product->id) }}">{{ $product->name }}</a></h6>
-                                    <h5>{{ number_format($product->price, 0, ',', '.') }} VND</h5>
-                                </div>
-                            </div>
+
+                            </a>
                         </div>
                    @endforeach
                 @endif
@@ -304,3 +360,13 @@
     </section>
 
 @include('User.footer')
+
+<script>
+$(document).ready(function() {
+    $('#bookBanner').carousel({
+        interval: 3000,
+        ride: 'carousel',
+        pause: 'hover'
+    });
+});
+</script>
