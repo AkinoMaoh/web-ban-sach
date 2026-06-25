@@ -13,23 +13,38 @@ class CartController extends Controller
     {
         $request->validate([
             'product_id' => 'required',
-            'variant_id' => 'required', // Bắt buộc chọn phiên bản
+            'variant_id' => 'required',
             'quantity' => 'required|integer|min:1',
         ]);
 
         $product = products::findOrFail($request->product_id);
-        // Lấy thông tin biến thể để kiểm tra giá và tồn kho
         $variant = ProductVariants::findOrFail($request->variant_id);
 
-        // Logic giỏ hàng (Sử dụng Session)
+        // Kiểm tra tồn kho
+        if ($request->quantity > $variant->stock) {
+            return redirect()->back()->withErrors([
+                'quantity' => 'Số lượng vượt quá tồn kho. Hiện chỉ còn ' . $variant->stock . ' sản phẩm.'
+            ]);
+        }
+
         $cart = session()->get('cart', []);
 
-        // Tạo key duy nhất cho sản phẩm + biến thể
         $cartKey = $product->id . '_' . $variant->id;
 
         if (isset($cart[$cartKey])) {
-            $cart[$cartKey]['quantity'] += $request->quantity;
+
+            $newQuantity = $cart[$cartKey]['quantity'] + $request->quantity;
+
+            // Kiểm tra tổng số lượng trong giỏ không vượt tồn kho
+            if ($newQuantity > $variant->stock) {
+                return redirect()->back()->withErrors([
+                    'quantity' => 'Tổng số lượng trong giỏ vượt quá tồn kho. Hiện chỉ còn ' . $variant->stock . ' sản phẩm.'
+                ]);
+            }
+
+            $cart[$cartKey]['quantity'] = $newQuantity;
         } else {
+
             $cart[$cartKey] = [
                 "name" => $product->name,
                 "quantity" => $request->quantity,

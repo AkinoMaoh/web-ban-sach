@@ -46,11 +46,32 @@
                         </div>
                         <p>{{ $product->description }}</p>
 
-                        <div class="product__details__quantity">
-                            <div class="quantity">
-                                <div class="pro-qty">
-                                    <input type="number" name="quantity" value="1" min="1">
-                                </div>
+                        <div class="product__details__quantity mb-4">
+                            <h5>Số lượng</h5>
+
+                            <div class="d-flex align-items-center mt-2">
+                                <button type="button"
+                                        id="minusBtn"
+                                        class="btn btn-secondary"
+                                        style="display:none;">
+                                    -
+                                </button>
+
+                               <input type="number"
+                                id="quantity"
+                                name="quantity"
+                                value="1"
+                                min="1"
+                                step="1"
+                                class="form-control mx-2"
+                                style="width:80px;text-align:center;">
+
+                                <button type="button"
+                                        id="plusBtn"
+                                        class="btn btn-success"
+                                        style="display:none;">
+                                    +
+                                </button>
                             </div>
                         </div>
 
@@ -60,14 +81,19 @@
                                 @foreach($product->variants as $variant)
                                     @if($variant->price > 0)
                                         <label class="variant-item">
-                                            <input type="radio" name="variant_id" value="{{ $variant->id }}" 
-                                                data-price="{{ $variant->price }}" 
-                                                {{ $variant->stock <= 0 ? 'disabled' : '' }} required>
+                                            <input type="radio"
+                                                name="variant_id"
+                                                value="{{ $variant->id }}"
+                                                data-price="{{ $variant->price }}"
+                                                data-stock="{{ $variant->stock }}"
+                                                {{ $variant->stock <= 0 ? 'disabled' : '' }}
+                                                required>
+
                                             <span class="variant-box">
                                                 <strong>{{ $variant->edition }}</strong><br>
                                                 <small>Giá: {{ number_format($variant->price) }} VNĐ</small><br>
                                                 <small class="{{ $variant->stock > 0 ? 'text-success' : 'text-danger' }}">
-                                                    {{ $variant->stock > 0 ? 'Còn ' . $variant->stock : 'Hết hàng' }}
+                                                    {{ $variant->stock > 0 ? 'Còn '.$variant->stock : 'Hết hàng' }}
                                                 </small>
                                             </span>
                                         </label>
@@ -76,7 +102,19 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="primary-btn mt-4" style="border:none;">Thêm vào giỏ hàng</button>
+                      <button type="submit" class="primary-btn mt-4" style="border:none;">
+                            Thêm vào giỏ hàng
+                        </button>
+                           @if($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    
                         <a href="#" class="heart-icon"><span class="icon_heart_alt"></span></a>
                     </div>
                 </div>
@@ -93,17 +131,102 @@
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const radios = document.querySelectorAll('input[name="variant_id"]');
-        const priceElement = document.getElementById('product-price');
+document.addEventListener('DOMContentLoaded', function () {
 
-        radios.forEach(function (radio) {
-            radio.addEventListener('change', function () {
-                let price = parseInt(this.dataset.price);
-                priceElement.innerHTML = price.toLocaleString('vi-VN') + ' VNĐ';
-            });
+    const radios = document.querySelectorAll('input[name="variant_id"]');
+    const priceElement = document.getElementById('product-price');
+
+    const qtyInput = document.getElementById('quantity');
+    const minusBtn = document.getElementById('minusBtn');
+    const plusBtn = document.getElementById('plusBtn');
+
+    let maxQty = 0;
+
+    function updateButtons() {
+        let qty = parseInt(qtyInput.value) || 1;
+
+        if (qty < 1) {
+            qty = 1;
+            qtyInput.value = 1;
+        }
+
+        if (maxQty > 0 && qty > maxQty) {
+            qty = maxQty;
+            qtyInput.value = maxQty;
+        }
+
+        minusBtn.style.display = qty <= 1 ? 'none' : 'inline-block';
+        plusBtn.style.display = (maxQty > 0 && qty >= maxQty) ? 'none' : 'inline-block';
+    }
+document.querySelector('form').addEventListener('submit', function(e){
+
+    const variant = document.querySelector('input[name="variant_id"]:checked');
+
+    if(!variant){
+        e.preventDefault();
+        alert('Vui lòng chọn phiên bản sản phẩm!');
+    }
+
+});
+    radios.forEach(function (radio) {
+
+        radio.addEventListener('change', function () {
+
+            let price = parseInt(this.dataset.price);
+            maxQty = parseInt(this.dataset.stock);
+
+            priceElement.innerHTML =
+                price.toLocaleString('vi-VN') + ' VNĐ';
+
+            qtyInput.value = 1;
+
+            updateButtons();
         });
-    });
-</script>
 
+    });
+
+    // Chỉ cho nhập số
+    qtyInput.addEventListener('input', function () {
+
+        this.value = this.value.replace(/[^0-9]/g, '');
+
+        let qty = parseInt(this.value);
+
+        if (isNaN(qty) || qty < 1) {
+            this.value = 1;
+        }
+
+        if (maxQty > 0 && qty > maxQty) {
+            this.value = maxQty;
+        }
+
+        updateButtons();
+    });
+
+    plusBtn.addEventListener('click', function () {
+
+        let qty = parseInt(qtyInput.value) || 1;
+
+        if (qty < maxQty) {
+            qtyInput.value = qty + 1;
+        }
+
+        updateButtons();
+    });
+
+    minusBtn.addEventListener('click', function () {
+
+        let qty = parseInt(qtyInput.value) || 1;
+
+        if (qty > 1) {
+            qtyInput.value = qty - 1;
+        }
+
+        updateButtons();
+    });
+
+    updateButtons();
+
+});
+</script>
 @include('User.footer')
