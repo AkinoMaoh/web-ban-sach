@@ -10,6 +10,7 @@ use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\User\shopDetailsController;
+use App\Http\Controllers\User\ShopController;
 use App\Http\Controllers\User\CartController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +21,8 @@ use Illuminate\Support\Facades\Auth;
 |--------------------------------------------------------------------------
 */
 Route::get('/', [trangChuController::class, 'index'])->name('user.index');
+Route::get('/shop', [ShopController::class, 'index'])->name('user.shop');
+Route::get('/shop/category/{id}', [ShopController::class, 'category'])->name('user.category');
 Route::get('/search', [trangChuController::class, 'search'])->name('user.search');
 Route::get('/product/{id}', [shopDetailsController::class, 'index'])->name('user.productDetails');
 Route::post('/cart/add', [App\Http\Controllers\User\CartController::class, 'addToCart'])->name('cart.add');

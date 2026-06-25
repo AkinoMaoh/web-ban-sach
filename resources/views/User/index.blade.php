@@ -16,7 +16,7 @@
                         </div>
                         <ul>
                             @foreach ($categories as $category)
-                                <li><a href="#">{{ $category->name }}</a></li>
+                                <li><a href="{{ route('user.category', $category->id) }}">{{ $category->name }}</a></li>
                             @endforeach
                         </ul>
                     </div>
@@ -173,7 +173,7 @@
                      @foreach ($categories as $category)
                     <div class="col-lg-3">
                         <div class="categories__item set-bg" data-setbg="{{ asset('uploads/categories/' . $category->image) }}">
-                            <h5><a href="#">{{ $category->name }}</a></h5>
+                            <h5><a href="{{ route('user.category', $category->id) }}">{{ $category->name }}</a></h5>
                         </div>
                     </div>
                 @endforeach
