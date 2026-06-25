@@ -144,23 +144,32 @@
                         <h4 class="text-muted">Không tìm thấy sản phẩm nào phù hợp với bộ lọc!</h4>
                     </div>
                 @else
-                    @foreach ($products as $product)
-                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4"> 
-                            <div class="featured__item">
-                                <div class="featured__item__pic set-bg" data-setbg="{{ asset('uploads/products/' . $product->image) }}">
-                                    <ul class="featured__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
-                                </div>
-                                <div class="featured__item__text">
-                                    <h6><a href="{{ route('user.productDetails', $product->id) }}">{{ $product->name }}</a></h6>
-                                    <h5>{{ number_format($product->price, 0, ',', '.') }} VND</h5>
-                                </div>
-                            </div>
+                  @foreach ($products as $product)
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="featured__item">
+                            <div class="featured__item__pic set-bg"
+                            data-setbg="{{ asset('uploads/products/' . $product->image) }}">
+                            <a href="{{ route('user.productDetails', $product->id) }}"
+                            style="display:block;width:100%;height:100%;">
+                            </a>
+                            <ul class="featured__item__pic__hover">
+                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
+                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
+                            </ul>
                         </div>
-                   @endforeach
+                            <div class="featured__item__text">
+                                <h6>
+                                    <a href="{{ route('user.productDetails', $product->id) }}">
+                                        {{ $product->name }}
+                                    </a>
+                                </h6>
+                                <h5>{{ number_format($product->price, 0, ',', '.') }} VND</h5>
+                            </div>
+
+                        </div>
+                    </div>
+                    @endforeach
                 @endif
             </div>
         </div>
