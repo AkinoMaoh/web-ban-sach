@@ -8,6 +8,7 @@ use App\Models\products;
 use App\Models\categories;
 use App\Models\authors;
 use App\Models\publishers;
+use App\Models\productVariants;
 
 class productsController extends Controller
 {
@@ -27,10 +28,15 @@ class productsController extends Controller
 
     public function create()
     {
-        $categories = categories::all();
-        $publishers = publishers::all();
-        $authors = authors::all();
-        return view('admin.productAdd', compact('categories', 'publishers', 'authors'));
+        $categories = Categories::all();
+        $publishers = Publishers::all();
+        $authors = Authors::all();
+
+        return view('admin.productAdd', compact(
+            'categories',
+            'publishers',
+            'authors'
+        ));
     }
 
     public function store(Request $request)
@@ -41,19 +47,23 @@ class productsController extends Controller
             'publisher_id' => 'required|exists:publishers,id',
             'author_id' => 'required|exists:authors,id',
             'description' => 'required|string',
-            'price' => 'required|numeric',
-            'stock' => 'required|integer',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'variants' => 'required|array',
+            'variants.*.price' => 'required|numeric|min:0',
+            'variants.*.stock' => 'required|integer|min:0',
         ]);
 
-        $product = new products();
+        // ======================
+        // 1. CREATE PRODUCT
+        // ======================
+        $product = new Products();
         $product->name = $request->name;
         $product->category_id = $request->category_id;
         $product->publisher_id = $request->publisher_id;
         $product->author_id = $request->author_id;
-        $product->price = $request->price;
-        $product->stock = $request->stock;
         $product->description = $request->description;
+        $product->price = 0;
+        $product->stock = 0;
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = md5_file($image->getRealPath()) . '.' . $image->getClientOriginalExtension();
@@ -63,16 +73,79 @@ class productsController extends Controller
 
         $product->save();
 
-        return redirect()->route('admin.products')->with('success', 'Product created successfully.');
+        // ======================
+        // 2. CREATE VARIANTS
+        // ======================
+        $standardPrice = 0;
+
+        foreach ($request->variants as $edition => $data) {
+
+            $variant = new ProductVariants();
+            $variant->product_id = $product->id;
+            $variant->edition = $edition;
+            $variant->price = $data['price'];
+            $variant->stock = $data['stock'];
+
+            $variant->save();
+
+            if ($edition === 'Standard') {
+                $standardPrice = $data['price'];
+            }
+        }
+
+        // ======================
+        // 3. UPDATE PRODUCT SUMMARY
+        // ======================
+
+
+        $product->price = $standardPrice;
+        $product->stock = ProductVariants::where('product_id', $product->id)->sum('stock');
+        $product->save();
+
+        return redirect()
+            ->route('admin.products')
+            ->with('success', 'Tạo sản phẩm thành công');
     }
 
     public function edit($id)
     {
-        $product = products::findOrFail($id);
-        $categories = categories::all();
-        $publishers = publishers::all();
-        $authors = authors::all();
-        return view('admin.productEdit', compact('product', 'categories', 'publishers', 'authors'));
+        $product = Products::findOrFail($id);
+
+        $categories = Categories::all();
+        $authors = Authors::all();
+        $publishers = Publishers::all();
+
+        // Luôn tạo đủ 3 biến thể
+        $editions = [
+            'Standard',
+            'Special',
+            'Special Signed'
+        ];
+
+        foreach ($editions as $edition) {
+
+            ProductVariants::firstOrCreate(
+                [
+                    'product_id' => $product->id,
+                    'edition' => $edition
+                ],
+                [
+                    'price' => 0,
+                    'stock' => 0,
+
+                ]
+            );
+        }
+
+        $productVariants = ProductVariants::where('product_id', $product->id)->get();
+
+        return view('admin.productEdit', compact(
+            'product',
+            'categories',
+            'authors',
+            'publishers',
+            'productVariants'
+        ));
     }
 
     public function update(Request $request, $id)
@@ -83,19 +156,22 @@ class productsController extends Controller
             'publisher_id' => 'required|exists:publishers,id',
             'author_id' => 'required|exists:authors,id',
             'description' => 'required|string',
-            'price' => 'required|numeric',
-            'stock' => 'required|integer',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'nullable|image',
+            'variants' => 'required|array',
+            'variants.*.stock' => 'required|integer|min:0',
+            'variants.*.price' => 'required|numeric|min:0',
         ]);
 
-        $product = products::findOrFail($id);
+        $product = Products::findOrFail($id);
+
+        // ======================
+        // 1. UPDATE PRODUCT INFO
+        // ======================
         $product->name = $request->name;
         $product->category_id = $request->category_id;
         $product->publisher_id = $request->publisher_id;
         $product->author_id = $request->author_id;
         $product->description = $request->description;
-        $product->price = $request->price;
-        $product->stock = $request->stock;
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
@@ -106,18 +182,55 @@ class productsController extends Controller
 
         $product->save();
 
-        return redirect()->route('admin.products')->with('success', 'Product updated successfully.');
-    }
+        // ======================
+        // 2. UPDATE VARIANTS
+        // ======================
+        $standardPrice = 0;
 
-    public function show($id)
-    {
-        $product = products::findOrFail($id);
-        return view('admin.productShow', compact('product'));
+        foreach ($request->variants as $edition => $data) {
+
+            $variant = ProductVariants::where('product_id', $id)
+                ->where('edition', $edition)
+                ->first();
+
+            if (!$variant) {
+                $variant = new ProductVariants();
+                $variant->product_id = $id;
+                $variant->edition = $edition;
+            }
+
+            $variant->stock = $data['stock'] ?? 0;
+            $variant->price = $data['price'] ?? 0;
+
+
+            if ($edition === 'Standard') {
+                $standardPrice = $variant->price;
+            }
+
+            $variant->save();
+        }
+
+        // ======================
+        // 3. UPDATE PRODUCT SUMMARY
+        // ======================
+        $product->price = $standardPrice;
+
+        $product->stock = ProductVariants::where('product_id', $id)->sum('stock');
+
+        $product->save();
+
+        return redirect()
+            ->route('admin.products')
+            ->with('success', 'Cập nhật sản phẩm thành công');
     }
 
     public function destroy($id)
     {
         $product = products::findOrFail($id);
+        $product->stock = productVariants::where(
+            'product_id',
+            $id
+        )->sum('stock');
         $product->delete();
         return redirect()->route('admin.products')->with('success', 'Product deleted successfully.');
     }
@@ -126,7 +239,25 @@ class productsController extends Controller
     {
         $product = products::findOrFail($id);
         $product->status = $product->status == 1 ? 0 : 1;
+        $product->stock = productVariants::where(
+            'product_id',
+            $id
+        )->sum('stock');
         $product->save();
         return redirect()->back()->with('success', 'Cập nhật trạng thái thành công');
+    }
+    public function show($id)
+    {
+        $product = Products::findOrFail($id);
+
+        $productVariants = ProductVariants::where('product_id', $id)->get();
+
+        $totalStock = $productVariants->sum('stock');
+
+        return view('admin.productShow', compact(
+            'product',
+            'productVariants',
+            'totalStock'
+        ));
     }
 }

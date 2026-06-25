@@ -1,35 +1,97 @@
 @include('User.header')
-  
-
-
-    <!-- Hero Section Begin -->
+<style>
+    /* Ép animation lướt mượt mà cho banner */
+    #bookBanner .carousel-item {
+        transition: transform 0.8s ease-in-out !important;
+    }
+</style>
     <section class="hero">
         <div class="container">
             <div class="row">
                 <div class="col-lg-3">
-                    <div class="hero__categories">
+                    <div class="hero__categories mb-4">
                         <div class="hero__categories__all">
                             <i class="fa fa-bars"></i>
-                            <span>  TẤT CẢ DANH MỤC</span>
+                            <span>TẤT CẢ DANH MỤC</span>
                         </div>
-                        @foreach ($categories as $category)
                         <ul>
-                            <li><a href="#">{{ $category->name }}</a></li>
-                            
+                            @foreach ($categories as $category)
+                                <li><a href="#">{{ $category->name }}</a></li>
+                            @endforeach
                         </ul>
-                        @endforeach
+                    </div>
+
+                    <div class="card border-0 shadow-sm mt-4" style="background: #fdfdfd; border-radius: 4px; border: 1px solid #ececec !important;">
+                        <div class="card-header text-white font-weight-bold" style="background-color: #7fad39; border-radius: 4px 4px 0 0; padding: 12px 15px; font-size: 14px;">
+                            <i class="fa fa-filter"></i> BỘ LỌC TÌM KIẾM
+                        </div>
+                        <div class="card-body" style="padding: 20px 15px;">
+                            <form action="{{ route('user.index') }}" method="GET">
+                                
+                                <div class="filter-section mb-4">
+                                    <h6 class="font-weight-bold text-uppercase text-secondary" style="font-size: 12px; letter-spacing: 0.5px; margin-bottom: 10px;">Khoảng Giá (VND)</h6>
+                                    <div class="d-flex align-items-center" style="gap: 6px; display: flex;">
+                                        <input type="number" name="price_min" value="{{ request('price_min') }}" class="form-control form-control-sm text-center" placeholder="Từ" style="border-radius: 4px; font-size: 13px; height: 35px; width: 45%; text-align: center; border: 1px solid #ced4da;">
+                                        <span class="text-muted" style="margin: 0 4px;">-</span>
+                                        <input type="number" name="price_max" value="{{ request('price_max') }}" class="form-control form-control-sm text-center" placeholder="Đến" style="border-radius: 4px; font-size: 13px; height: 35px; width: 45%; text-align: center; border: 1px solid #ced4da;">
+                                    </div>
+                                </div>
+
+                                <hr style="border-top: 1px dashed #ddd; margin: 15px 0;">
+
+                                <div class="filter-section mb-4">
+                                    <h6 class="font-weight-bold text-uppercase text-secondary" style="font-size: 12px; letter-spacing: 0.5px; margin-bottom: 10px;">Tác Giả</h6>
+                                    <select name="author" class="form-control form-control-sm" style="border-radius: 4px; cursor: pointer; font-size: 13px; height: 35px; width: 100%; border: 1px solid #ced4da;">
+                                        <option value="">-- Chọn Tác Giả --</option>
+                                        @foreach($authors as $author)
+                                            <option value="{{ $author->id }}" {{ request('author') == $author->id ? 'selected' : '' }}>
+                                                {{ $author->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <hr style="border-top: 1px dashed #ddd; margin: 15px 0;">
+
+                                <div class="filter-section mb-4">
+                                    <h6 class="font-weight-bold text-uppercase text-secondary" style="font-size: 12px; letter-spacing: 0.5px; margin-bottom: 10px;">Nhà Xuất Bản</h6>
+                                    <select name="publisher" class="form-control form-control-sm" style="border-radius: 4px; cursor: pointer; font-size: 13px; height: 35px; width: 100%; border: 1px solid #ced4da;">
+                                        <option value="">-- Chọn Nhà Xuất Bản --</option>
+                                        @foreach($publishers as $pub)
+                                            <option value="{{ $pub->id }}" {{ request('publisher') == $pub->id ? 'selected' : '' }}>
+                                                {{ $pub->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button type="submit" class="btn text-white font-weight-bold w-100 btn-sm mb-2" style="background-color: #7fad39; border-radius: 4px; border: none; padding: 10px; font-size: 13px; letter-spacing: 0.5px; width: 100%; cursor: pointer;">
+                                        ÁP DỤNG BỘ LỌC
+                                    </button>
+                                    
+                                    @if(request()->filled('price_min') || request()->filled('price_max') || request()->filled('publisher') || request()->filled('author'))
+                                        <a href="{{ route('user.index') }}" class="btn btn-secondary btn-sm w-100 font-weight-bold" style="border-radius: 4px; padding: 8px; font-size: 13px; display: block; text-align: center; background-color: #6c757d; color: white; text-decoration: none; margin-top: 5px;">
+                                            XÓA BỘ LỌC
+                                        </a>
+                                    @endif
+                                </div>
+
+                            </form>
+                        </div>
                     </div>
                 </div>
                 <div class="col-lg-9">
                     <div class="hero__search">
                         <div class="hero__search__form">
-                            <form action="#">
-                                {{-- <div class="hero__search__categories">
-                                    All Categories
-                                    <span class="arrow_carrot-down"></span>
-                                </div> --}}
-                                <input type="text" placeholder="Tìm kiếm sản phẩm ...">
-                                <button type="submit" class="site-btn">TÌM KIẾN</button>
+                            <form action="{{ route('user.search') }}" method="GET">
+                                <input 
+                                    type="text"
+                                    name="keyword"
+                                    placeholder="Tìm kiếm sản phẩm ..."
+                                    value="{{ request('keyword') }}"
+                                >
+                                <button type="submit" class="site-btn">TÌM KIẾM</button>
                             </form>
                         </div>
                         <div class="hero__search__phone">
@@ -42,41 +104,84 @@
                             </div>
                         </div>
                     </div>
-                    <div class="hero__item set-bg" data-setbg="img/hero/banner.jpg">
-                        <div class="hero__text">
-                            <span>FRUIT FRESH</span>
-                            <h2>Vegetable <br />100% Organic</h2>
-                            <p>Free Pickup and Delivery Available</p>
-                            <a href="#" class="primary-btn">SHOP NOW</a>
+                    <div id="bookBanner" class="carousel slide" data-ride="carousel">
+
+                        <div class="carousel-inner">
+
+                            @foreach($bannerBooks as $book)
+                                <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+
+                                    <div class="hero__item"
+                                        style="
+                                            height:430px;
+                                            background:url('{{ asset('uploads/products/'.$book->image) }}');
+                                            background-size:cover;
+                                            background-position:center;
+                                            position:relative;
+                                        ">
+
+                                        <div style="
+                                            position:absolute;
+                                            inset:0;
+                                            background:rgba(0,0,0,.45);
+                                        "></div>
+
+                                        <div class="hero__text"
+                                            style="
+                                                position:relative;
+                                                z-index:2;
+                                                color:white;
+                                                padding:80px;
+                                            ">
+
+                                            <span>SÁCH NỔI BẬT</span>
+
+                                            <h2>
+                                                {{ $book->name }}
+                                            </h2>
+
+                                            <p>
+                                                Giá:
+                                                {{ number_format($book->price,0,',','.') }}
+                                                VNĐ
+                                            </p>
+
+                                            <a href="{{ route('user.productDetails',$book->id) }}"
+                                                class="primary-btn">
+                                                XEM CHI TIẾT
+                                            </a>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            @endforeach
+
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
     </section>
-    <!-- Hero Section End -->
 
-    <!-- Categories Section Begin -->
     <section class="categories">
         <div class="container">
             <div class="row">
                 <div class="categories__slider owl-carousel">
                      @foreach ($categories as $category)
                     <div class="col-lg-3">
-                       
                         <div class="categories__item set-bg" data-setbg="{{ asset('uploads/categories/' . $category->image) }}">
                             <h5><a href="#">{{ $category->name }}</a></h5>
                         </div>
-                        
                     </div>
                 @endforeach
                 </div>
             </div>
         </div>
     </section>
-    <!-- Categories Section End -->
 
-    <!-- Featured Section Begin -->
     <section class="featured spad">
         <div class="container">
             <div class="row">
@@ -84,45 +189,40 @@
                     <div class="section-title">
                         <h2>Featured Product</h2>
                     </div>
-                    <div class="featured__controls">
-                       
-                         <ul>
-                             <li class="active" data-filter="*">All danh mục</li>
-                           @foreach ($categories as $category)
-                            <li data-filter=".cat-{{ $category->id }}">
-                                {{ $category->name }}
-                            </li>
-                        @endforeach
-                        </ul>
-                        
-                      
-                    </div>
                 </div>
             </div>
-            <div class="row featured__filter">
-                @foreach ($products as $product)
-                <div class="col-lg-3 col-md-4 col-sm-6 mix mix cat-{{ $product->category_id }}"> <!-- chỗ này sửa để theo danh mục luôn -->
-                    <div class="featured__item">
-                        <div class="featured__item__pic set-bg" data-setbg="{{ asset('uploads/products/' . $product->image) }}">
-                            <ul class="featured__item__pic__hover">
-                                <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                            </ul>
-                        </div>
-                        <div class="featured__item__text">
-                            <h6><a href="#">{{ $product->name }}</a></h6>
-                            <h5>{{ number_format($product->price, 0, ',', '.') }} VND</h5>
+            
+            <div class="row">
+                @if($products->isEmpty())
+                    <div class="col-lg-12 text-center mt-4 mb-4">
+                        <h4 class="text-muted">Không tìm thấy sản phẩm nào phù hợp với bộ lọc!</h4>
+                    </div>
+                @else
+                    @foreach ($products as $product)
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                            <a href="{{ route('user.productDetails', $product->id) }}"
+                            style="display:block;text-decoration:none;color:inherit;">
+
+                                <div class="featured__item">
+                                    <div class="featured__item__pic set-bg"
+                                        data-setbg="{{ asset('uploads/products/' . $product->image) }}">
+                                    </div>
+
+                                    <div class="featured__item__text">
+                                        <h6>{{ $product->name }}</h6>
+                                        <h5>{{ number_format($product->price, 0, ',', '.') }} VND</h5>
+                                    </div>
+                                </div>
+
+                            </a>
                         </div>
                     </div>
-                </div>
-               @endforeach
+                    @endforeach
+                @endif
             </div>
         </div>
     </section>
-    <!-- Featured Section End -->
 
-    <!-- Banner Begin -->
     <div class="banner">
         <div class="container">
             <div class="row">
@@ -139,9 +239,7 @@
             </div>
         </div>
     </div>
-    <!-- Banner End -->
 
-    <!-- Latest Product Section Begin -->
     <section class="latest-product spad">
         <div class="container">
             <div class="row">
@@ -159,9 +257,7 @@
                                         <span>$30.00</span>
                                     </div>
                                 </a>
-                               
                             </div>
-                            
                         </div>
                     </div>
                 </div>
@@ -179,7 +275,6 @@
                                         <span>$30.00</span>
                                     </div>
                                 </a>
-                               
                             </div>
                         </div>
                     </div>
@@ -205,9 +300,7 @@
             </div>
         </div>
     </section>
-    <!-- Latest Product Section End -->
 
-    <!-- Blog Section Begin -->
     <section class="from-blog spad">
         <div class="container">
             <div class="row">
@@ -266,8 +359,15 @@
             </div>
         </div>
     </section>
-    <!-- Blog Section End -->
-
-    
 
 @include('User.footer')
+
+<script>
+$(document).ready(function() {
+    $('#bookBanner').carousel({
+        interval: 3000,
+        ride: 'carousel',
+        pause: 'hover'
+    });
+});
+</script>
