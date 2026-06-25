@@ -124,7 +124,9 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/checkout', [PaymentController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
-    Route::get('/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
+
+    // 3. Đường link để VNPAY trả kết quả về sau khi quẹt thẻ (Đã sửa lại link cho khớp .env)
+    Route::get('/checkout/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
 });
 
 // Các tuyến đường auth mặc định của hệ thống
