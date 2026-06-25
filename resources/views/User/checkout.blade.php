@@ -2,7 +2,11 @@
 
 <div style="max-width: 1200px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
     <h2 style="text-align: center; margin-bottom: 30px;">Tiến hành Thanh Toán</h2>
-
+        @if(session('error'))
+        <div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 25px; border-radius: 4px; border: 1px solid #f5c6cb;">
+            <strong>Lỗi thanh toán:</strong> {{ session('error') }}
+        </div>
+    @endif
     <form action="{{ route('checkout.process') }}" method="POST" id="checkoutForm" style="display: flex; gap: 40px;">
         @csrf
 

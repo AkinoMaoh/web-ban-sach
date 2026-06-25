@@ -133,8 +133,8 @@ Route::middleware('auth')->group(function () {
     // 2. Xử lý khi bấm nút "Đặt Hàng"
     Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
 
-    // 3. Đường link để VNPAY trả kết quả về sau khi quẹt thẻ
-    Route::get('/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
+    // 3. Đường link để VNPAY trả kết quả về sau khi quẹt thẻ (Đã sửa lại link cho khớp .env)
+    Route::get('/checkout/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
 });
 // Nạp các file xử lý đăng nhập, đăng xuất tự động từ gói Breeze
 require __DIR__ . '/auth.php';
