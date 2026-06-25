@@ -4,58 +4,218 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\products;
-use App\Models\ProductVariants; // Giả sử bạn có model này
+use App\Models\Cart;
+use App\Models\ProductVariants;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
+    public function index()
+    {
+        $danhSachGioHang = [];
+        if (Auth::check()) {
+            $danhSachGioHang = Cart::with('productVariant.product.variants')->where('user_id', Auth::id())->get();
+        } else {
+            $gioHangSession = session()->get('cart', []);
+            foreach ($gioHangSession as $maBienThe => $sanPham) {
+                $bienThe = ProductVariants::with('product.variants')->find($maBienThe);
+                if ($bienThe) {
+                    $obj = new Cart();
+                    $obj->id = $maBienThe;
+                    $obj->product_variant_id = $maBienThe;
+                    $obj->quantity = $sanPham['quantity'];
+                    $obj->setRelation('productVariant', $bienThe);
+                    $danhSachGioHang[] = $obj;
+                }
+            }
+        }
+        return view('User.cart', compact('danhSachGioHang'));
+    }
+
     public function addToCart(Request $request)
     {
-        $request->validate([
-            'product_id' => 'required',
-            'variant_id' => 'required',
-            'quantity' => 'required|integer|min:1',
-        ]);
+        $maBienThe = $request->input('product_variant_id');
+        $soLuong = (int)$request->input('quantity', 1);
 
-        $product = products::findOrFail($request->product_id);
-        $variant = ProductVariants::findOrFail($request->variant_id);
-
-        // Kiểm tra tồn kho
-        if ($request->quantity > $variant->stock) {
-            return redirect()->back()->withErrors([
-                'quantity' => 'Số lượng vượt quá tồn kho. Hiện chỉ còn ' . $variant->stock . ' sản phẩm.'
-            ]);
-        }
-
-        $cart = session()->get('cart', []);
-
-        $cartKey = $product->id . '_' . $variant->id;
-
-        if (isset($cart[$cartKey])) {
-
-            $newQuantity = $cart[$cartKey]['quantity'] + $request->quantity;
-
-            // Kiểm tra tổng số lượng trong giỏ không vượt tồn kho
-            if ($newQuantity > $variant->stock) {
-                return redirect()->back()->withErrors([
-                    'quantity' => 'Tổng số lượng trong giỏ vượt quá tồn kho. Hiện chỉ còn ' . $variant->stock . ' sản phẩm.'
-                ]);
+        $bienThe = ProductVariants::find($maBienThe);
+        if (!$bienThe) {
+            if ($request->ajax()) {
+                return response()->json(['status' => 'error', 'message' => 'Sản phẩm không tồn tại!']);
             }
-
-            $cart[$cartKey]['quantity'] = $newQuantity;
-        } else {
-
-            $cart[$cartKey] = [
-                "name" => $product->name,
-                "quantity" => $request->quantity,
-                "price" => $variant->price,
-                "image" => $product->image,
-                "edition" => $variant->edition
-            ];
+            return back()->with('error', 'Sản phẩm không tồn tại!');
         }
 
-        session()->put('cart', $cart);
+        if (Auth::check()) {
+            $sanPhamTrongGio = Cart::where('user_id', Auth::id())->where('product_variant_id', $maBienThe)->first();
+            $soLuongHienTai = $sanPhamTrongGio ? $sanPhamTrongGio->quantity : 0;
+        } else {
+            $gioHang = session()->get('cart', []);
+            $soLuongHienTai = $gioHang[$maBienThe]['quantity'] ?? 0;
+        }
 
-        return redirect()->back()->with('success', 'Đã thêm vào giỏ hàng!');
+        if ($soLuongHienTai + $soLuong > $bienThe->stock) {
+            $soLuongConLai = $bienThe->stock - $soLuongHienTai;
+            $thongBao = $soLuongConLai > 0
+                ? "Chỉ còn có thể thêm {$soLuongConLai} sản phẩm nữa (tồn kho: {$bienThe->stock})!"
+                : "Sản phẩm đã đạt giới hạn tồn kho ({$bienThe->stock})!";
+
+            if ($request->ajax()) {
+                return response()->json(['status' => 'error', 'message' => $thongBao]);
+            }
+            return back()->with('error', $thongBao);
+        }
+
+        if (Auth::check()) {
+            $sanPhamTrongGio
+                ? $sanPhamTrongGio->increment('quantity', $soLuong)
+                : Cart::create([
+                    'user_id' => Auth::id(),
+                    'product_variant_id' => $maBienThe,
+                    'quantity' => $soLuong
+                ]);
+        } else {
+            $gioHang = session()->get('cart', []);
+            $gioHang[$maBienThe]['quantity'] = $soLuongHienTai + $soLuong;
+            session()->put('cart', $gioHang);
+        }
+
+        if ($request->ajax()) {
+            return response()->json(['status' => 'success', 'message' => 'Đã thêm vào giỏ hàng!']);
+        }
+        return back()->with('success', 'Đã thêm vào giỏ hàng!');
+    }
+
+    public function updateCart(Request $request)
+    {
+        $danhSachSoLuong = $request->input('quantities', []);
+        $danhSachBienThe = $request->input('variants', []);
+        $danhSachLoi = [];
+
+        if (Auth::check()) {
+            // Track các cart ID đã bị merge vào (không được update lại bằng giá trị cũ từ form)
+            $daBiMergeVao = [];
+            // Track số lượng mới nhất theo cart_id trong request này (tránh đọc DB cũ)
+            // key: cart_id, value: số lượng mới nhất
+            $soLuongMoiNhat = [];
+
+            foreach ($danhSachSoLuong as $id => $soLuong) {
+                // Bỏ qua nếu cart này đã được merge từ cart khác vào
+                if (in_array((int)$id, $daBiMergeVao)) continue;
+
+                $soLuong = (int)$soLuong;
+                $sanPhamTrongGio = Cart::where('user_id', Auth::id())->where('id', $id)->first();
+                if (!$sanPhamTrongGio) continue;
+
+                $maBienTheMoi = (int)($danhSachBienThe[$id] ?? $sanPhamTrongGio->product_variant_id);
+                $maBienTheCu = (int)$sanPhamTrongGio->product_variant_id;
+                $bienThe = ProductVariants::find($maBienTheMoi);
+
+                \Log::info("--- San pham ID: $id ---");
+                \Log::info("Ma bien the cu: $maBienTheCu | Ma bien the moi: $maBienTheMoi");
+                \Log::info("Co doi bien the: " . ($maBienTheMoi !== $maBienTheCu ? 'co' : 'khong'));
+
+                // Kiểm tra số lượng không vượt stock
+                if ($bienThe && $soLuong > $bienThe->stock) {
+                    $danhSachLoi[] = "'{$bienThe->edition}' chỉ còn {$bienThe->stock} sản phẩm trong kho!";
+                    $soLuong = $bienThe->stock;
+                }
+
+                if ($maBienTheMoi !== $maBienTheCu) {
+                    $sanPhamTrungBienThe = Cart::where('user_id', Auth::id())
+                                    ->where('product_variant_id', $maBienTheMoi)
+                                    ->first();
+
+                    \Log::info("San pham trung bien the: " . ($sanPhamTrungBienThe ? 'co (so luong: ' . $sanPhamTrungBienThe->quantity . ')' : 'khong'));
+                    \Log::info("Stock bien the dich: " . ($bienThe ? $bienThe->stock : 'null'));
+
+                    if ($sanPhamTrungBienThe) {
+                        // Dùng số lượng mới nhất trong request (nếu đã được update trước đó), không dùng DB cũ
+                        $soLuongDich = $soLuongMoiNhat[$sanPhamTrungBienThe->id] ?? $sanPhamTrungBienThe->quantity;
+
+                        // Không cho đổi nếu tổng số lượng sau merge vượt quá stock
+                        if ($soLuongDich + $soLuong > $bienThe->stock) {
+                            $conLai = $bienThe->stock - $soLuongDich;
+                            $danhSachLoi[] = $conLai > 0
+                                ? "Không thể đổi sang '{$bienThe->edition}' vì chỉ còn có thể thêm {$conLai} sản phẩm nữa (tồn kho: {$bienThe->stock})!"
+                                : "Không thể đổi sang '{$bienThe->edition}' vì đã đạt giới hạn tồn kho ({$bienThe->stock})!";
+                            continue;
+                        }
+
+                        $soLuongSauMerge = $soLuongDich + $soLuong;
+                        \Log::info("So luong moi sau cong don: $soLuongSauMerge");
+                        $sanPhamTrungBienThe->update(['quantity' => $soLuongSauMerge]);
+                        $sanPhamTrongGio->delete();
+
+                        // Lưu lại số lượng mới nhất để các vòng lặp sau dùng
+                        $soLuongMoiNhat[$sanPhamTrungBienThe->id] = $soLuongSauMerge;
+                        // Đánh dấu cart ID đích đã được merge, không cho vòng lặp sau ghi đè
+                        $daBiMergeVao[] = $sanPhamTrungBienThe->id;
+                    } else {
+                        $sanPhamTrongGio->update(['product_variant_id' => $maBienTheMoi, 'quantity' => $soLuong]);
+                    }
+                } else {
+                    $sanPhamTrongGio->update(['quantity' => $soLuong]);
+                    // Lưu lại số lượng mới nhất
+                    $soLuongMoiNhat[(int)$id] = $soLuong;
+                }
+            }
+        } else {
+            $gioHang = session()->get('cart', []);
+            // Track các key session đã bị merge vào
+            $daBiMergeVao = [];
+
+            foreach ($danhSachSoLuong as $id => $soLuong) {
+                // Bỏ qua nếu key này đã được merge từ key khác vào
+                if (in_array((int)$id, $daBiMergeVao)) continue;
+
+                $soLuong = (int)$soLuong;
+                $maBienTheMoi = (int)($danhSachBienThe[$id] ?? $id);
+                $bienThe = ProductVariants::find($maBienTheMoi);
+
+                if ($bienThe && $soLuong > $bienThe->stock) {
+                    $danhSachLoi[] = "'{$bienThe->edition}' chỉ còn {$bienThe->stock} sản phẩm trong kho!";
+                    $soLuong = $bienThe->stock;
+                }
+
+                if ($maBienTheMoi !== (int)$id) {
+                    $soLuongHienTaiDich = $gioHang[$maBienTheMoi]['quantity'] ?? 0;
+
+                    // Không cho đổi nếu tổng số lượng sau merge vượt quá stock
+                    if ($bienThe && $soLuongHienTaiDich + $soLuong > $bienThe->stock) {
+                        $conLai = $bienThe->stock - $soLuongHienTaiDich;
+                        $danhSachLoi[] = $conLai > 0
+                            ? "Không thể đổi sang '{$bienThe->edition}' vì chỉ còn có thể thêm {$conLai} sản phẩm nữa (tồn kho: {$bienThe->stock})!"
+                            : "Không thể đổi sang '{$bienThe->edition}' vì đã đạt giới hạn tồn kho ({$bienThe->stock})!";
+                        continue;
+                    }
+
+                    unset($gioHang[$id]);
+                    $gioHang[$maBienTheMoi]['quantity'] = $soLuongHienTaiDich + $soLuong;
+
+                    // Đánh dấu key đích đã được merge, không cho vòng lặp sau ghi đè
+                    $daBiMergeVao[] = $maBienTheMoi;
+                } else {
+                    if (isset($gioHang[$id])) $gioHang[$id]['quantity'] = $soLuong;
+                }
+            }
+            session()->put('cart', $gioHang);
+        }
+
+        if (!empty($danhSachLoi)) {
+            return back()->with('warning', implode('<br>', $danhSachLoi));
+        }
+        return back()->with('success', 'Cập nhật giỏ hàng thành công!');
+    }
+
+    public function remove($id)
+    {
+        if (Auth::check()) {
+            Cart::where('user_id', Auth::id())->where('id', $id)->delete();
+        } else {
+            $gioHang = session()->get('cart', []);
+            unset($gioHang[$id]);
+            session()->put('cart', $gioHang);
+        }
+        return back();
     }
 }

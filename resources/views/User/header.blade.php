@@ -141,7 +141,7 @@
                 <div class="col-lg-6">
                     <nav class="header__menu">
                         <ul>
-                            <li class="active"><a href="/">Home</a></li>
+                            <li class="active"><a href="./">Home</a></li>
                             <li><a href="./shop-grid.html">Shop</a></li>
                             <li><a href="#">Pages</a>
                                 <ul class="header__menu__dropdown">
@@ -159,8 +159,7 @@
                 <div class="col-lg-3">
                     <div class="header__cart">
                         <ul>
-                            <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                            <li><a href="#"><i class="fa fa-shopping-bag"></i></a></li>
+                            <li><a href="/cart"><i class="fa fa-shopping-bag"></i></a></li>
                         </ul>
                     </div>
                 </div>
