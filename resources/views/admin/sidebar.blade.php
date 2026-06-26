@@ -46,4 +46,11 @@
             <span>Quản lý Đơn hàng</span>
         </a>
     </li>
+
+    <li class="nav-item {{ request()->routeIs('admin.manage*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('admin.manage') }}">
+            <i class="fas fa-fw fa-user-shield"></i>
+            <span>Duyệt tài khoản Admin</span>
+        </a>
+    </li>
 </ul>

@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // <--- ĐẢM BẢO CÓ DÒNG IMPORT NÀY
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class AdminMiddleware
@@ -16,12 +16,31 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Kiểm tra nếu đã đăng nhập và cột role là số 1 (Admin) thì cho đi tiếp
-        if (Auth::check() && (int)Auth::user()->role === 1) {
-            return $next($request);
+        // 1. Kiểm tra nếu chưa đăng nhập thì bắt quay xe về trang login admin ngay
+        if (!Auth::check()) {
+            return redirect()->route('admin.login');
         }
 
-        // Nếu không phải admin, chặn lại trả về lỗi 403 (Cực kỳ quan trọng, phải nằm ngoài dấu ngoặc } ở trên)
-        abort(403, 'Bạn không có quyền truy cập vào khu vực Quản trị!');
+        // 2. Kiểm tra nếu không phải admin (role khác 1) -> Đăng xuất và báo lỗi
+        if ((int)Auth::user()->role !== 1) {
+            Auth::logout();
+            abort(403, 'Bạn không có quyền truy cập vào khu vực Quản trị!');
+        }
+
+        // 3. KIỂM TRA TRẠNG THÁI PHÊ DUYỆT (is_active phải bằng 1)
+        if ((int)Auth::user()->is_active !== 1) {
+            Auth::logout(); // Đăng xuất session tạm thời của tài khoản này ra ngay lập tức
+            
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            // Đẩy về trang đăng nhập kèm thông báo lỗi cụ thể
+            return redirect()->route('admin.login')->withErrors([
+                'email' => 'Tài khoản Admin của bạn đang chờ phê duyệt. Vui lòng quay lại sau!'
+            ]);
+        }
+
+        // Nếu vượt qua toàn bộ 3 chốt chặn trên thì mới cho phép đi tiếp
+        return $next($request);
     }
 }
