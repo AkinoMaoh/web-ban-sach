@@ -59,18 +59,27 @@
 
         <nav class="humberger__menu__nav mobile-menu">
             <ul>
-                <li class="active"><a href="{{ url(route('user.index', [], false)) }}">Home</a></li>
-                <li><a href="{{ url(route('user.shop', [], false)) }}">Shop</a></li>
-                <li><a href="#">Pages</a>
+                <li class="{{ request()->routeIs('user.index') ? 'active' : '' }}">
+                    <a href="{{ route('user.index') }}">Home</a>
+                </li>
+                <li class="{{ request()->routeIs('user.shop') ? 'active' : '' }}">
+                    <a href="{{ route('user.shop') }}">Shop</a>
+                </li>
+                
+                <li class="">
+                    <a href="#">Pages</a>
                     <ul class="header__menu__dropdown">
-                        <li><a href="./shop-details.html">Shop Details</a></li>
-                        <li><a href="./shoping-cart.html">Shoping Cart</a></li>
-                        <li><a href="./checkout.html">Check Out</a></li>
-                        <li><a href="./blog-details.html">Blog Details</a></li>
+                        <li><a href="">Shop Details</a></li>
+                        ...
                     </ul>
                 </li>
-                <li><a href="./blog.html">Blog</a></li>
-                <li><a href="./contact.html">Contact</a></li>
+
+                <li class="">
+                    <a href="">Blog</a>
+                </li>
+                <li class="">
+                    <a href="">Contact</a>
+                </li>
             </ul>
         </nav>
         <div id="mobile-menu-wrap"></div>
@@ -141,18 +150,27 @@
                 <div class="col-lg-6">
                     <nav class="header__menu">
                         <ul>
-                            <li class="active"><a href="{{ url(route('user.index', [], false)) }}">Home</a></li>
-                            <li><a href="{{ url(route('user.shop', [], false)) }}">Shop</a></li>
-                            <li><a href="#">Pages</a>
+                            <li class="{{ request()->routeIs('user.index') ? 'active' : '' }}">
+                                <a href="{{ route('user.index') }}">Home</a>
+                            </li>
+                            <li class="{{ request()->routeIs('user.shop') ? 'active' : '' }}">
+                                <a href="{{ route('user.shop') }}">Shop</a>
+                            </li>
+                            
+                            <li class="">
+                                <a href="#">Pages</a>
                                 <ul class="header__menu__dropdown">
-                                    <li><a href="./shop-details.html">Shop Details</a></li>
-                                    <li><a href="./shoping-cart.html">Shoping Cart</a></li>
-                                    <li><a href="./checkout.html">Check Out</a></li>
-                                    <li><a href="./blog-details.html">Blog Details</a></li>
+                                    <li><a href="">Shop Details</a></li>
+                                    ...
                                 </ul>
                             </li>
-                            <li><a href="./blog.html">Blog</a></li>
-                            <li><a href="./contact.html">Contact</a></li>
+
+                            <li class="">
+                                <a href="">Blog</a>
+                            </li>
+                            <li class="">
+                                <a href="">Contact</a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
