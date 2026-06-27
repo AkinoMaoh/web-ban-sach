@@ -25,18 +25,23 @@
             <span>Quản lý Sản phẩm</span>
         </a>
     </li>
+    
     <li class="nav-item {{ request()->routeIs('admin.publishers*') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('admin.publishers.index') }}">
             <i class="fas fa-fw fa-building"></i>
             <span>Quản lý Nhà xuất bản</span>
+        </a>
+    </li>
+
     <li class="nav-item {{ request()->routeIs('admin.authors*') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('admin.authors') }}">
             <i class="fas fa-fw fa-user"></i>
-            <span>Quản lý tác giả</span>
+            <span>Quản lý Tác giả</span>
         </a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#">
+
+    <li class="nav-item {{ request()->routeIs('admin.orders*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('admin.orders') }}">
             <i class="fas fa-fw fa-shopping-cart"></i>
             <span>Quản lý Đơn hàng</span>
         </a>

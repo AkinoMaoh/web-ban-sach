@@ -71,18 +71,22 @@
         <div style="flex: 1; background: #f9f9f9; padding: 20px; border-radius: 8px; height: fit-content;">
             <h3>Đơn hàng của bạn</h3>
             <hr style="margin: 15px 0;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <span>Sách Lập trình Laravel cơ bản x1</span>
-                <span>150,000đ</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <span>Sách Clean Code x1</span>
-                <span>200,000đ</span>
-            </div>
+            
+            @if(session('cart'))
+                @foreach(session('cart') as $id => $details)
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>{{ $details['name'] ?? 'Sách ID '.$id }} x{{ $details['quantity'] }}</span>
+                    <span>{{ number_format($details['price'] * $details['quantity']) }}đ</span>
+                </div>
+                @endforeach
+            @else
+                <div style="margin-bottom: 10px; color: #777;">Giỏ hàng của bạn đang trống.</div>
+            @endif
+
             <hr style="margin: 15px 0;">
             <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-bottom: 20px;">
                 <span>Tổng tiền:</span>
-                <span style="color: red;">350,000đ</span>
+                <span style="color: red;">{{ number_format($totalAmount ?? 0) }}đ</span>
             </div>
             <button type="submit" style="width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer;">
                 ĐẶT HÀNG NGAY

@@ -48,7 +48,7 @@
                                             <td>{{ $product->name }}</td>
                                             <td>{{ $product->category->name ?? 'N/A' }}</td>
                                             <td>{{ number_format($product->price, 0, ',', '.') }}</td>
-                                            <td>{{ $product->stock }}</td>
+                                            <td>{{ $product->variants->sum('stock') }}</td>
                                             <td>
                                                 <img src="{{ asset('uploads/products/' . $product->image) }}" alt="Ảnh sản phẩm" width="100">
                                             </td>

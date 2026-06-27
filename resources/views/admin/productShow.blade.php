@@ -38,14 +38,51 @@
                                         <label for="description">Đánh giá</label>
                                         <input type="text" class="form-control" id="description" name="description" value="{{ $product->description }}" readonly>
                                     </div>
+                                  
+
                                     <div class="form-group">
-                                        <label for="price">Giá</label>
-                                        <input type="number" class="form-control" id="price" name="price" value="{{ $product->price }}" readonly>
-                                    </div>
+    <label>Danh sách biến thể</label>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Phiên bản</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach($productVariants as $variant)
+                <tr>
+                    <td>
+                        {{ $variant->edition == 'Standard' ? 'Bản thường' : ($variant->edition == 'Special' ? 'Bản đặc biệt' : 'Bản có chữ ký') }}
+                    </td>
+
+                    <td>
+                        {{ number_format($variant->price, 0, ',', '.') }} đ
+                    </td>
+
+                    <td>
+                        {{ $variant->stock }}
+                    </td>
+                     
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+
+                                   
+
                                     <div class="form-group">
-                                        <label for="stock">Số lượng</label>
-                                        <input type="number" class="form-control" id="stock" name="stock" value="{{ $product->stock }}" readonly>
-                                    </div>
+                                        <label>Tổng số lượng</label>
+                                        <input type="text"
+                                            class="form-control"
+                                            value="{{ $productVariants->sum('stock') }}"
+                                            readonly>
+                                    </div>  
                                    <div class="form-group">
                                         <label>Hình ảnh</label>
                                         <br>
