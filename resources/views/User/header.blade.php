@@ -7,7 +7,7 @@
     <meta name="keywords" content="Ogani, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Ogani | Template</title>
+    <title>SachHay</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=200;300;400;600;900&display=swap" rel="stylesheet">
 
@@ -52,7 +52,7 @@
                         </a>
                     </form>
                 @else
-                    <a href="{{ route('login') }}"><i class="fa fa-user"></i> Login</a>
+                    <a href="{{ route('login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
                 @endauth
             </div>
         </div>
@@ -83,7 +83,7 @@
         <div class="humberger__menu__contact">
             <ul>
                 <li><i class="fa fa-envelope"></i> hello@colorlib.com</li>
-                <li>Free Shipping for all Order of $99</li>
+                <li>Miễn phí ship cho đơn hàng trên 100k</li>
             </ul>
         </div>
     </div>
@@ -95,7 +95,7 @@
                         <div class="header__top__left">
                             <ul>
                                 <li><i class="fa fa-envelope"></i> hello@colorlib.com</li>
-                                <li>Free Shipping for all Order of $99</li>
+                                <li>Miễn phí ship cho đơn hàng trên 100k</li>
                             </ul>
                         </div>
                     </div>
@@ -121,7 +121,7 @@
                                     </form>
                                 @else
                                     <a href="{{ route('login') }}" style="text-decoration: none; color: #333; font-weight: 500;">
-                                        <i class="fa fa-user"></i> Login
+                                        <i class="fa fa-user"></i> Đăng nhập
                                     </a>
                                 @endauth
                             </div>
