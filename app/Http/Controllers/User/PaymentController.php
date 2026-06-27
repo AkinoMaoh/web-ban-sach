@@ -11,37 +11,75 @@ class PaymentController extends Controller
 {
     public function index(Request $request)
     {
-        $userId = Auth::id();
-        $itemIds = $request->query('items'); // Lấy ID các sách được tick chọn từ URL (VD: ?items=4)
-
-        // Query lấy giỏ hàng từ Database, kết nối để lấy giá tiền và tên sách
-        $query = DB::table('carts')
-            ->join('product_variants', 'carts.product_variant_id', '=', 'product_variants.id')
-            ->join('products', 'product_variants.product_id', '=', 'products.id')
-            ->where('carts.user_id', $userId)
-            ->select('carts.*', 'product_variants.price', 'products.name');
-
-        // Nếu khách có chọn cụ thể vài cuốn sách, thì chỉ lấy những cuốn đó
-        if ($itemIds) {
-            $idsArray = explode(',', $itemIds);
-            $query->whereIn('carts.id', $idsArray);
-            
-            // Lưu mảng ID này vào session tạm để hàm process() bên dưới biết đường mà thanh toán
-            session()->put('checkout_item_ids', $idsArray);
-        }
-
-        $cartItems = $query->get();
-
-        $totalAmount = 0;
         $cart = [];
-        
-        foreach ($cartItems as $item) {
-            $totalAmount += $item->price * $item->quantity;
-            $cart[$item->id] = [
-                'name' => $item->name,
-                'price' => $item->price,
-                'quantity' => $item->quantity,
-            ];
+        $totalAmount = 0;
+        $itemIds = $request->query('items'); 
+
+        // LUỒNG 1: KHÁCH ĐÃ ĐĂNG NHẬP (Lấy từ Database)
+        if (Auth::check()) {
+            $userId = Auth::id();
+            $query = DB::table('carts')
+                ->join('product_variants', 'carts.product_variant_id', '=', 'product_variants.id')
+                ->join('products', 'product_variants.product_id', '=', 'products.id')
+                ->where('carts.user_id', $userId)
+                ->select('carts.*', 'product_variants.price', 'products.name');
+
+            if ($itemIds) {
+                $idsArray = explode(',', $itemIds);
+                $query->whereIn('carts.id', $idsArray);
+                session()->put('checkout_item_ids', $idsArray);
+            }
+
+            $cartItems = $query->get();
+
+            foreach ($cartItems as $item) {
+                $totalAmount += $item->price * $item->quantity;
+                $cart[$item->id] = [
+                    'name' => $item->name,
+                    'price' => $item->price,
+                    'quantity' => $item->quantity,
+                    'variant_id' => $item->product_variant_id
+                ];
+            }
+        } 
+        // LUỒNG 2: KHÁCH VÃNG LAI (Lấy từ Session)
+        else {
+            $sessionCart = session()->get('cart', []);
+            
+            if (!empty($sessionCart)) {
+                // Lấy tất cả mã biến thể (variant_id) đang có trong session
+                $variantIds = array_keys($sessionCart);
+
+                // Lọc theo các món khách vừa tick chọn (nếu có)
+                if ($itemIds) {
+                    $idsArray = explode(',', $itemIds);
+                    $variantIds = array_intersect($variantIds, $idsArray);
+                    session()->put('checkout_item_ids', $variantIds);
+                }
+
+                if (!empty($variantIds)) {
+                    // TRUY VẤN DB ĐỂ LẤY GIÁ THẬT (Chống lỗi thiếu Price từ Session)
+                    $variants = DB::table('product_variants')
+                        ->join('products', 'product_variants.product_id', '=', 'products.id')
+                        ->whereIn('product_variants.id', $variantIds)
+                        ->select('product_variants.*', 'products.name')
+                        ->get();
+
+                    foreach ($variants as $variant) {
+                        $vid = $variant->id;
+                        // An toàn: nếu session thiếu số lượng thì gán mặc định là 1
+                        $quantity = isset($sessionCart[$vid]['quantity']) ? $sessionCart[$vid]['quantity'] : 1;
+
+                        $totalAmount += $variant->price * $quantity;
+                        $cart[$vid] = [
+                            'name' => $variant->name,
+                            'price' => $variant->price,
+                            'quantity' => $quantity,
+                            'variant_id' => $vid
+                        ];
+                    }
+                }
+            }
         }
 
         return view('User.checkout', compact('cart', 'totalAmount'));
@@ -49,47 +87,70 @@ class PaymentController extends Controller
 
     public function process(Request $request)
     {
-        $userId = Auth::id();
         $payment_method = $request->input('payment_method'); 
         $shipping_name = $request->input('shipping_name');
         $shipping_phone = $request->input('shipping_phone');
         $full_address = $request->input('full_address'); 
         $notes = $request->input('order_notes');
 
-        // Lấy lại các ID giỏ hàng đã tick chọn
-        $checkoutItemIds = session()->get('checkout_item_ids');
-
-        $query = DB::table('carts')
-            ->join('product_variants', 'carts.product_variant_id', '=', 'product_variants.id')
-            ->where('carts.user_id', $userId)
-            ->select('carts.*', 'product_variants.price');
-
-        if ($checkoutItemIds) {
-            $query->whereIn('carts.id', $checkoutItemIds);
-        }
-
-        $cartItems = $query->get();
-
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('user.index')->with('error', 'Giỏ hàng của bạn đang trống hoặc đã được thanh toán!');
-        }
-
         $totalAmount = 0;
         $realCart = [];
+        $userId = Auth::check() ? Auth::id() : null;
+        $checkoutItemIds = session()->get('checkout_item_ids');
 
-        foreach ($cartItems as $item) {
-            $totalAmount += $item->price * $item->quantity;
-            $realCart[] = [
-                'product_variant_id' => $item->product_variant_id, 
-                'price' => $item->price,
-                'quantity' => $item->quantity,
-            ];
+        if (Auth::check()) {
+            $query = DB::table('carts')
+                ->join('product_variants', 'carts.product_variant_id', '=', 'product_variants.id')
+                ->where('carts.user_id', $userId)
+                ->select('carts.*', 'product_variants.price');
+
+            if ($checkoutItemIds) {
+                $query->whereIn('carts.id', $checkoutItemIds);
+            }
+
+            $cartItems = $query->get();
+
+            if ($cartItems->isEmpty()) {
+                return redirect()->route('user.index')->with('error', 'Giỏ hàng trống hoặc đã thanh toán!');
+            }
+
+            foreach ($cartItems as $item) {
+                $totalAmount += $item->price * $item->quantity;
+                $realCart[] = [
+                    'product_variant_id' => $item->product_variant_id, 
+                    'price' => $item->price,
+                    'quantity' => $item->quantity,
+                ];
+            }
+        } else {
+            $sessionCart = session()->get('cart', []);
+            if (empty($sessionCart)) {
+                return redirect()->route('user.index')->with('error', 'Giỏ hàng trống!');
+            }
+
+            $variantIds = $checkoutItemIds ? $checkoutItemIds : array_keys($sessionCart);
+
+            $variants = DB::table('product_variants')->whereIn('id', $variantIds)->get();
+            if ($variants->isEmpty()) {
+                return redirect()->route('user.index')->with('error', 'Sản phẩm không hợp lệ!');
+            }
+
+            foreach ($variants as $variant) {
+                $vid = $variant->id;
+                $quantity = isset($sessionCart[$vid]['quantity']) ? $sessionCart[$vid]['quantity'] : 1;
+                $totalAmount += $variant->price * $quantity;
+                $realCart[] = [
+                    'product_variant_id' => $vid, 
+                    'price' => $variant->price,
+                    'quantity' => $quantity,
+                ];
+            }
         }
 
         DB::beginTransaction(); 
         try {
             $orderId = DB::table('orders')->insertGetId([
-                'user_id' => $userId,
+                'user_id' => $userId, 
                 'total_amount' => $totalAmount,
                 'status' => 'pending', 
                 'shipping_name' => $shipping_name,
@@ -111,18 +172,29 @@ class PaymentController extends Controller
 
             DB::commit(); 
 
-            // NẾU KHÁCH CHỌN TIỀN MẶT (COD)
             if ($payment_method == 'cod') {
-                if ($checkoutItemIds) {
-                    DB::table('carts')->whereIn('id', $checkoutItemIds)->delete();
-                    session()->forget('checkout_item_ids');
+                if (Auth::check()) {
+                    if ($checkoutItemIds) {
+                        DB::table('carts')->whereIn('id', $checkoutItemIds)->delete();
+                        session()->forget('checkout_item_ids');
+                    } else {
+                        DB::table('carts')->where('user_id', $userId)->delete();
+                    }
                 } else {
-                    DB::table('carts')->where('user_id', $userId)->delete();
+                    if ($checkoutItemIds) {
+                        $sessionCart = session()->get('cart', []);
+                        foreach ($checkoutItemIds as $vid) {
+                            unset($sessionCart[$vid]);
+                        }
+                        session()->put('cart', $sessionCart);
+                        session()->forget('checkout_item_ids');
+                    } else {
+                        session()->forget('cart');
+                    }
                 }
 
-                return view('User.thankyou', ['orderId' => $orderId, 'message' => 'Đặt hàng thành công! Chúng tôi sẽ giao hàng sớm nhất.']);
+                return view('User.thankyou', ['orderId' => $orderId, 'message' => 'Đặt hàng thành công!']);
             }
-            // NẾU KHÁCH CHỌN VNPAY
             elseif ($payment_method == 'vnpay') {
                 $vnp_TmnCode = env('VNP_TMN_CODE');
                 $vnp_HashSecret = env('VNP_HASH_SECRET');
@@ -212,20 +284,34 @@ class PaymentController extends Controller
         if ($secureHash == $vnp_SecureHash) {
             if ($inputData['vnp_ResponseCode'] == '00') {
                 DB::table('orders')->where('id', $orderId)->update([
-                    'status' => 'processing'
+                    'status' => 'processing' 
                 ]);
 
-                // XÓA SẢN PHẨM KHỎI GIỎ HÀNG SAU KHI VNPAY THÀNH CÔNG
                 $order = DB::table('orders')->where('id', $orderId)->first();
                 if ($order) {
-                    $boughtVariants = DB::table('order_details')
-                        ->where('order_id', $orderId)
-                        ->pluck('product_variant_id');
-                        
-                    DB::table('carts')
-                        ->where('user_id', $order->user_id)
-                        ->whereIn('product_variant_id', $boughtVariants)
-                        ->delete();
+                    if ($order->user_id) {
+                        $boughtVariants = DB::table('order_details')
+                            ->where('order_id', $orderId)
+                            ->pluck('product_variant_id');
+                            
+                        DB::table('carts')
+                            ->where('user_id', $order->user_id)
+                            ->whereIn('product_variant_id', $boughtVariants)
+                            ->delete();
+                    } else {
+                        // Khách vãng lai: Xóa các món đã mua khỏi session
+                        $checkoutItemIds = session()->get('checkout_item_ids');
+                        if ($checkoutItemIds) {
+                            $sessionCart = session()->get('cart', []);
+                            foreach ($checkoutItemIds as $vid) {
+                                unset($sessionCart[$vid]);
+                            }
+                            session()->put('cart', $sessionCart);
+                            session()->forget('checkout_item_ids');
+                        } else {
+                            session()->forget('cart');
+                        }
+                    }
                 }
                 
                 return view('User.thankyou', ['orderId' => $orderId, 'message' => 'Giao dịch thành công!']);
@@ -233,10 +319,10 @@ class PaymentController extends Controller
                 DB::table('orders')->where('id', $orderId)->update([
                     'status' => 'cancelled'
                 ]);
-                return redirect()->route('checkout.index')->with('error', 'Giao dịch thất bại hoặc đã bị hủy. Mã lỗi: ' . $inputData['vnp_ResponseCode']);
+                return redirect()->route('checkout.index')->with('error', 'Giao dịch thất bại hoặc đã bị hủy.');
             }
         } else {
-            return "CẢNH BÁO LỖI BẢO MẬT: Chữ ký không hợp lệ! Dữ liệu có thể đã bị sửa đổi.";
+            return "CẢNH BÁO LỖI BẢO MẬT: Chữ ký không hợp lệ!";
         }
     }
 }

@@ -153,11 +153,13 @@ Route::middleware('auth')->group(function () {
 | 6. ROUTE THANH TOÁN (DÀNH CHO KHÁCH HÀNG)
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth')->group(function () {
     Route::get('/checkout', [PaymentController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
 
     Route::get('/checkout/vnpay-return', [App\Http\Controllers\User\PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
+
+Route::middleware('auth')->group(function () {
+
 });
 
 // Các tuyến đường auth mặc định của hệ thống Laravel Breeze
