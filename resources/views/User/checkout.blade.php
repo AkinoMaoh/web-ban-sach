@@ -72,8 +72,8 @@
             <h3>Đơn hàng của bạn</h3>
             <hr style="margin: 15px 0;">
             
-            @if(session('cart'))
-                @foreach(session('cart') as $id => $details)
+            @if(!empty($cart))
+                @foreach($cart as $id => $details)
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                     <span>{{ $details['name'] ?? 'Sách ID '.$id }} x{{ $details['quantity'] }}</span>
                     <span>{{ number_format($details['price'] * $details['quantity']) }}đ</span>

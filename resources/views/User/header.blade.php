@@ -7,7 +7,7 @@
     <meta name="keywords" content="Ogani, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Ogani | Template</title>
+    <title>SachHay</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=200;300;400;600;900&display=swap" rel="stylesheet">
 
@@ -52,25 +52,34 @@
                         </a>
                     </form>
                 @else
-                    <a href="{{ route('login') }}"><i class="fa fa-user"></i> Login</a>
+                    <a href="{{ route('login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
                 @endauth
             </div>
         </div>
 
         <nav class="humberger__menu__nav mobile-menu">
             <ul>
-                <li class="active"><a href="./index.html">Home</a></li>
-                <li><a href="./shop-grid.html">Shop</a></li>
-                <li><a href="#">Pages</a>
+                <li class="{{ request()->routeIs('user.index') ? 'active' : '' }}">
+                    <a href="{{ route('user.index') }}">Home</a>
+                </li>
+                <li class="{{ request()->routeIs('user.shop') ? 'active' : '' }}">
+                    <a href="{{ route('user.shop') }}">Shop</a>
+                </li>
+                
+                <li class="">
+                    <a href="#">Pages</a>
                     <ul class="header__menu__dropdown">
-                        <li><a href="./shop-details.html">Shop Details</a></li>
-                        <li><a href="./shoping-cart.html">Shoping Cart</a></li>
-                        <li><a href="./checkout.html">Check Out</a></li>
-                        <li><a href="./blog-details.html">Blog Details</a></li>
+                        <li><a href="">Shop Details</a></li>
+                        ...
                     </ul>
                 </li>
-                <li><a href="./blog.html">Blog</a></li>
-                <li><a href="./contact.html">Contact</a></li>
+
+                <li class="">
+                    <a href="">Blog</a>
+                </li>
+                <li class="">
+                    <a href="">Contact</a>
+                </li>
             </ul>
         </nav>
         <div id="mobile-menu-wrap"></div>
@@ -83,7 +92,7 @@
         <div class="humberger__menu__contact">
             <ul>
                 <li><i class="fa fa-envelope"></i> hello@colorlib.com</li>
-                <li>Free Shipping for all Order of $99</li>
+                <li>Miễn phí ship cho đơn hàng trên 100k</li>
             </ul>
         </div>
     </div>
@@ -95,7 +104,7 @@
                         <div class="header__top__left">
                             <ul>
                                 <li><i class="fa fa-envelope"></i> hello@colorlib.com</li>
-                                <li>Free Shipping for all Order of $99</li>
+                                <li>Miễn phí ship cho đơn hàng trên 100k</li>
                             </ul>
                         </div>
                     </div>
@@ -121,7 +130,7 @@
                                     </form>
                                 @else
                                     <a href="{{ route('login') }}" style="text-decoration: none; color: #333; font-weight: 500;">
-                                        <i class="fa fa-user"></i> Login
+                                        <i class="fa fa-user"></i> Đăng nhập
                                     </a>
                                 @endauth
                             </div>
@@ -141,26 +150,34 @@
                 <div class="col-lg-6">
                     <nav class="header__menu">
                         <ul>
-                            <li class="active"><a href="/">Home</a></li>
-                            <li><a href="./shop-grid.html">Shop</a></li>
-                            <li><a href="#">Pages</a>
+                            <li class="{{ request()->routeIs('user.index') ? 'active' : '' }}">
+                                <a href="{{ route('user.index') }}">Home</a>
+                            </li>
+                            <li class="{{ request()->routeIs('user.shop') ? 'active' : '' }}">
+                                <a href="{{ route('user.shop') }}">Shop</a>
+                            </li>
+                            
+                            <li class="">
+                                <a href="#">Pages</a>
                                 <ul class="header__menu__dropdown">
-                                    <li><a href="./shop-details.html">Shop Details</a></li>
-                                    <li><a href="./shoping-cart.html">Shoping Cart</a></li>
-                                    <li><a href="./checkout.html">Check Out</a></li>
-                                    <li><a href="./blog-details.html">Blog Details</a></li>
+                                    <li><a href="">Shop Details</a></li>
+                                    ...
                                 </ul>
                             </li>
-                            <li><a href="./blog.html">Blog</a></li>
-                            <li><a href="./contact.html">Contact</a></li>
+
+                            <li class="">
+                                <a href="">Blog</a>
+                            </li>
+                            <li class="">
+                                <a href="">Contact</a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
                 <div class="col-lg-3">
                     <div class="header__cart">
                         <ul>
-                            <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                            <li><a href="#"><i class="fa fa-shopping-bag"></i></a></li>
+                            <li><a href="/cart"><i class="fa fa-shopping-bag"></i></a></li>
                         </ul>
                     </div>
                 </div>

@@ -10,8 +10,11 @@ use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\User\shopDetailsController;
+use App\Http\Controllers\User\ShopController;
+use App\Http\Controllers\User\CartController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,19 +22,42 @@ use Illuminate\Support\Facades\Auth;
 |--------------------------------------------------------------------------
 */
 Route::get('/', [trangChuController::class, 'index'])->name('user.index');
+Route::get('/shop', [ShopController::class, 'index'])->name('user.shop');
+Route::get('/shop/category/{id}', [ShopController::class, 'category'])->name('user.category');
 Route::get('/search', [trangChuController::class, 'search'])->name('user.search');
 Route::get('/product/{id}', [shopDetailsController::class, 'index'])->name('user.productDetails');
 Route::post('/cart/add', [App\Http\Controllers\User\CartController::class, 'addToCart'])->name('cart.add');
+Route::prefix('cart')->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/', [CartController::class, 'updateCart'])->name('cart.update');
+    Route::post('/add', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::delete('/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+});
 
 /*
 |--------------------------------------------------------------------------
-| 2. TUYẾN ĐƯỜNG TRUNG GIAN ĐIỀU HƯỚNG TỰ ĐỘNG
+| 2. TUYẾN ĐƯỜNG TRUNG GIAN ĐIỀU HƯỚNG TỰ ĐỘNG (ĐÃ SỬA CHẶN CHƯA DUYỆT)
 |--------------------------------------------------------------------------
 */
-Route::get('/dashboard', function () {
+Route::get('/dashboard', function (Request $request) {
+    // 1. Nếu không phải Admin -> Cho ra trang chủ người dùng thường
     if ((int)Auth::user()->role !== 1) {
         return redirect('/');
     }
+    
+    // 2. Nếu là Admin nhưng CHƯA ĐƯỢC DUYỆT (is_active = 0) -> Đăng xuất ngay lập tức
+    if ((int)Auth::user()->is_active !== 1) {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+        // Trả về trang đăng nhập và hiển thị thông báo lỗi chặn màu đỏ
+        return redirect()->route('admin.login')->withErrors([
+            'email' => 'Tài khoản Admin của bạn đang chờ phê duyệt từ Quản trị viên cấp cao. Vui lòng quay lại sau!'
+        ]);
+    }
+
+    // 3. Nếu là Admin đã được phê duyệt hợp lệ -> Cho phép truy cập vào Dashboard quản trị
     return redirect()->route('admin.dashboard');
 })->middleware(['auth'])->name('dashboard');
 
@@ -59,11 +85,23 @@ Route::middleware('guest')->prefix('admin')->group(function () {
 */
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
-    // Trang chủ quản trị (Đã trỏ chuẩn về file view cấu trúc admin/dashboard.blade.php của bạn)
+    // Trang chủ quản trị
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     // Đăng xuất Admin
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+
+    // Hồ sơ Admin
+    Route::get('/profile', [AdminAuthController::class, 'editProfile'])->name('admin.profile.edit');
+    Route::put('/profile', [AdminAuthController::class, 'updateProfile'])->name('admin.profile.update');
+
+    // --- KHU VỰC QUẢN LÝ VÀ PHÊ DUYỆT ADMIN ---
+    // Trang hiển thị danh sách admin đang chờ duyệt và đã duyệt
+    Route::get('/manage-admins', [AdminAuthController::class, 'manageAdmins'])->name('admin.manage');
+    // Route xử lý kích hoạt (Duyệt) tài khoản Admin
+    Route::post('/manage-admins/{id}/approve', [AdminAuthController::class, 'approveAdmin'])->name('admin.approve');
+    // Route xử lý từ chối / xóa tài khoản Admin
+    Route::delete('/manage-admins/{id}/reject', [AdminAuthController::class, 'rejectAdmin'])->name('admin.reject');
 
     // Quản lý sản phẩm
     Route::get('/products', [productsController::class, 'index'])->name('admin.products');
@@ -119,8 +157,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout', [PaymentController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
 
-    Route::get('/checkout/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
+    Route::get('/checkout/vnpay-return', [App\Http\Controllers\User\PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
 });
 
-// Các tuyến đường auth mặc định của hệ thống
+// Các tuyến đường auth mặc định của hệ thống Laravel Breeze
 require __DIR__ . '/auth.php';

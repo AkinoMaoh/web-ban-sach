@@ -23,7 +23,7 @@
             
             <div class="mb-4">
                 <a href="/">
-                    <img src="{{ asset('img/logoWeb.png') }}" 
+                    <img src="{{ asset('img/logoWebMoi.png') }}" 
                          alt="Logo Thư Viện Sách" 
                          class="h-24 w-24 aspect-square object-cover rounded-full mx-auto drop-shadow-lg border-2 border-white/50">
                 </a>
