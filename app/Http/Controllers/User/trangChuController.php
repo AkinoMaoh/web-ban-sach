@@ -30,7 +30,7 @@ class trangChuController extends Controller
 
         // 3. XỬ LÝ TÌM KIẾM THEO TỪ KHÓA (Gộp từ hàm search cũ qua để đồng bộ với View)
         if ($request->filled('keyword')) {
-            $query->where('name', 'like', '%' . $request->keyword . '%');
+            $query->where('name', 'like', $request->keyword . '%');
         }
 
         // 4. XỬ LÝ LỌC THEO TÁC GIẢ 
@@ -67,4 +67,18 @@ class trangChuController extends Controller
             'bannerBooks'
         ));
     }
+
+    // Tìm kiếm hiển thị JS bên dưới ------------------------------------------
+    public function searchProduct(Request $request)
+    {
+        $keyword = $request->keyword;
+
+        $products = products::where('name', 'like', $keyword . '%')
+            ->where('status', 1)
+            ->limit(5)
+            ->get();
+
+        return response()->json($products);
+    }
+    // ------------------------------------------------------------------------
 }

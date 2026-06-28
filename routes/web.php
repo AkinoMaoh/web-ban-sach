@@ -24,7 +24,12 @@ use Illuminate\Http\Request;
 Route::get('/', [trangChuController::class, 'index'])->name('user.index');
 Route::get('/shop', [ShopController::class, 'index'])->name('user.shop');
 Route::get('/shop/category/{id}', [ShopController::class, 'category'])->name('user.category');
+
+// Tìm kiếm -------------------------------------------------------------------------------------------
 Route::get('/search', [trangChuController::class, 'search'])->name('user.search');
+Route::get('/search-product', [trangChuController::class, 'searchProduct'])->name('search.product');
+// ----------------------------------------------------------------------------------------------------
+
 Route::get('/product/{id}', [shopDetailsController::class, 'index'])->name('user.productDetails');
 Route::post('/cart/add', [App\Http\Controllers\User\CartController::class, 'addToCart'])->name('cart.add');
 Route::prefix('cart')->group(function () {

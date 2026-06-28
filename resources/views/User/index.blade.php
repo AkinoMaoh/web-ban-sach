@@ -84,15 +84,35 @@
                 <div class="col-lg-9">
                     <div class="hero__search">
                         <div class="hero__search__form">
-                            <form action="{{ route('user.search') }}" method="GET">
-                                <input 
-                                    type="text"
-                                    name="keyword"
-                                    placeholder="Tìm kiếm sản phẩm ..."
-                                    value="{{ request('keyword') }}"
-                                >
-                                <button type="submit" class="site-btn">TÌM KIẾM</button>
-                            </form>
+
+
+                        
+                            <div class="search-box">
+
+                                <form action="{{ route('user.index') }}" method="GET">
+
+                                    <input 
+                                        type="text"
+                                        id="search"
+                                        name="keyword"
+                                        placeholder="Tìm kiếm sản phẩm ..."
+                                        autocomplete="off"
+                                    >
+
+                                    <button type="submit" class="site-btn">
+                                        TÌM KIẾM
+                                    </button>
+
+                                </form>
+
+
+                                <div id="search-result"></div>
+
+                            </div>
+
+
+
+
                         </div>
                         <div class="hero__search__phone">
                             <div class="hero__search__phone__icon">
@@ -370,3 +390,99 @@ $(document).ready(function() {
     });
 });
 </script>
+
+
+
+
+
+
+<!-- Tìm kiếm ajax -->
+<script>
+$(document).ready(function(){
+    $('#search').keyup(function(){
+        let keyword = $(this).val();
+        if(keyword.length < 1)
+        {
+            $('#search-result').hide();
+            return;
+        }
+        $.ajax({
+            url:"{{ route('search.product') }}",
+            type:"GET",
+            data:{
+                keyword:keyword
+            },
+            success:function(data){
+                let html="";
+                if(data.length > 0)
+                {
+                    data.forEach(function(product){
+                        html += `
+                        <a href="/product/${product.id}" class="search-item">
+                            ${product.name}
+                        </a>
+                        `;
+                    });
+                    $('#search-result')
+                    .html(html)
+                    .show();
+                }
+                else
+                {
+                    console.log(data);
+                    $('#search-result')
+                    .html(html)
+                    .css('display','block');
+                }
+            }
+        });
+    });
+        $(document).click(function(e){
+            if(!$(e.target).closest('.search-box').length)
+            {
+                $('#search-result').hide();
+            }
+    });
+});
+</script>
+
+
+
+<!-- CSS cho phần tìm kiếm JS -->
+<style>
+.hero__search,
+.hero__search__form{
+    overflow:visible !important;
+}
+.search-box{
+    position:relative;
+    width:100%;
+}
+#search-result{
+    position:absolute;
+    top:45px;
+    left:0;
+    width:100%;
+    background:white;
+    border:1px solid #ddd;
+    z-index:9999999;
+    display:none;
+    max-height:300px;
+    overflow-y:auto;
+}
+.search-item{
+    padding:12px;
+    background:white;
+    border-bottom:1px solid #eee;
+    cursor:pointer;
+    font-size:14px;
+    display:block;
+    text-decoration:none;
+    color:#333;
+}
+.search-item:hover{
+    background:#7fad39;
+    color:white;
+    text-decoration:none;
+}
+</style>
