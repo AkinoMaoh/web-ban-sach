@@ -7,16 +7,31 @@ use Illuminate\Http\Request;
 use App\Models\products;
 use App\Models\categories;
 use App\Models\authors;
-use App\Models\publishers; 
+use App\Models\publishers;
+use Illuminate\Support\Facades\DB;
 
 class trangChuController extends Controller
 {
-    public function index(Request $request) 
+    public function index(Request $request)
     {
         // 1. Lấy danh mục, tác giả, nhà xuất bản để hiển thị lên thanh bộ lọc (Sidebar)
         $categories = categories::where('status', 1)->get();
-        $authors = authors::all();    
-        $publishers = publishers::all(); 
+        $authors = authors::all();
+        $publishers = publishers::all();
+        $product5 = products::where('status', 1)
+            ->orderByDesc('id') // Sắp xếp theo ID giảm dần (ID lớn nhất lên đầu)
+            ->take(5)           // Lấy 5 sản phẩm
+            ->get();
+        $topSanPham = DB::table('order_details')
+            ->join('orders', 'order_details.order_id', '=', 'orders.id')
+            ->join('product_variants', 'order_details.product_variant_id', '=', 'product_variants.id')
+            ->join('products', 'product_variants.product_id', '=', 'products.id')
+            ->where('orders.status', 'completed')
+            ->select('products.name', DB::raw('SUM(order_details.quantity) as total_sold'))
+            ->groupBy('products.id', 'products.name')
+            ->orderBy('total_sold', 'desc')
+            ->take(5)
+            ->get();
 
         // 2. Khởi tạo Query lấy sản phẩm đang hoạt động
         $query = products::where('status', 1);
@@ -35,12 +50,12 @@ class trangChuController extends Controller
 
         // 4. XỬ LÝ LỌC THEO TÁC GIẢ 
         if ($request->filled('author')) {
-            $query->where('author_id', $request->author); 
+            $query->where('author_id', $request->author);
         }
 
         // 5. XỬ LÝ LỌC THEO NHÀ XUẤT BẢN
         if ($request->filled('publisher')) {
-            $query->where('publisher_id', $request->publisher); 
+            $query->where('publisher_id', $request->publisher);
         }
 
         // 6. XỬ LÝ LỌC THEO KHOẢNG GIÁ
@@ -55,16 +70,18 @@ class trangChuController extends Controller
         $products = $query->paginate(12)->appends($request->query());
 
         $bannerBooks = products::where('status', 1)
-        ->latest()
-        ->take(5)
-        ->get();
+            ->latest()
+            ->take(5)
+            ->get();
 
         return view('User.index', compact(
             'products',
             'categories',
             'authors',
             'publishers',
-            'bannerBooks'
+            'bannerBooks',
+            'product5',
+            'topSanPham'
         ));
     }
 

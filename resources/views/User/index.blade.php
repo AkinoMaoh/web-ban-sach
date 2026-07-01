@@ -262,43 +262,61 @@
     <section class="latest-product spad">
         <div class="container">
             <div class="row">
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-6 col-md-6">
                     <div class="latest-product__text">
-                        <h4>Top 10 sản phẩm mới</h4>
+                      <h4 class="text-center">Top 5 sản phẩm mới nhất</h4>
                         <div class="latest-product__slider owl-carousel">
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-1.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
+                            {{-- Chia nhỏ danh sách 5 sản phẩm thành các nhóm --}}
+                            @foreach ($product5->chunk(1) as $productChunk)
+                                <div class="latest-prdouct__slider__item">
+                                    
+                                    {{-- Duyệt qua từng sản phẩm trong nhóm nhỏ này --}}
+                                    @foreach ($productChunk as $pro)
+                                        <a href="{{ route('user.productDetails', $pro->id) }}" class="latest-product__item">
+                                            <div class="latest-product__item__pic" style="width: 110px; height: 110px; overflow: hidden;">
+                                                <img src="{{ asset('uploads/products/' . $pro->image) }}" alt="{{ $pro->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div class="latest-product__item__text">
+                                                <h6>{{ $pro->name }}</h6>
+                                                <span>{{ number_format($pro->price, 0, ',', '.') }} VND</span>
+                                            </div>
+                                        </a>
+                                    @endforeach
+                                    
+                                </div>
+                            @endforeach
+
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-6">
+               <div class="col-lg-6 col-md-6">
                     <div class="latest-product__text">
-                        <h4>Top 10 sản phẩm bán chạy</h4>
+                      <h4 class="text-center">Top 5 sản phẩm bán chạy nhất</h4>
                         <div class="latest-product__slider owl-carousel">
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-1.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
+                            {{-- Chia nhỏ danh sách 5 sản phẩm thành các nhóm --}}
+                            @foreach ($topSanPham->chunk(1) as $productChunk)
+                                <div class="latest-prdouct__slider__item">
+                                    
+                                    {{-- Duyệt qua từng sản phẩm trong nhóm nhỏ này --}}
+                                    @foreach ($productChunk as $pro)
+                                        <a href="{{ route('user.productDetails', $pro->id) }}" class="latest-product__item">
+                                            <div class="latest-product__item__pic" style="width: 110px; height: 110px; overflow: hidden;">
+                                                <img src="{{ asset('uploads/products/' . $pro->image) }}" alt="{{ $pro->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div class="latest-product__item__text">
+                                                <h6>{{ $pro->name }}</h6>
+                                                <span>{{ number_format($pro->price, 0, ',', '.') }} VND</span>
+                                            </div>
+                                        </a>
+                                    @endforeach
+                                    
+                                </div>
+                            @endforeach
+
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-6">
+                {{-- <div class="col-lg-4 col-md-6">
                     <div class="latest-product__text">
                         <h4>Top 10 sản phẩm đánh giá cao</h4>
                         <div class="latest-product__slider owl-carousel">
@@ -315,7 +333,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </section>

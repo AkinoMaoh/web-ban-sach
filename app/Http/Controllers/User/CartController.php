@@ -118,8 +118,8 @@ class CartController extends Controller
 
                 if ($maBienTheMoi !== $maBienTheCu) {
                     $sanPhamTrungBienThe = Cart::where('user_id', Auth::id())
-                                    ->where('product_variant_id', $maBienTheMoi)
-                                    ->first();
+                        ->where('product_variant_id', $maBienTheMoi)
+                        ->first();
 
                     if ($sanPhamTrungBienThe) {
                         // Dùng số lượng mới nhất trong request (nếu đã được update trước đó), không dùng DB cũ
