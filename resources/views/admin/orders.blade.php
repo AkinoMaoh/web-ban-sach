@@ -61,9 +61,9 @@
 
                             <td>{{ $order->id }}</td>
 
-                            <td>{{ $order->user->name ?? '—' }}</td>
+                            <td>{{ $order->shipping_name ?? $order->user->name ?? 'Null' }}</td>
 
-                            <td>{{ $order->user->email ?? '—' }}</td>
+                            <td>{{ $order->billing_email ?? $order->user->email ?? 'Null' }}</td>
 
                             <td>
                                 {{ number_format($order->total_amount, 0, ',', '.') }} đ

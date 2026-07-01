@@ -7,7 +7,7 @@
     <h1 class="h3 mb-4 text-gray-800">Cập nhật trạng thái đơn hàng</h1>
 
     <div class="row">
-        <div class="col-lg-6">
+        <div class="col-lg-8">
             <div class="card shadow mb-4">
                 
                 <div class="card-header py-3">
@@ -32,7 +32,19 @@
 
                         <div class="form-group">
                             <label>Khách hàng đặt:</label>
-                            <input type="text" class="form-control" value="{{ $order->user->name ?? 'Không xác định' }}" readonly disabled>
+                            <input type="text" class="form-control" value="{{ $order->shipping_name ?? $order->user->name ?? 'Null' }}" readonly disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="text" class="form-control" value="{{$order->shipping_email ?? $order->user->email ?? 'Null'  }}" readonly disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Số điện thoại:</label>
+                            <input type="text" class="form-control" value="{{  $order->shipping_phone ?? 'Null' }}" readonly disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Địa chỉ giao hàng:</label>
+                            <input type="text" class="form-control" value="{{  $order->shipping_address ?? 'Null' }}" readonly disabled>
                         </div>
 
                         <div class="form-group">

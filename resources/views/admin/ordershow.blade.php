@@ -22,19 +22,23 @@
                         <tbody>
                             <tr>
                                 <th width="40%">Tài khoản đặt hàng:</th>
-                                <td>{{ $order->user->name ?? 'Khách vãng lai' }} ({{ $order->user->email ?? 'Không có email' }})</td>
+                                <td>{{ $order->user->name ?? 'Không có tài khoản' }}</td>
                             </tr>
                             <tr>
                                 <th>Người nhận:</th>
-                                <td><strong>{{ $order->shipping_name ?? $order->user->name }}</strong></td>
+                                <td><strong>{{ $order->shipping_name ?? $order->user->name ?? 'Null' }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th>Email:</th>
+                                <td><strong>{{ $order->shipping_email ?? $order->user->email ?? 'Null' }}</strong></td>
                             </tr>
                             <tr>
                                 <th>Số điện thoại:</th>
-                                <td>{{ $order->shipping_phone ?? '—' }}</td>
+                                <td>{{ $order->shipping_phone ?? 'Null' }}</td>
                             </tr>
                             <tr>
                                 <th>Địa chỉ giao hàng:</th>
-                                <td>{{ $order->shipping_address ?? '—' }}</td>
+                                <td>{{ $order->shipping_address ?? 'Null' }}</td>
                             </tr>
                             <tr>
                                 <th>Ghi chú của khách:</th>
@@ -109,43 +113,58 @@
         </div>
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Sản phẩm trong đơn</h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" width="100%" cellspacing="0">
-                    <thead class="bg-light">
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Sản phẩm trong đơn</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead class="bg-light">
+                    <tr>
+                        <th>STT</th>
+                        <th>Sản phẩm</th>
+                        <th class="text-right">Đơn giá</th>
+                        <th class="text-center">Số lượng</th>
+                        <th class="text-right">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($order->orderDetails as $index => $detail)
                         <tr>
-                            <th>STT</th>
-                            <th>Mã SP / Biến thể</th>
-                            <th class="text-right">Đơn giá</th>
-                            <th class="text-center">Số lượng</th>
-                            <th class="text-right">Thành tiền</th>
+                            <td>{{ $index + 1 }}</td>
+                            <td>
+                                @if($detail->productVariant && $detail->productVariant->product)
+                                    <strong>{{ $detail->productVariant->product->name }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        Phiên bản: {{ $detail->productVariant->edition }}
+                                        @if($detail->productVariant->sku)
+                                            — SKU: {{ $detail->productVariant->sku }}
+                                        @endif
+                                    </small>
+                                @else
+                                    <span class="text-muted">
+                                        Sản phẩm đã bị xóa (Mã biến thể: #{{ $detail->product_variant_id }})
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="text-right">{{ number_format($detail->price, 0, ',', '.') }} đ</td>
+                            <td class="text-center">{{ $detail->quantity }}</td>
+                            <td class="text-right font-weight-bold text-danger">
+                                {{ number_format($detail->price * $detail->quantity, 0, ',', '.') }} đ
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($order->orderDetails as $index => $detail)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>Mã biến thể: #{{ $detail->product_variant_id }}</td>
-                                <td class="text-right">{{ number_format($detail->price, 0, ',', '.') }} đ</td>
-                                <td class="text-center">{{ $detail->quantity }}</td>
-                                <td class="text-right font-weight-bold text-danger">
-                                    {{ number_format($detail->price * $detail->quantity, 0, ',', '.') }} đ
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="text-center text-muted">Không tìm thấy chi tiết sản phẩm.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Không tìm thấy chi tiết sản phẩm.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 
 </div>
 

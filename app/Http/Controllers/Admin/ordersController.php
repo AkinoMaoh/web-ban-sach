@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
 
-class ordersController extends Controller // Đã sửa tên class
+class ordersController extends Controller
 {
     public function index(Request $request)
     {
@@ -27,8 +27,6 @@ class ordersController extends Controller // Đã sửa tên class
         $order = Order::with([
             'user',
             'orderDetails.productVariant.product',
-            // 'voucher',
-            // 'discount',
         ])->findOrFail($id);
 
         return view('admin.ordershow', compact('order'));
@@ -36,7 +34,7 @@ class ordersController extends Controller // Đã sửa tên class
 
     public function edit($id)
     {
-        $order = Order::with('user')->findOrFail($id);
+        $order = Order::with('user','orderDetails.productVariant.product')->findOrFail($id);
 
         return view('admin.orderedit', compact('order'));
     }
