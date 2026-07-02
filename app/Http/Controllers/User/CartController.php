@@ -36,6 +36,7 @@ class CartController extends Controller
     {
         $maBienThe = $request->input('product_variant_id');
         $soLuong = (int)$request->input('quantity', 1);
+        $loaiHanhDong = $request->input('action_type', 'add_to_cart');
 
         $bienThe = ProductVariants::find($maBienThe);
         if (!$bienThe) {
@@ -77,6 +78,18 @@ class CartController extends Controller
             $gioHang = session()->get('cart', []);
             $gioHang[$maBienThe]['quantity'] = $soLuongHienTai + $soLuong;
             session()->put('cart', $gioHang);
+        }
+
+        // ==== Xử lý "Mua ngay" ====
+        if ($loaiHanhDong === 'buy_now') {
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Đã thêm vào giỏ hàng!',
+                    'redirect' => route('cart.index'), // FE tự chuyển trang nếu dùng AJAX
+                ]);
+            }
+            return redirect()->route('cart.index')->with('success', 'Đã thêm vào giỏ hàng!');
         }
 
         if ($request->ajax()) {

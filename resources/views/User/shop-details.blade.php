@@ -89,8 +89,16 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="primary-btn mt-4" style="border:none;">Thêm vào giỏ hàng</button>
-                        <a href="#" class="heart-icon"><span class="icon_heart_alt"></span></a>
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" name="action_type" value="add_to_cart" class="primary-btn" style="border:none;">
+                                Thêm vào giỏ hàng
+                            </button>
+
+                            <button type="submit" name="action_type" value="buy_now" class="primary-btn" style="border:none; background:#e74c3c;">
+                                Mua ngay
+                            </button>
+                            <a href="#" class="heart-icon"><span class="icon_heart_alt"></span></a>
+                        </div>    
                     </div>
                 </div>
             </div>
