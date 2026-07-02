@@ -14,18 +14,18 @@ class productsController extends Controller
 {
     public function index(Request $request)
     {
-        $products = products::all();
         $categories = categories::all();
-        $query = products::query();
+
+        $query = products::with('publishers', 'author', 'category');
 
         if ($request->category_id) {
             $query->where('category_id', $request->category_id);
         }
 
-        $products = $query->get();
+        $products = $query->paginate(8);
+
         return view('admin.products', compact('products', 'categories'));
     }
-
     public function create()
     {
         $categories = Categories::all();
