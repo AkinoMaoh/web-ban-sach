@@ -25,6 +25,12 @@
             <span>Quản lý Sản phẩm</span>
         </a>
     </li>
+    <li class="nav-item {{ request()->routeIs('admin.categories*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('admin.categories') }}">
+            <i class="fas fa-fw fa-list"></i>
+            <span>Quản lý Danh mục</span>
+        </a>
+    </li>
     
     <li class="nav-item {{ request()->routeIs('admin.publishers*') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('admin.publishers.index') }}">
