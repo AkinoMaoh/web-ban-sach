@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         // 2. Seed Users
         DB::table('users')->insert([
             ['id' => 1, 'name' => 'Dương Quốc Anh PP 0 3 4 6 2', 'email' => 'ankinoto20@gmail.com', 'password' => '$2y$12$krrh6nvN4ZrGmrGnBz371.e.7KQDu3xRAl8yGbHWEltVnzNjOmUim', 'status' => 1, 'role' => 1, 'created_at' => '2026-06-14 03:26:16', 'updated_at' => '2026-06-15 11:17:19'],
+            ['id' => 777, 'name' => '70.2.wangg', 'email' => '70.2.wangg@gmail.com', 'password' => '$2y$12$IiWPOrDmv.mstHaF2gO5YO0JA/c40XKhqpeGwBz4z719/biv6GKwu', 'status' => 1, 'role' => 1, 'created_at' => '1999-01-01 01:01:01', 'updated_at' => '1999-01-01 01:01:01'],
             ['id' => 2, 'name' => 'akino', 'email' => 'cauvang559@gmail.com', 'password' => '$2y$12$IRxxF6VWA1Tr6uin2sWQPu4y8GDFf1R6gayQqEKDMxpgwN3KRNgXe', 'status' => 1, 'role' => 0, 'created_at' => '2026-06-14 05:10:24', 'updated_at' => '2026-06-15 04:23:07'],
             ['id' => 3, 'name' => 'Quốc anh', 'email' => 'lionmika05@gmail.com', 'password' => '$2y$12$jRcmS2Q1/6GIzXwAgunOSOf0sYSWLivBYJ6gTSnAQ2zuEEgkutwHC', 'status' => 1, 'role' => 0, 'created_at' => '2026-06-15 03:03:01', 'updated_at' => '2026-06-15 10:07:57'],
             ['id' => 4, 'name' => 'mike', 'email' => 'abc123@gmail.com', 'password' => '$2y$12$5wyA.9kYus8yTp2AKUrqSeNgA12qexBdk3PyE.2R1tXcjHM4yUvSG', 'status' => 1, 'role' => 0, 'created_at' => '2026-06-15 04:18:28', 'updated_at' => '2026-06-15 11:19:05'],
