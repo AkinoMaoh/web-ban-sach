@@ -33,7 +33,6 @@ Route::get('/search-product', [trangChuController::class, 'searchProduct'])->nam
 // ----------------------------------------------------------------------------------------------------
 
 Route::get('/product/{id}', [shopDetailsController::class, 'index'])->name('user.productDetails');
-Route::post('/cart/add', [App\Http\Controllers\User\CartController::class, 'addToCart'])->name('cart.add');
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('cart.index');
     Route::post('/', [CartController::class, 'updateCart'])->name('cart.update');
