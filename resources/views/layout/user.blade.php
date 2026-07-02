@@ -53,42 +53,19 @@
 
         <nav class="humberger__menu__nav mobile-menu">
             <ul>
-                <li class="{{ request()->routeIs('user.index') ? 'active' : '' }}">
-                    <a href="{{ route('user.index') }}">Home</a>
-                </li>
-                <li class="{{ request()->routeIs('user.shop') ? 'active' : '' }}">
-                    <a href="{{ route('user.shop') }}">Shop</a>
-                </li>
-                
-                <li class="">
+                <li class="{{ request()->routeIs('user.index') ? 'active' : '' }}"><a href="{{ route('user.index') }}">Home</a></li>
+                <li class="{{ request()->routeIs('user.shop') ? 'active' : '' }}"><a href="{{ route('user.shop') }}">Shop</a></li>
+                <li>
                     <a href="#">Pages</a>
                     <ul class="header__menu__dropdown">
                         <li><a href="">Shop Details</a></li>
-                        ...
                     </ul>
                 </li>
-
-                <li class="">
-                    <a href="">Blog</a>
-                </li>
-                <li class="">
-                    <a href="">Contact</a>
-                </li>
+                <li><a href="">Blog</a></li>
+                <li><a href="">Contact</a></li>
             </ul>
         </nav>
         <div id="mobile-menu-wrap"></div>
-        <div class="header__top__right__social">
-            <a href="#"><i class="fa fa-facebook"></i></a>
-            <a href="#"><i class="fa fa-twitter"></i></a>
-            <a href="#"><i class="fa fa-linkedin"></i></a>
-            <a href="#"><i class="fa fa-pinterest-p"></i></a>
-        </div>
-        <div class="humberger__menu__contact">
-            <ul>
-                <li><i class="fa fa-envelope"></i> hello@colorlib.com</li>
-                <li>Miễn phí ship cho đơn hàng trên 100k</li>
-            </ul>
-        </div>
     </div>
     
     <header class="header">
@@ -123,7 +100,6 @@
                                     </a>
                                 @endauth
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -139,27 +115,16 @@
                 <div class="col-lg-6">
                     <nav class="header__menu">
                         <ul>
-                            <li class="{{ request()->routeIs('user.index') ? 'active' : '' }}">
-                                <a href="{{ route('user.index') }}">Home</a>
-                            </li>
-                            <li class="{{ request()->routeIs('user.shop') ? 'active' : '' }}">
-                                <a href="{{ route('user.shop') }}">Shop</a>
-                            </li>
-                            
-                            <li class="">
+                            <li class="{{ request()->routeIs('user.index') ? 'active' : '' }}"><a href="{{ route('user.index') }}">Home</a></li>
+                            <li class="{{ request()->routeIs('user.shop') ? 'active' : '' }}"><a href="{{ route('user.shop') }}">Shop</a></li>
+                            <li>
                                 <a href="#">Pages</a>
                                 <ul class="header__menu__dropdown">
                                     <li><a href="">Shop Details</a></li>
-                                    ...
                                 </ul>
                             </li>
-
-                            <li class="">
-                                <a href="">Blog</a>
-                            </li>
-                            <li class="">
-                                <a href="">Contact</a>
-                            </li>
+                            <li><a href="">Blog</a></li>
+                            <li><a href="">Contact</a></li>
                         </ul>
                     </nav>
                 </div>
@@ -177,11 +142,21 @@
         </div>
     </header>
 
+    <main>
+        @yield('content')
+    </main>
+
     <style>
-        .user-header-btn:hover {
-            opacity: 0.8;
-        }
-        .user-header-btn:hover strong {
-            color: #6a9230 !important; /* Đổi màu xanh đậm hơn một chút khi hover */
-        }
+        .user-header-btn:hover { opacity: 0.8; }
+        .user-header-btn:hover strong { color: #6a9230 !important; }
     </style>
+
+    <script src="{{ asset('ogani-1.0.0/js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ asset('ogani-1.0.0/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('ogani-1.0.0/js/jquery-ui.min.js') }}"></script>
+    <script src="{{ asset('ogani-1.0.0/js/jquery.nice-select.min.js') }}"></script>
+    <script src="{{ asset('ogani-1.0.0/js/jquery.slicknav.js') }}"></script>
+    <script src="{{ asset('ogani-1.0.0/js/owl.carousel.min.js') }}"></script>
+    <script src="{{ asset('ogani-1.0.0/js/main.js') }}"></script>
+</body>
+</html>

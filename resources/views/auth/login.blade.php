@@ -1,4 +1,6 @@
 <x-guest-layout>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <form method="POST" action="{{ route('login') }}">
@@ -13,10 +15,16 @@
         <div class="mt-4">
             <x-input-label for="password" value="Mật khẩu" />
 
-            <x-text-input id="password" class="block mt-1 w-full"
+            <div class="relative flex items-center mt-1">
+                <x-text-input id="password" class="block w-full pr-12"
                             type="password"
                             name="password"
                             required autocomplete="current-password" placeholder="Nhập mật khẩu..." />
+                
+                <button type="button" class="btn-toggle-password absolute right-3 text-gray-500 hover:text-gray-700 transition focus:outline-none">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
@@ -52,4 +60,25 @@
 
         </div>
     </form>
+
+    <script>
+        document.querySelector('.btn-toggle-password').addEventListener('click', function () {
+            const input = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash'); // Đổi sang biểu tượng mắt gạch chéo
+                this.classList.remove('text-gray-500');
+                this.classList.add('text-red-600');    // Chuyển màu đỏ nổi bật khi hiển thị mật khẩu
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+                this.classList.remove('text-red-600');
+                this.classList.add('text-gray-500');
+            }
+        });
+    </script>
 </x-guest-layout>
