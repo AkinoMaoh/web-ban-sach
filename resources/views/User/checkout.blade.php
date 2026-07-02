@@ -2,11 +2,26 @@
 
 <div style="max-width: 1200px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
     <h2 style="text-align: center; margin-bottom: 30px;">Tiến hành Thanh Toán</h2>
-        @if(session('error'))
+    
+    {{-- Hiển thị thông báo lỗi từ Controller --}}
+    @if(session('error'))
         <div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 25px; border-radius: 4px; border: 1px solid #f5c6cb;">
             <strong>Lỗi thanh toán:</strong> {{ session('error') }}
         </div>
     @endif
+
+    {{-- Hiển thị lỗi Validate (nhập thiếu) --}}
+    @if ($errors->any())
+        <div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 25px; border-radius: 4px; border: 1px solid #f5c6cb;">
+            <strong>Vui lòng kiểm tra lại thông tin:</strong>
+            <ul style="margin-top: 5px; margin-bottom: 0;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form action="{{ route('checkout.process') }}" method="POST" id="checkoutForm" style="display: flex; gap: 40px;">
         @csrf
 
@@ -15,30 +30,35 @@
             
             <div style="margin-bottom: 15px;">
                 <label style="display: block; font-weight: bold; margin-bottom: 5px;">Họ và tên *</label>
-                <input type="text" name="shipping_name" value="{{ auth()->user()->name ?? '' }}" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <input type="text" name="shipping_name" value="{{ old('shipping_name', auth()->user()->name ?? '') }}" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Email *</label>
+                <input type="email" name="billing_email" value="{{ old('billing_email', auth()->user()->email ?? '') }}" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
             </div>
 
             <div style="margin-bottom: 15px;">
                 <label style="display: block; font-weight: bold; margin-bottom: 5px;">Số điện thoại *</label>
-                <input type="text" name="shipping_phone" value="{{ auth()->user()->phone ?? '' }}" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <input type="text" name="shipping_phone" value="{{ old('shipping_phone', auth()->user()->phone ?? '') }}" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
             </div>
 
             <div style="margin-bottom: 15px; display: flex; gap: 10px;">
                 <div style="flex: 1;">
                     <label style="display: block; font-weight: bold; margin-bottom: 5px;">Tỉnh / Thành phố *</label>
-                    <select id="province" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                    <select id="province" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
                         <option value="">Chọn Tỉnh/Thành</option>
                     </select>
                 </div>
                 <div style="flex: 1;">
                     <label style="display: block; font-weight: bold; margin-bottom: 5px;">Quận / Huyện *</label>
-                    <select id="district" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                    <select id="district" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
                         <option value="">Chọn Quận/Huyện</option>
                     </select>
                 </div>
                 <div style="flex: 1;">
                     <label style="display: block; font-weight: bold; margin-bottom: 5px;">Phường / Xã *</label>
-                    <select id="ward" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                    <select id="ward" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
                         <option value="">Chọn Phường/Xã</option>
                     </select>
                 </div>
@@ -46,14 +66,14 @@
 
             <div style="margin-bottom: 15px;">
                 <label style="display: block; font-weight: bold; margin-bottom: 5px;">Số nhà, Tên đường *</label>
-                <input type="text" id="street" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <input type="text" id="street" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
             </div>
 
             <input type="hidden" name="full_address" id="full_address">
 
             <div style="margin-bottom: 15px;">
                 <label style="display: block; font-weight: bold; margin-bottom: 5px;">Ghi chú đơn hàng</label>
-                <textarea name="order_notes" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;"></textarea>
+                <textarea name="order_notes" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">{{ old('order_notes') }}</textarea>
             </div>
 
             <h3 style="margin-top: 30px;">2. Phương thức thanh toán</h3>
@@ -99,15 +119,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/js/jquery.nice-select.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script>
-// Đảm bảo toàn bộ HTML tải xong mới chạy Javascript
 $(document).ready(function() {
-    
-    // Khởi tạo nice-select cho các thẻ select ngay từ đầu
     $('select').niceSelect();
-
     const host = "https://provinces.open-api.vn/api/";
     
-    // Gọi API lấy danh sách Tỉnh/Thành phố
     var callAPI = (api) => {
         return axios.get(api).then((response) => {
             renderData(response.data, "province");
@@ -115,14 +130,12 @@ $(document).ready(function() {
     }
     callAPI('https://provinces.open-api.vn/api/?depth=1');
 
-    // Lấy Quận/Huyện khi chọn Tỉnh
     var callApiDistrict = (api) => {
         return axios.get(api).then((response) => {
             renderData(response.data.districts, "district");
         });
     }
 
-    // Lấy Phường/Xã khi chọn Huyện
     var callApiWard = (api) => {
         return axios.get(api).then((response) => {
             renderData(response.data.wards, "ward");
@@ -135,43 +148,33 @@ $(document).ready(function() {
             row += `<option data-name="${element.name}" value="${element.code}">${element.name}</option>`
         });
         
-        // Đổ dữ liệu vào thẻ Select gốc
         $("#" + select).html(row);
-        
-        // Báo cho nice-select biết dữ liệu đã đổi để nó vẽ lại
         $("#" + select).niceSelect('update');
     }
 
-    // Lắng nghe sự kiện thay đổi Tỉnh
     $("#province").on("change", function() {
         callApiDistrict(host + "p/" + $(this).val() + "?depth=2");
-        
-        // Reset lại ô Phường/Xã khi đổi Tỉnh
         $("#ward").html('<option value="">Chọn Phường/Xã</option>');
         $("#ward").niceSelect('update');
     });
 
-    // Lắng nghe sự kiện thay đổi Huyện
     $("#district").on("change", function() {
         callApiWard(host + "d/" + $(this).val() + "?depth=2");
     });
 
-    // Gom toàn bộ địa chỉ thành 1 chuỗi trước khi submit form
+    // Thay đổi logic Javascript để đẩy quyền báo lỗi cho Laravel xử lý
     $('#checkoutForm').on('submit', function(e) {
         let provinceName = $("#province option:selected").attr('data-name');
         let districtName = $("#district option:selected").attr('data-name');
         let wardName = $("#ward option:selected").attr('data-name');
         let street = $('#street').val();
 
-        // Kiểm tra xem user đã chọn đủ thông tin chưa
-        if (!provinceName || !districtName || !wardName || !street) {
-            alert("Vui lòng chọn đầy đủ địa chỉ giao hàng!");
-            e.preventDefault(); // Chặn không cho gửi form nếu thiếu
-            return;
+        let fullAddress = "";
+        if (provinceName && districtName && wardName && street) {
+            fullAddress = street + ", " + wardName + ", " + districtName + ", " + provinceName;
         }
-
-        // Nối chuỗi: Số nhà, Phường, Quận, Tỉnh
-        let fullAddress = street + ", " + wardName + ", " + districtName + ", " + provinceName;
+        
+        // Gán vào input ẩn. Nếu thiếu dữ liệu, fullAddress sẽ rỗng, Laravel sẽ tự báo lỗi đỏ!
         $('#full_address').val(fullAddress);
     });
 });

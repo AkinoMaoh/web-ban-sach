@@ -87,10 +87,25 @@ class PaymentController extends Controller
 
     public function process(Request $request)
     {
+        // 1. CHẶN LỖI BACKEND (Thay thế cho thuộc tính required của HTML)
+        $validated = $request->validate([
+            'shipping_name' => 'required|string|max:255',
+            'shipping_phone' => 'required|string|max:20',
+            'billing_email' => 'required|email|max:255',
+            'full_address' => 'required|string',
+        ], [
+            'shipping_name.required' => 'Vui lòng nhập họ và tên người nhận.',
+            'shipping_phone.required' => 'Vui lòng nhập số điện thoại liên hệ.',
+            'billing_email.required' => 'Vui lòng nhập địa chỉ Email.',
+            'billing_email.email' => 'Địa chỉ Email không đúng định dạng.',
+            'full_address.required' => 'Vui lòng nhập đầy đủ địa chỉ giao hàng (Số nhà, Phường, Xã...).',
+        ]);
+
         $payment_method = $request->input('payment_method'); 
-        $shipping_name = $request->input('shipping_name');
-        $shipping_phone = $request->input('shipping_phone');
-        $full_address = $request->input('full_address'); 
+        $shipping_name = $validated['shipping_name'];
+        $shipping_phone = $validated['shipping_phone'];
+        $billing_email = $validated['billing_email'];
+        $full_address = $validated['full_address']; 
         $notes = $request->input('order_notes');
 
         $totalAmount = 0;
@@ -149,8 +164,10 @@ class PaymentController extends Controller
 
         DB::beginTransaction(); 
         try {
+            // 2. LƯU EMAIL VÀO BẢNG ORDERS
             $orderId = DB::table('orders')->insertGetId([
                 'user_id' => $userId, 
+                'billing_email' => $billing_email, // Đã thêm email vào DB
                 'total_amount' => $totalAmount,
                 'status' => 'pending', 
                 'shipping_name' => $shipping_name,
