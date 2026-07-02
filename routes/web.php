@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\productsController;
+use App\Http\Controllers\Admin\categoriesController;
 use App\Http\Controllers\Admin\authorsController;
 use App\Http\Controllers\Admin\ordersController;
 use App\Http\Controllers\User\trangChuController;
@@ -21,6 +22,7 @@ use Illuminate\Http\Request;
 | 1. ROUTE CÔNG KHAI (DÀNH CHO KHÁCH HÀNG)
 |--------------------------------------------------------------------------
 */
+
 Route::get('/', [trangChuController::class, 'index'])->name('user.index');
 Route::get('/shop', [ShopController::class, 'index'])->name('user.shop');
 Route::get('/shop/category/{id}', [ShopController::class, 'category'])->name('user.category');
@@ -49,13 +51,13 @@ Route::get('/dashboard', function (Request $request) {
     if ((int)Auth::user()->role !== 1) {
         return redirect('/');
     }
-    
+
     // 2. Nếu là Admin nhưng CHƯA ĐƯỢC DUYỆT (is_active = 0) -> Đăng xuất ngay lập tức
     if ((int)Auth::user()->is_active !== 1) {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
+
         // Trả về trang đăng nhập và hiển thị thông báo lỗi chặn màu đỏ
         return redirect()->route('admin.login')->withErrors([
             'email' => 'Tài khoản Admin của bạn đang chờ phê duyệt từ Quản trị viên cấp cao. Vui lòng quay lại sau!'
@@ -138,6 +140,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::put('/orders/{id}/update', [ordersController::class, 'update'])->name('admin.orders.update');
     Route::delete('/orders/{id}', [ordersController::class, 'destroy'])->name('admin.orders.destroy');
     Route::post('/orders/{id}/toggleStatus', [ordersController::class, 'toggleStatus'])->name('admin.orders.toggleStatus');
+
+    // Quản lý danh mục
+    Route::get('/categories', [App\Http\Controllers\Admin\categoriesController::class, 'index'])->name('admin.categories');
+    Route::get('/categories/create', [App\Http\Controllers\Admin\categoriesController::class, 'create'])->name('admin.categoryAdd');
+    Route::post('/categories/store', [App\Http\Controllers\Admin\categoriesController::class, 'store'])->name('admin.categories.store');
+    Route::get('/categories/{id}/edit', [App\Http\Controllers\Admin\categoriesController::class, 'edit'])->name('admin.categories.edit');
+    Route::put('/categories/{id}/update', [App\Http\Controllers\Admin\categoriesController::class, 'update'])->name('admin.categories.update');
+    Route::post('/categories/{id}/toggleStatus', [App\Http\Controllers\Admin\categoriesController::class, 'toggleStatus'])->name('admin.categories.toggleStatus');
+    Route::get('/categories/{id}/destroy', [App\Http\Controllers\Admin\categoriesController::class, 'destroy'])->name('admin.categories.destroy');
 });
 
 
@@ -158,14 +169,12 @@ Route::middleware('auth')->group(function () {
 | 6. ROUTE THANH TOÁN (DÀNH CHO KHÁCH HÀNG)
 |--------------------------------------------------------------------------
 */
-    Route::get('/checkout', [PaymentController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
+Route::get('/checkout', [PaymentController::class, 'index'])->name('checkout.index');
+Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
 
-    Route::get('/checkout/vnpay-return', [App\Http\Controllers\User\PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
+Route::get('/checkout/vnpay-return', [App\Http\Controllers\User\PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
 
-Route::middleware('auth')->group(function () {
-
-});
+Route::middleware('auth')->group(function () {});
 
 // Các tuyến đường auth mặc định của hệ thống Laravel Breeze
 require __DIR__ . '/auth.php';

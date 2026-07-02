@@ -128,7 +128,7 @@
                     @empty
                         <tr>
                             <td colspan="7" class="text-center text-muted">Không có đơn hàng nào.</td>
-                        </tr>
+                            </tr>
                     @endforelse
 
                     </tbody>

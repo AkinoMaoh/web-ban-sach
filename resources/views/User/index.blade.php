@@ -338,7 +338,7 @@
         </div>
     </section>
 
-    <section class="from-blog spad">
+    {{-- <section class="from-blog spad">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
@@ -395,7 +395,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
 
 @include('User.footer')
 

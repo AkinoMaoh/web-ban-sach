@@ -27,9 +27,20 @@ class trangChuController extends Controller
             ->join('product_variants', 'order_details.product_variant_id', '=', 'product_variants.id')
             ->join('products', 'product_variants.product_id', '=', 'products.id')
             ->where('orders.status', 'completed')
-            ->select('products.name', DB::raw('SUM(order_details.quantity) as total_sold'))
-            ->groupBy('products.id', 'products.name')
-            ->orderBy('total_sold', 'desc')
+            ->select(
+                'products.id',
+                'products.name',
+                'products.image',
+                'products.price',
+                DB::raw('SUM(order_details.quantity) as total_sold')
+            )
+            ->groupBy(
+                'products.id',
+                'products.name',
+                'products.image',
+                'products.price'
+            )
+            ->orderByDesc('total_sold')
             ->take(5)
             ->get();
 
