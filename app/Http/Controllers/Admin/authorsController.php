@@ -11,7 +11,7 @@ class authorsController extends Controller
 {
     public function index()
     {
-        $authors = authors::all();
+        $authors = authors::withCount('products')->paginate(8);
         return view('admin.author', compact('authors'));
     }
     public function authorCreate()
@@ -78,12 +78,22 @@ class authorsController extends Controller
     public function authorDestroy($id)
     {
         $author = authors::findOrFail($id);
+
+        // Kiểm tra tác giả có sản phẩm không
+        if ($author->products()->exists()) {
+            return redirect()->route('admin.authors')
+                ->with('error', 'Không thể xóa tác giả vì vẫn còn sản phẩm thuộc tác giả này.');
+        }
+
         // Xóa ảnh nếu có
         if ($author->avatar && file_exists(public_path('uploads/authors/' . $author->avatar))) {
             unlink(public_path('uploads/authors/' . $author->avatar));
         }
+
         $author->delete();
-        return redirect()->route('admin.authors')->with('success', 'Nhà xuất bản đã được xóa thành công.');
+
+        return redirect()->route('admin.authors')
+            ->with('success', 'Tác giả đã được xóa thành công.');
     }
     public function authorToggleStatus($id)
     {

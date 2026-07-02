@@ -14,7 +14,17 @@
                 Dữ liệu nhà xuất bản
             </h6>
         </div>
+@if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
 
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
 
         <div class="card-body">
 
@@ -125,7 +135,9 @@
 
 
     </div>
-
+    <div class="d-flex justify-content-center mt-3">
+                {{ $publishers->appends(request()->query())->links() }}
+            </div>
 
 </div>
 

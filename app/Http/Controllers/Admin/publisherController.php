@@ -13,11 +13,9 @@ class publisherController extends Controller
      */
     public function index()
     {
-        $publishers = publishers::all();
-        return view(
-            'admin.publisher',
-            compact('publishers')
-        );
+        $publishers = publishers::withCount('products')->paginate(8);
+
+        return view('admin.publisher', compact('publishers'));
     }
 
     /**
@@ -33,18 +31,18 @@ class publisherController extends Controller
      */
     public function store(Request $request)
     {
-            $request->validate([
-            'name'=>'required',
-            'address'=>'required',
-            'website'=>'required'
+        $request->validate([
+            'name' => 'required',
+            'address' => 'required',
+            'website' => 'required'
         ]);
         publishers::create([
-            'name'=>$request->name,
-            'address'=>$request->address,
-            'website'=>$request->website,
+            'name' => $request->name,
+            'address' => $request->address,
+            'website' => $request->website,
         ]);
         return redirect()
-        ->route('admin.publishers.index');
+            ->route('admin.publishers.index');
     }
 
     /**
@@ -71,12 +69,12 @@ class publisherController extends Controller
     {
         $publisher = publishers::findOrFail($id);
         $publisher->update([
-            'name'=>$request->name,
-            'address'=>$request->address,
-            'website'=>$request->website,
+            'name' => $request->name,
+            'address' => $request->address,
+            'website' => $request->website,
         ]);
         return redirect()
-        ->route('admin.publishers.index');
+            ->route('admin.publishers.index');
     }
 
     /**
@@ -85,8 +83,18 @@ class publisherController extends Controller
     public function destroy(string $id)
     {
         $publisher = publishers::findOrFail($id);
+
+        // Kiểm tra có sản phẩm thuộc nhà xuất bản này không
+        if ($publisher->products()->exists()) {
+            return redirect()
+                ->route('admin.publishers.index')
+                ->with('error', 'Không thể xóa nhà xuất bản vì vẫn còn sản phẩm thuộc nhà xuất bản này.');
+        }
+
         $publisher->delete();
+
         return redirect()
-            ->route('admin.publishers.index');
+            ->route('admin.publishers.index')
+            ->with('success', 'Nhà xuất bản đã được xóa thành công.');
     }
 }

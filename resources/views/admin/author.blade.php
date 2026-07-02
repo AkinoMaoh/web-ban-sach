@@ -7,7 +7,17 @@
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Trang quản lý  tác giả</h1>
-                  
+                  @if(session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                @if(session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">Dữ liệu tác giả</h6>
@@ -54,7 +64,9 @@
                             </div>
                         </div>
                     </div>
-
+                    <div class="d-flex justify-content-center mt-3">
+                {{ $authors->appends(request()->query())->links() }}
+            </div>
                 </div>
 
 @endsection
