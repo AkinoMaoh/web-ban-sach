@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\productVariants;
 class OrderDetail extends Model
 {
     protected $table = 'order_details';
@@ -27,8 +27,8 @@ class OrderDetail extends Model
     /**
      * Chi tiết liên kết tới một biến thể sản phẩm
      */
-    // public function productVariant()
-    // {
-    //     return $this->belongsTo(ProductVariant::class, 'product_variant_id');
-    // }
+    public function productVariant()
+    {
+        return $this->belongsTo(ProductVariants::class, 'product_variant_id');
+    }
 }
