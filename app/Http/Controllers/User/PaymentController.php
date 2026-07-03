@@ -87,18 +87,20 @@ class PaymentController extends Controller
 
     public function process(Request $request)
     {
-        // 1. CHẶN LỖI BACKEND (Thay thế cho thuộc tính required của HTML)
+        // 1. CHUẨN HÓA SỐ ĐIỆN THOẠI & EMAIL
         $validated = $request->validate([
             'shipping_name' => 'required|string|max:255',
-            'shipping_phone' => 'required|string|max:20',
+            // Bắt buộc 10 số, bắt đầu bằng số 0 (Chuẩn Việt Nam)
+            'shipping_phone' => ['required', 'regex:/^0[0-9]{9}$/'], 
             'billing_email' => 'required|email|max:255',
             'full_address' => 'required|string',
         ], [
             'shipping_name.required' => 'Vui lòng nhập họ và tên người nhận.',
-            'shipping_phone.required' => 'Vui lòng nhập số điện thoại liên hệ.',
+            'shipping_phone.required' => 'Vui lòng nhập số điện thoại.',
+            'shipping_phone.regex' => 'Số điện thoại không hợp lệ. Phải gồm 10 chữ số và bắt đầu bằng số 0 (VD: 098...).',
             'billing_email.required' => 'Vui lòng nhập địa chỉ Email.',
-            'billing_email.email' => 'Địa chỉ Email không đúng định dạng.',
-            'full_address.required' => 'Vui lòng nhập đầy đủ địa chỉ giao hàng (Số nhà, Phường, Xã...).',
+            'billing_email.email' => 'Địa chỉ Email không đúng định dạng (VD: ten@gmail.com).',
+            'full_address.required' => 'Vui lòng nhập đầy đủ địa chỉ.',
         ]);
 
         $payment_method = $request->input('payment_method'); 
@@ -113,6 +115,7 @@ class PaymentController extends Controller
         $userId = Auth::check() ? Auth::id() : null;
         $checkoutItemIds = session()->get('checkout_item_ids');
 
+        // ... (Khúc lấy dữ liệu giỏ hàng giữ nguyên) ...
         if (Auth::check()) {
             $query = DB::table('carts')
                 ->join('product_variants', 'carts.product_variant_id', '=', 'product_variants.id')
@@ -164,10 +167,9 @@ class PaymentController extends Controller
 
         DB::beginTransaction(); 
         try {
-            // 2. LƯU EMAIL VÀO BẢNG ORDERS
             $orderId = DB::table('orders')->insertGetId([
                 'user_id' => $userId, 
-                'billing_email' => $billing_email, // Đã thêm email vào DB
+                'billing_email' => $billing_email,
                 'total_amount' => $totalAmount,
                 'status' => 'pending', 
                 'shipping_name' => $shipping_name,
@@ -179,16 +181,30 @@ class PaymentController extends Controller
             ]);
 
             foreach ($realCart as $item) {
+                // 2. KIỂM TRA SỐ LƯỢNG KHO TRƯỚC KHI TRỪ
+                $variant = DB::table('product_variants')->where('id', $item['product_variant_id'])->lockForUpdate()->first();
+                
+                if (!$variant || $variant->stock < $item['quantity']) {
+                    DB::rollBack(); // Hủy toàn bộ giao dịch nếu có 1 món hết hàng
+                    return redirect()->route('checkout.index')->with('error', 'Sản phẩm có ID ' . $item['product_variant_id'] . ' đã hết hàng hoặc không đủ số lượng. Vui lòng kiểm tra lại giỏ hàng!');
+                }
+
                 DB::table('order_details')->insert([
                     'order_id' => $orderId,
                     'product_variant_id' => $item['product_variant_id'],
                     'price' => $item['price'],
                     'quantity' => $item['quantity'],
                 ]);
+
+                // 3. TRỪ SỐ LƯỢNG TRONG KHO (product_variants)
+                DB::table('product_variants')
+                    ->where('id', $item['product_variant_id'])
+                    ->decrement('stock', $item['quantity']);
             }
 
             DB::commit(); 
 
+            // ... (Khúc xử lý COD và VNPAY bên dưới giữ nguyên y hệt) ...
             if ($payment_method == 'cod') {
                 if (Auth::check()) {
                     if ($checkoutItemIds) {
@@ -209,7 +225,6 @@ class PaymentController extends Controller
                         session()->forget('cart');
                     }
                 }
-
                 return view('User.thankyou', ['orderId' => $orderId, 'message' => 'Đặt hàng thành công!']);
             }
             elseif ($payment_method == 'vnpay') {
@@ -259,7 +274,6 @@ class PaymentController extends Controller
                     $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
                     $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
                 }
-
                 return redirect()->to($vnp_Url);
             }
 
@@ -333,10 +347,20 @@ class PaymentController extends Controller
                 
                 return view('User.thankyou', ['orderId' => $orderId, 'message' => 'Giao dịch thành công!']);
             } else {
+                // 1. Cập nhật đơn hàng thành Đã hủy
                 DB::table('orders')->where('id', $orderId)->update([
                     'status' => 'cancelled'
                 ]);
-                return redirect()->route('checkout.index')->with('error', 'Giao dịch thất bại hoặc đã bị hủy.');
+
+                // 2. [QUAN TRỌNG] CỘNG TRẢ LẠI SỐ LƯỢNG VÀO KHO
+                $cancelledItems = DB::table('order_details')->where('order_id', $orderId)->get();
+                foreach ($cancelledItems as $item) {
+                    DB::table('product_variants')
+                        ->where('id', $item->product_variant_id)
+                        ->increment('stock', $item->quantity);
+                }
+
+                return redirect()->route('checkout.index')->with('error', 'Giao dịch thất bại hoặc bạn đã hủy thanh toán. Hàng hóa đã được hoàn lại kho.');
             }
         } else {
             return "CẢNH BÁO LỖI BẢO MẬT: Chữ ký không hợp lệ!";
