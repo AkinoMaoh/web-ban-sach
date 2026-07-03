@@ -18,7 +18,6 @@ class ordersController extends Controller
 
         $orders = $query->orderBy('created_at', 'desc')->paginate(15);
 
-        // Đã sửa lại đường dẫn trả về file orders.blade.php
         return view('admin.orders', compact('orders'));
     }
 
@@ -34,7 +33,7 @@ class ordersController extends Controller
 
     public function edit($id)
     {
-        $order = Order::with('user','orderDetails.productVariant.product')->findOrFail($id);
+        $order = Order::with('user', 'orderDetails.productVariant.product')->findOrFail($id);
 
         return view('admin.orderedit', compact('order'));
     }
@@ -46,6 +45,16 @@ class ordersController extends Controller
         ]);
 
         $order = Order::findOrFail($id);
+
+        $statusOrder = ['pending', 'confirmed', 'shipping', 'completed'];
+        $currentIndex = array_search($order->status, $statusOrder);
+        $newIndex = array_search($request->status, $statusOrder);
+
+        // cancelled không nằm trong $statusOrder nên $newIndex = false -> luôn cho phép hủy
+        if ($request->status !== 'cancelled' && $currentIndex !== false && $newIndex < $currentIndex) {
+            return back()->with('error', 'Không thể chuyển về trạng thái trước đó.');
+        }
+
         $order->status = $request->status;
         $order->save();
 
@@ -62,27 +71,5 @@ class ordersController extends Controller
 
         return redirect()->route('admin.orders')
             ->with('success', 'Đơn hàng #' . $id . ' đã được xóa thành công.');
-    }
-
-    public function toggleStatus($id)
-    {
-        $order = Order::findOrFail($id);
-
-        $flow = [
-            'pending'   => 'confirmed',
-            'confirmed' => 'shipping',
-            'shipping'  => 'completed',
-        ];
-
-        if (isset($flow[$order->status])) {
-            $order->status = $flow[$order->status];
-            $order->save();
-
-            return redirect()->route('admin.orders')
-                ->with('success', 'Trạng thái đơn hàng #' . $order->id . ' đã được cập nhật.');
-        }
-
-        return redirect()->route('admin.orders')
-            ->with('error', 'Không thể chuyển trạng thái cho đơn hàng này.');
     }
 }
