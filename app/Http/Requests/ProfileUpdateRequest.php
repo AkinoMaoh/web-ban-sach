@@ -26,6 +26,11 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            
+            // BỔ SUNG THÊM 3 TRƯỜNG MỚI VÀO ĐÂY ĐỂ CHO PHÉP DỮ LIỆU ĐI QUA:
+            'phone' => ['nullable', 'string', 'max:20'],
+            'gender' => ['nullable', 'string', 'in:male,female'],
+            'address' => ['nullable', 'string', 'max:1000'],
         ];
     }
 }

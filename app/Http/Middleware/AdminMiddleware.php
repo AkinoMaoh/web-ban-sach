@@ -7,12 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminMiddleware
+class AdminMiddleware // CHÍNH XÁC PHẢI LÀ ADMINMIDDLEWARE
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -29,18 +27,16 @@ class AdminMiddleware
 
         // 3. KIỂM TRA TRẠNG THÁI PHÊ DUYỆT (is_active phải bằng 1)
         if ((int)Auth::user()->is_active !== 1) {
-            Auth::logout(); // Đăng xuất session tạm thời của tài khoản này ra ngay lập tức
+            Auth::logout(); 
             
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            // Đẩy về trang đăng nhập kèm thông báo lỗi cụ thể
             return redirect()->route('admin.login')->withErrors([
                 'email' => 'Tài khoản Admin của bạn đang chờ phê duyệt. Vui lòng quay lại sau!'
             ]);
         }
 
-        // Nếu vượt qua toàn bộ 3 chốt chặn trên thì mới cho phép đi tiếp
         return $next($request);
     }
 }
