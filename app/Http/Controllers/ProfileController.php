@@ -30,8 +30,8 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         
-        // 1. Cập nhật Name và Email (chỉ lấy các trường đã qua validate)
-        $user->fill($request->safe()->only(['name', 'email']));
+        // 1. Bổ sung thêm các trường mới ('phone', 'gender', 'address') vào bộ lọc safe()->only()
+        $user->fill($request->safe()->only(['name', 'email', 'phone', 'gender', 'address']));
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
@@ -49,6 +49,7 @@ class ProfileController extends Controller
             $user->password = Hash::make($request->password);
         }
 
+        // 3. Lưu toàn bộ thay đổi xuống CSDL
         $user->save();
 
         // Trả về kèm session 'success' đúng với file Blade đang chờ hiển thị
