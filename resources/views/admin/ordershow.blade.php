@@ -30,7 +30,7 @@
                             </tr>
                             <tr>
                                 <th>Email:</th>
-                                <td><strong>{{ $order->shipping_email ?? $order->user->email ?? 'Null' }}</strong></td>
+                                <td><strong>{{ $order->billing_email ?? $order->user->email ?? 'Null' }}</strong></td>
                             </tr>
                             <tr>
                                 <th>Số điện thoại:</th>
