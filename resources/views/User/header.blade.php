@@ -10,7 +10,7 @@
             <a href="{{ route('user.index') }}" class="nav-link mx-3">Trang chủ</a>
             <a href="{{ route('user.shop') }}" class="nav-link mx-3">Tủ sách</a>
             <a href="#" class="nav-link mx-3">Blog</a>
-            <a href="#" class="nav-link mx-3">Liên hệ</a>
+            <a href="{{ route('user.contact') }}" class="nav-link mx-3">Liên hệ</a>
         </nav>
 
         <!-- Search & Auth -->
