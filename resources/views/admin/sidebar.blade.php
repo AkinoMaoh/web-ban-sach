@@ -1,9 +1,13 @@
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url('/admin/dashboard') }}">
-        <div class="sidebar-brand-icon rotate-n-15">
-            <i class="fas fa-laugh-wink"></i>
+        <div class="sidebar-brand-icon">
+            <!-- Đổi thành icon quyển sách và tô màu Cam cháy -->
+            <i class="fas fa-book-open" style="color: var(--admin-orange, #f0f0f0);"></i>
         </div>
-        <div class="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div>
+        <!-- Đổi tên thương hiệu, dùng font Serif sang trọng -->
+        <div class="sidebar-brand-text mx-3 serif-font" style="text-transform: none; font-size: 22px; letter-spacing: 0;">
+            SachHay<span style="color: var(--admin-orange, #bebebe);">.</span>
+        </div>
     </a>
 
     <hr class="sidebar-divider my-0">

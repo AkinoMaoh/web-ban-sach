@@ -15,41 +15,68 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-sb-admin-2/4.1.4/css/sb-admin-2.min.css" rel="stylesheet">
 
     <!-- CSS ĐỒNG BỘ GIAO DIỆN NHÀ SÁCH CHO ADMIN -->
+    <!-- ĐỒNG BỘ MÀU SẮC: XANH DƯƠNG - TRẮNG -->
     <style>
         :root {
-            --admin-orange: #D35400; /* Cam cháy */
-            --admin-dark: #2C3E50;   /* Xanh đen */
+            --admin-primary: #1A73E8; /* Xanh dương Google cực đẹp */
+            --admin-sidebar: #FFFFFF; /* Sidebar Trắng tinh khôi */
         }
         
         .serif-font { font-family: 'Lora', serif; }
 
-        /* Đổi màu Sidebar (Từ Xanh dương mặc định sang Xanh đen) */
-        .bg-gradient-primary {
-            background-color: var(--admin-dark) !important;
-            background-image: linear-gradient(180deg, var(--admin-dark) 10%, #1a252f 100%) !important;
+        /* 1. Đổi màu Sidebar sang TRẮNG */
+        .bg-gradient-primary, 
+        #accordionSidebar {
+            background-color: var(--admin-sidebar) !important;
+            background-image: none !important;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.05) !important;
         }
 
-        .text-primary { color: var(--admin-orange) !important; }
+        /* Sửa màu chữ Menu Sidebar (từ trắng thành xám đậm) */
+        .sidebar-dark .nav-item .nav-link { color: #5a5c69 !important; }
+        .sidebar-dark .nav-item .nav-link i { color: #b7b9cc !important; }
+        
+        /* Logo Sidebar màu Xanh */
+        .sidebar-brand-text, .sidebar-brand-icon i { color: var(--admin-primary) !important; }
+        .sidebar-dark hr.sidebar-divider { border-top: 1px solid #eaecf4; }
 
+        /* Item ĐANG ĐƯỢC CHỌN trên Menu */
+        .sidebar-dark .nav-item.active .nav-link {
+            color: var(--admin-primary) !important;
+            font-weight: 700;
+            background-color: rgba(26, 115, 232, 0.08); /* Nền xanh nhạt */
+            border-right: 4px solid var(--admin-primary); /* Vạch xanh bên phải */
+        }
+        .sidebar-dark .nav-item.active .nav-link i { color: var(--admin-primary) !important; }
+
+        /* 2. Đổi màu chữ và nền toàn hệ thống */
+        .text-primary { color: var(--admin-primary) !important; }
+        .bg-primary { background-color: var(--admin-primary) !important; }
+
+        /* 3. Đổi màu Nút bấm toàn hệ thống */
         .btn-primary { 
-            background-color: var(--admin-orange); 
-            border-color: var(--admin-orange); 
+            background-color: var(--admin-primary) !important; 
+            border-color: var(--admin-primary) !important; 
+            color: #fff !important;
             transition: all 0.3s;
         }
-        .btn-primary:hover, .btn-primary:focus, .btn-primary:active { 
-            background-color: #a64200 !important; 
-            border-color: #a64200 !important; 
-            box-shadow: 0 0 0 0.2rem rgba(211, 84, 0, 0.25) !important; 
+        .btn-primary:hover, .btn-primary:focus { 
+            background-color: #1557B0 !important; /* Xanh đậm hơn khi hover */
+            border-color: #1557B0 !important; 
+            box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.25) !important; 
         }
 
-        .page-item.active .page-link { background-color: var(--admin-orange); border-color: var(--admin-orange); }
-        .badge-primary { background-color: var(--admin-orange); }
-        
-        .card { border-radius: 10px; border: none; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1) !important; }
+        /* 4. Đổi màu Phân trang (Pagination) và Label */
+        .page-item.active .page-link { 
+            background-color: var(--admin-primary) !important; 
+            border-color: var(--admin-primary) !important; 
+        }
+        .badge-primary { background-color: var(--admin-primary) !important; }
+        .scroll-to-top { background-color: var(--admin-primary) !important; }
+
+        /* 5. Làm mềm các đường viền Bảng/Card */
+        .card { border-radius: 10px; border: none; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.08) !important; }
         .card-header { border-radius: 10px 10px 0 0 !important; background-color: #fff; border-bottom: 1px solid #f8f9fa; }
-        
-        /* Chỉnh lại ảnh đại diện trên Topbar cho khỏi bị khổng lồ nếu lỗi SVG */
-        .img-profile { object-fit: cover; width: 2rem; height: 2rem; }
     </style>
 </head>
 
