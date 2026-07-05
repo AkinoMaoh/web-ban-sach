@@ -16,6 +16,10 @@
             </div>
         </div>
     </form>
+    <!-- Nút chuyển đổi chế độ sáng/tối -->
+    <button id="theme-toggle" class="btn btn-light ml-3" style="border-radius: 6px; border: 1px solid var(--admin-orange); color: var(--admin-orange);">
+        <i class="bi bi-moon-fill"></i>
+    </button>
 
     <!-- Topbar Navbar -->
     <ul class="navbar-nav ml-auto">
@@ -46,3 +50,32 @@
         </li>
     </ul>
 </nav>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const toggle = document.getElementById("theme-toggle");
+    if (!toggle) return;
+
+    const root = document.documentElement;
+
+    if (localStorage.getItem("theme") === "dark") {
+        root.classList.add("dark-mode");
+        toggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+    }
+
+    toggle.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        root.classList.toggle("dark-mode");
+
+        if (root.classList.contains("dark-mode")) {
+            localStorage.setItem("theme", "dark");
+            toggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+        } else {
+            localStorage.setItem("theme", "light");
+            toggle.innerHTML = '<i class="bi bi-moon-fill"></i>';
+        }
+    });
+
+});
+</script>
