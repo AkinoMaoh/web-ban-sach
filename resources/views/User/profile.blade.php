@@ -3,7 +3,7 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-<div class="container py-5" style="background-color: #f4f6f9; min-height: 80vh;">
+<div class="container py-5" >
     <div class="row justify-content-center">
         
         <div class="col-md-4 col-lg-3 mb-4">

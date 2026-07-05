@@ -1,4 +1,5 @@
 <header class="modern-header">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <div class="container d-flex justify-content-between align-items-center">
         <!-- Logo -->
         <a href="{{ route('user.index') }}" class="text-decoration-none">
@@ -24,6 +25,13 @@
             <a href="/cart" class="text-dark mr-4 position-relative">
                 <i class="fas fa-shopping-bag fa-lg"></i>
             </a>
+             <!-- Nút chuyển đổi chế độ sáng/tối -->
+<button id="theme-toggle"
+        type="button"
+        class="btn btn-outline-secondary ml-3"
+        title="Chuyển giao diện">
+    <i class="fas fa-moon"></i>
+</button>
 
             @auth
                 <a href="{{ route('profile.edit') }}" class="text-dark font-weight-bold text-decoration-none">
@@ -35,3 +43,32 @@
         </div>
     </div>
 </header>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const btn = document.getElementById("theme-toggle");
+    const root = document.documentElement;
+
+    if (!btn) return;
+
+    const saved = localStorage.getItem("theme");
+
+    if (saved === "dark") {
+        root.classList.add("dark-mode");
+        btn.innerHTML = '<i class="bi bi-sun-fill"></i>';
+    } else {
+        btn.innerHTML = '<i class="bi bi-moon-fill"></i>';
+    }
+
+    btn.addEventListener("click", function () {
+        const isDark = root.classList.toggle("dark-mode");
+
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+
+        btn.innerHTML = isDark
+            ? '<i class="bi bi-sun-fill"></i>'
+            : '<i class="bi bi-moon-fill"></i>';
+    });
+
+});
+</script>

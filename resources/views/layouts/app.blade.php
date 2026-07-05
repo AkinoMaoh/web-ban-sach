@@ -13,6 +13,24 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <style>
+html {
+    visibility: hidden;
+}
+
+html.loaded {
+    visibility: visible;
+}
+</style>
+<style>
+html {
+    visibility: hidden;
+}
+
+html.loaded {
+    visibility: visible;
+}
+</style>
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
@@ -34,3 +52,40 @@
         </div>
     </body>
 </html>
+<style>
+html {
+    visibility: hidden; /* chặn flash */
+}
+html.ready {
+    visibility: visible;
+}
+</style>
+
+<script>
+(function () {
+    const theme = localStorage.getItem("theme");
+
+    if (theme === "dark") {
+        document.documentElement.classList.add("dark-mode");
+    }
+})();
+</script>
+<style>
+html {
+    background: #fff;
+}
+
+html.dark-mode {
+    background: #121212;
+    color: #fff;
+}
+
+body {
+    background: inherit;
+}
+</style>
+<script>
+window.addEventListener("DOMContentLoaded", function () {
+    document.documentElement.classList.add("loaded");
+});
+</script>

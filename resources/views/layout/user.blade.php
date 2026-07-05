@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
     <!-- Dùng trực tiếp Bootstrap và FontAwesome trên mạng để chống lỗi mất CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/bookstore.css') }}">
 
     <!-- CSS TRỰC TIẾP (Không sợ lỗi đường dẫn file) -->
     <style>
@@ -42,6 +44,30 @@
         .btn-orange:hover { background-color: #a64200; color: #fff; }
     </style>
 </head>
+<script>
+(function () {
+    const theme = localStorage.getItem("theme");
+
+    if (theme === "dark") {
+        document.documentElement.classList.add("dark-mode");
+    }
+})();
+</script>
+
+<style>
+html {
+    background: #FAFAFA;
+}
+
+html.dark-mode {
+    background: #121212;
+    color: #fff;
+}
+
+body {
+    background: inherit;
+}
+</style>
 <body>
 
     <!-- Gọi file Header -->
@@ -62,3 +88,32 @@
     @stack('scripts')
 </body>
 </html>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const btn = document.getElementById("theme-toggle");
+    const root = document.documentElement;
+
+    if (!btn) return;
+
+    const saved = localStorage.getItem("theme");
+
+    if (saved === "dark") {
+        root.classList.add("dark-mode");
+        btn.innerHTML = '<i class="bi bi-sun-fill"></i>';
+    } else {
+        btn.innerHTML = '<i class="bi bi-moon-fill"></i>';
+    }
+
+    btn.addEventListener("click", function () {
+        const isDark = root.classList.toggle("dark-mode");
+
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+
+        btn.innerHTML = isDark
+            ? '<i class="bi bi-sun-fill"></i>'
+            : '<i class="bi bi-moon-fill"></i>';
+    });
+
+});
+</script>
