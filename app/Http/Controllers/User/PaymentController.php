@@ -177,7 +177,7 @@ class PaymentController extends Controller
                 'shipping_address' => $full_address,
                 'notes' => $notes,
                 'payment_method' => $payment_method,
-                'created_at' => now(),
+                'created_at' => now('Asia/Ho_Chi_Minh'),
             ]);
 
             foreach ($realCart as $item) {
