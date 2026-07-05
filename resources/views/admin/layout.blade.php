@@ -16,44 +16,50 @@
 
     <!-- CSS ĐỒNG BỘ GIAO DIỆN NHÀ SÁCH CHO ADMIN -->
     <!-- ĐỒNG BỘ MÀU SẮC: XANH DƯƠNG - TRẮNG -->
+    <!-- ĐỒNG BỘ MÀU SẮC: SIDEBAR XANH DƯƠNG - CHỮ TRẮNG -->
     <style>
         :root {
-            --admin-primary: #1A73E8; /* Xanh dương Google cực đẹp */
-            --admin-sidebar: #FFFFFF; /* Sidebar Trắng tinh khôi */
+            --admin-primary: #1A73E8; /* Xanh dương Google */
         }
         
         .serif-font { font-family: 'Lora', serif; }
 
-        /* 1. Đổi màu Sidebar sang TRẮNG */
+        /* 1. Đổi màu Sidebar sang XANH DƯƠNG GRADIENT */
         .bg-gradient-primary, 
         #accordionSidebar {
-            background-color: var(--admin-sidebar) !important;
-            background-image: none !important;
-            box-shadow: 2px 0 15px rgba(0,0,0,0.05) !important;
+            background-color: var(--admin-primary) !important;
+            /* Tạo hiệu ứng dải màu xanh từ nhạt xuống đậm cho đỡ nhàm chán */
+            background-image: linear-gradient(180deg, #1A73E8 10%, #1557B0 100%) !important;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.1) !important;
         }
 
-        /* Sửa màu chữ Menu Sidebar (từ trắng thành xám đậm) */
-        .sidebar-dark .nav-item .nav-link { color: #5a5c69 !important; }
-        .sidebar-dark .nav-item .nav-link i { color: #b7b9cc !important; }
+        /* 2. Sửa màu chữ Menu Sidebar (thành màu trắng hơi trong suốt) */
+        .sidebar-dark .nav-item .nav-link { color: rgba(255, 255, 255, 0.8) !important; }
+        .sidebar-dark .nav-item .nav-link i { color: rgba(255, 255, 255, 0.8) !important; }
         
-        /* Logo Sidebar màu Xanh */
-        .sidebar-brand-text, .sidebar-brand-icon i { color: var(--admin-primary) !important; }
-        .sidebar-dark hr.sidebar-divider { border-top: 1px solid #eaecf4; }
+        /* Hiệu ứng khi rê chuột vào menu (Sáng trắng lên) */
+        .sidebar-dark .nav-item .nav-link:hover { color: #ffffff !important; }
+        .sidebar-dark .nav-item .nav-link:hover i { color: #ffffff !important; }
+
+        /* Logo Sidebar màu Trắng tinh */
+        .sidebar-brand-text, .sidebar-brand-icon i { color: #ffffff !important; }
+        /* Đường kẻ ngang chia menu mờ đi */
+        .sidebar-dark hr.sidebar-divider { border-top: 1px solid rgba(255, 255, 255, 0.15); }
 
         /* Item ĐANG ĐƯỢC CHỌN trên Menu */
         .sidebar-dark .nav-item.active .nav-link {
-            color: var(--admin-primary) !important;
+            color: #ffffff !important;
             font-weight: 700;
-            background-color: rgba(26, 115, 232, 0.08); /* Nền xanh nhạt */
-            border-right: 4px solid var(--admin-primary); /* Vạch xanh bên phải */
+            background-color: rgba(255, 255, 255, 0.15); /* Phủ một lớp nền trắng mờ */
+            border-right: 4px solid #ffffff; /* Vạch trắng bên phải để đánh dấu */
         }
-        .sidebar-dark .nav-item.active .nav-link i { color: var(--admin-primary) !important; }
+        .sidebar-dark .nav-item.active .nav-link i { color: #ffffff !important; }
 
-        /* 2. Đổi màu chữ và nền toàn hệ thống */
+        /* 3. Màu sắc cho vùng Nội dung (Content) */
         .text-primary { color: var(--admin-primary) !important; }
         .bg-primary { background-color: var(--admin-primary) !important; }
 
-        /* 3. Đổi màu Nút bấm toàn hệ thống */
+        /* Nút bấm toàn hệ thống */
         .btn-primary { 
             background-color: var(--admin-primary) !important; 
             border-color: var(--admin-primary) !important; 
@@ -66,7 +72,7 @@
             box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.25) !important; 
         }
 
-        /* 4. Đổi màu Phân trang (Pagination) và Label */
+        /* Phân trang (Pagination) và Nút cuộn lên */
         .page-item.active .page-link { 
             background-color: var(--admin-primary) !important; 
             border-color: var(--admin-primary) !important; 
@@ -74,7 +80,7 @@
         .badge-primary { background-color: var(--admin-primary) !important; }
         .scroll-to-top { background-color: var(--admin-primary) !important; }
 
-        /* 5. Làm mềm các đường viền Bảng/Card */
+        /* Làm mềm các đường viền Bảng/Card */
         .card { border-radius: 10px; border: none; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.08) !important; }
         .card-header { border-radius: 10px 10px 0 0 !important; background-color: #fff; border-bottom: 1px solid #f8f9fa; }
     </style>
