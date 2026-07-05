@@ -5,6 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Trang Quản Trị - SachHay</title>
+    <script>
+if (localStorage.getItem('theme') === 'dark') {
+    document.documentElement.classList.add('dark-mode');
+}
+</script>
 
     <!-- DÙNG LINK CDN ĐỂ CHỐNG LỖI MẤT FILE CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" type="text/css">
@@ -83,6 +88,153 @@
         /* Làm mềm các đường viền Bảng/Card */
         .card { border-radius: 10px; border: none; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.08) !important; }
         .card-header { border-radius: 10px 10px 0 0 !important; background-color: #fff; border-bottom: 1px solid #f8f9fa; }
+        /* ================= DARK MODE ================= */
+
+/* ================= DARK MODE ================= */
+
+html.dark-mode,
+html.dark-mode #wrapper,
+html.dark-mode #content-wrapper,
+html.dark-mode #content {
+    background: #121212 !important;
+}
+
+html.dark-mode .bg-light {
+    background: #1a1a1a !important;
+}
+
+html.dark-mode .topbar {
+    background: #1f1f1f !important;
+}
+
+html.dark-mode .card {
+    background: #232323 !important;
+    color: #fff !important;
+}
+
+html.dark-mode .card-header {
+    background: #2c2c2c !important;
+    color: #fff !important;
+}
+
+html.dark-mode .table {
+    color: #fff !important;
+}
+
+html.dark-mode .table thead {
+    background: #2d2d2d !important;
+}
+
+html.dark-mode .table td,
+html.dark-mode .table th {
+    border-color: #444 !important;
+}
+
+html.dark-mode .dropdown-menu {
+    background: #2a2a2a !important;
+}
+
+html.dark-mode .dropdown-item {
+    color: #fff !important;
+}
+
+html.dark-mode .dropdown-item:hover {
+    background: #3a3a3a !important;
+}
+
+html.dark-mode .form-control,
+html.dark-mode .form-select {
+    background: #2b2b2b !important;
+    color: #fff !important;
+    border-color: #555 !important;
+}
+
+html.dark-mode .text-gray-800,
+html.dark-mode .text-dark {
+    color: #fff !important;
+}
+
+html.dark-mode #accordionSidebar {
+    background: #1b1b1b !important;
+    background-image: none !important;
+}
+
+html.dark-mode .sidebar-dark .nav-item .nav-link {
+    color: #d1d5db !important;
+}
+
+html.dark-mode .sidebar-dark .nav-item .nav-link:hover {
+    color: #fff !important;
+    background: #2d2d2d !important;
+}
+
+html.dark-mode .sidebar-brand {
+    background: #111 !important;
+}
+
+html.dark-mode .container-fluid {
+    background: #181818 !important;
+}
+html.dark-mode footer,
+html.dark-mode .sticky-footer {
+    background-color: #1f1f1f !important;
+    color: #fff !important;
+}
+
+html.dark-mode .sticky-footer span,
+html.dark-mode .sticky-footer p,
+html.dark-mode .sticky-footer small {
+    color: #fff !important;
+}
+html.dark-mode .pagination .page-link {
+    background-color: #2b2b2b !important;
+    color: #fff !important;
+    border-color: #444 !important;
+}
+
+html.dark-mode .pagination .page-item.active .page-link {
+    background-color: #1A73E8 !important;
+    border-color: #1A73E8 !important;
+    color: #fff !important;
+}
+
+html.dark-mode .pagination .page-item.disabled .page-link {
+    background-color: #222 !important;
+    color: #777 !important;
+    border-color: #444 !important;
+}
+
+html.dark-mode .pagination .page-link:hover {
+    background-color: #3a3a3a !important;
+    color: #fff !important;
+}
+html.dark-mode select,
+html.dark-mode .form-select {
+    background-color: #2b2b2b !important;
+    color: #fff !important;
+    border: 1px solid #555 !important;
+}
+/* Header của card */
+.custom-card-header{
+    background:#fff;
+    padding:1rem 1.25rem;
+    border-bottom:1px solid #e3e6f0;
+    border-radius:10px 10px 0 0;
+}
+
+/* Dark Mode */
+html.dark-mode .custom-card-header{
+    background:#1f1f1f !important;
+    border-bottom:1px solid #444 !important;
+}
+
+html.dark-mode .custom-card-header h6{
+    color:#fff !important;
+}
+
+html.dark-mode .custom-card-header i{
+    color:#1A73E8 !important;
+}
     </style>
 </head>
 
