@@ -1,162 +1,64 @@
 <!DOCTYPE html>
-<html lang="zxx">
-
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="description" content="Ogani Template">
-    <meta name="keywords" content="Ogani, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>SachHay</title>
+    <title>SachHay - Tiệm sách trực tuyến</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=200;300;400;600;900&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/bootstrap.min.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/font-awesome.min.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/elegant-icons.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/nice-select.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/jquery-ui.min.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/owl.carousel.min.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/slicknav.min.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/style.css') }}" type="text/css">
-</head>
-
-<body>
-    <div id="preloder">
-        <div class="loader"></div>
-    </div>
-
-    <div class="humberger__menu__overlay"></div>
-    <div class="humberger__menu__wrapper">
-        <div class="humberger__menu__logo">
-            <a href="#"><img src="img/logo.png" alt=""></a>
-        </div>
-        <div class="humberger__menu__cart">
-            <ul>
-                <li><a href="#"><i class="fa fa-heart"></i> </a></li>
-                <li><a href="#"><i class="fa fa-shopping-bag"></i> </a></li>
-            </ul>
-            <div class="header__cart__price"></div>
-        </div>
-        
-        <div class="humberger__menu__widget">
-            <div class="header__top__right__auth">
-                @auth
-                    <a href="{{ route('profile.edit') }}" style="font-size: 14px; color: #333; text-decoration: none; font-weight: bold;">
-                        <i class="fa fa-user"></i> Xin chào, <span style="color: #7fad39;">{{ Auth::user()->name }}</span>
-                    </a>
-                @else
-                    <a href="{{ route('login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
-                @endauth
-            </div>
-        </div>
-
-        <nav class="humberger__menu__nav mobile-menu">
-            <ul>
-                <li class="{{ request()->routeIs('user.index') ? 'active' : '' }}"><a href="{{ route('user.index') }}">Home</a></li>
-                <li class="{{ request()->routeIs('user.shop') ? 'active' : '' }}"><a href="{{ route('user.shop') }}">Shop</a></li>
-                <li>
-                    <a href="#">Pages</a>
-                    <ul class="header__menu__dropdown">
-                        <li><a href="">Shop Details</a></li>
-                    </ul>
-                </li>
-                <li><a href="">Blog</a></li>
-                <li><a href="">Contact</a></li>
-            </ul>
-        </nav>
-        <div id="mobile-menu-wrap"></div>
-    </div>
+    <!-- Font chữ sang trọng -->
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <header class="header">
-        <div class="header__top">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 col-md-6">
-                        <div class="header__top__left">
-                            <ul>
-                                <li><i class="fa fa-envelope"></i> hello@colorlib.com</li>
-                                <li>Miễn phí ship cho đơn hàng trên 100k</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6">
-                        <div class="header__top__right">
-                            <div class="header__top__right__social">
-                                <a href="#"><i class="fa fa-facebook"></i></a>
-                                <a href="#"><i class="fa fa-twitter"></i></a>
-                                <a href="#"><i class="fa fa-linkedin"></i></a>
-                                <a href="#"><i class="fa fa-pinterest-p"></i></a>
-                            </div>
-                           
-                            <div class="header__top__right__auth">
-                                @auth
-                                    <a href="{{ route('profile.edit') }}" class="user-header-btn" style="text-decoration: none; color: #333; font-size: 14px; font-weight: 500; display: inline-block; transition: all 0.2s;">
-                                        <i class="fa fa-user" style="margin-right: 4px;"></i> Xin chào, <strong style="color: #7fad39; border-bottom: 1px dashed #7fad39;">{{ Auth::user()->name }}</strong>
-                                    </a>
-                                @else
-                                    <a href="{{ route('login') }}" style="text-decoration: none; color: #333; font-weight: 500;">
-                                        <i class="fa fa-user"></i> Đăng nhập
-                                    </a>
-                                @endauth
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="header__logo">
-                        <a href="./index.html"><img src="img/logo.png" alt=""></a>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <nav class="header__menu">
-                        <ul>
-                            <li class="{{ request()->routeIs('user.index') ? 'active' : '' }}"><a href="{{ route('user.index') }}">Home</a></li>
-                            <li class="{{ request()->routeIs('user.shop') ? 'active' : '' }}"><a href="{{ route('user.shop') }}">Shop</a></li>
-                            <li>
-                                <a href="#">Pages</a>
-                                <ul class="header__menu__dropdown">
-                                    <li><a href="">Shop Details</a></li>
-                                </ul>
-                            </li>
-                            <li><a href="">Blog</a></li>
-                            <li><a href="">Contact</a></li>
-                        </ul>
-                    </nav>
-                </div>
-                <div class="col-lg-3">
-                    <div class="header__cart">
-                        <ul>
-                            <li><a href="/cart"><i class="fa fa-shopping-bag"></i></a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="humberger__open">
-                <i class="fa fa-bars"></i>
-            </div>
-        </div>
-    </header>
+    <!-- Dùng trực tiếp Bootstrap và FontAwesome trên mạng để chống lỗi mất CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-    <main>
+    <!-- CSS TRỰC TIẾP (Không sợ lỗi đường dẫn file) -->
+    <style>
+        :root {
+            --primary-color: #D35400; /* Cam cháy */
+            --text-main: #2C3E50;
+        }
+        body { font-family: 'Nunito Sans', sans-serif; background-color: #FAFAFA; color: var(--text-main); }
+        .serif-font { font-family: 'Lora', serif; font-weight: 700; }
+        
+        /* Header & Footer */
+        .modern-header { background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 15px 0; position: sticky; top: 0; z-index: 1000; }
+        .modern-footer { background: #fff; border-top: 1px solid #eee; padding-top: 40px; margin-top: 40px; }
+        
+        /* Nav Links */
+        .nav-link { color: var(--text-main); font-weight: 600; text-transform: uppercase; font-size: 14px; }
+        .nav-link:hover { color: var(--primary-color); text-decoration: none; }
+        
+        /* Khung chứa sách */
+        .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .book-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 15px; transition: 0.3s; text-align: center; display: block; text-decoration: none !important; color: var(--text-main); height: 100%;}
+        .book-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); color: var(--text-main); }
+        .book-cover { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 4px; margin-bottom: 15px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); }
+        .book-title { font-size: 15px; font-weight: 700; height: 42px; overflow: hidden; margin-bottom: 8px; }
+        .book-price { color: var(--primary-color); font-weight: 700; font-size: 16px; margin: 0; }
+        
+        /* Buttons */
+        .btn-orange { background-color: var(--primary-color); color: #fff; border-radius: 20px; padding: 8px 20px; font-weight: bold; border: none; transition: 0.3s; }
+        .btn-orange:hover { background-color: #a64200; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <!-- Gọi file Header -->
+    @include('User.header')
+
+    <!-- Phần lõi thay đổi theo từng trang -->
+    <main style="min-height: 70vh;">
         @yield('content')
     </main>
 
-    <style>
-        .user-header-btn:hover { opacity: 0.8; }
-        .user-header-btn:hover strong { color: #6a9230 !important; }
-    </style>
+    <!-- Gọi file Footer -->
+    @include('User.footer')
 
-    <script src="{{ asset('ogani-1.0.0/js/jquery-3.3.1.min.js') }}"></script>
-    <script src="{{ asset('ogani-1.0.0/js/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('ogani-1.0.0/js/jquery-ui.min.js') }}"></script>
-    <script src="{{ asset('ogani-1.0.0/js/jquery.nice-select.min.js') }}"></script>
-    <script src="{{ asset('ogani-1.0.0/js/jquery.slicknav.js') }}"></script>
-    <script src="{{ asset('ogani-1.0.0/js/owl.carousel.min.js') }}"></script>
-    <script src="{{ asset('ogani-1.0.0/js/main.js') }}"></script>
+    <!-- JS để chạy Slider và Dropdown -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    @stack('scripts')
 </body>
 </html>

@@ -1,354 +1,169 @@
-@include('User.header')
+@extends('layout.user')
 
-{{-- Breadcrumb --}}
-<section style="background: #f6f6f6; padding: 14px 0; border-bottom: 1px solid #e9e9e9;">
+@section('content')
+<!-- Breadcrumb -->
+<div class="bg-light py-3 mb-4 border-bottom">
     <div class="container">
-        <ol class="breadcrumb" style="background:transparent; padding:0; margin:0; font-size:13px;">
-            <li class="breadcrumb-item">
-                <a href="{{ route('user.index') }}" style="color:#7fad39;">Trang chủ</a>
-            </li>
-            <li class="breadcrumb-item">
-                <a href="{{ route('user.shop') }}" style="color:#7fad39;">Cửa hàng</a>
-            </li>
-            @isset($danhMuc)
-                <li class="breadcrumb-item active" style="color:#6c757d;">{{ $danhMuc->name }}</li>
-            @endisset
-        </ol>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent px-0 mb-0 py-0">
+                <li class="breadcrumb-item"><a href="{{ route('user.index') }}" class="text-muted"><i class="fas fa-home"></i> Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('user.shop') }}" class="text-muted">Tủ sách</a></li>
+                @if(isset($danhMuc))
+                    <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">{{ $danhMuc->name }}</li>
+                @endif
+            </ol>
+        </nav>
     </div>
-</section>
+</div>
 
-<section class="featured spad">
-    <div class="container">
-        <div class="row">
+<div class="container mb-5">
+    <div class="row">
+        <!-- Cột trái: Bộ lọc (Sidebar) -->
+        <aside class="col-lg-3 mb-4">
+            <!-- Box Thể Loại -->
+            <div class="card border-0 shadow-sm rounded mb-4">
+                <div class="card-header text-white font-weight-bold serif-font rounded-top" style="background-color: #2C3E50;">
+                    <i class="fas fa-list mr-2"></i> THỂ LOẠI
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach ($tatCaDanhMuc as $cat)
+                        <li class="list-group-item bg-light border-bottom border-white">
+                            <a href="{{ route('user.category', $cat->id) }}" class="text-decoration-none d-block {{ isset($danhMuc) && $danhMuc->id == $cat->id ? 'font-weight-bold' : 'text-dark' }}" style="{{ isset($danhMuc) && $danhMuc->id == $cat->id ? 'color: var(--primary-color) !important;' : '' }}">
+                                <i class="fas fa-angle-right mr-2 text-muted"></i> {{ $cat->name }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
 
-            {{-- ===== SIDEBAR ===== --}}
-            <div class="col-lg-3 col-md-4 mb-4">
-
-                {{-- Bộ lọc (chỉ hiện khi đang ở trang danh mục) --}}
-                @isset($danhMuc)
-                <div class="card border-0 shadow-sm mb-4"
-                     style="border-radius:6px; border:1px solid #ececec !important; overflow:hidden;">
-                    <div class="card-header text-white font-weight-bold"
-                         style="background:#7fad39; padding:12px 16px; font-size:13px;">
-                        <i class="fa fa-filter mr-1"></i> BỘ LỌC TÌM KIẾM
+            <!-- Box Lọc (Chỉ hiển thị nút Lọc khi ở trong Trang Danh Mục vì hàm index không xử lý lọc) -->
+            @if(isset($danhMuc))
+                <div class="card border-0 shadow-sm rounded mb-4">
+                    <div class="card-header text-white font-weight-bold serif-font rounded-top" style="background-color: #2C3E50;">
+                        <i class="fas fa-filter mr-2"></i> LỌC SÁCH
                     </div>
-                    <div class="card-body" style="padding:18px 16px;">
+                    <div class="card-body bg-light">
                         <form action="{{ route('user.category', $danhMuc->id) }}" method="GET">
+                            
+                            <!-- Sắp xếp -->
+                            <h6 class="font-weight-bold text-uppercase text-muted mb-2" style="font-size: 13px;">Sắp xếp theo</h6>
+                            <select name="sort" class="form-control form-control-sm mb-3">
+                                <option value="">Mặc định</option>
+                                <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Mới nhất</option>
+                                <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Giá: Thấp đến cao</option>
+                                <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Giá: Cao xuống thấp</option>
+                            </select>
 
-                            {{-- Giá --}}
-                            <p class="filter-label">Khoảng Giá (VND)</p>
-                            <div class="d-flex align-items-center mb-3" style="gap:6px;">
-                                <input type="number" name="price_min"
-                                       value="{{ request('price_min') }}"
-                                       placeholder="Từ"
-                                       class="form-control form-control-sm text-center"
-                                       style="border-radius:4px; font-size:13px;">
-                                <span class="text-muted">–</span>
-                                <input type="number" name="price_max"
-                                       value="{{ request('price_max') }}"
-                                       placeholder="Đến"
-                                       class="form-control form-control-sm text-center"
-                                       style="border-radius:4px; font-size:13px;">
+                            <!-- Khoảng giá -->
+                            <h6 class="font-weight-bold text-uppercase text-muted mb-2 mt-3" style="font-size: 13px;">Khoảng giá (VNĐ)</h6>
+                            <div class="d-flex align-items-center mb-3 gap-2">
+                                <input type="number" name="price_min" value="{{ request('price_min') }}" class="form-control form-control-sm text-center" placeholder="Từ">
+                                <span class="text-muted mx-1">-</span>
+                                <input type="number" name="price_max" value="{{ request('price_max') }}" class="form-control form-control-sm text-center" placeholder="Đến">
                             </div>
 
-                            <hr style="border-top:1px dashed #ddd; margin:12px 0;">
-
-                            {{-- Tác giả --}}
-                            <p class="filter-label">Tác Giả</p>
-                            <select name="author" class="form-control form-control-sm mb-3"
-                                    style="border-radius:4px; font-size:13px; cursor:pointer;">
-                                <option value="">-- Chọn Tác Giả --</option>
+                            <!-- Tác giả -->
+                            <h6 class="font-weight-bold text-uppercase text-muted mb-2 mt-3" style="font-size: 13px;">Tác giả</h6>
+                            <select name="author" class="form-control form-control-sm mb-3">
+                                <option value="">Tất cả</option>
                                 @foreach($tacGia as $tg)
-                                    <option value="{{ $tg->id }}"
-                                        {{ request('author') == $tg->id ? 'selected' : '' }}>
-                                        {{ $tg->name }}
-                                    </option>
+                                    <option value="{{ $tg->id }}" {{ request('author') == $tg->id ? 'selected' : '' }}>{{ $tg->name }}</option>
                                 @endforeach
                             </select>
 
-                            <hr style="border-top:1px dashed #ddd; margin:12px 0;">
-
-                            {{-- NXB --}}
-                            <p class="filter-label">Nhà Xuất Bản</p>
-                            <select name="publisher" class="form-control form-control-sm mb-3"
-                                    style="border-radius:4px; font-size:13px; cursor:pointer;">
-                                <option value="">-- Chọn NXB --</option>
+                            <!-- NXB -->
+                            <h6 class="font-weight-bold text-uppercase text-muted mb-2 mt-3" style="font-size: 13px;">Nhà xuất bản</h6>
+                            <select name="publisher" class="form-control form-control-sm mb-4">
+                                <option value="">Tất cả</option>
                                 @foreach($nhaXuatBan as $nxb)
-                                    <option value="{{ $nxb->id }}"
-                                        {{ request('publisher') == $nxb->id ? 'selected' : '' }}>
-                                        {{ $nxb->name }}
-                                    </option>
+                                    <option value="{{ $nxb->id }}" {{ request('publisher') == $nxb->id ? 'selected' : '' }}>{{ $nxb->name }}</option>
                                 @endforeach
                             </select>
 
-                            {{-- Nút áp dụng --}}
-                            <button type="submit"
-                                    class="btn btn-block text-white font-weight-bold btn-sm"
-                                    style="background:#7fad39; border:none; border-radius:4px;
-                                           padding:9px; font-size:13px; letter-spacing:.4px;">
-                                <i class="fa fa-check mr-1"></i> ÁP DỤNG
-                            </button>
-
-                            @if(request()->hasAny(['price_min','price_max','author','publisher']))
-                                <a href="{{ route('user.category', $danhMuc->id) }}"
-                                   class="btn btn-secondary btn-block btn-sm font-weight-bold mt-2"
-                                   style="border-radius:4px; padding:8px; font-size:13px;">
-                                    <i class="fa fa-times mr-1"></i> XÓA BỘ LỌC
-                                </a>
+                            <button type="submit" class="btn btn-block text-white font-weight-bold" style="background-color: var(--primary-color);">Áp dụng bộ lọc</button>
+                            
+                            @if(request()->anyFilled(['price_min', 'price_max', 'author', 'publisher', 'sort']))
+                                <a href="{{ route('user.category', $danhMuc->id) }}" class="btn btn-block btn-outline-secondary mt-2">Xóa bộ lọc</a>
                             @endif
-
                         </form>
                     </div>
                 </div>
-                @endisset
+            @endif
+        </aside>
 
-                {{-- Danh sách danh mục --}}
-                <div class="hero__categories">
-                    <div class="hero__categories__all">
-                        <i class="fa fa-bars"></i>
-                        <span>TẤT CẢ DANH MỤC</span>
-                    </div>
-                    <ul>
-                        @foreach ($tatCaDanhMuc as $dm)
-                            <li>
-                                <a href="{{ route('user.category', $dm->id) }}"
-                                   style="{{ isset($danhMuc) && $dm->id == $danhMuc->id
-                                             ? 'color:#7fad39; font-weight:bold;' : '' }}">
-                                    {{ $dm->name }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
+        <!-- Cột phải: Vùng hiển thị sách -->
+        <section class="col-lg-9">
+            
+            {{-- TRƯỜNG HỢP 1: TRANG CỬA HÀNG CHUNG (Nhóm theo danh mục) --}}
+            @if(isset($sanPhamTheoDanhMuc))
+                <div class="mb-4">
+                    <h2 class="serif-font font-weight-bold">Khám phá Tủ sách</h2>
+                    <p class="text-muted">Tuyển tập những cuốn sách hay nhất theo từng thể loại.</p>
                 </div>
-            </div>
 
-            {{-- ===== NỘI DUNG CHÍNH ===== --}}
-            <div class="col-lg-9 col-md-8">
-
-                {{-- ── Trang danh mục (có lọc / phân trang) ── --}}
-                @isset($danhMuc)
-
-                    {{-- Tiêu đề + sắp xếp --}}
-                    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap"
-                         style="border-bottom:2px solid #7fad39; padding-bottom:10px; gap:10px;">
-                        <h4 style="margin:0; font-size:20px; font-weight:700; color:#252525;">
-                            {{ $danhMuc->name }}
-                            <span style="font-size:14px; font-weight:400; color:#6c757d; margin-left:6px;">
-                                ({{ $danhSachSanPham->total() }} sản phẩm)
-                            </span>
-                        </h4>
-
-                        <select onchange="window.location=this.value"
-                                class="form-control form-control-sm"
-                                style="width:auto; font-size:13px; border-radius:4px;
-                                       border:1px solid #ced4da; cursor:pointer;">
-                            <option value="{{ request()->fullUrlWithQuery(['sort'=>'']) }}">Mặc định</option>
-                            <option value="{{ request()->fullUrlWithQuery(['sort'=>'price_asc']) }}"
-                                {{ request('sort')=='price_asc'  ? 'selected':'' }}>Giá tăng dần</option>
-                            <option value="{{ request()->fullUrlWithQuery(['sort'=>'price_desc']) }}"
-                                {{ request('sort')=='price_desc' ? 'selected':'' }}>Giá giảm dần</option>
-                            <option value="{{ request()->fullUrlWithQuery(['sort'=>'newest']) }}"
-                                {{ request('sort')=='newest'     ? 'selected':'' }}>Mới nhất</option>
-                        </select>
-                    </div>
-
-                    {{-- Lưới sản phẩm --}}
-                    <div class="row">
-                        @if($danhSachSanPham->isEmpty())
-                            <div class="col-12 text-center" style="padding:60px 0;">
-                                <i class="fa fa-book" style="font-size:48px; color:#ddd; display:block; margin-bottom:15px;"></i>
-                                <h5 class="text-muted">Không tìm thấy sản phẩm nào!</h5>
-                                <a href="{{ route('user.category', $danhMuc->id) }}"
-                                   class="primary-btn" style="display:inline-block; margin-top:15px;">
-                                   Xóa bộ lọc
+                @foreach($sanPhamTheoDanhMuc as $dm)
+                    <div class="mb-5 bg-white p-4 rounded shadow-sm border">
+                        <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-2">
+                            <h3 class="serif-font font-weight-bold mb-0" style="color: #2C3E50;">{{ $dm->name }}</h3>
+                            <a href="{{ route('user.category', $dm->id) }}" class="text-decoration-none" style="color: var(--primary-color); font-weight: 600;">Xem thêm <i class="fas fa-arrow-right ml-1"></i></a>
+                        </div>
+                        
+                        <div class="book-grid">
+                            @foreach($dm->sanPham as $product)
+                                <a href="{{ route('user.productDetails', $product->id) }}" class="book-card text-center text-dark text-decoration-none">
+                                    <img src="{{ asset('uploads/products/' . $product->image) }}" class="book-cover" alt="{{ $product->name }}">
+                                    <h3 class="book-title" title="{{ $product->name }}">{{ $product->name }}</h3>
+                                    <p class="book-price">{{ number_format($product->price, 0, ',', '.') }} ₫</p>
                                 </a>
-                            </div>
-                        @else
-                            @foreach ($danhSachSanPham as $sp)
-                                <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
-                                    <a href="{{ route('user.productDetails', $sp->id) }}"
-                                       style="display:block; text-decoration:none; color:inherit;">
-                                        <div class="featured__item">
-                                            <div class="featured__item__pic set-bg"
-                                                 data-setbg="{{ asset('uploads/products/'.$sp->image) }}">
-                                            </div>
-                                            <div class="featured__item__text">
-                                                <h6>{{ $sp->name }}</h6>
-                                                <h5>{{ number_format($sp->price,0,',','.') }} VND</h5>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
                             @endforeach
-                        @endif
+                        </div>
                     </div>
+                @endforeach
+            @endif
 
-                    {{-- Phân trang --}}
-                    @if($danhSachSanPham->hasPages())
-                        <div class="d-flex justify-content-center mt-3 mb-2">
-                            <nav>
-                                <ul class="pagination pagination-shop">
-                                    {{-- Nút Previous --}}
-                                    @if($danhSachSanPham->onFirstPage())
-                                        <li class="page-item disabled">
-                                            <span class="page-link">‹</span>
-                                        </li>
-                                    @else
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $danhSachSanPham->appends(request()->query())->previousPageUrl() }}">‹</a>
-                                        </li>
-                                    @endif
+            {{-- TRƯỜNG HỢP 2: TRANG CHI TIẾT 1 DANH MỤC (Có phân trang, bộ lọc) --}}
+            @if(isset($danhSachSanPham))
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                    <h2 class="serif-font font-weight-bold mb-0" style="color: #2C3E50;">{{ $danhMuc->name }}</h2>
+                    <span class="text-muted"><i class="fas fa-book mr-1"></i> {{ $danhSachSanPham->total() }} tác phẩm</span>
+                </div>
 
-                                    {{-- Các số trang --}}
-                                    @php
-                                        $currentPage  = $danhSachSanPham->currentPage();
-                                        $lastPage     = $danhSachSanPham->lastPage();
-                                        $start        = max(1, $currentPage - 2);
-                                        $end          = min($lastPage, $currentPage + 2);
-                                    @endphp
-
-                                    @if($start > 1)
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $danhSachSanPham->appends(request()->query())->url(1) }}">1</a>
-                                        </li>
-                                        @if($start > 2)
-                                            <li class="page-item disabled"><span class="page-link">…</span></li>
-                                        @endif
-                                    @endif
-
-                                    @for($i = $start; $i <= $end; $i++)
-                                        <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
-                                            <a class="page-link" href="{{ $danhSachSanPham->appends(request()->query())->url($i) }}">{{ $i }}</a>
-                                        </li>
-                                    @endfor
-
-                                    @if($end < $lastPage)
-                                        @if($end < $lastPage - 1)
-                                            <li class="page-item disabled"><span class="page-link">…</span></li>
-                                        @endif
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $danhSachSanPham->appends(request()->query())->url($lastPage) }}">{{ $lastPage }}</a>
-                                        </li>
-                                    @endif
-
-                                    {{-- Nút Next --}}
-                                    @if($danhSachSanPham->hasMorePages())
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $danhSachSanPham->appends(request()->query())->nextPageUrl() }}">›</a>
-                                        </li>
-                                    @else
-                                        <li class="page-item disabled">
-                                            <span class="page-link">›</span>
-                                        </li>
-                                    @endif
-                                </ul>
-                            </nav>
-                        </div>
-                    @endif
-
-                {{-- ── Trang shop tổng (theo từng danh mục) ── --}}
+                @if($danhSachSanPham->isEmpty())
+                    <div class="text-center py-5 bg-light rounded shadow-sm border">
+                        <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Chưa có tác phẩm nào phù hợp với bộ lọc.</h5>
+                    </div>
                 @else
-
-                    @foreach ($sanPhamTheoDanhMuc as $dm)
-                        {{-- Tiêu đề danh mục --}}
-                        <div class="d-flex align-items-center justify-content-between mb-3"
-                             style="border-bottom:2px solid #7fad39; padding-bottom:8px;">
-                            <h5 style="margin:0; font-weight:700; color:#252525; font-size:17px;">
-                                {{ $dm->name }}
-                            </h5>
-                            <a href="{{ route('user.category', $dm->id) }}"
-                               style="font-size:13px; color:#7fad39; white-space:nowrap;">
-                                Xem tất cả <i class="fa fa-angle-right"></i>
+                    <div class="book-grid">
+                        @foreach ($danhSachSanPham as $product)
+                            <a href="{{ route('user.productDetails', $product->id) }}" class="book-card text-center text-dark text-decoration-none">
+                                <img src="{{ asset('uploads/products/' . $product->image) }}" class="book-cover" alt="{{ $product->name }}">
+                                <h3 class="book-title" title="{{ $product->name }}">{{ $product->name }}</h3>
+                                <p class="book-price">{{ number_format($product->price, 0, ',', '.') }} ₫</p>
                             </a>
-                        </div>
+                        @endforeach
+                    </div>
+                    
+                    <!-- Hiển thị phân trang -->
+                    <div class="mt-5 d-flex justify-content-center custom-pagination">
+                        {{ $danhSachSanPham->links() }}
+                    </div>
+                @endif
+            @endif
 
-                        {{-- 6 sản phẩm đầu --}}
-                        <div class="row mb-5">
-                            @foreach ($dm->sanPham as $sp)
-                                <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
-                                    <a href="{{ route('user.productDetails', $sp->id) }}"
-                                       style="display:block; text-decoration:none; color:inherit;">
-                                        <div class="featured__item">
-                                            <div class="featured__item__pic set-bg"
-                                                 data-setbg="{{ asset('uploads/products/'.$sp->image) }}">
-                                            </div>
-                                            <div class="featured__item__text">
-                                                <h6>{{ $sp->name }}</h6>
-                                                <h5>{{ number_format($sp->price,0,',','.') }} VND</h5>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endforeach
-
-                @endisset
-
-            </div>{{-- /col-lg-9 --}}
-        </div>
+        </section>
     </div>
-</section>
+</div>
 
+<!-- Tùy chỉnh nhẹ CSS cho phần Phân trang (Pagination của Laravel) -->
 <style>
-/* ===== FILTER LABEL ===== */
-.filter-label {
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    color: #6c757d;
-    margin-bottom: 8px;
-}
-
-/* ===== PAGINATION FIX ===== */
-.pagination-shop {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 4px;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.pagination-shop .page-item .page-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 36px;
-    height: 36px;
-    padding: 0 10px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #7fad39;
-    background: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    text-decoration: none;
-    transition: background .2s, color .2s, border-color .2s;
-    line-height: 1;
-}
-
-.pagination-shop .page-item .page-link:hover {
-    background: #7fad39;
-    color: #fff;
-    border-color: #7fad39;
-}
-
-.pagination-shop .page-item.active .page-link {
-    background: #7fad39;
-    color: #fff;
-    border-color: #7fad39;
-    pointer-events: none;
-}
-
-.pagination-shop .page-item.disabled .page-link {
-    color: #adb5bd;
-    pointer-events: none;
-    background: #f8f9fa;
-    border-color: #dee2e6;
-}
+    .custom-pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+    .custom-pagination .page-link {
+        color: #2C3E50;
+    }
 </style>
-
-@include('User.footer')
+@endsection

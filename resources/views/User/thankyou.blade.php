@@ -1,29 +1,51 @@
-@include('User.header')
-<div class="container text-center" style="padding: 100px 0;">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div style="font-size: 80px; color: #7fad39; margin-bottom: 20px;">
-                <i class="fa fa-check-circle" aria-hidden="true"></i>
+@extends('layout.user')
+
+@section('content')
+<!-- Breadcrumb -->
+<div class="bg-white py-3 mb-4 shadow-sm border-bottom">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent px-0 mb-0 py-0">
+                <li class="breadcrumb-item"><a href="{{ route('user.index') }}" class="text-muted"><i class="fas fa-home"></i> Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">Đặt hàng thành công</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<section class="thank-you-section py-5 mb-5">
+    <div class="container text-center">
+        <div class="bg-white p-5 rounded shadow-sm border mx-auto" style="max-width: 650px;">
+            
+            <!-- Icon Success (Tích xanh) -->
+            <div class="mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center bg-success text-white rounded-circle shadow-sm" style="width: 90px; height: 90px; font-size: 40px;">
+                    <i class="fas fa-check"></i>
+                </div>
             </div>
 
-            <h2 style="font-weight: 700; margin-bottom: 20px; color: #1c1c1c;">ĐẶT HÀNG THÀNH CÔNG!</h2>
-
-            <p style="font-size: 18px; color: #555;">
+            <!-- Lời cảm ơn -->
+            <h2 class="serif-font font-weight-bold mb-3" style="color: var(--text-main);">ĐẶT HÀNG THÀNH CÔNG!</h2>
+            
+            <p class="text-muted mb-4" style="font-size: 16px;">
                 {{ $message ?? 'Cảm ơn bạn đã mua sắm tại cửa hàng của chúng tôi.' }}
             </p>
 
-            <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 25px 0; font-size: 20px;">
-                Mã đơn hàng của bạn là: <strong style="color: #e53637;">#{{ $orderId ?? 'N/A' }}</strong>
+            <!-- Box Mã Đơn Hàng -->
+            <div class="bg-light p-3 rounded border mb-4 mx-auto" style="max-width: 400px; border-color: #EEEEEE !important;">
+                <span class="text-muted" style="font-size: 15px;">Mã đơn hàng của bạn là:</span><br>
+                <strong class="d-block mt-1" style="font-size: 28px; color: var(--primary-color);">#{{ $orderId ?? 'N/A' }}</strong>
             </div>
 
-            <p style="color: #777; margin-bottom: 40px;">
+            <p class="text-muted mb-5" style="font-size: 15px; line-height: 1.6;">
                 Chúng tôi sẽ sớm liên hệ với bạn theo số điện thoại đã cung cấp để xác nhận đơn hàng và tiến hành giao hàng.
             </p>
 
-            <a href="{{ route('user.index') }}" class="btn primary-btn" style="background-color: #7fad39; border-color: #7fad39; padding: 12px 30px; border-radius: 4px; font-weight: bold; color: #fff; text-decoration: none; text-transform: uppercase;">
-                TIẾP TỤC MUA SẮM
+            <!-- Nút quay lại mua sắm -->
+            <a href="{{ route('user.index') }}" class="btn btn-orange rounded-pill px-5 py-3 font-weight-bold shadow-sm text-uppercase" style="font-size: 15px; letter-spacing: 0.5px;">
+                <i class="fas fa-shopping-bag mr-2"></i> Tiếp tục mua sắm
             </a>
         </div>
     </div>
-</div>
-@include('User.footer')
+</section>
+@endsection

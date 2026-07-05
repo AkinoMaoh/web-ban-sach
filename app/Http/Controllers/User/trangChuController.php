@@ -78,7 +78,7 @@ class trangChuController extends Controller
         }
 
         // 7. Thực thi lấy dữ liệu kèm phân trang (12 sản phẩm/trang) và giữ tham số trên URL
-        $products = $query->paginate(12)->appends($request->query());
+        $products = $query->paginate(15)->appends($request->query());
 
         $bannerBooks = products::where('status', 1)
             ->latest()

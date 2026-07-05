@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700&display=swap');
+
+:root {
+    --primary-color: #D35400; /* Màu cam cháy sang trọng */
+    --text-main: #2C3E50;
+    --text-muted: #7F8C8D;
+    --bg-light: #F9F9F9;
+    --border-color: #EEEEEE;
+}
+
+body {
+    font-family: 'Nunito Sans', sans-serif;
+    color: var(--text-main);
+    background-color: #FFFFFF;
+}
+
+h1, h2, h3, h4, h5, h6, .serif-font {
+    font-family: 'Lora', serif; /* Font chữ có chân tạo cảm giác văn học */
+}
+
+/* Header & Nav */
+.modern-header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 0;
+    position: sticky;
+    top: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+}
+.nav-link { color: var(--text-main); font-weight: 600; margin: 0 15px; transition: 0.3s; }
+.nav-link:hover { color: var(--primary-color); }
+
+/* Lưới Sản phẩm (Book Grid) */
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 30px;
+}
+.book-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 8px;
+    padding: 15px;
+}
+.book-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+}
+.book-cover {
+    width: 100%;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+}
+.book-title { font-size: 16px; font-weight: 700; height: 44px; overflow: hidden; margin-bottom: 5px;}
+.book-price { color: var(--primary-color); font-weight: 700; font-size: 18px; }
+
+/* Nút bấm */
+.btn-primary-book {
+    background-color: var(--text-main);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: 0.3s;
+    border: none;
+}
+.btn-primary-book:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
