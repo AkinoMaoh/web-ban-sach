@@ -31,3 +31,32 @@
         </div>
     </div>
 </footer>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const btn = document.getElementById("theme-toggle");
+    const root = document.documentElement;
+
+    if (!btn) return;
+
+    const saved = localStorage.getItem("theme");
+
+    if (saved === "dark") {
+        root.classList.add("dark-mode");
+        btn.innerHTML = '<i class="bi bi-sun-fill"></i>';
+    } else {
+        btn.innerHTML = '<i class="bi bi-moon-fill"></i>';
+    }
+
+    btn.addEventListener("click", function () {
+        const isDark = root.classList.toggle("dark-mode");
+
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+
+        btn.innerHTML = isDark
+            ? '<i class="bi bi-sun-fill"></i>'
+            : '<i class="bi bi-moon-fill"></i>';
+    });
+
+});
+</script>

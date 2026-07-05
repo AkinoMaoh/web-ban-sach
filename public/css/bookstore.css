@@ -1,21 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700&display=swap");
 
 :root {
-    --primary-color: #D35400; /* Màu cam cháy sang trọng */
-    --text-main: #2C3E50;
-    --text-muted: #7F8C8D;
-    --bg-light: #F9F9F9;
-    --border-color: #EEEEEE;
+    --primary-color: #d35400; /* Màu cam cháy sang trọng */
+    --text-main: #2c3e50;
+    --text-muted: #7f8c8d;
+    --bg-light: #f9f9f9;
+    --border-color: #eeeeee;
 }
 
 body {
-    font-family: 'Nunito Sans', sans-serif;
+    font-family: "Nunito Sans", sans-serif;
     color: var(--text-main);
-    background-color: #FFFFFF;
+    background-color: #ffffff;
 }
 
-h1, h2, h3, h4, h5, h6, .serif-font {
-    font-family: 'Lora', serif; /* Font chữ có chân tạo cảm giác văn học */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.serif-font {
+    font-family: "Lora", serif; /* Font chữ có chân tạo cảm giác văn học */
 }
 
 /* Header & Nav */
@@ -28,8 +34,15 @@ h1, h2, h3, h4, h5, h6, .serif-font {
     backdrop-filter: blur(10px);
     z-index: 1000;
 }
-.nav-link { color: var(--text-main); font-weight: 600; margin: 0 15px; transition: 0.3s; }
-.nav-link:hover { color: var(--primary-color); }
+.nav-link {
+    color: var(--text-main);
+    font-weight: 600;
+    margin: 0 15px;
+    transition: 0.3s;
+}
+.nav-link:hover {
+    color: var(--primary-color);
+}
 
 /* Lưới Sản phẩm (Book Grid) */
 .book-grid {
@@ -38,24 +51,36 @@ h1, h2, h3, h4, h5, h6, .serif-font {
     gap: 30px;
 }
 .book-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
     border-radius: 8px;
     padding: 15px;
 }
 .book-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
 }
 .book-cover {
     width: 100%;
     aspect-ratio: 2/3;
     object-fit: cover;
     border-radius: 6px;
-    box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 15px;
 }
-.book-title { font-size: 16px; font-weight: 700; height: 44px; overflow: hidden; margin-bottom: 5px;}
-.book-price { color: var(--primary-color); font-weight: 700; font-size: 18px; }
+.book-title {
+    font-size: 16px;
+    font-weight: 700;
+    height: 44px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+.book-price {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 18px;
+}
 
 /* Nút bấm */
 .btn-primary-book {
@@ -70,4 +95,529 @@ h1, h2, h3, h4, h5, h6, .serif-font {
 .btn-primary-book:hover {
     background-color: var(--primary-color);
     color: white;
+}
+html.dark-mode {
+    --primary-color: #f5f5f5;
+    background-color: #121212;
+    color: #ffffff;
+}
+
+html.dark-mode body {
+    background-color: #121212;
+    color: #ffffff;
+}
+/* ================= USER DARK MODE ================= */
+
+html.dark-mode body {
+    background: #121212 !important;
+    color: #fff;
+}
+
+html.dark-mode .modern-header {
+    background: #1f1f1f !important;
+    border-bottom: 1px solid #333;
+}
+
+html.dark-mode .modern-header .nav-link {
+    color: #fff !important;
+}
+
+html.dark-mode .modern-header .nav-link:hover {
+    color: #1a73e8 !important;
+}
+
+html.dark-mode .modern-header h2 {
+    color: #fff !important;
+}
+
+html.dark-mode .form-control {
+    background: #2b2b2b !important;
+    color: #fff !important;
+    border-color: #555 !important;
+}
+
+html.dark-mode #search-result {
+    background: #2b2b2b !important;
+    color: #fff;
+    border: 1px solid #555 !important;
+}
+
+html.dark-mode a {
+    color: #fff;
+}
+
+html.dark-mode .text-dark {
+    color: #fff !important;
+}
+
+html.dark-mode .btn-light {
+    background: #2b2b2b !important;
+    color: #fff !important;
+    border-color: #555 !important;
+}
+/* ================= FOOTER DARK MODE ================= */
+
+html.dark-mode .modern-footer {
+    background: #1b1b1b !important;
+    border-top: 1px solid #444 !important;
+    color: #fff !important;
+}
+
+html.dark-mode .modern-footer h3,
+html.dark-mode .modern-footer h5 {
+    color: #fff !important;
+}
+
+html.dark-mode .modern-footer .text-muted {
+    color: #cfcfcf !important;
+}
+
+html.dark-mode .modern-footer a {
+    color: #cfcfcf !important;
+}
+
+html.dark-mode .modern-footer a:hover {
+    color: #1a73e8 !important;
+}
+
+html.dark-mode .modern-footer .border-top {
+    border-color: #444 !important;
+}
+
+html.dark-mode .modern-footer .text-dark {
+    color: #fff !important;
+}
+
+html.dark-mode .modern-footer i {
+    color: #fff !important;
+}
+/* ================= BEST SELLER DARK MODE ================= */
+
+html.dark-mode #bestSellingCarousel .carousel-inner {
+    background: #232323 !important;
+    border: 1px solid #444 !important;
+}
+
+html.dark-mode #bestSellingCarousel a {
+    color: #fff !important;
+}
+
+html.dark-mode #bestSellingCarousel h5 {
+    color: #fff !important;
+}
+
+html.dark-mode #bestSellingCarousel .btn-outline-dark {
+    color: #fff !important;
+    border-color: #777 !important;
+}
+
+html.dark-mode #bestSellingCarousel .btn-outline-dark:hover {
+    background: #1a73e8 !important;
+    border-color: #1a73e8 !important;
+    color: #fff !important;
+}
+/* ================= TITLE BEST SELLER ================= */
+
+html.dark-mode .border-bottom {
+    border-color: #444 !important;
+}
+
+html.dark-mode h3,
+html.dark-mode h4,
+html.dark-mode h5 {
+    color: #fff !important;
+}
+
+html.dark-mode .btn-light {
+    background: #2b2b2b !important;
+    border-color: #444 !important;
+    color: #fff !important;
+}
+
+html.dark-mode .btn-light:hover {
+    background: #1a73e8 !important;
+    border-color: #1a73e8 !important;
+    color: #fff !important;
+}
+
+html.dark-mode .text-muted {
+    color: #ccc !important;
+}
+/* ================= SÁCH MỚI NHẤT - DARK MODE ================= */
+
+html.dark-mode .new-books-title {
+    border-color: #444 !important;
+}
+
+html.dark-mode .new-books-title h3 {
+    color: #fff !important;
+}
+
+html.dark-mode .new-books-title .btn {
+    background: #2b2b2b !important;
+    border-color: #444 !important;
+    color: #fff !important;
+}
+
+html.dark-mode .new-books-title .btn:hover {
+    background: #1a73e8 !important;
+    border-color: #1a73e8 !important;
+    color: #fff !important;
+}
+
+html.dark-mode #newBooksCarousel .carousel-inner {
+    background: #232323 !important;
+    border: 1px solid #444 !important;
+}
+
+html.dark-mode .new-book-link {
+    color: #fff !important;
+}
+
+html.dark-mode .new-book-link h5 {
+    color: #fff !important;
+}
+
+html.dark-mode #newBooksCarousel .btn-outline-dark {
+    color: #fff !important;
+    border-color: #777 !important;
+}
+
+html.dark-mode #newBooksCarousel .btn-outline-dark:hover {
+    background: #1a73e8 !important;
+    border-color: #1a73e8 !important;
+    color: #fff !important;
+}
+/* ================= TÁC PHẨM NỔI BẬT ================= */
+
+html.dark-mode .featured-title {
+    border-color: #444 !important;
+}
+
+html.dark-mode .featured-title h2 {
+    color: #fff !important;
+}
+
+html.dark-mode .featured-link {
+    color: #ccc !important;
+}
+
+html.dark-mode .featured-link:hover {
+    color: #1a73e8 !important;
+}
+
+html.dark-mode .featured-book-link {
+    color: #fff !important;
+}
+
+html.dark-mode .book-card {
+    background: #232323 !important;
+    border: 1px solid #444 !important;
+    color: #fff !important;
+}
+
+html.dark-mode .book-card:hover {
+    background: #2b2b2b !important;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.45) !important;
+}
+
+html.dark-mode .book-title {
+    color: #fff !important;
+}
+
+html.dark-mode .book-price {
+    color: #ff9f43 !important;
+}
+/* ================= PROFILE - DARK MODE ================= */
+
+html.dark-mode body {
+    background: #121212 !important;
+}
+
+html.dark-mode .container {
+    color: #fff;
+}
+
+/* Card */
+html.dark-mode .card {
+    background: #232323 !important;
+    color: #fff !important;
+    border: 1px solid #444 !important;
+}
+
+/* Avatar card */
+html.dark-mode .nav-pills {
+    border-color: #444 !important;
+}
+
+/* Tab menu */
+html.dark-mode .nav-pills .nav-link {
+    color: #ddd !important;
+}
+
+html.dark-mode .nav-pills .nav-link.active {
+    background: #1a73e8 !important;
+    color: #fff !important;
+}
+
+html.dark-mode .nav-pills .nav-link:hover {
+    background: #2f2f2f !important;
+}
+
+/* Tiêu đề */
+html.dark-mode h5,
+html.dark-mode h6,
+html.dark-mode label {
+    color: #fff !important;
+}
+
+html.dark-mode .text-dark {
+    color: #fff !important;
+}
+
+html.dark-mode .text-muted {
+    color: #bfbfbf !important;
+}
+
+/* Form */
+html.dark-mode .form-control {
+    background: #2b2b2b !important;
+    color: #fff !important;
+    border: 1px solid #555 !important;
+}
+
+html.dark-mode .form-control::placeholder {
+    color: #999;
+}
+
+/* Input readonly */
+html.dark-mode .form-control[readonly] {
+    background: #252525 !important;
+    color: #bbb !important;
+}
+
+/* Input group */
+html.dark-mode .input-group-text {
+    background: #2b2b2b !important;
+    color: #ddd !important;
+    border-color: #555 !important;
+}
+
+/* Alert */
+html.dark-mode .alert-success {
+    background: #1f5130 !important;
+    color: #d4edda !important;
+    border: none;
+}
+
+/* Border */
+html.dark-mode .border-top,
+html.dark-mode .border-bottom {
+    border-color: #444 !important;
+}
+
+/* Logout */
+html.dark-mode .text-danger {
+    color: #ff6b6b !important;
+}
+
+html.dark-mode .border-danger {
+    border-color: #ff6b6b !important;
+}
+
+html.dark-mode .nav-link.text-danger:hover {
+    background: #3a2222 !important;
+}
+
+/* Background light */
+html.dark-mode .bg-light {
+    background: #2b2b2b !important;
+    color: #fff !important;
+}
+
+/* Icon */
+html.dark-mode .fas {
+    color: inherit;
+}
+/* ================= PROFILE FORM - DARK MODE ================= */
+
+/* Radio */
+html.dark-mode .custom-control-label {
+    color: #ddd !important;
+}
+
+/* Textarea */
+html.dark-mode textarea.form-control {
+    background: #2b2b2b !important;
+    color: #fff !important;
+    border-color: #555 !important;
+}
+
+html.dark-mode textarea::placeholder {
+    color: #999 !important;
+}
+
+/* Icon bên trái textarea */
+html.dark-mode .bg-light {
+    background: #2b2b2b !important;
+}
+
+html.dark-mode .border-gray,
+html.dark-mode .border {
+    border-color: #555 !important;
+}
+
+/* Nút Lưu hồ sơ */
+html.dark-mode .btn-save {
+    background: #1a73e8 !important;
+    color: #fff !important;
+}
+
+html.dark-mode .btn-save:hover {
+    background: #1557b0 !important;
+}
+
+/* Nút HIỆN mật khẩu */
+html.dark-mode .btn-eye {
+    background: #3a3a3a !important;
+    color: #fff !important;
+}
+
+html.dark-mode .btn-eye:hover {
+    background: #1a73e8 !important;
+}
+
+/* Nút cập nhật mật khẩu */
+html.dark-mode .btn-warning {
+    background: #ff9800 !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+html.dark-mode .btn-warning:hover {
+    background: #e68900 !important;
+}
+
+/* Tab content */
+html.dark-mode .tab-content {
+    background: #232323 !important;
+    color: #fff;
+}
+
+/* Tiêu đề trong tab */
+html.dark-mode #pane-info h5,
+html.dark-mode #pane-pass h5 {
+    color: #fff !important;
+}
+
+html.dark-mode #pane-info p,
+html.dark-mode #pane-pass p {
+    color: #bfbfbf !important;
+}
+/* ================= SHOP PAGE DARK MODE ================= */
+
+html.dark-mode {
+    background: #121212;
+}
+
+html.dark-mode body {
+    background: #121212 !important;
+    color: #fff;
+}
+
+/* Khung danh mục */
+html.dark-mode .bg-white {
+    background: #1f1f1f !important;
+}
+
+html.dark-mode .bg-light {
+    background: #2a2a2a !important;
+}
+
+/* Card */
+html.dark-mode .shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.6) !important;
+}
+
+html.dark-mode .border {
+    border-color: #444 !important;
+}
+
+/* Tiêu đề */
+html.dark-mode h2,
+html.dark-mode h3,
+html.dark-mode h4 {
+    color: #fff !important;
+}
+
+/* Chữ */
+html.dark-mode .text-dark {
+    color: #fff !important;
+}
+
+html.dark-mode .text-muted {
+    color: #bdbdbd !important;
+}
+
+/* Card sách */
+html.dark-mode .book-card {
+    background: #222 !important;
+    border: 1px solid #444 !important;
+    color: #fff !important;
+}
+
+html.dark-mode .book-card:hover {
+    background: #2c2c2c !important;
+}
+
+html.dark-mode .book-title {
+    color: #fff;
+}
+
+html.dark-mode .book-price {
+    color: #ffb74d;
+}
+
+/* Khối không có dữ liệu */
+html.dark-mode .fa-folder-open {
+    color: #999 !important;
+}
+
+/* Phân trang */
+html.dark-mode .pagination .page-link {
+    background: #2b2b2b;
+    color: #fff;
+    border-color: #444;
+}
+
+html.dark-mode .pagination .page-item.active .page-link {
+    background: #1a73e8;
+    border-color: #1a73e8;
+}
+
+/* Link xem thêm */
+html.dark-mode a {
+    color: #ddd;
+}
+
+html.dark-mode a:hover {
+    color: #1a73e8;
+}
+html.dark-mode {
+    --primary-color: #ff8a3d; /* sáng hơn để nhìn rõ trên nền tối */
+}
+html.dark-mode .hop-phien-ban {
+    background: #1e1e1e;
+    border-color: #444;
+    color: #fff;
+}
+
+html.dark-mode .chon-phien-ban input:checked + .hop-phien-ban {
+    background: rgba(255, 138, 61, 0.15);
+    border-color: #ff8a3d;
+}
+html.dark-mode .chon-bien-the {
+    background: #2a2a2a;
+    color: #fff;
+    border-color: #444;
 }
