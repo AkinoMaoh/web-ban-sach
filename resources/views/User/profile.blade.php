@@ -13,7 +13,7 @@
                          class="rounded-circle shadow-sm border border-white" style="width: 90px; height: 90px; object-fit: cover;">
                 </div>
                 <h6 class="font-weight-bold text-dark mb-1" style="font-size: 1.1rem;">{{ Auth::user()->name }}</h6>
-                <p class="text-muted small bg-light px-3 py-1 d-inline-block mx-auto rounded-pill mb-4"><i class="fas fa-shield-alt mr-1 text-[#7fad39]"></i>Tài khoản thành viên</p>
+                <p class="text-muted small bg-light px-3 py-1 d-inline-block mx-auto rounded-pill mb-4"><i class="fas fa-shield-alt mr-1 text-[#2f4c39]"></i>Tài khoản thành viên</p>
                 
                 <div class="nav flex-column nav-pills text-left border-top pt-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                     <a class="nav-link active font-weight-bold mb-2 py-2.5 px-3 d-flex align-items-center" id="info-tab" data-toggle="pill" href="#pane-info" role="tab" style="border-radius: 10px;">
@@ -111,7 +111,7 @@
                         </div>
                         
                         <div class="text-right">
-                            <button type="submit" class="btn text-white font-weight-bold px-5 py-2.5 shadow-sm btn-save" style="border-radius: 8px; background-color: #7fad39; tracking-wider: 0.5px;">
+                            <button type="submit" class="btn text-white font-weight-bold px-5 py-2.5 shadow-sm btn-save" style="border-radius: 8px; background-color: #2f4c39; tracking-wider: 0.5px;">
                                 <i class="fas fa-save mr-2"></i> LƯU THAY ĐỔI HỒ SƠ
                             </button>
                         </div>
@@ -161,10 +161,10 @@
 </div>
 
 <style>
-    #v-pills-tab .nav-link.active { background-color: #f1f8e9 !important; color: #7fad39 !important; }
+    #v-pills-tab .nav-link.active { background-color: #f1f8e9 !important; color: #2f4c39 !important; }
     #v-pills-tab .nav-link:hover:not(.active):not(.text-danger) { background-color: #f8f9fa; color: #000; }
-    .btn-save:hover { background-color: #6c9331 !important; }
-    .form-control:focus { border-color: #7fad39 !important; box-shadow: 0 0 0 0.2rem rgba(127, 173, 57, 0.25) !important; }
+    .btn-save:hover { background-color: #1f332a !important; }
+    .form-control:focus { border-color: #2f4c39 !important; box-shadow: 0 0 0 0.2rem rgba(127, 173, 57, 0.25) !important; }
     .input-group-text { border-color: #ced4da; background-color: #f8f9fa; }
 </style>
 

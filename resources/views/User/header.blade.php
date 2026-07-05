@@ -1,187 +1,37 @@
-<!DOCTYPE html>
-<html lang="zxx">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="description" content="Ogani Template">
-    <meta name="keywords" content="Ogani, unica, creative, html">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>SachHay</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=200;300;400;600;900&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/bootstrap.min.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/font-awesome.min.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/elegant-icons.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/nice-select.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/jquery-ui.min.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/owl.carousel.min.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/slicknav.min.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('ogani-1.0.0/css/style.css') }}" type="text/css">
-</head>
-
-<body>
-    <div id="preloder">
-        <div class="loader"></div>
-    </div>
-
-    <div class="humberger__menu__overlay"></div>
-    <div class="humberger__menu__wrapper">
-        <div class="humberger__menu__logo">
-            <a href="#"><img src="img/logo.png" alt=""></a>
-        </div>
-        <div class="humberger__menu__cart">
-            <ul>
-                <li><a href="#"><i class="fa fa-heart"></i> </a></li>
-                <li><a href="#"><i class="fa fa-shopping-bag"></i> </a></li>
-            </ul>
-            <div class="header__cart__price"></div>
-        </div>
+<header class="modern-header">
+    <div class="container d-flex justify-content-between align-items-center">
+        <!-- Logo -->
+        <a href="{{ route('user.index') }}" class="text-decoration-none">
+            <h2 class="serif-font mb-0" style="color: var(--primary-color);">SachHay.</h2>
+        </a>
         
-        <div class="humberger__menu__widget">
-            <div class="header__top__right__auth">
-                @auth
-                    <a href="{{ route('profile.edit') }}" style="font-size: 14px; color: #333; text-decoration: none; font-weight: bold;">
-                        <i class="fa fa-user"></i> Xin chào, <span style="color: #7fad39;">{{ Auth::user()->name }}</span>
-                    </a>
-                @else
-                    <a href="{{ route('login') }}"><i class="fa fa-user"></i> Đăng nhập</a>
-                @endauth
-            </div>
-        </div>
-
-        <nav class="humberger__menu__nav mobile-menu">
-            <ul>
-                <li class="{{ request()->routeIs('user.index') ? 'active' : '' }}">
-                    <a href="{{ route('user.index') }}">Home</a>
-                </li>
-                <li class="{{ request()->routeIs('user.shop') ? 'active' : '' }}">
-                    <a href="{{ route('user.shop') }}">Shop</a>
-                </li>
-                
-                <li class="">
-                    <a href="#">Pages</a>
-                    <ul class="header__menu__dropdown">
-                        <li><a href="">Shop Details</a></li>
-                        ...
-                    </ul>
-                </li>
-
-                <li class="">
-                    <a href="">Blog</a>
-                </li>
-                <li class="">
-                    <a href="">Contact</a>
-                </li>
-            </ul>
+        <!-- Menu -->
+        <nav class="d-none d-md-flex">
+            <a href="{{ route('user.index') }}" class="nav-link mx-3">Trang chủ</a>
+            <a href="{{ route('user.shop') }}" class="nav-link mx-3">Tủ sách</a>
+            <a href="#" class="nav-link mx-3">Blog</a>
+            <a href="#" class="nav-link mx-3">Liên hệ</a>
         </nav>
-        <div id="mobile-menu-wrap"></div>
-        <div class="header__top__right__social">
-            <a href="#"><i class="fa fa-facebook"></i></a>
-            <a href="#"><i class="fa fa-twitter"></i></a>
-            <a href="#"><i class="fa fa-linkedin"></i></a>
-            <a href="#"><i class="fa fa-pinterest-p"></i></a>
-        </div>
-        <div class="humberger__menu__contact">
-            <ul>
-                <li><i class="fa fa-envelope"></i> hello@colorlib.com</li>
-                <li>Miễn phí ship cho đơn hàng trên 100k</li>
-            </ul>
+
+        <!-- Search & Auth -->
+        <div class="d-flex align-items-center">
+            <!-- Search form -->
+            <form action="{{ route('user.index') }}" method="GET" class="mr-4 position-relative d-none d-lg-block">
+                <input type="text" id="search" name="keyword" placeholder="Tìm tên sách..." class="form-control rounded-pill bg-light border-0" style="padding: 5px 15px; font-size: 14px; width: 200px;" autocomplete="off">
+                <div id="search-result" style="position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #ddd; z-index: 999; display: none;"></div>
+            </form>
+
+            <a href="/cart" class="text-dark mr-4 position-relative">
+                <i class="fas fa-shopping-bag fa-lg"></i>
+            </a>
+
+            @auth
+                <a href="{{ route('profile.edit') }}" class="text-dark font-weight-bold text-decoration-none">
+                    <i class="fas fa-user-circle mr-1" style="color: var(--primary-color);"></i> {{ Auth::user()->name }}
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="btn-orange text-decoration-none">Đăng nhập</a>
+            @endauth
         </div>
     </div>
-    
-    <header class="header">
-        <div class="header__top">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 col-md-6">
-                        <div class="header__top__left">
-                            <ul>
-                                <li><i class="fa fa-envelope"></i> hello@colorlib.com</li>
-                                <li>Miễn phí ship cho đơn hàng trên 100k</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6">
-                        <div class="header__top__right">
-                            <div class="header__top__right__social">
-                                <a href="#"><i class="fa fa-facebook"></i></a>
-                                <a href="#"><i class="fa fa-twitter"></i></a>
-                                <a href="#"><i class="fa fa-linkedin"></i></a>
-                                <a href="#"><i class="fa fa-pinterest-p"></i></a>
-                            </div>
-                           
-                            <div class="header__top__right__auth">
-                                @auth
-                                    <a href="{{ route('profile.edit') }}" class="user-header-btn" style="text-decoration: none; color: #333; font-size: 14px; font-weight: 500; display: inline-block; transition: all 0.2s;">
-                                        <i class="fa fa-user" style="margin-right: 4px;"></i> Xin chào, <strong style="color: #7fad39; border-bottom: 1px dashed #7fad39;">{{ Auth::user()->name }}</strong>
-                                    </a>
-                                @else
-                                    <a href="{{ route('login') }}" style="text-decoration: none; color: #333; font-weight: 500;">
-                                        <i class="fa fa-user"></i> Đăng nhập
-                                    </a>
-                                @endauth
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="header__logo">
-                        <a href="./index.html"><img src="img/logo.png" alt=""></a>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <nav class="header__menu">
-                        <ul>
-                            <li class="{{ request()->routeIs('user.index') ? 'active' : '' }}">
-                                <a href="{{ route('user.index') }}">Home</a>
-                            </li>
-                            <li class="{{ request()->routeIs('user.shop') ? 'active' : '' }}">
-                                <a href="{{ route('user.shop') }}">Shop</a>
-                            </li>
-                            
-                            <li class="">
-                                <a href="#">Pages</a>
-                                <ul class="header__menu__dropdown">
-                                    <li><a href="">Shop Details</a></li>
-                                    ...
-                                </ul>
-                            </li>
-
-                            <li class="">
-                                <a href="">Blog</a>
-                            </li>
-                            <li class="">
-                                <a href="">Contact</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-                <div class="col-lg-3">
-                    <div class="header__cart">
-                        <ul>
-                            <li><a href="/cart"><i class="fa fa-shopping-bag"></i></a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="humberger__open">
-                <i class="fa fa-bars"></i>
-            </div>
-        </div>
-    </header>
-
-    <style>
-        .user-header-btn:hover {
-            opacity: 0.8;
-        }
-        .user-header-btn:hover strong {
-            color: #6a9230 !important; /* Đổi màu xanh đậm hơn một chút khi hover */
-        }
-    </style>
+</header>

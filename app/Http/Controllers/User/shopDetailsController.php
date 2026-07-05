@@ -28,7 +28,4 @@ class shopDetailsController extends Controller
             'publishers'
         ));
     }
-
-    
-
 }
