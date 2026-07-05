@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-// THÊM 'is_active' VÀO ĐÂY ĐỂ ĐƯỢC PHÉP LƯU TRẠNG THÁI DUYỆT TÀI KHOẢN
-#[Fillable(['name', 'email', 'password', 'role', 'is_active'])]
+
+#[Fillable(['name', 'email', 'password', 'role', 'is_active', 'phone', 'gender', 'address'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
