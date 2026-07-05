@@ -3,13 +3,7 @@
 @section('admin_content')
 
 <style>
-    /* --- CUSTOM CSS CHO ADMIN NHÀ SÁCH --- */
-    :root {
-        --admin-primary: #D35400; /* Cam cháy */
-        --admin-dark: #2C3E50;    /* Xanh đen */
-    }
-    .serif-font { font-family: 'Lora', serif; }
-    
+    /* --- CUSTOM CSS CHO DASHBOARD --- */
     /* Ghi đè thẻ thống kê */
     .stat-card {
         border: none;
@@ -18,13 +12,10 @@
     }
     .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important; }
     
-    .border-left-orange { border-left: 4px solid var(--admin-primary) !important; }
-    .border-left-dark { border-left: 4px solid var(--admin-dark) !important; }
-    .border-left-green { border-left: 4px solid #27AE60 !important; }
+    .border-left-blue { border-left: 4px solid var(--admin-primary) !important; }
+    .border-left-dark { border-left: 4px solid #5a5c69 !important; }
+    .border-left-green { border-left: 4px solid #34A853 !important; }
     .border-left-purple { border-left: 4px solid #8E44AD !important; }
-    
-    .text-orange { color: var(--admin-primary) !important; }
-    .text-dark-blue { color: var(--admin-dark) !important; }
 
     /* Nút trạng thái đơn hàng */
     .order-status-btn {
@@ -50,7 +41,7 @@
 
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800 serif-font font-weight-bold">Tổng Quan Thống Kê</h1>
-    <a href="#" class="d-none d-sm-inline-block btn btn-sm shadow-sm text-white" style="background: var(--admin-primary);">
+    <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
         <i class="fas fa-download fa-sm text-white-50"></i> Xuất Báo Cáo
     </a>
 </div>
@@ -59,15 +50,15 @@
 <div class="row">
     <!-- Doanh thu hôm nay -->
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card stat-card border-left-orange shadow-sm h-100 py-2">
+        <div class="card stat-card border-left-blue shadow-sm h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-orange text-uppercase mb-1">Doanh Thu (Hôm nay)</div>
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Doanh Thu (Hôm nay)</div>
                         <div class="h4 mb-0 font-weight-bold text-gray-800">{{ number_format($doanhThuHomNay, 0, ',', '.') }} đ</div>
                     </div>
                     <div class="col-auto">
-                        <div class="bg-light p-3 rounded-circle"><i class="fas fa-wallet fa-2x text-orange"></i></div>
+                        <div class="bg-light p-3 rounded-circle"><i class="fas fa-wallet fa-2x text-primary"></i></div>
                     </div>
                 </div>
             </div>
@@ -80,7 +71,7 @@
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-dark-blue text-uppercase mb-1">Doanh Thu (Tháng)</div>
+                        <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Doanh Thu (Tháng)</div>
                         <div class="h4 mb-0 font-weight-bold text-gray-800">{{ number_format($doanhThuThangNay, 0, ',', '.') }} đ</div>
                         <div class="mt-2 small font-weight-bold {{ $tangTruong >= 0 ? 'text-success' : 'text-danger' }}">
                             <i class="fas {{ $tangTruong >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
@@ -88,7 +79,7 @@
                         </div>
                     </div>
                     <div class="col-auto">
-                        <div class="bg-light p-3 rounded-circle"><i class="fas fa-chart-line fa-2x text-dark-blue"></i></div>
+                        <div class="bg-light p-3 rounded-circle"><i class="fas fa-chart-line fa-2x text-secondary"></i></div>
                     </div>
                 </div>
             </div>
@@ -163,7 +154,7 @@
     <div class="col-xl-8 col-lg-7">
         <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
             <div class="custom-card-header d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-dark-blue serif-font"><i class="fas fa-chart-area mr-2 text-orange"></i>Doanh Thu Năm {{ date('Y') }}</h6>
+                <h6 class="m-0 font-weight-bold text-dark serif-font"><i class="fas fa-chart-area mr-2 text-primary"></i>Doanh Thu Năm {{ date('Y') }}</h6>
             </div>
             <div class="card-body">
                 <div class="chart-area"><canvas id="myAreaChart"></canvas></div>
@@ -174,7 +165,7 @@
     <div class="col-xl-4 col-lg-5">
         <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
             <div class="custom-card-header d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-dark-blue serif-font"><i class="fas fa-chart-pie mr-2 text-orange"></i>Tỷ Trọng Danh Mục</h6>
+                <h6 class="m-0 font-weight-bold text-dark serif-font"><i class="fas fa-chart-pie mr-2 text-primary"></i>Tỷ Trọng Danh Mục</h6>
             </div>
             <div class="card-body">
                 @if(count($bieuDoDanhMuc) > 0)
@@ -201,14 +192,14 @@
     <div class="col-lg-4 mb-4">
         <div class="card shadow-sm border-0" style="border-radius: 12px;">
             <div class="custom-card-header bg-white">
-                <h6 class="m-0 font-weight-bold text-dark-blue serif-font"><i class="fas fa-trophy mr-2 text-warning"></i>Top 5 Sách Bán Chạy</h6>
+                <h6 class="m-0 font-weight-bold text-dark serif-font"><i class="fas fa-trophy mr-2 text-warning"></i>Top 5 Sách Bán Chạy</h6>
             </div>
             <div class="card-body p-0">
                 <ul class="list-group list-group-flush">
                     @forelse($topSanPham as $sp)
                         <li class="list-group-item custom-list-item d-flex justify-content-between align-items-center">
                             <span class="text-dark font-weight-bold" style="font-size: 14px;">{{ $sp->name }}</span> 
-                            <span class="badge text-white badge-pill px-2 py-1" style="background: var(--admin-primary);">{{ $sp->total_sold }} cuốn</span>
+                            <span class="badge text-white badge-pill px-2 py-1 bg-primary">{{ $sp->total_sold }} cuốn</span>
                         </li>
                     @empty
                         <li class="list-group-item text-muted text-center py-4">Chưa có dữ liệu</li>
@@ -222,7 +213,7 @@
     <div class="col-lg-4 mb-4">
         <div class="card shadow-sm border-0" style="border-radius: 12px;">
             <div class="custom-card-header bg-white">
-                <h6 class="m-0 font-weight-bold text-dark-blue serif-font"><i class="fas fa-exclamation-triangle mr-2 text-danger"></i>Sắp Hết Hàng (< 5)</h6>
+                <h6 class="m-0 font-weight-bold text-dark serif-font"><i class="fas fa-exclamation-triangle mr-2 text-danger"></i>Sắp Hết Hàng (< 5)</h6>
             </div>
             <div class="card-body p-0">
                 <ul class="list-group list-group-flush">
@@ -243,7 +234,7 @@
     <div class="col-lg-4 mb-4">
         <div class="card shadow-sm border-0" style="border-radius: 12px;">
             <div class="custom-card-header bg-white">
-                <h6 class="m-0 font-weight-bold text-dark-blue serif-font"><i class="fas fa-gem mr-2 text-info"></i>Khách Hàng VIP</h6>
+                <h6 class="m-0 font-weight-bold text-dark serif-font"><i class="fas fa-gem mr-2 text-primary"></i>Khách Hàng VIP</h6>
             </div>
             <div class="card-body p-0">
                 <ul class="list-group list-group-flush">
@@ -253,7 +244,7 @@
                                 <strong class="text-dark">{{ $vip->name }}</strong><br>
                                 <small class="text-muted">{{ $vip->email }}</small>
                             </div>
-                            <span class="badge badge-info badge-pill px-2 py-1">{{ number_format($vip->total_spent, 0, ',', '.') }}đ</span>
+                            <span class="badge badge-primary badge-pill px-2 py-1">{{ number_format($vip->total_spent, 0, ',', '.') }}đ</span>
                         </li>
                     @empty
                         <li class="list-group-item text-muted text-center py-4">Chưa có dữ liệu</li>
@@ -292,7 +283,7 @@
             return s.join(dec);
         }
 
-        // 1. BIỂU ĐỒ ĐƯỜNG ĐÃ ĐỔI MÀU CAM CHÁY ĐỒNG BỘ
+        // 1. BIỂU ĐỒ ĐƯỜNG (DOANH THU) - Tone Xanh Dương
         var ctxArea = document.getElementById("myAreaChart");
         if(ctxArea) {
             new Chart(ctxArea, {
@@ -301,14 +292,14 @@
                     labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
                     datasets: [{
                         label: "Doanh thu",
-                        lineTension: 0.4, // Làm cong đường line cho mượt
-                        backgroundColor: "rgba(211, 84, 0, 0.05)", // Cam nhạt
-                        borderColor: "rgba(211, 84, 0, 1)", // Cam đậm
+                        lineTension: 0.4,
+                        backgroundColor: "rgba(26, 115, 232, 0.05)", /* Xanh dương nhạt */
+                        borderColor: "rgba(26, 115, 232, 1)", /* Xanh dương đậm */
                         pointRadius: 4,
-                        pointBackgroundColor: "rgba(211, 84, 0, 1)",
+                        pointBackgroundColor: "rgba(26, 115, 232, 1)",
                         pointBorderColor: "#fff",
                         pointHoverRadius: 6,
-                        pointHoverBackgroundColor: "rgba(211, 84, 0, 1)",
+                        pointHoverBackgroundColor: "rgba(26, 115, 232, 1)",
                         pointHoverBorderColor: "#fff",
                         pointHitRadius: 10,
                         pointBorderWidth: 2,
@@ -342,7 +333,7 @@
             });
         }
 
-        // 2. BIỂU ĐỒ TRÒN VỚI TONE MÀU WARM/BOOKSTORE
+        // 2. BIỂU ĐỒ TRÒN (TỶ TRỌNG DANH MỤC) - Bảng màu Lạnh/Sáng
         var ctxPie = document.getElementById("myPieChart");
         if(ctxPie && danhMucData.length > 0) {
             new Chart(ctxPie, {
@@ -351,16 +342,15 @@
                     labels: danhMucLabels,
                     datasets: [{
                         data: danhMucData,
-                        // Tùy chỉnh màu sắc bảng màu ấm (Cam, Đỏ đất, Vàng, Xanh dương đậm, Xám)
-                        backgroundColor: ['#D35400', '#2C3E50', '#E67E22', '#34495E', '#F39C12', '#C0392B', '#7F8C8D'],
-                        hoverBackgroundColor: ['#A64200', '#1A252F', '#D35400', '#2C3E50', '#E67E22', '#922B21', '#95A5A6'],
+                        backgroundColor: ['#1A73E8', '#4285F4', '#9AA0A6', '#34A853', '#FBBC05', '#EA4335'],
+                        hoverBackgroundColor: ['#1557B0', '#3367D6', '#80868B', '#248A3D', '#F4B400', '#D93025'],
                         hoverBorderColor: "rgba(234, 236, 244, 1)",
                     }],
                 },
                 options: {
                     maintainAspectRatio: false,
                     tooltips: {
-                        backgroundColor: "rgb(255,255,255)", bodyFontColor: "#858796", borderColor: '#dddfeb', borderWidth: 1,
+                        backgroundColor: "rgb(255, 255, 255)", bodyFontColor: "#858796", borderColor: '#dddfeb', borderWidth: 1,
                         xPadding: 15, yPadding: 15, displayColors: true, caretPadding: 10,
                     },
                     legend: { display: true, position: 'bottom' },
