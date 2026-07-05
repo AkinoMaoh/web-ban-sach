@@ -6,7 +6,7 @@
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Trang quản lý  tác giả</h1>
+                    <h1 class="h3 mb-2 text-gray-800">Trang quản lý tác giả</h1>
                   @if(session('error'))
                     <div class="alert alert-danger">
                         {{ session('error') }}
@@ -45,16 +45,17 @@
                                                 <img src="{{ asset('uploads/authors/' . $author->avatar) }}" alt="Ảnh nhà xuất bản" width="100">
                                             </td>
                                             <td> 
-                                                <a href="{{ route('admin.authors.show', $author->id) }}" class="btn btn-sm btn-primary">Chi tiết</a>
-                                                <a href="{{ route('admin.authors.edit', $author->id) }}" class="btn btn-sm btn-success">Sửa</a>
-                                               <form action="{{ route('admin.authors.toggleStatus', $author->id) }}" method="POST" style="display:inline">
-                                                    @csrf
-                                                    <button type="submit"
-                                                        class="btn btn-sm {{ $author->status ? 'btn-warning' : 'btn-success' }}">
-                                                        {{ $author->status ? 'Ẩn' : 'Hiện' }}
-                                                    </button>
-                                                </form>
-                                                <a href="{{ route('admin.authors.destroy', $author->id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa nhà xuất bản này?')">Xóa</a>
+                                                <a href="{{ route('admin.authors.show', $author->id) }}" class="btn btn-sm btn-primary" title="Chi tiết"> <i class="fas fa-search"></i></a>                          
+                                                <a href="{{ route('admin.authors.edit', $author->id) }}" class="btn btn-sm btn-success" title="Sửa"> <i class="fas fa-edit"></i> </a>
+                                              <form action="{{ route('admin.authors.toggleStatus', $author->id) }}" method="POST" style="display:inline">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="btn btn-sm {{ $author->status ? 'btn-warning' : 'btn-success' }}"
+                                                    title="{{ $author->status ? 'Ẩn' : 'Hiện' }}">
+                                                    <i class="fas {{ $author->status ? 'fa-eye-slash' : 'fa-eye' }}"></i>
+                                                </button>
+                                             </form>
+                                                    <a href="{{ route('admin.authors.destroy', $author->id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa nhà xuất bản này?')" title="Xóa"> <i class="fas fa-trash"></i></a>
                                                
                                             </td>
                                         </tr>

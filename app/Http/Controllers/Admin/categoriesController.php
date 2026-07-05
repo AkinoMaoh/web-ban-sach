@@ -92,18 +92,20 @@ class categoriesController extends Controller
     }
     public function destroy($id)
     {
-        $category = categories::findOrFail($id);
+        $category = Categories::findOrFail($id);
 
         // Kiểm tra còn sản phẩm hay không
-        if ($category->products()->count() > 0) {
-            return redirect()->route('admin.categories')
+        if ($category->products()->exists()) {
+            return redirect()
+                ->route('admin.categories')
                 ->with('error', 'Không thể xóa danh mục vì vẫn còn sản phẩm thuộc danh mục này!');
         }
 
         $category->delete();
 
-        return redirect()->route('admin.categories')
-            ->with('success', 'Danh mục đã được xóa thành công!');
+        return redirect()
+            ->route('admin.categories')
+            ->with('success', 'Xóa danh mục thành công!');
     }
     public function toggleStatus($id)
     {
