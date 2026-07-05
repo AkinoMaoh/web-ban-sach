@@ -86,8 +86,8 @@
 
 
                                 <a href="{{ route('admin.publishers.edit',$publisher->id) }}"
-                                    class="btn btn-sm btn-success">
-                                    Sửa
+                                    class="btn btn-sm btn-success" title="Sửa">
+                                    <i class="fas fa-edit"></i>
                                 </a>
 
 
@@ -101,10 +101,8 @@
 
                                     <button type="submit"
                                         class="btn btn-sm btn-danger"
-                                        onclick="return confirm('Bạn có chắc chắn muốn xóa nhà xuất bản này?')">
-
-                                        Xóa
-
+                                        onclick="return confirm('Bạn có chắc chắn muốn xóa nhà xuất bản này?')" title="Xóa">
+                                        <i class="fas fa-trash"></i>
                                     </button>
 
                                 </form>

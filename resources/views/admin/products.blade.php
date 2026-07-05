@@ -53,17 +53,24 @@
                                                 <img src="{{ asset('uploads/products/' . $product->image) }}" alt="Ảnh sản phẩm" width="100">
                                             </td>
                                             <td> 
-                                                <a href="{{ route('admin.products.show', $product->id) }}" class="btn btn-sm btn-primary">Chi tiết</a>
-                                                <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-sm btn-success">Sửa</a>
-                                               <form action="{{ route('admin.products.toggleStatus', $product->id) }}" method="POST" style="display:inline">
+                                                <a href="{{ route('admin.products.show', $product->id) }}" class="btn btn-sm btn-primary" title="Chi tiết">
+                                                    <i class="fas fa-search"></i>
+                                                </a>
+                                                <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-sm btn-success" title="Sửa">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form action="{{ route('admin.products.toggleStatus', $product->id) }}" method="POST" style="display:inline">
                                                     @csrf
                                                     <button type="submit"
-                                                        class="btn btn-sm {{ $product->status ? 'btn-warning' : 'btn-success' }}">
-                                                        {{ $product->status ? 'Ẩn' : 'Hiện' }}
+                                                        class="btn btn-sm {{ $product->status ? 'btn-warning' : 'btn-success' }}"
+                                                        title="{{ $product->status ? 'Ẩn' : 'Hiện' }}">
+                                                      <i class="fas {{ $product->status ? 'fa-eye-slash' : 'fa-eye' }}"></i>
                                                     </button>
                                                 </form>
-                                                <a href="{{ route('admin.products.destroy', $product->id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')">Xóa</a>
-                                               
+                                                <a href="{{ route('admin.products.destroy', $product->id) }}" class="btn btn-sm btn-danger" title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            
                                             </td>
                                         </tr>
                                        @endforeach

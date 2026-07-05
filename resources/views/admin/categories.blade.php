@@ -50,26 +50,22 @@
                                                 {{ $category->products_count }}
                                             </td>
                                             <td>
-                                                <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-sm btn-success">Sửa</a>
+                                                <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-sm btn-success" title="Sửa"> <i class="fas fa-edit"></i> </a>
                                                <form action="{{ route('admin.categories.toggleStatus', $category->id) }}" method="POST" style="display:inline">
                                                     @csrf
                                                     <button type="submit"
-                                                        class="btn btn-sm {{ $category->status ? 'btn-warning' : 'btn-success' }}">
-                                                        {{ $category->status ? 'Ẩn' : 'Hiện' }}
+                                                        class="btn btn-sm {{ $category->status ? 'btn-warning' : 'btn-success' }}"
+                                                        title="{{ $category->status ? 'Ẩn' : 'Hiện' }}">
+                                                        <i class="fas {{ $category->status ? 'fa-eye-slash' : 'fa-eye' }}"></i>
                                                     </button>
                                                 </form>
                                               
-                                            @if($category->products_count == 0)
-                                                <a href="{{ route('admin.categories.destroy', $category->id) }}"
-                                                class="btn btn-sm btn-danger"
-                                                onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này?')">
-                                                    Xóa
-                                                </a>
-                                            @else
-                                                <button class="btn btn-sm btn-secondary" disabled>
-                                                    Không thể xóa
-                                                </button>
-                                            @endif                                               
+         <a href="{{ route('admin.categories.destroy', $category->id) }}"
+   class="btn btn-sm btn-danger"
+   title="Xóa"
+   onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này?')">
+    <i class="fas fa-trash"></i>
+</a>                          
                                       </td>
                                         </tr>
                                        @endforeach

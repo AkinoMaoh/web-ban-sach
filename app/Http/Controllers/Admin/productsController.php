@@ -63,7 +63,7 @@ class productsController extends Controller
         $product->author_id = $request->author_id;
         $product->description = $request->description;
         $product->price = 0;
-        $product->stock = 0;
+
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = md5_file($image->getRealPath()) . '.' . $image->getClientOriginalExtension();
@@ -99,7 +99,7 @@ class productsController extends Controller
 
 
         $product->price = $standardPrice;
-        $product->stock = ProductVariants::where('product_id', $product->id)->sum('stock');
+        $totalStock = ProductVariants::where('product_id', $product->id)->sum('stock');
         $product->save();
 
         return redirect()
@@ -214,8 +214,7 @@ class productsController extends Controller
         // 3. UPDATE PRODUCT SUMMARY
         // ======================
         $product->price = $standardPrice;
-
-        $product->stock = ProductVariants::where('product_id', $id)->sum('stock');
+        $totalStock = ProductVariants::where('product_id', $product->id)->sum('stock');
 
         $product->save();
 
@@ -239,10 +238,7 @@ class productsController extends Controller
     {
         $product = products::findOrFail($id);
         $product->status = $product->status == 1 ? 0 : 1;
-        $product->stock = productVariants::where(
-            'product_id',
-            $id
-        )->sum('stock');
+        $totalStock = ProductVariants::where('product_id', $id)->sum('stock');
         $product->save();
         return redirect()->back()->with('success', 'Cập nhật trạng thái thành công');
     }
