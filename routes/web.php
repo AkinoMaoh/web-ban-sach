@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\User\shopDetailsController;
 use App\Http\Controllers\User\ShopController;
 use App\Http\Controllers\User\CartController;
+use App\Http\Controllers\User\ContactController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -31,8 +32,11 @@ Route::middleware(['user_only'])->group(function () {
     // Tìm kiếm 
     Route::get('/search', [trangChuController::class, 'search'])->name('user.search');
     Route::get('/search-product', [trangChuController::class, 'searchProduct'])->name('search.product');
-
     Route::get('/product/{id}', [shopDetailsController::class, 'index'])->name('user.productDetails');
+    
+    // Liên hệ
+    Route::get('/contact', [ContactController::class, 'index'])->name('user.contact');
+    Route::post('/contact', [ContactController::class, 'send'])->name('user.contact.send');
     
     // Giỏ hàng
     Route::prefix('cart')->group(function () {
