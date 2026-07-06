@@ -116,13 +116,32 @@ $(document).ready(function() {
     <!-- Gọi file Footer -->
     @include('User.footer')
 
-    <!-- JS để chạy Slider và Dropdown -->
+    <!-- Load jQuery trước -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-    
+
+    <!-- Biến route -->
+    <script>
+    const searchUrl = "{{ route('search.product') }}";
+    </script>
+
+    <!-- Cuối cùng mới load search.js -->
+    <script src="{{ asset('js/search.js') }}"></script>
+
     @stack('scripts')
 </body>
 </html>
+
+
+
+
+
+
+
+
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 

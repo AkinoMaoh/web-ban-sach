@@ -1,5 +1,6 @@
 <header class="modern-header">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ asset('css/search.css') }}">
     <div class="container d-flex justify-content-between align-items-center">
         <!-- Logo -->
         <a href="{{ route('user.index') }}" class="text-decoration-none">
