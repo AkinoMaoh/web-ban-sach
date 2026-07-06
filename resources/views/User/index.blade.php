@@ -162,7 +162,7 @@
 $(document).ready(function(){
     $('#search').keyup(function(){
         let keyword = $(this).val();
-        if(keyword.length < 2) {
+        if(keyword.trim().length < 1) {
             $('#search-result').hide();
             return;
         }
@@ -172,22 +172,34 @@ $(document).ready(function(){
             data: { keyword: keyword },
             success: function(data){
                 let html = "";
-                if(data.length > 0) {
+
+                if(data.length > 0){
                     data.forEach(function(product){
                         html += `
-                        <a href="/product/${product.id}" class="d-flex align-items-center p-2 border-bottom text-decoration-none text-dark hover-light">
-                            <i class="fas fa-book text-muted mr-3"></i>
-                            <span style="font-size: 14px; font-weight: 600;">${product.name}</span>
-                        </a>`;
+                        <a href="/product/${product.id}" class="search-item">
+                            <img src="/uploads/products/${product.image}" class="search-img">
+                            <div class="search-content">
+                                <div class="search-name">
+                                    ${product.name}
+                                </div>
+                                <div class="search-price">
+                                    ${Number(product.price).toLocaleString()} VNĐ
+                                </div>
+                            </div>
+                        </a>
+                        `;
                     });
-                    $('#search-result').html(html).fadeIn(100);
-                } else {
-                    $('#search-result').html('<div class="p-3 text-muted text-center">Không tìm thấy sách...</div>').show();
+                    $('#search-result').html(html).fadeIn(150);
+                }else{
+                    $('#search-result').html(`
+                        <div class="search-empty">
+                            Không tìm thấy sản phẩm
+                        </div>
+                    `).show();
                 }
             }
         });
     });
-
     $(document).click(function(e){
         if(!$(e.target).closest('form').length) {
             $('#search-result').fadeOut(100);
@@ -196,8 +208,73 @@ $(document).ready(function(){
 });
 </script>
 
+<!-- CSS cho tìm kiếm AJAX -->
 <style>
-    .hover-light:hover { background-color: #f8f9fa; color: #D35400 !important; }
-    .last-border-0:last-child { border-bottom: none !important; margin-bottom: 0 !important; padding-bottom: 0 !important; }
+.search-box{
+    position:relative;
+}
+#search-result{
+    position:absolute;
+    top:100%;
+    left:0;
+    width:100%;
+    background:#2b2b2b;
+    border:1px solid #ff9800;
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(255,152,0,.25);
+    overflow:hidden;
+    display:none;
+    z-index:99999;
+    margin-top:5px;
+}
+.search-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px;
+    text-decoration:none !important;   
+    color:#ffb74d;
+    transition:.2s;
+    border-bottom:1px solid #444;
+}
+.search-item:last-child{
+    border-bottom:none;
+}
+.search-item:hover{
+    background:#4a4a4a;                
+    text-decoration:none !important;
+}
+.search-item:hover .search-name{
+    color:#ffb74d;                     
+}
+.search-item:hover .search-price{
+    color:#ffd54f;                     
+}
+.search-img{
+    width:55px;
+    height:75px;
+    object-fit:cover;
+    border-radius:6px;
+    flex-shrink:0;
+}
+.search-content{
+    flex:1;
+}
+.search-name{
+    font-size:15px;
+    font-weight:600;
+    margin-bottom:6px;
+    color:#ff9800;
+}
+.search-price{
+    color:#ffd54f;
+    font-weight:bold;
+    font-size:14px;
+}
+.search-empty{
+    padding:18px;
+    text-align:center;
+    color:#ffb74d;
+}
 </style>
 @endpush
