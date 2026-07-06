@@ -31,44 +31,52 @@
                                value="{{ $product->name }}" required>
                     </div>
 
+               <div class="row">
                     {{-- CATEGORY --}}
-                    <div class="form-group">
-                        <label>Danh mục</label>
-                        <select name="category_id" class="form-control">
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}"
-                                    {{ $product->category_id == $cat->id ? 'selected' : '' }}>
-                                    {{ $cat->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Danh mục</label>
+                            <select name="category_id" class="form-control">
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}"
+                                        {{ $product->category_id == $cat->id ? 'selected' : '' }}>
+                                        {{ $cat->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
                     {{-- AUTHOR --}}
-                    <div class="form-group">
-                        <label>Tác giả</label>
-                        <select name="author_id" class="form-control">
-                            @foreach($authors as $author)
-                                <option value="{{ $author->id }}"
-                                    {{ $product->author_id == $author->id ? 'selected' : '' }}>
-                                    {{ $author->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Tác giả</label>
+                            <select name="author_id" class="form-control">
+                                @foreach($authors as $author)
+                                    <option value="{{ $author->id }}"
+                                        {{ $product->author_id == $author->id ? 'selected' : '' }}>
+                                        {{ $author->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
                     {{-- PUBLISHER --}}
-                    <div class="form-group">
-                        <label>NXB</label>
-                        <select name="publisher_id" class="form-control">
-                            @foreach($publishers as $publisher)
-                                <option value="{{ $publisher->id }}"
-                                    {{ $product->publisher_id == $publisher->id ? 'selected' : '' }}>
-                                    {{ $publisher->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>NXB</label>
+                            <select name="publisher_id" class="form-control">
+                                @foreach($publishers as $publisher)
+                                    <option value="{{ $publisher->id }}"
+                                        {{ $product->publisher_id == $publisher->id ? 'selected' : '' }}>
+                                        {{ $publisher->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
+                </div>
 
                     {{-- DESCRIPTION --}}
                     <div class="form-group">

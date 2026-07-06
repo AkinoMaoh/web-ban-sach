@@ -22,18 +22,43 @@
                                         <label for="name">Tên sách</label>
                                         <input type="text" class="form-control" id="name" name="name" value="{{ $product->name }}" readonly>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="category_id">Danh mục</label>
-                                        <input type="text" class="form-control" id="category_id" name="category_id" value="{{ $product->category->name ?? 'N/A' }}" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="author_id">Tác giả</label>
-                                        <input type="text" class="form-control" id="author_id" name="author_id" value="{{ $product->author->name ?? 'N/A' }}" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="publisher_id">NXB</label>
-                                        <input type="text" class="form-control" id="publisher_id" name="publisher_id" value="{{ $product->publishers->name ?? 'N/A' }}" readonly>
-                                    </div>
+                                 <div class="row">
+                        {{-- Danh mục --}}
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="category_id">Danh mục</label>
+                                <input type="text"
+                                    class="form-control"
+                                    id="category_id"
+                                    value="{{ $product->category->name ?? 'N/A' }}"
+                                    readonly>
+                            </div>
+                        </div>
+
+                        {{-- Tác giả --}}
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="author_id">Tác giả</label>
+                                <input type="text"
+                                    class="form-control"
+                                    id="author_id"
+                                    value="{{ $product->author->name ?? 'N/A' }}"
+                                    readonly>
+                            </div>
+                        </div>
+
+                        {{-- Nhà xuất bản --}}
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="publisher_id">NXB</label>
+                                <input type="text"
+                                    class="form-control"
+                                    id="publisher_id"
+                                    value="{{ $product->publishers->name ?? 'N/A' }}"
+                                    readonly>
+                            </div>
+                        </div>
+                    </div>
                                     <div class="form-group">
                                         <label for="description">Đánh giá</label>
                                         <input type="text" class="form-control" id="description" name="description" value="{{ $product->description }}" readonly>
