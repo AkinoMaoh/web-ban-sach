@@ -22,6 +22,9 @@
                     <a class="nav-link font-weight-bold mb-3 py-2.5 px-3 text-secondary d-flex align-items-center" id="pass-tab" data-toggle="pill" href="#pane-pass" role="tab" style="border-radius: 10px;">
                         <i class="fas fa-lock mr-3" style="font-size: 1.1rem; width: 20px;"></i> Đổi mật khẩu
                     </a>
+                    <a class="nav-link font-weight-bold mb-3 py-2.5 px-3 text-secondary d-flex align-items-center" id="pass-tab" href="{{ route('user.orderHistory') }}" style="border-radius: 10px; transition: 0.3s;">
+                        <i class="fas fa-clipboard-list mr-3" style="font-size: 1.1rem; width: 20px;"></i> Lịch sử mua hàng
+                    </a>
                     
                     <a class="nav-link font-weight-bold py-2.5 px-3 text-danger border border-danger text-center bg-white transition-all" 
                        href="#" style="border-radius: 10px; transition: 0.2s;"

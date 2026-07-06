@@ -68,6 +68,41 @@ body {
     background: inherit;
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('.btn-wishlist').click(function(e) {
+        e.preventDefault();
+        
+        let btn = $(this);
+        let productId = btn.data('id');
+        let icon = btn.find('i');
+
+        // Gửi AJAX
+        axios.post('{{ route('user.wishlist.toggle') }}', {
+            product_id: productId,
+            _token: '{{ csrf_token() }}'
+        })
+        .then(function (response) {
+            // Thay đổi hiệu ứng trái tim
+            if(response.data.status === 'added') {
+                icon.removeClass('far').addClass('fas'); // Đổi thành tim đặc
+                // Báo Toastr hoặc Alert cho sang trọng (nếu bạn có dùng)
+                alert(response.data.message); 
+            } else {
+                icon.removeClass('fas').addClass('far'); // Đổi thành tim rỗng
+                alert(response.data.message);
+            }
+        })
+        .catch(function (error) {
+            if(error.response.status === 401) {
+                alert("Vui lòng đăng nhập để thêm vào danh sách yêu thích!");
+                window.location.href = '/login';
+            }
+        });
+    });
+});
+</script>
 <body>
 
     <!-- Gọi file Header -->
