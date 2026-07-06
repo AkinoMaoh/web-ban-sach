@@ -152,6 +152,14 @@ return new class extends Migration
             $table->integer('quantity')->default(1);
             $table->timestamps(); 
         });
+
+        // Bảng wishlists
+        Schema::create('wishlists', function (Blueprint $table) {
+        $table->id();
+        $table->unsignedBigInteger('user_id');
+        $table->unsignedBigInteger('product_id'); // Lưu theo ID của Sản phẩm (Sách)
+        $table->timestamps();
+    });
     }
 
     public function down(): void
@@ -169,6 +177,8 @@ return new class extends Migration
             'comments',
             'categories',
             'authors',
+            'wishlists',
+            'carts',
         ];
 
         foreach ($tables as $table) {

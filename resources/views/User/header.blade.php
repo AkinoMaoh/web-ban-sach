@@ -22,9 +22,13 @@
                 <div id="search-result" style="position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #ddd; z-index: 999; display: none;"></div>
             </form>
 
-            <a href="/cart" class="text-dark mr-4 position-relative">
+            <a href="{{ route('user.wishlist') }}" class="text-dark mr-3 position-relative" title="Sách yêu thích">
+                <i class="far fa-heart fa-lg"></i>
+            </a>
+            <a href="{{ route('cart.index') }}" class="text-dark mr-3 position-relative">
                 <i class="fas fa-shopping-bag fa-lg"></i>
             </a>
+            
              <!-- Nút chuyển đổi chế độ sáng/tối -->
 <button id="theme-toggle"
         type="button"
