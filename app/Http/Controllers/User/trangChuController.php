@@ -96,7 +96,7 @@ class trangChuController extends Controller
         ));
     }
 
-    // Tìm kiếm hiển thị JS bên dưới ------------------------------------------
+    // Tìm kiếm JS ------------------------------------------------------
     public function searchProduct(Request $request)
     {
         $keyword = $request->keyword;
@@ -108,5 +108,5 @@ class trangChuController extends Controller
 
         return response()->json($products);
     }
-    // ------------------------------------------------------------------------
+    // ------------------------------------------------------------------
 }

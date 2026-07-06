@@ -32,6 +32,8 @@ Route::middleware(['user_only'])->group(function () {
     // Tìm kiếm 
     Route::get('/search', [trangChuController::class, 'search'])->name('user.search');
     Route::get('/search-product', [trangChuController::class, 'searchProduct'])->name('search.product');
+
+
     Route::get('/product/{id}', [shopDetailsController::class, 'index'])->name('user.productDetails');
     
     // Liên hệ
