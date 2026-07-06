@@ -39,7 +39,7 @@ return new class extends Migration
         });
 
         // Bảng orders
-            Schema::create('orders', function (Blueprint $table) {
+        Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id')->nullable(); // Cho phép null khi khách mua không cần tài khoản
             $table->string('billing_email')->nullable(); // Thêm cột lưu email để gửi hóa đơn
@@ -56,14 +56,7 @@ return new class extends Migration
             $table->string('payment_method')->nullable();
         });
 
-        // Bảng order_details
-        Schema::create('order_details', function (Blueprint $table) {
-            $table->id();
-            $table->integer('order_id');
-            $table->integer('product_variant_id');
-            $table->integer('quantity');
-            $table->decimal('price', 15, 2);
-        });
+
 
         // Bảng payments
         Schema::create('payments', function (Blueprint $table) {
@@ -150,7 +143,36 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('product_variant_id');
             $table->integer('quantity')->default(1);
-            $table->timestamps(); 
+            $table->timestamps();
+        });
+        // Bảng order_details
+        Schema::create('order_details', function (Blueprint $table) {
+            $table->id();
+
+            // Khóa ngoại
+            $table->foreignId('order_id')
+                ->constrained('orders')
+                ->onDelete('cascade');
+
+            $table->foreignId('product_variant_id')
+                ->nullable()
+                ->constrained('product_variants')
+                ->nullOnDelete();
+
+            // Lưu thông tin sản phẩm tại thời điểm đặt hàng
+            $table->string('product_name');
+            $table->string('variant_name');
+
+            // Giá tại thời điểm mua
+            $table->decimal('price', 15, 2);
+
+            // Số lượng
+            $table->integer('quantity');
+
+            // Thành tiền
+            $table->decimal('subtotal', 15, 2);
+
+            $table->timestamps();
         });
     }
 
@@ -176,4 +198,3 @@ return new class extends Migration
         }
     }
 };
-

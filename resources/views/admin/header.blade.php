@@ -16,39 +16,62 @@
             </div>
         </div>
     </form>
+   <!-- Topbar Navbar -->
+<ul class="navbar-nav ml-auto align-items-center">
+
     <!-- Nút chuyển đổi chế độ sáng/tối -->
-    <button id="theme-toggle" class="btn btn-light ml-3" style="border-radius: 6px; border: 1px solid var(--admin-orange); color: var(--admin-orange);">
-        <i class="bi bi-moon-fill"></i>
-    </button>
+    <li class="nav-item mr-3">
+        <button id="theme-toggle"
+                type="button"
+                class="btn btn-light"
+                style="border-radius: 6px; border: 1px solid var(--admin-orange); color: var(--admin-orange);">
+            <i class="bi bi-moon-fill"></i>
+        </button>
+    </li>
 
-    <!-- Topbar Navbar -->
-    <ul class="navbar-nav ml-auto">
-        <div class="topbar-divider d-none d-sm-block"></div>
+    <div class="topbar-divider d-none d-sm-block"></div>
 
-        <!-- Nav Item - User Information -->
-        <li class="nav-item dropdown no-arrow">
-            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="mr-2 d-none d-lg-inline text-gray-800 small font-weight-bold">
-                    {{ Auth::check() ? Auth::user()->name : 'Admin' }}
-                </span>
-                <!-- Có thể thay logo này bằng một logo admin nam/nữ hoặc logo sách cho đẹp -->
-                <img class="img-profile rounded-circle border" src="{{ asset('img/undraw_profile.svg') }}">
+    <!-- Nav Item - User Information -->
+    <li class="nav-item dropdown no-arrow">
+        <a class="nav-link dropdown-toggle"
+           href="#"
+           id="userDropdown"
+           role="button"
+           data-toggle="dropdown"
+           aria-haspopup="true"
+           aria-expanded="false">
+
+            <span class="mr-2 d-none d-lg-inline text-gray-800 small font-weight-bold">
+                {{ Auth::check() ? Auth::user()->name : 'Admin' }}
+            </span>
+
+            <img class="img-profile rounded-circle border"
+                 src="{{ asset('img/undraw_profile.svg') }}">
+        </a>
+
+        <div class="dropdown-menu dropdown-menu-right shadow-sm animated--grow-in border-0 mt-2"
+             aria-labelledby="userDropdown"
+             style="border-radius: 10px;">
+
+            <a class="dropdown-item py-2" href="{{ route('admin.profile.edit') }}">
+                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                Hồ sơ cá nhân
             </a>
-            
-            <!-- Dropdown - User Information -->
-            <div class="dropdown-menu dropdown-menu-right shadow-sm animated--grow-in border-0 mt-2" aria-labelledby="userDropdown" style="border-radius: 10px;">
-                <a class="dropdown-item py-2" href="{{ route('admin.profile.edit') }}">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i> Hồ sơ cá nhân
-                </a>
-                
-                <div class="dropdown-divider"></div>
-                
-                <a class="dropdown-item py-2" href="#" data-toggle="modal" data-target="#logoutModal">
-                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-danger"></i> Đăng xuất
-                </a>
-            </div>
-        </li>
-    </ul>
+
+            <div class="dropdown-divider"></div>
+
+            <a class="dropdown-item py-2"
+               href="#"
+               data-toggle="modal"
+               data-target="#logoutModal">
+                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-danger"></i>
+                Đăng xuất
+            </a>
+
+        </div>
+    </li>
+
+</ul>
 </nav>
 <script>
 document.addEventListener("DOMContentLoaded", function () {

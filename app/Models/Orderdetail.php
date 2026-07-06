@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\productVariants;
+
 class OrderDetail extends Model
 {
     protected $table = 'order_details';
@@ -12,8 +12,11 @@ class OrderDetail extends Model
     protected $fillable = [
         'order_id',
         'product_variant_id',
-        'quantity',
+        'product_name',
+        'variant_name',
         'price',
+        'quantity',
+        'subtotal',
     ];
 
     /**

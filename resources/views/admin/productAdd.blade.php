@@ -32,45 +32,52 @@
                                required>
                     </div>
 
+                  <div class="row">
                     {{-- CATEGORY --}}
-                    <div class="form-group">
-                        <label>Danh mục</label>
-                        <select name="category_id" class="form-control" required>
-                            <option value="">Chọn danh mục</option>
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}">
-                                    {{ $cat->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Danh mục</label>
+                            <select name="category_id" class="form-control" required>
+                                <option value="">Chọn danh mục</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}">
+                                        {{ $cat->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
                     {{-- AUTHOR --}}
-                    <div class="form-group">
-                        <label>Tác giả</label>
-                        <select name="author_id" class="form-control" required>
-                            <option value="">Chọn tác giả</option>
-                            @foreach($authors as $author)
-                                <option value="{{ $author->id }}">
-                                    {{ $author->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Tác giả</label>
+                            <select name="author_id" class="form-control" required>
+                                <option value="">Chọn tác giả</option>
+                                @foreach($authors as $author)
+                                    <option value="{{ $author->id }}">
+                                        {{ $author->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
                     {{-- PUBLISHER --}}
-                    <div class="form-group">
-                        <label>NXB</label>
-                        <select name="publisher_id" class="form-control" required>
-                            <option value="">Chọn NXB</option>
-                            @foreach($publishers as $publisher)
-                                <option value="{{ $publisher->id }}">
-                                    {{ $publisher->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>NXB</label>
+                            <select name="publisher_id" class="form-control" required>
+                                <option value="">Chọn NXB</option>
+                                @foreach($publishers as $publisher)
+                                    <option value="{{ $publisher->id }}">
+                                        {{ $publisher->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-
+                </div>  
                     {{-- DESCRIPTION --}}
                     <div class="form-group">
                         <label>Mô tả</label>
