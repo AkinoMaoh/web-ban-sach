@@ -8,12 +8,26 @@
         </a>
         
         <!-- Menu -->
-        <nav class="d-none d-md-flex">
-            <a href="{{ route('user.index') }}" class="nav-link mx-3">Trang chủ</a>
-            <a href="{{ route('user.shop') }}" class="nav-link mx-3">Tủ sách</a>
-            <a href="#" class="nav-link mx-3">Blog</a>
-            <a href="{{ route('user.contact') }}" class="nav-link mx-3">Liên hệ</a>
-        </nav>
+       <nav class="main-menu">
+    <a href="{{ route('user.index') }}"
+       class="menu-item {{ request()->routeIs('user.index') ? 'active' : '' }}">
+        Trang chủ
+    </a>
+
+    <a href="{{ route('user.shop') }}"
+       class="menu-item {{ request()->routeIs('user.shop*') ? 'active' : '' }}">
+        Tủ sách
+    </a>
+
+    <a href="#" class="menu-item">
+        Blog
+    </a>
+
+    <a href="{{ route('user.contact') }}"
+       class="menu-item {{ request()->routeIs('user.contact') ? 'active' : '' }}">
+        Liên hệ
+    </a>
+</nav>
 
         <!-- Search & Auth -->
         <div class="d-flex align-items-center">
@@ -23,9 +37,13 @@
                 <div id="search-result" style="position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #ddd; z-index: 999; display: none;"></div>
             </form>
 
-            <a href="/cart" class="text-dark mr-4 position-relative">
+            <a href="{{ route('user.wishlist') }}" class="text-dark mr-3 position-relative" title="Sách yêu thích">
+                <i class="far fa-heart fa-lg"></i>
+            </a>
+            <a href="{{ route('cart.index') }}" class="text-dark mr-3 position-relative">
                 <i class="fas fa-shopping-bag fa-lg"></i>
             </a>
+            
              <!-- Nút chuyển đổi chế độ sáng/tối -->
 <button id="theme-toggle"
         type="button"

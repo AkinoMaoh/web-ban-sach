@@ -14,6 +14,7 @@ use App\Http\Controllers\User\shopDetailsController;
 use App\Http\Controllers\User\ShopController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\ContactController;
+use App\Http\Controllers\User\OrderHistoryController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -174,6 +175,16 @@ Route::middleware(['auth', 'user_only'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+     // Lịch sử mua hàng
+    Route::get('/order-history', [\App\Http\Controllers\User\OrderHistoryController::class, 'index'])->name('user.orderHistory');
+    Route::get('/order-history/{id}', [\App\Http\Controllers\User\OrderHistoryController::class, 'show'])->name('user.orderHistory.show');
+    Route::post('/history/cancel/{id}', [App\Http\Controllers\User\OrderHistoryController::class, 'cancel'])->name('user.history.cancel');
+
+    // Tính năng Sách yêu thích (Wishlist)
+    Route::get('/wishlist', [App\Http\Controllers\User\WishlistController::class, 'index'])->name('user.wishlist');
+    Route::post('/wishlist/toggle', [App\Http\Controllers\User\WishlistController::class, 'toggle'])->name('user.wishlist.toggle');
+    Route::get('/wishlist/remove/{id}', [App\Http\Controllers\User\WishlistController::class, 'remove'])->name('user.wishlist.remove');
 });
 
 
