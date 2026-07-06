@@ -1,5 +1,5 @@
 @extends('layout.user')
-@include('User.header')
+@section('content')
 
 <!-- Breadcrumb -->
 <div class="bg-white py-3 mb-4 shadow-sm border-bottom">
@@ -106,7 +106,7 @@
                     </table>
                 </div>
             </div>
-            
+           
             <!-- Phân trang -->
             <div class="mt-4 d-flex justify-content-center">
                 {{ $orders->links() }}
@@ -114,5 +114,4 @@
         @endif
     </div>
 </section>
-
-@include('User.footer')
+@endsection 
