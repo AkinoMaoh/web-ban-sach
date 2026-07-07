@@ -40,14 +40,25 @@
             <a href="{{ route('user.wishlist') }}" class="text-dark mr-3 position-relative" title="Sách yêu thích">
                 <i class="far fa-heart fa-lg"></i>
             </a>
-            <a href="{{ route('cart.index') }}" class="text-dark mr-3 position-relative">
-                <i class="fas fa-shopping-bag fa-lg"></i>
-            </a>
+   @php
+    $cart = session('cart', []);
+    $cartCount = count($cart);
+@endphp
+
+<a href="{{ route('cart.index') }}" class="text-dark mr-3 position-relative">
+    <i class="fas fa-shopping-bag fa-lg"></i>
+
+    @if($cartCount > 0)
+        <span class="cart-badge">
+            {{ $cartCount }}
+        </span>
+    @endif
+</a>
             
              <!-- Nút chuyển đổi chế độ sáng/tối -->
-<button id="theme-toggle"
+           <button id="theme-toggle"
         type="button"
-        class="btn btn-outline-secondary ml-3"
+        class="btn mr-3"
         title="Chuyển giao diện">
     <i class="fas fa-moon"></i>
 </button>
