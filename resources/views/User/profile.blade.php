@@ -44,9 +44,16 @@
 
         <div class="col-md-8 col-lg-8">
             <div id="alert-container"></div>
+            
             @if(session('success'))
                 <div class="alert alert-success border-0 shadow-sm mb-4 d-flex align-items-center" style="border-radius: 12px; background-color: #d4edda; color: #155724; padding: 15px;">
                     <i class="fas fa-check-circle mr-2" style="font-size: 1.2rem;"></i> <strong>{{ session('success') }}</strong>
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="alert alert-danger border-0 shadow-sm mb-4" style="border-radius: 12px;">
+                    <i class="fas fa-exclamation-circle mr-2"></i> {{ $errors->first() }}
                 </div>
             @endif
 
@@ -130,9 +137,8 @@
                         <p class="text-muted small">Hệ thống sẽ gửi mã xác nhận về Email: <strong>{{ Auth::user()->email }}</strong> trước khi đổi.</p>
                     </div>
                     
-                    <form action="{{ route('profile.update') }}" method="POST" id="password-change-form">
+                    <form action="{{ route('password.reset.update') }}" method="POST" id="password-change-form">
                         @csrf
-                        @method('PATCH')
                         <input type="hidden" name="name" value="{{ Auth::user()->name }}">
                         <input type="hidden" name="email" value="{{ Auth::user()->email }}">
 
@@ -216,39 +222,43 @@
             let email = $('#user_email').val();
             let btn = $(this);
 
-            // Gửi request lên server để xử lý gửi mail OTP (Bạn cần tạo Route này trong web.php)
             btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Đang gửi...');
 
             $.ajax({
-                url: "{{ route('password.verify.send') }}", // Đã sửa thành route thực tế trong web.php
+                url: "{{ route('password.verify.send') }}", 
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
                     email: email
                 },
                 success: function(response) {
-                    // Hiện ô nhập OTP và mở khóa nút Cập nhật mật khẩu
-                    $('#otp-group').slideDown();
-                    $('#btn-submit-password').prop('disabled', false);
-                    
-                    // Hiện thông báo thành công dạng alert
-                    $('#alert-container').html(`
-                        <div class="alert alert-info border-0 shadow-sm mb-4" style="border-radius: 12px;">
-                            <i class="fas fa-info-circle mr-2"></i> Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư!
-                        </div>
-                    `);
+                    if (response.success) {
+                        // Hiện ô nhập OTP và mở khóa nút Cập nhật mật khẩu
+                        $('#otp-group').slideDown();
+                        $('#btn-submit-password').prop('disabled', false);
+                        
+                        // Hiện thông báo thành công dạng alert
+                        $('#alert-container').html(`
+                            <div class="alert alert-info border-0 shadow-sm mb-4" style="border-radius: 12px;">
+                                <i class="fas fa-info-circle mr-2"></i> Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư!
+                            </div>
+                        `);
 
-                    // Bộ đếm ngược 60 giây để gửi lại
-                    let timeLeft = 60;
-                    let timer = setInterval(function() {
-                        if (timeLeft <= 0) {
-                            clearInterval(timer);
-                            btn.prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i> GỬI LẠI MÃ');
-                        } else {
-                            btn.html(`<i class="fas fa-clock mr-2"></i> Gửi lại sau (${timeLeft}s)`);
-                            timeLeft--;
-                        }
-                    }, 1000);
+                        // Bộ đếm ngược 60 giây để gửi lại
+                        let timeLeft = 60;
+                        let timer = setInterval(function() {
+                            if (timeLeft <= 0) {
+                                clearInterval(timer);
+                                btn.prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i> GỬI LẠI MÃ');
+                            } else {
+                                btn.html(`<i class="fas fa-clock mr-2"></i> Gửi lại sau (${timeLeft}s)`);
+                                timeLeft--;
+                            }
+                        }, 1000);
+                    } else {
+                        alert(response.msg);
+                        btn.prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i> GỬI MÃ XÁC NHẬN');
+                    }
                 },
                 error: function(xhr) {
                     btn.prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i> GỬI MÃ XÁC NHẬN');
