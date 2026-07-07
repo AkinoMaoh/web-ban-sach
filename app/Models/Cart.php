@@ -18,7 +18,7 @@ class Cart extends Model
         'quantity'
     ];
 
-    public function productVariant()
+    public function variant()
     {
         return $this->belongsTo(ProductVariants::class, 'product_variant_id');
     }
