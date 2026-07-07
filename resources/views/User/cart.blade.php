@@ -19,54 +19,62 @@
     @else
         <div class="row">
             <div class="col-lg-8">
-                @php $grandTotal = 0; $hasOutOfStock = false; @endphp
                 @foreach($cartItems as $item)
                     @php 
-                        // Kiểm tra trạng thái tồn kho
                         $isOutOfStock = ($item->variant->stock <= 0 || $item->quantity > $item->variant->stock);
-                        if ($isOutOfStock) $hasOutOfStock = true;
-                        
-                        $price = $item->variant->price ?? 0;
-                        $subTotal = $price * $item->quantity;
-                        $grandTotal += $subTotal;
+                        $unitPrice = $item->variant->price;
+                        $subTotal = $unitPrice * $item->quantity;
                     @endphp
                     
                     <div class="card mb-3 shadow-sm border-0 p-3 {{ $isOutOfStock ? 'border border-danger' : '' }}" style="border-radius: 12px;">
                         <div class="row align-items-center">
+                            <!-- Checkbox chọn hàng -->
+                            <div class="col-1 text-center">
+                                <input type="checkbox" class="cart-checkbox" value="{{ $item->variant->id }}" 
+                                       data-subtotal="{{ $subTotal }}"
+                                       {{ $isOutOfStock ? 'disabled' : 'checked' }} 
+                                       onchange="updateTotal()">
+                            </div>
+                            
                             <div class="col-2 text-center">
                                 <img src="{{ asset('uploads/products/' . ($item->variant->product->image ?? 'default.jpg')) }}" class="img-fluid rounded" style="max-height: 80px;">
                             </div>
+                            
                             <div class="col-3">
                                 <h6 class="font-weight-bold mb-1">{{ $item->variant->product->name ?? 'Sản phẩm đã xóa' }}</h6>
                                 @if($isOutOfStock)
                                     <small class="text-danger font-weight-bold"><i class="fas fa-exclamation-triangle"></i> Hết hàng/Không đủ SL</small>
                                 @endif
                             </div>
+                            
+                            <!-- Hiển thị công thức giá -->
+                            <div class="col-2 text-center">
+                                <small class="text-muted d-block">{{ number_format($unitPrice) }} đ x {{ $item->quantity }}</small>
+                                <strong class="text-dark">{{ number_format($subTotal) }} đ</strong>
+                            </div>
+                            
                             <div class="col-3">
-                                <label class="small text-muted mb-1">Phiên bản:</label>
                                 <select class="form-control form-control-sm auto-update" data-old-id="{{ $item->variant->id }}">
                                     @foreach($item->variant->product->variants as $v)
-                                        <!-- Vô hiệu hóa các phiên bản hết hàng -->
-                                        <option value="{{ $v->id }}" 
-                                            {{ $v->id == $item->variant->id ? 'selected' : '' }} 
-                                            {{ $v->stock <= 0 ? 'disabled' : '' }}>
-                                            {{ $v->edition }} ({{ number_format($v->price) }} đ) {{ $v->stock <= 0 ? '- Hết hàng' : '' }}
+                                        <option value="{{ $v->id }}" {{ $v->id == $item->variant->id ? 'selected' : '' }} {{ $v->stock <= 0 ? 'disabled' : '' }}>
+                                            {{ $v->edition }} {{ $v->stock <= 0 ? '- Hết hàng' : '' }}
                                         </option>
                                     @endforeach
                                 </select>
-                            </div>
-                            <div class="col-2">
-                                <label class="small text-muted mb-1">SL:</label>
-                                <!-- Chặn nhập số <= 0 -->
                                 <input type="number" value="{{ $item->quantity }}" min="1" 
                                        oninput="this.value = Math.max(1, this.value)"
-                                       class="form-control form-control-sm auto-update" 
+                                       class="form-control form-control-sm auto-update mt-2" 
                                        data-old-id="{{ $item->variant->id }}">
                             </div>
-                            <div class="col-2 text-center">
+
+                            <!-- Nút Xóa Sản Phẩm -->
+                            <div class="col-1 text-center">
                                 <form action="{{ route('cart.remove', $item->variant->id) }}" method="POST">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="btn btn-link text-danger p-0"><i class="fas fa-trash"></i></button>
+                                    @csrf 
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-link text-danger p-0" title="Xóa sản phẩm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -74,26 +82,21 @@
                 @endforeach
             </div>
 
+            <!-- Tóm tắt đơn hàng -->
             <div class="col-lg-4">
                 <div class="card shadow-sm border-0 p-4" style="border-radius: 15px;">
                     <h5 class="serif-font font-weight-bold mb-3">Tóm tắt đơn hàng</h5>
                     <div class="d-flex justify-content-between mb-3">
                         <span>Tổng cộng:</span>
-                        <strong class="text-primary" style="font-size: 1.3rem;">{{ number_format($grandTotal) }} đ</strong>
+                        <strong id="grand-total" class="text-primary" style="font-size: 1.3rem;">0 đ</strong>
                     </div>
                     
-                    @if($hasOutOfStock)
-                        <div class="alert alert-warning small">
-                            Có sản phẩm trong giỏ không khả dụng. Vui lòng chọn phiên bản khác hoặc thay đổi số lượng.
-                        </div>
-                        <button class="btn btn-secondary w-100 py-3 rounded-pill" disabled>
-                            Không thể thanh toán
-                        </button>
-                    @else
-                        <a href="{{ route('checkout.index') }}" class="btn btn-orange w-100 py-3 rounded-pill font-weight-bold">
+                    <form id="checkout-form" action="{{ route('checkout.index') }}" method="GET">
+                        <input type="hidden" name="selected_ids" id="selected_ids">
+                        <button type="submit" id="btn-checkout" class="btn btn-orange w-100 py-3 rounded-pill font-weight-bold shadow-sm">
                             Thanh toán ngay
-                        </a>
-                    @endif
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -104,6 +107,18 @@
 @push('scripts')
 <style>.btn-orange { background: #D35400; color: white; border: none; }</style>
 <script>
+    function updateTotal() {
+        let total = 0;
+        let selectedIds = [];
+        document.querySelectorAll('.cart-checkbox:checked').forEach(cb => {
+            total += parseInt(cb.dataset.subtotal);
+            selectedIds.push(cb.value);
+        });
+        document.getElementById('grand-total').innerText = total.toLocaleString('vi-VN') + ' đ';
+        document.getElementById('selected_ids').value = selectedIds.join(',');
+        document.getElementById('btn-checkout').disabled = (selectedIds.length === 0);
+    }
+
     document.querySelectorAll('.auto-update').forEach(el => {
         el.addEventListener('change', function() {
             let row = this.closest('.card');
@@ -113,10 +128,12 @@
                 body: JSON.stringify({
                     old_variant_id: this.dataset.oldId,
                     product_variant_id: row.querySelector('select').value,
-                    quantity: row.querySelector('input').value
+                    quantity: row.querySelector('input[type="number"]').value
                 })
             }).then(() => location.reload());
         });
     });
+
+    window.onload = updateTotal;
 </script>
 @endpush
