@@ -40,9 +40,12 @@
             <a href="{{ route('user.wishlist') }}" class="text-dark mr-3 position-relative" title="Sách yêu thích">
                 <i class="far fa-heart fa-lg"></i>
             </a>
-   @php
-    $cart = session('cart', []);
-    $cartCount = count($cart);
+  @php
+if(auth()->check()){
+    $cartCount = \App\Models\Cart::where('user_id', auth()->id())->count();
+}else{
+    $cartCount = count(session('cart', []));
+}
 @endphp
 
 <a href="{{ route('cart.index') }}" class="text-dark mr-3 position-relative">
