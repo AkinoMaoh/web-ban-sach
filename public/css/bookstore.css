@@ -759,3 +759,46 @@ html.dark-mode .menu-item.active {
 html.dark-mode .menu-item.active:hover {
     color: #fff !important;
 }
+#theme-toggle {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#theme-toggle:focus,
+#theme-toggle:active {
+    outline: none;
+    box-shadow: none;
+}
+/* Light mode */
+#theme-toggle {
+    color: #333;
+    border: none;
+    background: transparent;
+}
+
+/* Dark mode */
+.dark-mode #theme-toggle {
+    color: #fff;
+}
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+
+    width: 18px;
+    height: 18px;
+
+    background: #e74c3c;
+    color: white;
+
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 11px;
+    font-weight: bold;
+}
