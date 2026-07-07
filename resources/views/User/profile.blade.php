@@ -3,6 +3,8 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
 <div class="container py-5" >
     <div class="row justify-content-center">
         
@@ -22,7 +24,7 @@
                     <a class="nav-link font-weight-bold mb-3 py-2.5 px-3 text-secondary d-flex align-items-center" id="pass-tab" data-toggle="pill" href="#pane-pass" role="tab" style="border-radius: 10px;">
                         <i class="fas fa-lock mr-3" style="font-size: 1.1rem; width: 20px;"></i> Đổi mật khẩu
                     </a>
-                    <a class="nav-link font-weight-bold mb-3 py-2.5 px-3 text-secondary d-flex align-items-center" id="pass-tab" href="{{ route('user.orderHistory') }}" style="border-radius: 10px; transition: 0.3s;">
+                    <a class="nav-link font-weight-bold mb-3 py-2.5 px-3 text-secondary d-flex align-items-center" id="order-tab" href="{{ route('user.orderHistory') }}" style="border-radius: 10px; transition: 0.3s;">
                         <i class="fas fa-clipboard-list mr-3" style="font-size: 1.1rem; width: 20px;"></i> Lịch sử mua hàng
                     </a>
                     
@@ -41,6 +43,7 @@
         </div>
 
         <div class="col-md-8 col-lg-8">
+            <div id="alert-container"></div>
             @if(session('success'))
                 <div class="alert alert-success border-0 shadow-sm mb-4 d-flex align-items-center" style="border-radius: 12px; background-color: #d4edda; color: #155724; padding: 15px;">
                     <i class="fas fa-check-circle mr-2" style="font-size: 1.2rem;"></i> <strong>{{ session('success') }}</strong>
@@ -76,7 +79,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text bg-light border-right-0" style="border-radius: 8px 0 0 8px;"><i class="fas fa-envelope text-muted"></i></span>
                                     </div>
-                                    <input type="email" name="email" class="form-control border-left-0 bg-light text-muted" value="{{ old('email', Auth::user()->email) }}" readonly style="border-radius: 0 8px 8px 0; padding: 10px; cursor: not-allowed;">
+                                    <input type="email" id="user_email" name="email" class="form-control border-left-0 bg-light text-muted" value="{{ Auth::user()->email }}" readonly style="border-radius: 0 8px 8px 0; padding: 10px; cursor: not-allowed;">
                                 </div>
                             </div>
 
@@ -114,7 +117,7 @@
                         </div>
                         
                         <div class="text-right">
-                            <button type="submit" class="btn text-white font-weight-bold px-5 py-2.5 shadow-sm btn-save" style="border-radius: 8px; background-color: #2f4c39; tracking-wider: 0.5px;">
+                            <button type="submit" class="btn text-white font-weight-bold px-5 py-2.5 shadow-sm btn-save" style="border-radius: 8px; background-color: #2f4c39;">
                                 <i class="fas fa-save mr-2"></i> LƯU THAY ĐỔI HỒ SƠ
                             </button>
                         </div>
@@ -124,10 +127,10 @@
                 <div class="tab-pane fade" id="pane-pass" role="tabpanel">
                     <div class="border-b pb-2 mb-4">
                         <h5 class="font-weight-bold text-dark mb-1">Thiết Lập Mật Khẩu</h5>
-                        <p class="text-muted small">Đổi mật khẩu định kỳ để bảo vệ tài khoản tốt hơn.</p>
+                        <p class="text-muted small">Hệ thống sẽ gửi mã xác nhận về Email: <strong>{{ Auth::user()->email }}</strong> trước khi đổi.</p>
                     </div>
                     
-                    <form action="{{ route('profile.update') }}" method="POST">
+                    <form action="{{ route('profile.update') }}" method="POST" id="password-change-form">
                         @csrf
                         @method('PATCH')
                         <input type="hidden" name="name" value="{{ Auth::user()->name }}">
@@ -136,21 +139,32 @@
                         <div class="form-group mb-3">
                             <label class="font-weight-bold text-dark small">Mật khẩu mới</label>
                             <div style="position: relative; display: flex; align-items: center;">
-                                <input id="pass_new" type="password" name="password" class="form-control" placeholder="Nhập mật khẩu mới..." style="border-radius: 8px; padding: 10px 60px 10px 12px; height: 45px;">
+                                <input id="pass_new" type="password" name="password" class="form-control" placeholder="Nhập mật khẩu mới..." style="border-radius: 8px; padding: 10px 60px 10px 12px; height: 45px;" required>
                                 <button type="button" class="btn-eye" data-target="#pass_new" style="position: absolute; right: 10px; border: none; background: #e9ecef; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 6px; color: #495057;">HIỆN</button>
                             </div>
                         </div>
 
-                        <div class="form-group mb-4">
+                        <div class="form-group mb-3">
                             <label class="font-weight-bold text-dark small">Xác nhận mật khẩu mới</label>
                             <div style="position: relative; display: flex; align-items: center;">
-                                <input id="pass_confirm" type="password" name="password_confirmation" class="form-control" placeholder="Nhập lại mật khẩu..." style="border-radius: 8px; padding: 10px 60px 10px 12px; height: 45px;">
+                                <input id="pass_confirm" type="password" name="password_confirmation" class="form-control" placeholder="Nhập lại mật khẩu..." style="border-radius: 8px; padding: 10px 60px 10px 12px; height: 45px;" required>
                                 <button type="button" class="btn-eye" data-target="#pass_confirm" style="position: absolute; right: 10px; border: none; background: #e9ecef; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 6px; color: #495057;">HIỆN</button>
                             </div>
                         </div>
+
+                        <div class="form-group mb-4" id="otp-group" style="display: none;">
+                            <label class="font-weight-bold text-danger small">Mã xác nhận (OTP)</label>
+                            <div class="input-group">
+                                <input type="text" name="otp_code" id="otp_code" class="form-control font-weight-bold text-center text-dark" placeholder="Nhập 6 số mã xác nhận..." style="border-radius: 8px; height: 45px; letter-spacing: 4px; font-size: 1.1rem;">
+                            </div>
+                        </div>
                         
-                        <div class="text-right">
-                            <button type="submit" class="btn btn-warning font-weight-bold px-5 py-2.5 shadow-sm text-dark" style="border-radius: 8px; background-color: #ffc107; border:none;">
+                        <div class="d-flex justify-content-end align-items-center" style="gap: 15px;">
+                            <button type="button" class="btn btn-outline-secondary font-weight-bold px-4 py-2.5" id="btn-send-otp" style="border-radius: 8px;">
+                                <i class="fas fa-paper-plane mr-2"></i> GỬI MÃ XÁC NHẬN
+                            </button>
+
+                            <button type="submit" class="btn btn-warning font-weight-bold px-5 py-2.5 shadow-sm text-dark" id="btn-submit-password" style="border-radius: 8px; background-color: #ffc107; border:none;" disabled>
                                 <i class="fas fa-key mr-2"></i> CẬP NHẬT MẬT KHẨU
                             </button>
                         </div>
@@ -172,6 +186,7 @@
 </style>
 
 <script>
+    // JS xử lý ẩn/hiện mật khẩu
     document.querySelectorAll('.btn-eye').forEach(btn => {
         btn.addEventListener('click', function () {
             const input = document.querySelector(this.getAttribute('data-target'));
@@ -186,6 +201,60 @@
                 this.style.backgroundColor = '#e9ecef';
                 this.style.color = '#495057';
             }
+        });
+    });
+
+    // JS kích hoạt Tab Bootstrap
+    $(document).ready(function() {
+        $('#v-pills-tab a[data-toggle="pill"]').on('click', function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+        });
+
+        // XỬ LÝ GỬI MÃ OTP QUA AJAX
+        $('#btn-send-otp').click(function() {
+            let email = $('#user_email').val();
+            let btn = $(this);
+
+            // Gửi request lên server để xử lý gửi mail OTP (Bạn cần tạo Route này trong web.php)
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Đang gửi...');
+
+            $.ajax({
+                url: "{{ route('password.verify.send') }}", // Đã sửa thành route thực tế trong web.php
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    email: email
+                },
+                success: function(response) {
+                    // Hiện ô nhập OTP và mở khóa nút Cập nhật mật khẩu
+                    $('#otp-group').slideDown();
+                    $('#btn-submit-password').prop('disabled', false);
+                    
+                    // Hiện thông báo thành công dạng alert
+                    $('#alert-container').html(`
+                        <div class="alert alert-info border-0 shadow-sm mb-4" style="border-radius: 12px;">
+                            <i class="fas fa-info-circle mr-2"></i> Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư!
+                        </div>
+                    `);
+
+                    // Bộ đếm ngược 60 giây để gửi lại
+                    let timeLeft = 60;
+                    let timer = setInterval(function() {
+                        if (timeLeft <= 0) {
+                            clearInterval(timer);
+                            btn.prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i> GỬI LẠI MÃ');
+                        } else {
+                            btn.html(`<i class="fas fa-clock mr-2"></i> Gửi lại sau (${timeLeft}s)`);
+                            timeLeft--;
+                        }
+                    }, 1000);
+                },
+                error: function(xhr) {
+                    btn.prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i> GỬI MÃ XÁC NHẬN');
+                    alert('Có lỗi xảy ra khi gửi mã OTP. Vui lòng thử lại!');
+                }
+            });
         });
     });
 </script>

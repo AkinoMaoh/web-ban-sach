@@ -18,12 +18,15 @@ use App\Http\Controllers\User\OrderHistoryController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\PhoneLoginController;
+use App\Http\Controllers\Auth\PasswordResetController; // THÊM CONTROLLER NÀY
+
 
 /*
 |--------------------------------------------------------------------------
 | 1. ROUTE CÔNG KHAI (CHỈ DÀNH CHO KHÁCH HÀNG / USER THƯỜNG KHÔNG PHẢI ADMIN)
 |--------------------------------------------------------------------------
-| Sử dụng thêm middleware 'user_only' để chặn đứng tài khoản Admin vào xem/mua hàng.
 */
 Route::middleware(['user_only'])->group(function () {
     Route::get('/', [trangChuController::class, 'index'])->name('user.index');
@@ -33,7 +36,6 @@ Route::middleware(['user_only'])->group(function () {
     // Tìm kiếm 
     Route::get('/search', [trangChuController::class, 'search'])->name('user.search');
     Route::get('/search-product', [trangChuController::class, 'searchProduct'])->name('search.product');
-
 
     Route::get('/product/{id}', [shopDetailsController::class, 'index'])->name('user.productDetails');
     
@@ -62,12 +64,10 @@ Route::middleware(['user_only'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/dashboard', function (Request $request) {
-    // 1. Nếu không phải Admin -> Cho ra trang chủ người dùng thường
     if ((int)Auth::user()->role !== 1) {
         return redirect('/');
     }
 
-    // 2. Nếu là Admin nhưng CHƯA ĐƯỢC DUYỆT (is_active = 0) -> Đăng xuất ngay lập tức
     if ((int)Auth::user()->is_active !== 1) {
         Auth::logout();
         $request->session()->invalidate();
@@ -78,7 +78,6 @@ Route::get('/dashboard', function (Request $request) {
         ]);
     }
 
-    // 3. Nếu là Admin đã được phê duyệt hợp lệ -> Cho phép truy cập vào Dashboard quản trị
     return redirect()->route('admin.dashboard');
 })->middleware(['auth'])->name('dashboard');
 
@@ -89,11 +88,9 @@ Route::get('/dashboard', function (Request $request) {
 |--------------------------------------------------------------------------
 */
 Route::middleware('guest')->prefix('admin')->group(function () {
-    // Đăng nhập Admin
     Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
     Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
 
-    // Đăng ký Admin
     Route::get('/register', [AdminAuthController::class, 'showRegisterForm'])->name('admin.register');
     Route::post('/register', [AdminAuthController::class, 'register'])->name('admin.register.submit');
 });
@@ -103,21 +100,14 @@ Route::middleware('guest')->prefix('admin')->group(function () {
 |--------------------------------------------------------------------------
 | 4. KHU VỰC QUẢN TRỊ VIÊN (ADMIN PANEL) - ĐÃ QUA PHÊ DUYỆT BẢO MẬT
 |--------------------------------------------------------------------------
-| Middleware 'admin' sẽ kích hoạt file AdminMiddleware kiểm tra quyền nghiêm ngặt của bạn.
 */
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-
-    // Trang chủ quản trị
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-
-    // Đăng xuất Admin
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
-    // Hồ sơ Admin
     Route::get('/profile', [AdminAuthController::class, 'editProfile'])->name('admin.profile.edit');
     Route::put('/profile', [AdminAuthController::class, 'updateProfile'])->name('admin.profile.update');
 
-    // --- KHU VỰC QUẢN LÝ VÀ PHÊ DUYỆT ADMIN ---
     Route::get('/manage-admins', [AdminAuthController::class, 'manageAdmins'])->name('admin.manage');
     Route::post('/manage-admins/{id}/approve', [AdminAuthController::class, 'approveAdmin'])->name('admin.approve');
     Route::delete('/manage-admins/{id}/reject', [AdminAuthController::class, 'rejectAdmin'])->name('admin.reject');
@@ -168,24 +158,47 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 |--------------------------------------------------------------------------
 | 5. ROUTE PROFILE (CHỈ DÀNH RIÊNG CHO USER THƯỜNG)
 |--------------------------------------------------------------------------
-| Thêm middleware 'user_only' để chặn hoàn toàn tài khoản Admin vào chỉnh sửa profile tại đây.
-| Admin muốn sửa hồ sơ đã có route riêng: 'admin.profile.edit' ở bên trên mục số 4.
 */
 Route::middleware(['auth', 'user_only'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-     // Lịch sử mua hàng
-    Route::get('/order-history', [\App\Http\Controllers\User\OrderHistoryController::class, 'index'])->name('user.orderHistory');
-    Route::get('/order-history/{id}', [\App\Http\Controllers\User\OrderHistoryController::class, 'show'])->name('user.orderHistory.show');
-    Route::post('/history/cancel/{id}', [App\Http\Controllers\User\OrderHistoryController::class, 'cancel'])->name('user.history.cancel');
+    Route::get('/order-history', [OrderHistoryController::class, 'index'])->name('user.orderHistory');
+    Route::get('/order-history/{id}', [OrderHistoryController::class, 'show'])->name('user.orderHistory.show');
+    Route::post('/history/cancel/{id}', [OrderHistoryController::class, 'cancel'])->name('user.history.cancel');
 
-    // Tính năng Sách yêu thích (Wishlist)
     Route::get('/wishlist', [App\Http\Controllers\User\WishlistController::class, 'index'])->name('user.wishlist');
     Route::post('/wishlist/toggle', [App\Http\Controllers\User\WishlistController::class, 'toggle'])->name('user.wishlist.toggle');
     Route::get('/wishlist/remove/{id}', [App\Http\Controllers\User\WishlistController::class, 'remove'])->name('user.wishlist.remove');
+
+    // --- CẤU HÌNH MỚI: QUY TRÌNH ĐỔI MẬT KHẨU QUA MÃ OTP EMAIL ---
+    // Giao diện bước 1: Yêu cầu bấm gửi và nhập mã OTP
+    Route::get('/password/verify', [PasswordResetController::class, 'showVerifyForm'])->name('password.verify.form');
+    // API xử lý gửi mã xác thực ngẫu nhiên vào hòm thư
+    Route::post('/password/send-otp', [PasswordResetController::class, 'sendOtp'])->name('password.verify.send');
+    // API kiểm tra mã OTP khớp hay sai để mở khóa bước kế tiếp
+    Route::post('/password/verify-otp', [PasswordResetController::class, 'verifyOtp'])->name('password.verify.match');
+    
+    // Giao diện bước 2: Trang điền hai trường mật khẩu mới (Chỉ cho xem khi OTP đúng)
+    Route::get('/password/reset-fields', [PasswordResetController::class, 'showResetFieldsForm'])->name('password.reset.fields');
+    // Xử lý cập nhật chính thức mật khẩu đã băm vào Database
+    Route::post('/password/update-new', [PasswordResetController::class, 'updatePassword'])->name('password.reset.update');
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| 6. ROUTE LOGIN SOCIAL & OTP (Đã được chuẩn hóa phương thức POST)
+|--------------------------------------------------------------------------
+*/
+// Đăng nhập Google
+Route::post('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+
+// Đăng nhập Số điện thoại OTP qua Log file
+Route::post('phone/send-otp', [PhoneLoginController::class, 'sendOtp'])->name('phone.sendOtp');
+Route::post('login-phone-verify', [PhoneLoginController::class, 'verifyLogin'])->name('login.phone.verify');
 
 
 // Các tuyến đường auth đăng nhập/đăng ký mặc định của hệ thống Người dùng thường
