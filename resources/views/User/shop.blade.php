@@ -1,6 +1,15 @@
 @extends('layout.user')
 
 @section('content')
+@php
+    $wishlistIds = [];
+    if(Auth::check()) {
+        $wishlistIds = \Illuminate\Support\Facades\DB::table('wishlists')
+            ->where('user_id', Auth::id())
+            ->pluck('product_id')
+            ->toArray();
+    }
+@endphp
 <!-- Breadcrumb -->
 <div class="bg-light py-3 mb-4 border-bottom">
     <div class="container">
@@ -36,7 +45,7 @@
                 </ul>
             </div>
 
-            <!-- Box Lọc (Chỉ hiển thị nút Lọc khi ở trong Trang Danh Mục vì hàm index không xử lý lọc) -->
+            <!-- Box Lọc -->
             @if(isset($danhMuc))
                 <div class="card border-0 shadow-sm rounded mb-4">
                     <div class="card-header text-white font-weight-bold serif-font rounded-top" style="background-color: #2C3E50;">
@@ -94,7 +103,7 @@
         <!-- Cột phải: Vùng hiển thị sách -->
         <section class="col-lg-9">
             
-            {{-- TRƯỜNG HỢP 1: TRANG CỬA HÀNG CHUNG (Nhóm theo danh mục) --}}
+            {{-- TRƯỜNG HỢP 1: TRANG CỬA HÀNG CHUNG --}}
             @if(isset($sanPhamTheoDanhMuc))
                 <div class="mb-4">
                     <h2 class="serif-font font-weight-bold">Khám phá Tủ sách</h2>
@@ -108,20 +117,27 @@
                             <a href="{{ route('user.category', $dm->id) }}" class="text-decoration-none" style="color: var(--primary-color); font-weight: 600;">Xem thêm <i class="fas fa-arrow-right ml-1"></i></a>
                         </div>
                         
-                        <div class="book-grid">
+                        <div class="book-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
                             @foreach($dm->sanPham as $product)
-                                <a href="{{ route('user.productDetails', $product->id) }}" class="book-card text-center text-dark text-decoration-none">
-                                    <img src="{{ asset('uploads/products/' . $product->image) }}" class="book-cover" alt="{{ $product->name }}">
-                                    <h3 class="book-title" title="{{ $product->name }}">{{ $product->name }}</h3>
-                                    <p class="book-price">{{ number_format($product->price, 0, ',', '.') }} ₫</p>
-                                </a>
+                                <div class="position-relative book-card text-center">
+                                    <!-- Nút Wishlist -->
+                                    <button class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute" data-id="{{ $product->id }}" style="top: 10px; right: 10px; z-index: 10; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: none;">
+                                        <i class="{{ in_array($product->id, $wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" style="color: #D35400; font-size: 16px;"></i>
+                                    </button>
+
+                                    <a href="{{ route('user.productDetails', $product->id) }}" class="text-decoration-none text-dark d-block">
+                                        <img src="{{ asset('uploads/products/' . $product->image) }}" class="book-cover" style="width:100%; height:auto;" alt="{{ $product->name }}">
+                                        <h3 class="book-title mt-2" title="{{ $product->name }}">{{ $product->name }}</h3>
+                                        <p class="book-price">{{ number_format($product->price, 0, ',', '.') }} ₫</p>
+                                    </a>
+                                </div>
                             @endforeach
                         </div>
                     </div>
                 @endforeach
             @endif
 
-            {{-- TRƯỜNG HỢP 2: TRANG CHI TIẾT 1 DANH MỤC (Có phân trang, bộ lọc) --}}
+            {{-- TRƯỜNG HỢP 2: TRANG CHI TIẾT 1 DANH MỤC --}}
             @if(isset($danhSachSanPham))
                 <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
                     <h2 class="serif-font font-weight-bold mb-0" style="color: #2C3E50;">{{ $danhMuc->name }}</h2>
@@ -134,13 +150,20 @@
                         <h5 class="text-muted">Chưa có tác phẩm nào phù hợp với bộ lọc.</h5>
                     </div>
                 @else
-                    <div class="book-grid">
+                    <div class="book-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
                         @foreach ($danhSachSanPham as $product)
-                            <a href="{{ route('user.productDetails', $product->id) }}" class="book-card text-center text-dark text-decoration-none">
-                                <img src="{{ asset('uploads/products/' . $product->image) }}" class="book-cover" alt="{{ $product->name }}">
-                                <h3 class="book-title" title="{{ $product->name }}">{{ $product->name }}</h3>
-                                <p class="book-price">{{ number_format($product->price, 0, ',', '.') }} ₫</p>
-                            </a>
+                            <div class="position-relative book-card text-center">
+                                <!-- Nút Wishlist -->
+                                <button class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute" data-id="{{ $product->id }}" style="top: 10px; right: 10px; z-index: 10; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: none;">
+                                    <i class="{{ in_array($product->id, $wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" style="color: #D35400; font-size: 16px;"></i>
+                                </button>
+
+                                <a href="{{ route('user.productDetails', $product->id) }}" class="text-decoration-none text-dark d-block">
+                                    <img src="{{ asset('uploads/products/' . $product->image) }}" class="book-cover" style="width:100%; height:auto;" alt="{{ $product->name }}">
+                                    <h3 class="book-title mt-2" title="{{ $product->name }}">{{ $product->name }}</h3>
+                                    <p class="book-price">{{ number_format($product->price, 0, ',', '.') }} ₫</p>
+                                </a>
+                            </div>
                         @endforeach
                     </div>
                     
@@ -155,7 +178,7 @@
     </div>
 </div>
 
-<!-- Tùy chỉnh nhẹ CSS cho phần Phân trang (Pagination của Laravel) -->
+<!-- Tùy chỉnh CSS -->
 <style>
     .custom-pagination .page-item.active .page-link {
         background-color: var(--primary-color);
@@ -167,3 +190,69 @@
     }
 </style>
 @endsection
+
+@push('scripts')
+<!-- Thư viện cho Wishlist -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+$(document).ready(function(){
+    // Cấu hình Toastr
+    toastr.options = { 
+        "closeButton": true, 
+        "progressBar": true, 
+        "positionClass": "toast-bottom-right", 
+        "timeOut": "2500" 
+    };
+
+    $('.btn-wishlist').click(function(e) {
+        e.preventDefault(); 
+        
+        // 1. Cảnh báo Đăng nhập bằng SweetAlert2
+        @if(!Auth::check())
+            Swal.fire({
+                icon: 'warning',
+                title: 'Chưa đăng nhập',
+                text: 'Bạn cần đăng nhập để thêm sách vào danh sách yêu thích!',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng nhập ngay',
+                cancelButtonText: 'Để sau',
+                confirmButtonColor: '#D35400',
+                cancelButtonColor: '#2C3E50'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('login') }}";
+                }
+            });
+            return;
+        @endif
+
+        // 2. Xử lý Thả tim qua AJAX
+        let btn = $(this);
+        let productId = btn.data('id');
+        let icon = btn.find('i');
+
+        axios.post('{{ route('user.wishlist.toggle') }}', {
+            product_id: productId,
+            _token: '{{ csrf_token() }}'
+        })
+        .then(function (response) {
+            if(response.data.status === 'added') {
+                icon.removeClass('far').addClass('fas'); 
+                toastr.success(response.data.message);
+            } else {
+                icon.removeClass('fas').addClass('far');
+                toastr.info(response.data.message);
+            }
+        })
+        .catch(function (error) {
+            console.error(error);
+            toastr.error("Có lỗi xảy ra, vui lòng thử lại!");
+        });
+    });
+});
+</script>
+@endpush

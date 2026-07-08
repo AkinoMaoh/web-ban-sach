@@ -20,7 +20,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\PhoneLoginController;
-use App\Http\Controllers\Auth\PasswordResetController; // THÊM CONTROLLER NÀY
+use App\Http\Controllers\Auth\PasswordResetController; 
+use App\Models\Notification;
 
 
 /*
@@ -200,6 +201,25 @@ Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallba
 Route::post('phone/send-otp', [PhoneLoginController::class, 'sendOtp'])->name('phone.sendOtp');
 Route::post('login-phone-verify', [PhoneLoginController::class, 'verifyLogin'])->name('login.phone.verify');
 
+// Chuyển hướng khi click vào thông báo
+Route::get('/notifications/redirect/{id}', function ($id) {
+    $n = \App\Models\Notification::findOrFail($id);
+    $n->update(['is_read' => true]); // Đánh dấu đã đọc
+    
+    // Chuyển sang trang chi tiết đơn hàng
+    return $n->order_id ? redirect('/order-history/' . $n->order_id) : back();
+})->name('notifications.redirect')->middleware('auth');
 
+// Xóa thông báo
+Route::post('/notifications/delete/{id}', function ($id) {
+    \App\Models\Notification::where('id', $id)->where('user_id', Auth::id())->delete();
+    return back();
+})->name('notifications.delete')->middleware('auth');
+
+// Đánh dấu đọc tất cả
+Route::get('/notifications/read-all', function () {
+    \App\Models\Notification::where('user_id', Auth::id())->update(['is_read' => true]);
+    return back();
+})->name('notifications.read.all')->middleware('auth');
 // Các tuyến đường auth đăng nhập/đăng ký mặc định của hệ thống Người dùng thường
 require __DIR__ . '/auth.php';
