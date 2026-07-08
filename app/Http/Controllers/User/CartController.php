@@ -5,7 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Cart;
-use App\Models\ProductVariant;
+use App\Models\ProductVariants;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -17,10 +17,16 @@ class CartController extends Controller
         $cartItems = Auth::check() 
             ? Cart::where('user_id', Auth::id())->with('variant.product')->get()
             : collect(session('cart', []))->map(function($item) {
+                // Ép kiểu mảng để đảm bảo tính an toàn
+                $item = (array) $item; 
+                
+                // Lớp bảo vệ: Tự động tìm key 'variant_id' hoặc 'id', nếu không có thì gán null
+                $variantId = $item['variant_id'] ?? ($item['id'] ?? null);
+                
                 return (object) [
-                    'variant_id' => $item['variant_id'],
-                    'quantity' => $item['quantity'],
-                    'variant' => ProductVariant::with('product')->find($item['variant_id'])
+                    'variant_id' => $variantId,
+                    'quantity'   => $item['quantity'] ?? 1,
+                    'variant'    => $variantId ? ProductVariants::with('product')->find($variantId) : null
                 ];
             });
 
@@ -43,7 +49,6 @@ class CartController extends Controller
 
     public function updateCart(Request $request)
     {
-        // Chốt chặn: Số lượng tối thiểu là 1
         $qty = (int)$request->quantity;
         if ($qty < 1) $qty = 1;
 
@@ -51,16 +56,13 @@ class CartController extends Controller
         $newId = $request->product_variant_id;
 
         if (Auth::check()) {
-            // Xử lý DB
             if ($oldId != $newId) {
-                // Xóa cái cũ, thêm cái mới
                 Cart::where('user_id', Auth::id())->where('product_variant_id', $oldId)->delete();
                 Cart::updateOrCreate(['user_id' => Auth::id(), 'product_variant_id' => $newId], ['quantity' => $qty]);
             } else {
                 Cart::where('user_id', Auth::id())->where('product_variant_id', $oldId)->update(['quantity' => $qty]);
             }
         } else {
-            // Xử lý Session
             $cart = session('cart', []);
             if ($oldId != $newId) {
                 unset($cart[$oldId]);
@@ -84,7 +86,6 @@ class CartController extends Controller
         $vId = $request->product_variant_id;
         $qty = (int)$request->quantity;
 
-        // Lưu vào DB hoặc Session
         if (Auth::check()) {
             $existingItem = Cart::where('user_id', Auth::id())->where('product_variant_id', $vId)->first();
             if ($existingItem) {
@@ -101,7 +102,6 @@ class CartController extends Controller
             session(['cart' => $cart]);
         }
 
-        // Điều hướng: Nếu mua ngay thì sang giỏ hàng, nếu không thì quay lại trang cũ
         if ($request->action_type === 'buy_now') {
             return redirect()->route('cart.index')->with('success', 'Đã thêm vào giỏ hàng!');
         }
