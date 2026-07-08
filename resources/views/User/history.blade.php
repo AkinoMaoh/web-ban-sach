@@ -85,10 +85,12 @@
                                     <td class="align-middle">
                                         @if($order->status == 'pending')
                                             <span class="badge badge-warning px-3 py-2 text-dark shadow-sm" style="border-radius: 6px;">Chờ xác nhận</span>
+                                        @elseif($order->status == 'confirmed')
+                                            <span class="badge badge-primary px-3 py-2 text-white shadow-sm" style="border-radius: 6px;">Đã xác nhận</span>
                                         @elseif($order->status == 'shipping')
                                             <span class="badge badge-info px-3 py-2 text-white shadow-sm" style="border-radius: 6px;">Đang giao</span>
                                         @elseif($order->status == 'completed')
-                                            <span class="badge badge-success px-3 py-2 shadow-sm" style="border-radius: 6px;">Thành công</span>
+                                            <span class="badge badge-success px-3 py-2 shadow-sm" style="border-radius: 6px;">Hoàn thành</span>
                                         @elseif($order->status == 'cancelled')
                                             <span class="badge badge-danger px-3 py-2 shadow-sm" style="border-radius: 6px;">Đã hủy</span>
                                         @endif

@@ -24,8 +24,10 @@
             <div>
                 @if($order->status == 'pending')
                     <span class="badge badge-warning px-4 py-2 text-dark shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-clock mr-1"></i> Chờ xác nhận</span>
+                @elseif($order->status == 'confirmed')
+                    <span class="badge badge-primary px-4 py-2 text-white shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-truck mr-1"></i> Đang giao</span>
                 @elseif($order->status == 'shipping')
-                    <span class="badge badge-info px-4 py-2 text-white shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-truck mr-1"></i> Đang giao</span>
+                    <span class="badge badge-info px-4 py-2 shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-check-circle mr-1"></i> Thành công</span>
                 @elseif($order->status == 'completed')
                     <span class="badge badge-success px-4 py-2 shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-check-circle mr-1"></i> Thành công</span>
                 @elseif($order->status == 'cancelled')

@@ -57,15 +57,46 @@ if(auth()->check()){
         </span>
     @endif
 </a>
-            
+          
              <!-- Nút chuyển đổi chế độ sáng/tối -->
            <button id="theme-toggle"
-        type="button"
-        class="btn mr-3"
-        title="Chuyển giao diện">
-    <i class="fas fa-moon"></i>
-</button>
-
+                    type="button"
+                    class="btn mr-3"
+                    title="Chuyển giao diện">
+                <i class="fas fa-moon"></i>
+            </button>
+               @auth
+                    @php
+                        $notifs = \App\Models\Notification::where('user_id', Auth::id())->latest()->take(5)->get();
+                        $count = \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count();
+                    @endphp
+                    <div class="dropdown mr-3">
+                        <a class="text-dark position-relative" href="#" data-toggle="dropdown">
+                            <i class="fas fa-bell fa-lg"></i>
+                            @if($count > 0) <span class="badge badge-danger" style="position: absolute; top: -10px; right: -10px; font-size: 10px;">{{ $count }}</span> @endif
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow border-0" style="width: 300px;">
+                            <h6 class="dropdown-header">Thông báo</h6>
+                            @forelse($notifs as $n)
+                                <div class="dropdown-item d-flex justify-content-between align-items-start py-2 {{ !$n->is_read ? 'font-weight-bold' : '' }}">
+                                    <!-- Bấm vào đây để đi tới đơn hàng -->
+                                    <a href="{{ route('notifications.redirect', $n->id) }}" class="text-dark text-decoration-none" style="white-space: normal; line-height: 1.4; font-size: 14px;">
+                                        {{ $n->message }}
+                                    </a>
+                                    <!-- Nút Xóa -->
+                                    <form action="{{ route('notifications.delete', $n->id) }}" method="POST" class="ml-2" onsubmit="return confirm('Xóa thông báo?')">
+                                        @csrf
+                                        <button type="submit" class="btn btn-link btn-sm text-danger p-0"><i class="fas fa-times"></i></button>
+                                    </form>
+                                </div>
+                            @empty
+                                <span class="dropdown-item text-muted text-center">Chưa có thông báo</span>
+                            @endforelse
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-center text-primary" href="{{ route('notifications.read.all') }}">Đánh dấu đã đọc</a>
+                        </div>
+                    </div>
+                @endauth
             @auth
                 <a href="{{ route('profile.edit') }}" class="text-dark font-weight-bold text-decoration-none">
                     <i class="fas fa-user-circle mr-1" style="color: var(--primary-color);"></i> {{ Auth::user()->name }}

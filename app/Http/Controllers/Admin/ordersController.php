@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Models\Notification;
 
 class ordersController extends Controller
 {
@@ -38,7 +39,7 @@ class ordersController extends Controller
         return view('admin.orderedit', compact('order'));
     }
 
-    public function update(Request $request, $id)
+public function update(Request $request, $id)
     {
         $request->validate([
             'status' => 'required|in:pending,confirmed,shipping,completed,cancelled',
@@ -50,13 +51,31 @@ class ordersController extends Controller
         $currentIndex = array_search($order->status, $statusOrder);
         $newIndex = array_search($request->status, $statusOrder);
 
-        // cancelled không nằm trong $statusOrder nên $newIndex = false -> luôn cho phép hủy
         if ($request->status !== 'cancelled' && $currentIndex !== false && $newIndex < $currentIndex) {
             return back()->with('error', 'Không thể chuyển về trạng thái trước đó.');
         }
 
         $order->status = $request->status;
         $order->save();
+
+        // Mảng mapping tiếng Việt tại đây luôn
+        $statusLabels = [
+            'pending'   => 'Chờ xác nhận',
+            'confirmed' => 'Đã xác nhận',
+            'shipping'  => 'Đang giao hàng',
+            'completed' => 'Đã hoàn thành',
+            'cancelled' => 'Đã hủy'
+        ];
+
+        // Lấy tên tiếng Việt, nếu không tìm thấy thì lấy nguyên gốc
+        $statusVi = $statusLabels[$order->status] ?? $order->status;
+
+        Notification::create([
+            'user_id' => $order->user_id,
+            'order_id' => $order->id, // Gửi ID trực tiếp vào đây
+            'message' => "Đơn hàng #{$order->id} đã chuyển sang trạng thái: " . $statusVi,
+            'is_read' => false
+        ]);
 
         return redirect()->route('admin.orders')
             ->with('success', 'Đơn hàng #' . $order->id . ' đã được cập nhật thành công.');

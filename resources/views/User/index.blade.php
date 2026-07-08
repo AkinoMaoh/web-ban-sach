@@ -1,7 +1,15 @@
 @extends('layout.user')
 
 @section('content')
-
+@php
+    $wishlistIds = [];
+    if(Auth::check()) {
+        $wishlistIds = \Illuminate\Support\Facades\DB::table('wishlists')
+            ->where('user_id', Auth::id())
+            ->pluck('product_id')
+            ->toArray();
+    }
+@endphp
 <!-- 1. Hero Banner Slider -->
 <section class="container mt-4 mb-5">
     <div id="heroCarousel" class="carousel slide shadow-sm" data-ride="carousel" style="border-radius: 12px; overflow: hidden;">
@@ -52,17 +60,17 @@
     @if($products->isEmpty())
         <div class="text-center text-muted py-5">Không tìm thấy sách nào.</div>
     @else
-        <div class="book-grid">
+        <div class="book-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
             @foreach ($products as $product)
                 <div class="book-card text-center position-relative">
                     <!-- Nút Wishlist -->
                     <button class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute" data-id="{{ $product->id }}" style="top: 10px; right: 10px; z-index: 10; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: none;">
-                        <i class="far fa-heart" style="color: #D35400; font-size: 16px;"></i>
+                        <i class="{{ in_array($product->id, $wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" style="color: #D35400; font-size: 16px;"></i>
                     </button>
 
                     <a href="{{ route('user.productDetails', $product->id) }}" class="text-decoration-none text-dark d-block">
-                        <img src="{{ asset('uploads/products/' . $product->image) }}" class="book-cover" alt="{{ $product->name }}">
-                        <h3 class="book-title" title="{{ $product->name }}">{{ $product->name }}</h3>
+                        <img src="{{ asset('uploads/products/' . $product->image) }}" class="book-cover" style="width:100%; height:auto;" alt="{{ $product->name }}">
+                        <h3 class="book-title mt-2" title="{{ $product->name }}">{{ $product->name }}</h3>
                         <p class="book-price">{{ number_format($product->price, 0, ',', '.') }} ₫</p>
                     </a>
                 </div>
@@ -88,8 +96,9 @@
                     @foreach ($product5 as $index => $pro)
                         <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
                             <div class="position-relative">
+                                <!-- Nút Wishlist -->
                                 <button class="btn btn-white rounded-circle shadow-sm btn-wishlist position-absolute" data-id="{{ $pro->id }}" style="top: 0; right: 0; z-index: 10; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: none; background: white;">
-                                    <i class="far fa-heart" style="color: #D35400; font-size: 16px;"></i>
+                                    <i class="{{ in_array($pro->id, $wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" style="color: #D35400; font-size: 16px;"></i>
                                 </button>
                                 <a href="{{ route('user.productDetails', $pro->id) }}" class="d-flex align-items-center text-decoration-none text-dark">
                                     <img src="{{ asset('uploads/products/' . $pro->image) }}" class="rounded shadow" style="width: 120px; height: 180px; object-fit: cover;">
@@ -121,8 +130,9 @@
                     @foreach ($topSanPham as $index => $pro)
                         <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
                             <div class="position-relative">
+                                <!-- Nút Wishlist -->
                                 <button class="btn btn-white rounded-circle shadow-sm btn-wishlist position-absolute" data-id="{{ $pro->id }}" style="top: 0; right: 0; z-index: 10; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: none; background: white;">
-                                    <i class="far fa-heart" style="color: #D35400; font-size: 16px;"></i>
+                                    <i class="{{ in_array($pro->id, $wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" style="color: #D35400; font-size: 16px;"></i>
                                 </button>
                                 <a href="{{ route('user.productDetails', $pro->id) }}" class="d-flex align-items-center text-decoration-none text-dark">
                                     <img src="{{ asset('uploads/products/' . $pro->image) }}" class="rounded shadow" style="width: 120px; height: 180px; object-fit: cover;">
@@ -145,16 +155,45 @@
 @endsection
 
 @push('scripts')
+<!-- Thư viện cho Wishlist -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
 $(document).ready(function(){
-    toastr.options = { "closeButton": true, "progressBar": true, "positionClass": "toast-bottom-right", "timeOut": "2500" };
+    // Cấu hình Toastr
+    toastr.options = { 
+        "closeButton": true, 
+        "progressBar": true, 
+        "positionClass": "toast-bottom-right", 
+        "timeOut": "2500" 
+    };
 
     $('.btn-wishlist').click(function(e) {
         e.preventDefault(); 
+        
+        // 1. Cảnh báo Đăng nhập bằng SweetAlert2
+        @if(!Auth::check())
+            Swal.fire({
+                icon: 'warning',
+                title: 'Chưa đăng nhập',
+                text: 'Bạn cần đăng nhập để thêm sách vào danh sách yêu thích!',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng nhập ngay',
+                cancelButtonText: 'Để sau',
+                confirmButtonColor: '#D35400',
+                cancelButtonColor: '#2C3E50'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('login') }}";
+                }
+            });
+            return;
+        @endif
+
+        // 2. Xử lý Thả tim qua AJAX
         let btn = $(this);
         let productId = btn.data('id');
         let icon = btn.find('i');
@@ -173,11 +212,8 @@ $(document).ready(function(){
             }
         })
         .catch(function (error) {
-            if(error.response && error.response.status === 401) {
-                toastr.warning("Đăng nhập để thêm vào danh sách yêu thích!");
-            } else {
-                toastr.error("Có lỗi xảy ra!");
-            }
+            console.error(error);
+            toastr.error("Có lỗi xảy ra, vui lòng thử lại!");
         });
     });
 });
