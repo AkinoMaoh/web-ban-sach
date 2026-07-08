@@ -28,7 +28,7 @@
                     
                     <div class="card mb-3 shadow-sm border-0 p-3 {{ $isOutOfStock ? 'border border-danger' : '' }}" style="border-radius: 12px;">
                         <div class="row align-items-center">
-                            <!-- Checkbox gửi $item->id (khớp với PaymentController) -->
+                            <!-- Checkbox gửi $item->id -->
                             <div class="col-1 text-center">
                                 <input type="checkbox" class="cart-checkbox" value="{{ $item->id }}" 
                                        data-subtotal="{{ $subTotal }}"
@@ -49,19 +49,24 @@
                                 <strong class="text-dark">{{ number_format($subTotal) }} đ</strong>
                             </div>
                             
+                            <!-- Phần Chọn biến thể & Nhập số lượng -->
                             <div class="col-3">
-                                <!-- Truyền product_variant_id để Update đúng -->
                                 <select class="form-control form-control-sm auto-update" data-old-id="{{ $item->product_variant_id }}">
                                     @foreach($item->variant->product->variants as $v)
                                         <option value="{{ $v->id }}" {{ $v->id == $item->product_variant_id ? 'selected' : '' }} {{ $v->stock <= 0 ? 'disabled' : '' }}>
-                                            {{ $v->edition }}
+                                            {{ $v->edition }} ({{ number_format($v->price) }} đ)
                                         </option>
                                     @endforeach
                                 </select>
+                                
+                                <!-- Ô nhập số lượng ĐÃ ĐƯỢC THÊM LẠI -->
+                                <input type="number" value="{{ $item->quantity }}" min="1" max="{{ $item->variant->stock }}"
+                                       oninput="this.value = Math.max(1, Math.min(this.value, {{ $item->variant->stock }}))"
+                                       class="form-control form-control-sm auto-update mt-2" 
+                                       data-old-id="{{ $item->product_variant_id }}">
                             </div>
 
                             <div class="col-1 text-center">
-                                <!-- Truyền product_variant_id để Xóa đúng -->
                                 <form action="{{ route('cart.remove', $item->product_variant_id) }}" method="POST">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="btn btn-link text-danger p-0" title="Xóa sản phẩm"><i class="fas fa-trash"></i></button>
@@ -82,7 +87,6 @@
                     </div>
                     
                     <form id="checkout-form" action="{{ route('checkout.index') }}" method="GET">
-                        <!-- name="items" khớp hoàn toàn với Request của PaymentController -->
                         <input type="hidden" name="items" id="selected_ids">
                         <button type="submit" id="btn-checkout" class="btn btn-orange w-100 py-3 rounded-pill font-weight-bold shadow-sm">
                             Thanh toán ngay
@@ -115,13 +119,18 @@
     document.querySelectorAll('.auto-update').forEach(el => {
         el.addEventListener('change', function() {
             let row = this.closest('.card');
+            
+            // Lấy giá trị của Select và Input Number
+            let variantVal = row.querySelector('select').value;
+            let qtyVal = row.querySelector('input[type="number"]').value;
+            
             fetch("{{ route('cart.update') }}", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify({
                     old_variant_id: this.dataset.oldId,
-                    product_variant_id: row.querySelector('select').value,
-                    quantity: 1
+                    product_variant_id: variantVal,
+                    quantity: qtyVal // Đã sửa lại để lấy số lượng thực tế
                 })
             }).then(() => location.reload());
         });
