@@ -13,35 +13,30 @@ class CartController extends Controller
 {
     public function index()
     {
-        // Lấy dữ liệu giỏ hàng (DB hoặc Session)
-        $cartItems = Auth::check() 
+        // Đồng bộ cấu trúc giữa Database và Session
+        $rawItems = Auth::check() 
             ? Cart::where('user_id', Auth::id())->with('variant.product')->get()
             : collect(session('cart', []))->map(function($item) {
-                // Ép kiểu mảng để đảm bảo tính an toàn
                 $item = (array) $item; 
-                
-                // Lớp bảo vệ: Tự động tìm key 'variant_id' hoặc 'id', nếu không có thì gán null
-                $variantId = $item['variant_id'] ?? ($item['id'] ?? null);
+                $vId = $item['variant_id'] ?? ($item['id'] ?? null);
                 
                 return (object) [
-                    'variant_id' => $variantId,
-                    'quantity'   => $item['quantity'] ?? 1,
-                    'variant'    => $variantId ? ProductVariants::with('product')->find($variantId) : null
+                    'id'                 => $vId,
+                    'product_variant_id' => $vId, 
+                    'quantity'           => $item['quantity'] ?? 1,
+                    'variant'            => $vId ? ProductVariants::with('product')->find($vId) : null
                 ];
             });
 
-        // Tính toán trạng thái cho từng item
+        // BỘ LỌC ĐÃ FIX LỖI: Kiểm tra đúng cột product_variant_id
+        $cartItems = $rawItems->filter(function($item) {
+            return !empty($item->product_variant_id) && !empty($item->variant) && !empty($item->variant->product);
+        });
+
         foreach ($cartItems as $item) {
-            if ($item->variant) {
-                // Kiểm tra hết hàng hoặc quá số lượng
-                $item->is_out_of_stock = ($item->variant->stock <= 0 || $item->quantity > $item->variant->stock);
-                $item->unit_price = $item->variant->price;
-                $item->subtotal = $item->variant->price * $item->quantity;
-            } else {
-                $item->is_out_of_stock = true;
-                $item->unit_price = 0;
-                $item->subtotal = 0;
-            }
+            $item->is_out_of_stock = ($item->variant->stock <= 0 || $item->quantity > $item->variant->stock);
+            $item->unit_price = $item->variant->price;
+            $item->subtotal = $item->variant->price * $item->quantity;
         }
 
         return view('User.cart', compact('cartItems'));

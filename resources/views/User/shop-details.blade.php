@@ -45,24 +45,39 @@
 
                         <!-- Box Chọn Phiên Bản -->
                         <div class="mt-4 pt-3 border-top">
-                            <h5 class="serif-font font-weight-bold mb-3">Chọn phiên bản:</h5>
-                            <div class="d-flex flex-wrap gap-2 mb-4">
-                                @foreach($product->variants as $bienThe)
-                                    @if($bienThe->price > 0)
-                                        <label class="chon-phien-ban mb-2 mr-2">
-                                            <input type="radio" name="product_variant_id" value="{{ $bienThe->id }}" data-gia="{{ $bienThe->price }}" data-ton-kho="{{ $bienThe->stock }}" {{ $bienThe->stock <= 0 ? 'disabled' : '' }} required>
-                                            <span class="hop-phien-ban">
-                                                <strong class="d-block mb-1 text-dark">{{ $bienThe->edition }}</strong>
-                                                <small class="d-block text-muted mb-1">{{ number_format($bienThe->price) }} VNĐ</small>
-                                                <small class="{{ $bienThe->stock > 0 ? 'text-success' : 'text-danger' }} font-weight-bold">
-                                                    {{ $bienThe->stock > 0 ? 'Còn ' . $bienThe->stock : 'Hết hàng' }}
-                                                </small>
-                                            </span>
-                                        </label>
-                                    @endif
-                                @endforeach
-                            </div>
-                        </div>
+    <h5 class="serif-font font-weight-bold mb-3">Chọn phiên bản:</h5>
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        @php $hasChecked = false; @endphp
+        @foreach($product->variants as $bienThe)
+            @if($bienThe->price > 0)
+                <label class="chon-phien-ban mb-2 mr-2">
+                    <input type="radio" 
+                           name="product_variant_id" 
+                           value="{{ $bienThe->id }}" 
+                           data-gia="{{ $bienThe->price }}" 
+                           data-ton-kho="{{ $bienThe->stock }}" 
+                           {{ $bienThe->stock <= 0 ? 'disabled' : '' }}
+                           
+                           {{-- Logic tự động chọn phiên bản đầu tiên CÒN HÀNG --}}
+                           @if(!$hasChecked && $bienThe->stock > 0)
+                               checked
+                               @php $hasChecked = true; @endphp
+                           @endif
+                           
+                           required>
+                           
+                    <span class="hop-phien-ban">
+                        <strong class="d-block mb-1 text-dark">{{ $bienThe->edition }}</strong>
+                        <small class="d-block text-muted mb-1">{{ number_format($bienThe->price) }} VNĐ</small>
+                        <small class="{{ $bienThe->stock > 0 ? 'text-success' : 'text-danger' }} font-weight-bold">
+                            {{ $bienThe->stock > 0 ? 'Còn ' . $bienThe->stock : 'Hết hàng' }}
+                        </small>
+                    </span>
+                </label>
+            @endif
+        @endforeach
+    </div>
+</div>
 
                         <!-- Chọn Số Lượng -->
                         <div class="mb-4">
