@@ -28,9 +28,9 @@
                     
                     <div class="card mb-3 shadow-sm border-0 p-3 {{ $isOutOfStock ? 'border border-danger' : '' }}" style="border-radius: 12px;">
                         <div class="row align-items-center">
-                            <!-- Checkbox chọn hàng -->
+                            <!-- Checkbox gửi $item->id (khớp với PaymentController) -->
                             <div class="col-1 text-center">
-                                <input type="checkbox" class="cart-checkbox" value="{{ $item->variant->id }}" 
+                                <input type="checkbox" class="cart-checkbox" value="{{ $item->id }}" 
                                        data-subtotal="{{ $subTotal }}"
                                        {{ $isOutOfStock ? 'disabled' : 'checked' }} 
                                        onchange="updateTotal()">
@@ -41,40 +41,30 @@
                             </div>
                             
                             <div class="col-3">
-                                <h6 class="font-weight-bold mb-1">{{ $item->variant->product->name ?? 'Sản phẩm đã xóa' }}</h6>
-                                @if($isOutOfStock)
-                                    <small class="text-danger font-weight-bold"><i class="fas fa-exclamation-triangle"></i> Hết hàng/Không đủ SL</small>
-                                @endif
+                                <h6 class="font-weight-bold mb-1">{{ $item->variant->product->name }}</h6>
                             </div>
                             
-                            <!-- Hiển thị công thức giá -->
                             <div class="col-2 text-center">
                                 <small class="text-muted d-block">{{ number_format($unitPrice) }} đ x {{ $item->quantity }}</small>
                                 <strong class="text-dark">{{ number_format($subTotal) }} đ</strong>
                             </div>
                             
                             <div class="col-3">
-                                <select class="form-control form-control-sm auto-update" data-old-id="{{ $item->variant->id }}">
+                                <!-- Truyền product_variant_id để Update đúng -->
+                                <select class="form-control form-control-sm auto-update" data-old-id="{{ $item->product_variant_id }}">
                                     @foreach($item->variant->product->variants as $v)
-                                        <option value="{{ $v->id }}" {{ $v->id == $item->variant->id ? 'selected' : '' }} {{ $v->stock <= 0 ? 'disabled' : '' }}>
-                                            {{ $v->edition }} {{ $v->stock <= 0 ? '- Hết hàng' : '' }}
+                                        <option value="{{ $v->id }}" {{ $v->id == $item->product_variant_id ? 'selected' : '' }} {{ $v->stock <= 0 ? 'disabled' : '' }}>
+                                            {{ $v->edition }}
                                         </option>
                                     @endforeach
                                 </select>
-                                <input type="number" value="{{ $item->quantity }}" min="1" 
-                                       oninput="this.value = Math.max(1, this.value)"
-                                       class="form-control form-control-sm auto-update mt-2" 
-                                       data-old-id="{{ $item->variant->id }}">
                             </div>
 
-                            <!-- Nút Xóa Sản Phẩm -->
                             <div class="col-1 text-center">
-                                <form action="{{ route('cart.remove', $item->variant->id) }}" method="POST">
-                                    @csrf 
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-link text-danger p-0" title="Xóa sản phẩm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                <!-- Truyền product_variant_id để Xóa đúng -->
+                                <form action="{{ route('cart.remove', $item->product_variant_id) }}" method="POST">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn btn-link text-danger p-0" title="Xóa sản phẩm"><i class="fas fa-trash"></i></button>
                                 </form>
                             </div>
                         </div>
@@ -92,7 +82,8 @@
                     </div>
                     
                     <form id="checkout-form" action="{{ route('checkout.index') }}" method="GET">
-                        <input type="hidden" name="selected_ids" id="selected_ids">
+                        <!-- name="items" khớp hoàn toàn với Request của PaymentController -->
+                        <input type="hidden" name="items" id="selected_ids">
                         <button type="submit" id="btn-checkout" class="btn btn-orange w-100 py-3 rounded-pill font-weight-bold shadow-sm">
                             Thanh toán ngay
                         </button>
@@ -111,12 +102,14 @@
         let total = 0;
         let selectedIds = [];
         document.querySelectorAll('.cart-checkbox:checked').forEach(cb => {
-            total += parseInt(cb.dataset.subtotal);
+            total += parseFloat(cb.dataset.subtotal);
             selectedIds.push(cb.value);
         });
         document.getElementById('grand-total').innerText = total.toLocaleString('vi-VN') + ' đ';
         document.getElementById('selected_ids').value = selectedIds.join(',');
-        document.getElementById('btn-checkout').disabled = (selectedIds.length === 0);
+        
+        const btnCheckout = document.getElementById('btn-checkout');
+        if (btnCheckout) btnCheckout.disabled = (selectedIds.length === 0);
     }
 
     document.querySelectorAll('.auto-update').forEach(el => {
@@ -128,7 +121,7 @@
                 body: JSON.stringify({
                     old_variant_id: this.dataset.oldId,
                     product_variant_id: row.querySelector('select').value,
-                    quantity: row.querySelector('input[type="number"]').value
+                    quantity: 1
                 })
             }).then(() => location.reload());
         });
