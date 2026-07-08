@@ -54,7 +54,7 @@
                                 <select class="form-control form-control-sm auto-update" data-old-id="{{ $item->product_variant_id }}">
                                     @foreach($item->variant->product->variants as $v)
                                         <option value="{{ $v->id }}" {{ $v->id == $item->product_variant_id ? 'selected' : '' }} {{ $v->stock <= 0 ? 'disabled' : '' }}>
-                                            {{ $v->edition }} ({{ number_format($v->price) }} đ)
+                                            {{ $v->edition }}
                                         </option>
                                     @endforeach
                                 </select>
