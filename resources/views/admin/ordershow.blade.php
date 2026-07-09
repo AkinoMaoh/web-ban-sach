@@ -4,11 +4,22 @@
 
 <div class="container-fluid">
 
+
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Chi tiết đơn hàng #{{ $order->id }}</h1>
-        <a href="{{ route('admin.orders') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
-            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại danh sách
-        </a>
+        
+        <!-- Bọc 2 nút vào chung một div để hiển thị ngang hàng -->
+        <div>
+            <!-- Nút Cập nhật đơn hàng -->
+            <a href="{{route('admin.orders.edit', $order->id) }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mr-2">
+                <i class="fas fa-edit fa-sm text-white-50"></i> Cập nhật trạng thái đơn
+            </a>
+            
+            <!-- Nút Quay lại -->
+            <a href="{{ route('admin.orders') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+                <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại danh sách
+            </a>
+        </div>
     </div>
 
     <div class="row">

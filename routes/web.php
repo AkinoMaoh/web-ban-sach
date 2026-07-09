@@ -204,10 +204,22 @@ Route::post('login-phone-verify', [PhoneLoginController::class, 'verifyLogin'])-
 // Chuyển hướng khi click vào thông báo
 Route::get('/notifications/redirect/{id}', function ($id) {
     $n = \App\Models\Notification::findOrFail($id);
-    $n->update(['is_read' => true]); // Đánh dấu đã đọc
     
-    // Chuyển sang trang chi tiết đơn hàng
-    return $n->order_id ? redirect('/order-history/' . $n->order_id) : back();
+    // Đánh dấu đã đọc
+    $n->update(['is_read' => true]); 
+    
+    if ($n->order_id) {
+        // Kiểm tra xem ai đang click vào thông báo
+        if (Auth::user()->role == 1) {
+            // Nếu là Admin (role = 1) -> Trỏ vào trang chi tiết đơn của Admin
+            return redirect('/admin/orders/' . $n->order_id);
+        } else {
+            // Nếu là Khách hàng (role = 0) -> Trỏ vào lịch sử đơn hàng của khách
+            return redirect('/order-history/' . $n->order_id);
+        }
+    }
+    
+    return back();
 })->name('notifications.redirect')->middleware('auth');
 
 // Xóa thông báo

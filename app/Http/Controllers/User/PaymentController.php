@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Notification;
+use App\Models\User; // Thêm thư viện User để tìm Admin
 
 class PaymentController extends Controller
 {
@@ -114,7 +116,6 @@ class PaymentController extends Controller
         $userId = Auth::check() ? Auth::id() : null;
         $checkoutItemIds = session()->get('checkout_item_ids');
 
-        // ... (Khúc lấy dữ liệu giỏ hàng giữ nguyên) ...
         if (Auth::check()) {
             $query = DB::table('carts')
                 ->join('product_variants', 'carts.product_variant_id', '=', 'product_variants.id')
@@ -179,12 +180,11 @@ class PaymentController extends Controller
                 'created_at' => now('Asia/Ho_Chi_Minh'),
             ]);
 
-            // --- GỌI HÀM MỚI TÁCH RA ---
+            // --- GỌI HÀM XỬ LÝ KHO ---
             $this->handleOrderAndStock($realCart, $orderId);
 
             DB::commit();
 
-            // ... (Code xử lý thanh toán COD / VNPAY giữ nguyên) ...
             if ($payment_method == 'cod') {
                 if (Auth::check()) {
                     if ($checkoutItemIds) {
@@ -203,10 +203,22 @@ class PaymentController extends Controller
                         session()->forget('cart');
                     }
                 }
+
+                // --- THÔNG BÁO CHO ADMIN ĐỐI VỚI ĐƠN COD ---
+                $admins = User::where('role', 1)->get();
+                foreach ($admins as $admin) {
+                    Notification::create([
+                        'user_id'  => $admin->id,
+                        'order_id' => $orderId,
+                        'message'  => "Có đơn hàng mới (COD): #{$orderId} từ khách {$shipping_name}",
+                        'is_read'  => false
+                    ]);
+                }
+
                 return view('User.thankyou', ['orderId' => $orderId, 'message' => 'Đặt hàng thành công!']);
             } elseif ($payment_method == 'vnpay') {
-                // ... (Phần VNPAY của ông giữ nguyên) ...
-                return redirect()->to($vnp_Url); 
+                // Return to VNPAY (giả định biến $vnp_Url đã được khởi tạo theo logic cũ của ông)
+                return redirect()->to($vnp_Url ?? '/'); 
             }
         } catch (\Exception $e) {
             DB::rollBack();
@@ -286,6 +298,18 @@ class PaymentController extends Controller
 
                 $order = DB::table('orders')->where('id', $orderId)->first();
                 if ($order) {
+                    
+                    // --- THÔNG BÁO CHO TẤT CẢ ADMIN ĐỐI VỚI ĐƠN VNPAY ---
+                    $admins = User::where('role', 1)->get();
+                    foreach ($admins as $admin) {
+                        Notification::create([
+                            'user_id'  => $admin->id,
+                            'order_id' => $orderId,
+                            'message'  => "Có đơn hàng mới (Đã thanh toán VNPAY): #{$orderId} từ khách {$order->shipping_name}",
+                            'is_read'  => false
+                        ]);
+                    }
+
                     if ($order->user_id) {
                         $boughtVariants = DB::table('order_details')
                             ->where('order_id', $orderId)
