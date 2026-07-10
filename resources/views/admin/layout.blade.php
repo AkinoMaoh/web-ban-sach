@@ -235,7 +235,46 @@ html.dark-mode .custom-card-header h6{
 html.dark-mode .custom-card-header i{
     color:#1A73E8 !important;
 }
-    </style>
+
+/* ===== Search Order ===== */
+
+.search-box{
+    position: relative;
+    width: 220px;
+}
+
+#search-order-result{
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-top: none;
+    display: none;
+    z-index: 9999;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.search-order-item{
+    display: block;
+    padding: 10px 12px;
+    color: #333;
+    text-decoration: none;
+}
+
+.search-order-item:hover{
+    background: #f8f9fa;
+    color: #1A73E8;
+    text-decoration: none;
+}
+
+.search-empty{
+    padding: 10px;
+    color: #999;
+}
+</style>
 </head>
 
 <body id="page-top">

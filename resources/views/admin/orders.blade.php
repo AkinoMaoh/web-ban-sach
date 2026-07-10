@@ -12,14 +12,34 @@
             <h6 class="m-0 font-weight-bold text-primary">Dữ liệu đơn hàng</h6>
 
             <form method="GET" action="{{ route('admin.orders') }}" class="form-inline">
-                <select name="status" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
+                <div class="position-relative search-box">
+                    
+                    <input type="text"
+                        id="search-phone"
+                        name="phone"
+                        class="form-control"
+                        placeholder="Nhập số điện thoại..."
+                        autocomplete="off">
+
+                    <div id="search-order-result"></div>
+
+                </div>
+
+                <select name="status" class="form-control mr-2">
+
                     <option value="">-- Tất cả trạng thái --</option>
-                    <option value="pending"   {{ request('status') == 'pending'    ? 'selected' : '' }}>Chờ xử lý</option>
-                    <option value="confirmed" {{ request('status') == 'confirmed'  ? 'selected' : '' }}>Đã xác nhận</option>
-                    <option value="shipping"  {{ request('status') == 'shipping'   ? 'selected' : '' }}>Đang giao</option>
-                    <option value="completed" {{ request('status') == 'completed'  ? 'selected' : '' }}>Hoàn thành</option>
-                    <option value="cancelled" {{ request('status') == 'cancelled'  ? 'selected' : '' }}>Đã hủy</option>
+                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Chờ xử lý</option>
+                    <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Đã xác nhận</option>
+                    <option value="shipping" {{ request('status') == 'shipping' ? 'selected' : '' }}>Đang giao</option>
+                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Hoàn thành</option>
+                    <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Đã hủy</option>
+
                 </select>
+
+                <button class="btn btn-primary btn-sm">
+                    <i class="fas fa-search"></i>
+                </button>
+
             </form>
         </div>
 
@@ -54,7 +74,7 @@
                         </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody id="orders-table">
 
                     @forelse($orders as $order)
                         <tr>
@@ -145,5 +165,16 @@
     </div>
 
 </div>
+
+<!-- JS phần tìm kiếm đơn hàng AJAX -->
+@push('scripts')
+
+<script>
+const searchOrderUrl = "{{ route('admin.orders.search') }}";
+</script>
+
+<script src="{{ asset('js/orders-search.js') }}"></script>
+
+@endpush
 
 @endsection

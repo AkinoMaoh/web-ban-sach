@@ -11,15 +11,19 @@ class ordersController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Order::with('user');
+    $query = Order::with('user');
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
 
-        $orders = $query->orderBy('created_at', 'desc')->paginate(15);
+    if ($request->filled('phone')) {
+        $query->where('shipping_phone', 'like', $request->phone . '%');
+    }
 
-        return view('admin.orders', compact('orders'));
+    $orders = $query->orderBy('created_at', 'desc')->paginate(15);
+
+    return view('admin.orders', compact('orders'));
     }
 
     public function show($id)
@@ -90,5 +94,16 @@ public function update(Request $request, $id)
 
         return redirect()->route('admin.orders')
             ->with('success', 'Đơn hàng #' . $id . ' đã được xóa thành công.');
+    }
+
+    // Tìm kiếm đơn hàng sđt bằng AJAX
+    public function search(Request $request)
+    {
+        $orders = Order::with('user')
+            ->where('shipping_phone', 'like', $request->phone . '%')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($orders);
     }
 }
