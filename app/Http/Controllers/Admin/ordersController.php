@@ -39,7 +39,7 @@ class ordersController extends Controller
         return view('admin.orderedit', compact('order'));
     }
 
-public function update(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $request->validate([
             'status' => 'required|in:pending,confirmed,shipping,completed,cancelled',
@@ -67,15 +67,16 @@ public function update(Request $request, $id)
             'cancelled' => 'Đã hủy'
         ];
 
-        // Lấy tên tiếng Việt, nếu không tìm thấy thì lấy nguyên gốc
         $statusVi = $statusLabels[$order->status] ?? $order->status;
 
-        Notification::create([
-            'user_id' => $order->user_id,
-            'order_id' => $order->id, // Gửi ID trực tiếp vào đây
-            'message' => "Đơn hàng #{$order->id} đã chuyển sang trạng thái: " . $statusVi,
-            'is_read' => false
-        ]);
+        if ($order->user_id) {
+            Notification::create([
+                'user_id' => $order->user_id,
+                'order_id' => $order->id, 
+                'message' => "Đơn hàng #{$order->id} đã chuyển sang trạng thái: " . $statusVi,
+                'is_read' => false
+            ]);
+        }
 
         return redirect()->route('admin.orders')
             ->with('success', 'Đơn hàng #' . $order->id . ' đã được cập nhật thành công.');
