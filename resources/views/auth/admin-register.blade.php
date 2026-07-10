@@ -1,108 +1,178 @@
-<x-guest-layout>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Đăng Ký Quản Trị - Hệ Thống</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <style>
-        html, body, .min-h-screen {
-            background-image: url("{{ asset('img/bg-admin.jpg') }}") !important;
-            background-size: cover !important;
-            background-position: center center !important;
-            background-repeat: no-repeat !important;
-            background-attachment: fixed !important;
+        body {
+            background-image: url("{{ asset('img/bg-admin.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 2rem 0;
             position: relative;
         }
 
-        .min-h-screen::before {
+        body::before {
             content: "";
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.55);
+            background-color: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             z-index: 0;
         }
 
-        .min-h-screen > div {
+        .container {
             position: relative;
-            z-index: 10;
-            backdrop-filter: blur(4px);
-            background-color: rgba(255, 255, 255, 0.96) !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4) !important;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1;
+        }
+
+        .admin-login-card {
+            background: #ffffff;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border-top: 6px solid #dc3545; 
+            position: relative;
+        }
+
+        .shield-icon {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            background: #dc3545;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            box-shadow: 0 10px 15px -3px rgba(220, 53, 69, 0.4);
+            border: 4px solid #0f172a;
+        }
+
+        .form-control:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+
+        .btn-admin {
+            background-color: #dc3545;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-admin:hover {
+            background-color: #bb2d3b;
+            color: white;
         }
     </style>
+</head>
+<body>
+    <div class="container d-flex justify-content-center px-3">
+        <div class="admin-login-card p-4 p-md-5 mt-4">
+            
+            <div class="shield-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
 
-    <div class="mb-4 text-center">
-        <h2 class="text-xl font-bold text-gray-800 uppercase tracking-wider">Đăng Ký Tài Khoản Admin</h2>
-        <p class="text-xs text-gray-500 mt-1">Tạo mới quyền quản trị hệ thống</p>
+            <div class="text-center mt-4 mb-4">
+                <h4 class="fw-bold text-dark">CẤP QUYỀN QUẢN TRỊ</h4>
+                <p class="text-muted small">Tạo tài khoản dành cho nhân viên mới</p>
+            </div>
+
+            <form method="POST" action="{{ route('admin.register.submit') }}">
+                @csrf
+
+                <div class="mb-3">
+                    <label for="name" class="form-label fw-semibold text-secondary small">TÊN HIỂN THỊ</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-user-tag text-muted"></i></span>
+                        <input id="name" class="form-control border-start-0 ps-0" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name" placeholder="Ví dụ: Admin Nguyễn Văn A">
+                    </div>
+                    @error('name') <span class="text-danger small mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label fw-semibold text-secondary small">EMAIL LÀM VIỆC</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted"></i></span>
+                        <input id="email" class="form-control border-start-0 ps-0" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="admin@example.com">
+                    </div>
+                    @error('email') <span class="text-danger small mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label fw-semibold text-secondary small">MẬT KHẨU</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-muted"></i></span>
+                        <input id="password" class="form-control border-start-0 border-end-0 px-0" type="password" name="password" required autocomplete="new-password" placeholder="••••••••">
+                        <button class="btn btn-light border border-start-0 btn-toggle-password" type="button" data-target="#password">
+                            <i class="fas fa-eye text-muted"></i>
+                        </button>
+                    </div>
+                    @error('password') <span class="text-danger small mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label for="password_confirmation" class="form-label fw-semibold text-secondary small">XÁC NHẬN MẬT KHẨU</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-check-circle text-muted"></i></span>
+                        <input id="password_confirmation" class="form-control border-start-0 border-end-0 px-0" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="••••••••">
+                        <button class="btn btn-light border border-start-0 btn-toggle-password" type="button" data-target="#password_confirmation">
+                            <i class="fas fa-eye text-muted"></i>
+                        </button>
+                    </div>
+                    @error('password_confirmation') <span class="text-danger small mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <button class="btn btn-admin w-100 py-2 mb-3" type="submit">
+                    <i class="fas fa-plus-circle me-2"></i> TẠO TÀI KHOẢN ADMIN
+                </button>
+
+                <div class="text-center mt-3">
+                    <a class="text-decoration-none text-muted small" href="{{ route('admin.login') }}">
+                        <i class="fas fa-arrow-left me-1"></i> Quay lại trang Đăng nhập
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <form method="POST" action="{{ route('admin.register.submit') }}">
-        @csrf
-
-        <div>
-            <x-input-label for="name" value="Tên hiển thị Admin" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
-
-        <div class="mt-4">
-            <x-input-label for="email" value="Email làm việc" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <div class="mt-4">
-            <x-input-label for="password" value="Mật khẩu" />
-            <div class="relative flex items-center mt-1">
-                <x-text-input id="password" class="block w-full pr-12" type="password" name="password" required autocomplete="new-password" />
-                <button type="button" class="btn-toggle-password absolute right-3 text-gray-500 hover:text-gray-700 transition focus:outline-none" data-target="#password">
-                    <i class="fas fa-eye"></i>
-                </button>
-            </div>
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" value="Xác nhận mật khẩu" />
-            <div class="relative flex items-center mt-1">
-                <x-text-input id="password_confirmation" class="block w-full pr-12" type="password" name="password_confirmation" required autocomplete="new-password" />
-                <button type="button" class="btn-toggle-password absolute right-3 text-gray-500 hover:text-gray-700 transition focus:outline-none" data-target="#password_confirmation">
-                    <i class="fas fa-eye"></i>
-                </button>
-            </div>
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-between mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md" href="{{ route('admin.login') }}">
-                Đã có tài khoản Quản trị?
-            </a>
-
-            <x-primary-button class="ms-4 bg-red-600 hover:bg-red-700">
-                Đăng Ký Admin
-            </x-primary-button>
-        </div>
-    </form>
 
     <script>
         document.querySelectorAll('.btn-toggle-password').forEach(btn => {
             btn.addEventListener('click', function () {
                 const input = document.querySelector(this.getAttribute('data-target'));
                 const icon = this.querySelector('i');
-                
                 if (input.type === 'password') {
                     input.type = 'text';
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash'); // Đổi thành mắt gạch chéo
-                    this.classList.remove('text-gray-500');
-                    this.classList.add('text-red-600');
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                    icon.classList.replace('text-muted', 'text-danger');
                 } else {
                     input.type = 'password';
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                    this.classList.remove('text-red-600');
-                    this.textList.add('text-gray-500');
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                    icon.classList.replace('text-danger', 'text-muted');
                 }
             });
         });
     </script>
-</x-guest-layout>
+</body>
+</html>
