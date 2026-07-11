@@ -138,6 +138,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     // Quản lý đơn hàng
     Route::get('/orders', [ordersController::class, 'index'])->name('admin.orders');
+
+    // Tìm kiếm đơn hàng ---------------------------------------------------------------------------
+    Route::get('/orders/search', [ordersController::class, 'search'])->name('admin.orders.search');
+    // ---------------------------------------------------------------------------------------------
+
     Route::get('/orders/{id}', [ordersController::class, 'show'])->name('admin.orders.show');
     Route::get('/orders/{id}/edit', [ordersController::class, 'edit'])->name('admin.orders.edit');
     Route::put('/orders/{id}/update', [ordersController::class, 'update'])->name('admin.orders.update');
