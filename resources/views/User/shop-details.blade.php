@@ -40,44 +40,45 @@
                         <h2 class="display-4 font-weight-bold mb-4" style="color: var(--primary-color);">
                             <span id="hien-thi-gia">{{ number_format($product->price) }} VNĐ</span>
                         </h2>
-                        
-                        <p class="text-muted mb-4" style="line-height: 1.8; font-size: 15px;">{{ $product->description }}</p>
+                        <p class="text-muted mb-4" style="line-height: 1.8; font-size: 15px;">Tác giả: {{ $product->author->name }}</p>
+                        <p class="text-muted mb-4" style="line-height: 1.8; font-size: 15px;">NXB: {{ $product->publishers->name }}</p>
+                        <p class="text-muted mb-4" style="line-height: 1.8; font-size: 15px;">Mô tả: {{ $product->description }}</p>
 
                         <!-- Box Chọn Phiên Bản -->
                         <div class="mt-4 pt-3 border-top">
-    <h5 class="serif-font font-weight-bold mb-3">Chọn phiên bản:</h5>
-    <div class="d-flex flex-wrap gap-2 mb-4">
-        @php $hasChecked = false; @endphp
-        @foreach($product->variants as $bienThe)
-            @if($bienThe->price > 0)
-                <label class="chon-phien-ban mb-2 mr-2">
-                    <input type="radio" 
-                           name="product_variant_id" 
-                           value="{{ $bienThe->id }}" 
-                           data-gia="{{ $bienThe->price }}" 
-                           data-ton-kho="{{ $bienThe->stock }}" 
-                           {{ $bienThe->stock <= 0 ? 'disabled' : '' }}
-                           
-                           {{-- Logic tự động chọn phiên bản đầu tiên CÒN HÀNG --}}
-                           @if(!$hasChecked && $bienThe->stock > 0)
-                               checked
-                               @php $hasChecked = true; @endphp
-                           @endif
-                           
-                           required>
-                           
-                    <span class="hop-phien-ban">
-                        <strong class="d-block mb-1 text-dark">{{ $bienThe->edition }}</strong>
-                        <small class="d-block text-muted mb-1">{{ number_format($bienThe->price) }} VNĐ</small>
-                        <small class="{{ $bienThe->stock > 0 ? 'text-success' : 'text-danger' }} font-weight-bold">
-                            {{ $bienThe->stock > 0 ? 'Còn ' . $bienThe->stock : 'Hết hàng' }}
-                        </small>
-                    </span>
-                </label>
-            @endif
-        @endforeach
-    </div>
-</div>
+                            <h5 class="serif-font font-weight-bold mb-3">Chọn phiên bản:</h5>
+                            <div class="d-flex flex-wrap gap-2 mb-4">
+                                @php $hasChecked = false; @endphp
+                                @foreach($product->variants as $bienThe)
+                                    @if($bienThe->price > 0)
+                                        <label class="chon-phien-ban mb-2 mr-2">
+                                            <input type="radio" 
+                                                name="product_variant_id" 
+                                                value="{{ $bienThe->id }}" 
+                                                data-gia="{{ $bienThe->price }}" 
+                                                data-ton-kho="{{ $bienThe->stock }}" 
+                                                {{ $bienThe->stock <= 0 ? 'disabled' : '' }}
+                                                
+                                                {{-- Logic tự động chọn phiên bản đầu tiên CÒN HÀNG --}}
+                                                @if(!$hasChecked && $bienThe->stock > 0)
+                                                    checked
+                                                    @php $hasChecked = true; @endphp
+                                                @endif
+                                                
+                                                required>
+                                                
+                                            <span class="hop-phien-ban">
+                                                <strong class="d-block mb-1 text-dark">{{ $bienThe->edition }}</strong>
+                                                <small class="d-block text-muted mb-1">{{ number_format($bienThe->price) }} VNĐ</small>
+                                                <small class="{{ $bienThe->stock > 0 ? 'text-success' : 'text-danger' }} font-weight-bold">
+                                                    {{ $bienThe->stock > 0 ? 'Còn ' . $bienThe->stock : 'Hết hàng' }}
+                                                </small>
+                                            </span>
+                                        </label>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
 
                         <!-- Chọn Số Lượng -->
                         <div class="mb-4">
@@ -112,9 +113,149 @@
                 </div>
             </form>
         </div>
+
+        {{-- Đánh giá & Nhận xét --}}
+            <div class="card p-3 border-0 shadow-sm rounded-3 mt-4">
+                <h5 class="serif-font font-weight-bold mb-1">Đánh giá & Nhận xét</h5>
+                <div class="border-top pt-3 mt-3">  
+                    <div class="row align-items-center">
+                        <!-- Cột 1: Điểm số trung bình (Diện tích col-md-2 - chữ thu nhỏ) -->
+                        <div class="col-md-2 text-center border-end py-1">
+                            <!-- Hạ font chữ xuống fs-2 để không bị quá to chiếm diện tích -->
+                            <h2 class="fw-bold text-dark mb-0">0<span class="fs-6 text-muted">/5</span></h2>
+                            
+                            <div class="text-muted fs-6 my-1">
+                                <i class="bi bi-star"></i>
+                                <i class="bi bi-star"></i>
+                                <i class="bi bi-star"></i>
+                                <i class="bi bi-star"></i>
+                                <i class="bi bi-star"></i>
+                            </div>
+                            <p class="text-muted small mb-0" style="font-size: 0.8rem;">(0 đánh giá)</p>
+                        </div>
+
+                        <!-- Cột 2: Đồ thị phần trăm (Bóp nhỏ lại còn col-md-3) -->
+                        <div class="col-md-3 px-2 border-end py-1">
+                            <div class="d-flex align-items-center mb-1" style="font-size: 0.8rem;">
+                                <span style="width: 40px;" class="text-muted">5 sao</span>
+                                <div class="progress flex-grow-1 mx-2" style="height: 5px; background-color: #f0f2f5;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <span style="width: 25px;" class="text-end text-muted">0%</span>
+                            </div>
+
+                            <div class="d-flex align-items-center mb-1" style="font-size: 0.8rem;">
+                                <span style="width: 40px;" class="text-muted">4 sao</span>
+                                <div class="progress flex-grow-1 mx-2" style="height: 5px; background-color: #f0f2f5;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <span style="width: 25px;" class="text-end text-muted">0%</span>
+                            </div>
+
+                            <div class="d-flex align-items-center mb-1" style="font-size: 0.8rem;">
+                                <span style="width: 40px;" class="text-muted">3 sao</span>
+                                <div class="progress flex-grow-1 mx-2" style="height: 5px; background-color: #f0f2f5;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <span style="width: 25px;" class="text-end text-muted">0%</span>
+                            </div>
+
+                            <div class="d-flex align-items-center mb-1" style="font-size: 0.8rem;">
+                                <span style="width: 40px;" class="text-muted">2 sao</span>
+                                <div class="progress flex-grow-1 mx-2" style="height: 5px; background-color: #f0f2f5;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <span style="width: 25px;" class="text-end text-muted">0%</span>
+                            </div>
+
+                            <div class="d-flex align-items-center" style="font-size: 0.8rem;">
+                                <span style="width: 40px;" class="text-muted">1 sao</span>
+                                <div class="progress flex-grow-1 mx-2" style="height: 5px; background-color: #f0f2f5;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <span style="width: 25px;" class="text-end text-muted">0%</span>
+                            </div>
+                        </div>
+
+                        <!-- Cột 3: Phần nội dung bình luận rộng rãi nhất (Chiếm col-md-7) -->
+                        <div class="col-md-7 ps-4 text-start py-1">
+                            <p class="text-muted mb-0 small">
+                                Chỉ có thành viên mới có thể viết nhận xét. Vui lòng 
+                                <a href="{{ route('login') }}" class="text-primary text-decoration-none fw-semibold">đăng nhập</a> hoặc 
+                                <a href="{{ route('register') }}" class="text-primary text-decoration-none fw-semibold">đăng ký</a>.
+                            </p>
+                        </div>
+                        
+                    </div>
+                </div>
+    
+{{-- Sách cùng danh mục --}}
     </div>
+   <div class="mb-5 bg-white p-4 rounded shadow-sm border mt-4">
+
+    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-2">
+        <h2 class="serif-font font-weight-bold mb-0">
+            Sách cùng danh mục
+        </h2>
+
+        <a href="{{ route('user.category', $product->category_id) }}"
+   class="text-muted text-decoration-none">
+    Xem tất cả <i class="fas fa-angle-right"></i>
+</a>
+    </div>
+
+    @if($relatedProducts->isEmpty())
+
+        <div class="text-center py-5 text-muted">
+            Chưa có sách cùng danh mục.
+        </div>
+
+    @else
+
+        <div class="book-grid">
+
+            @foreach($relatedProducts as $product)
+
+                <div class="book-card text-center position-relative">
+
+                    <button
+                        class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute"
+                        data-id="{{ $product->id }}"
+                        style="top:10px;right:10px;width:34px;height:34px;">
+                        <i class="{{ in_array($product->id,$wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart"
+                           style="color:#D35400"></i>
+                    </button>
+
+                    <a href="{{ route('user.productDetails',$product->id) }}"
+                       class="text-decoration-none text-dark d-block">
+
+                        <img src="{{ asset('uploads/products/'.$product->image) }}"
+                             class="book-cover"
+                             alt="{{ $product->name }}">
+
+                        <h3 class="book-title mt-2">
+                            {{ $product->name }}
+                        </h3>
+
+                        <p class="book-price">
+                            {{ number_format($product->price,0,',','.') }} ₫
+                        </p>
+
+                    </a>
+
+                </div>
+
+            @endforeach
+
+        </div>
+
+    @endif
+
+</div>
 </section>
+
 @endsection
+
 
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
