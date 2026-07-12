@@ -15,7 +15,7 @@
     </a>
 
     <a href="{{ route('user.shop') }}"
-       class="menu-item {{ request()->routeIs('user.shop*') ? 'active' : '' }}">
+       class="menu-item {{ request()->routeIs('user.shop','user.category') ? 'active' : '' }}">
         Tủ sách
     </a>
 

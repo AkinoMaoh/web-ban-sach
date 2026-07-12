@@ -15,10 +15,24 @@
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb bg-transparent px-0 mb-0 py-0">
-                <li class="breadcrumb-item"><a href="{{ route('user.index') }}" class="text-muted"><i class="fas fa-home"></i> Trang chủ</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('user.shop') }}" class="text-muted">Tủ sách</a></li>
+                <!-- 1. Trang chủ luôn là link mờ -->
+                <li class="breadcrumb-item">
+                    <a href="{{ route('user.index') }}" class="text-muted"><i class="fas fa-home"></i> Trang chủ</a>
+                </li>
+
                 @if(isset($danhMuc))
-                    <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">{{ $danhMuc->name }}</li>
+                    <!-- 2. Nếu ĐANG CÓ danh mục -> Tủ sách là link mờ, Danh mục sáng lên -->
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('user.shop') }}" class="text-muted">Tủ sách</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">
+                        {{ $danhMuc->name }}
+                    </li>
+                @else
+                    <!-- 3. Nếu KHÔNG CÓ danh mục -> Đang ở trang Tủ sách chung -> Tủ sách sáng lên -->
+                    <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">
+                        Tủ sách
+                    </li>
                 @endif
             </ol>
         </nav>
