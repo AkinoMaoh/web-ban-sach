@@ -1,6 +1,16 @@
 @extends('layout.user')
 
 @section('content')
+<div class="bg-white py-3 mb-4 shadow-sm border-bottom">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent px-0 mb-0 py-0">
+                <li class="breadcrumb-item"><a href="{{ route('user.index') }}" class="text-muted"><i class="fas fa-home"></i> Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">Giỏ hàng</li>
+            </ol>
+        </nav>
+    </div>
+</div>
 <div class="container my-5">
     <h2 class="serif-font font-weight-bold mb-4">Giỏ hàng của tôi</h2>
     
