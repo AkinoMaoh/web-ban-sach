@@ -57,14 +57,7 @@ if(auth()->check()){
         </span>
     @endif
 </a>
-          
-             <!-- Nút chuyển đổi chế độ sáng/tối -->
-           <button id="theme-toggle"
-                    type="button"
-                    class="btn mr-3"
-                    title="Chuyển giao diện">
-                <i class="fas fa-moon"></i>
-            </button>
+           
                @auth
                     @php
                         $notifs = \App\Models\Notification::where('user_id', Auth::id())->latest()->take(5)->get();
@@ -97,6 +90,12 @@ if(auth()->check()){
                         </div>
                     </div>
                 @endauth
+                <button id="theme-toggle"
+                    type="button"
+                    class="btn mr-3"
+                    title="Chuyển giao diện">
+                <i class="fas fa-moon"></i>
+            </button>
             @auth
                 <a href="{{ route('profile.edit') }}" class="text-dark font-weight-bold text-decoration-none">
                     <i class="fas fa-user-circle mr-1" style="color: var(--primary-color);"></i> {{ Auth::user()->name }}

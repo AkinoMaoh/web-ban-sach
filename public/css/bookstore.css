@@ -838,3 +838,26 @@ html.dark-mode .menu-item.active:hover {
 .dark-mode .fa-bell {
     color: #fff;
 }
+.notification-header,
+.notification-header * {
+    color: #fff !important;
+}
+/* White mode */
+.notification-header {
+    background-color: var(--admin-orange);
+    color: #000 !important;
+    border-radius: 10px 10px 0 0;
+}
+
+/* Dark mode */
+html.dark-mode .notification-header {
+    background-color: #333;
+    color: #fff !important;
+}
+.notification-header {
+    color: #000 !important;
+}
+
+html.dark-mode .notification-header {
+    color: #fff !important;
+}
