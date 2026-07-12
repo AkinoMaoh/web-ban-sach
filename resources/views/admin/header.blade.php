@@ -61,7 +61,7 @@
                 
                 <!-- Dropdown - Alerts -->
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in border-0 mt-2" aria-labelledby="alertsDropdown" style="width: 320px; border-radius: 10px;">
-                    <h6 class="dropdown-header text-white" style="background-color: var(--admin-orange); border-color: var(--admin-orange); border-radius: 10px 10px 0 0;">
+                    <h6 class="dropdown-header " style="background-color: var(--admin-orange); border-color: var(--admin-orange); border-radius: 10px 10px 0 0;">
                         Thông báo đơn hàng mới
                     </h6>
                     
