@@ -64,20 +64,48 @@ class ShopController extends Controller
         }
 
         switch ($request->get('sort')) {
-            case 'price_asc':  $truyVan->orderBy('price', 'asc');  break;
-            case 'price_desc': $truyVan->orderBy('price', 'desc'); break;
-            case 'newest':     $truyVan->latest();                 break;
-            default:           $truyVan->orderBy('id', 'asc');     break;
+            case 'price_asc':
+                $truyVan->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $truyVan->orderBy('price', 'desc');
+                break;
+            case 'newest':
+                $truyVan->latest();
+                break;
+            default:
+                $truyVan->orderBy('id', 'asc');
+                break;
         }
 
         $danhSachSanPham = $truyVan->paginate(12)->appends($request->query());
 
         return view('User.shop', compact(
-            'danhMuc',
             'tatCaDanhMuc',
-            'danhSachSanPham',
             'tacGia',
-            'nhaXuatBan'
+            'nhaXuatBan',
+            'danhMuc',
+            'danhSachSanPham'
+        ));
+    }
+    public function author($id)
+    {
+        $author = authors::findOrFail($id);
+
+        $tatCaDanhMuc = categories::where('status', 1)->get();
+        $tacGia = authors::all();
+        $nhaXuatBan = publishers::all();
+
+        $danhSachSanPham = products::where('author_id', $id)
+            ->where('status', 1)
+            ->paginate(12);
+
+        return view('User.shop', compact(
+            'tatCaDanhMuc',
+            'tacGia',
+            'nhaXuatBan',
+            'author',
+            'danhSachSanPham'
         ));
     }
 }

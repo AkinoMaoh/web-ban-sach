@@ -42,6 +42,7 @@
                         </h2>
                         <p class="text-muted mb-4" style="line-height: 1.8; font-size: 15px;">Tác giả: {{ $product->author->name }}</p>
                         <p class="text-muted mb-4" style="line-height: 1.8; font-size: 15px;">NXB: {{ $product->publishers->name }}</p>
+                        <p class="text-muted mb-4" style="line-height: 1.8; font-size: 15px;">Danh mục: {{ $product->category->name }}</p>
                         <p class="text-muted mb-4" style="line-height: 1.8; font-size: 15px;">Mô tả: {{ $product->description }}</p>
 
                         <!-- Box Chọn Phiên Bản -->
@@ -188,70 +189,60 @@
                         
                     </div>
                 </div>
-    
+      </div>
 {{-- Sách cùng danh mục --}}
-    </div>
+  
    <div class="mb-5 bg-white p-4 rounded shadow-sm border mt-4">
 
-    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-2">
-        <h2 class="serif-font font-weight-bold mb-0">
-            Sách cùng danh mục
-        </h2>
+        <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-2">
+            <h2 class="serif-font font-weight-bold mb-0">
+                Sách của tác giả {{ $product->author->name }}
+            </h2>
 
-        <a href="{{ route('user.category', $product->category_id) }}"
-   class="text-muted text-decoration-none">
-    Xem tất cả <i class="fas fa-angle-right"></i>
-</a>
+            <a href="{{ route('user.author', $product->author_id) }}"
+            class="text-muted text-decoration-none">
+                Xem tất cả
+            </a>
+        </div>
+
+        @if($relatedProducts->isEmpty())
+
+            <div class="text-center py-5 text-muted">
+                Chưa có sách cùng danh mục.
+            </div>
+
+        @else
+
+        <div class="row">
+    @foreach($relatedProducts as $item)
+   <div class="col-lg-2 col-md-3 col-6 mb-4">
+    <div class="card border-0 h-100 text-center">
+
+        <a href="{{ route('user.productDetails',$item->id) }}" class="d-flex justify-content-center mt-2">
+            <img src="{{ asset('uploads/products/'.$item->image) }}"
+                 class="rounded shadow"
+                 style="width:120px; height:180px; object-fit:cover;"
+                 alt="{{ $item->name }}">
+        </a>
+
+        <div class="card-body p-2">
+            <h6 class="mb-2 text-truncate">
+                {{ $item->name }}
+            </h6>
+
+            <div class="font-weight-bold" style="color:#D35400;">
+                {{ number_format($item->price,0,',','.') }} ₫
+            </div>
+        </div>
+
     </div>
-
-    @if($relatedProducts->isEmpty())
-
-        <div class="text-center py-5 text-muted">
-            Chưa có sách cùng danh mục.
-        </div>
-
-    @else
-
-        <div class="book-grid">
-
-            @foreach($relatedProducts as $product)
-
-                <div class="book-card text-center position-relative">
-
-                    <button
-                        class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute"
-                        data-id="{{ $product->id }}"
-                        style="top:10px;right:10px;width:34px;height:34px;">
-                        <i class="{{ in_array($product->id,$wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart"
-                           style="color:#D35400"></i>
-                    </button>
-
-                    <a href="{{ route('user.productDetails',$product->id) }}"
-                       class="text-decoration-none text-dark d-block">
-
-                        <img src="{{ asset('uploads/products/'.$product->image) }}"
-                             class="book-cover"
-                             alt="{{ $product->name }}">
-
-                        <h3 class="book-title mt-2">
-                            {{ $product->name }}
-                        </h3>
-
-                        <p class="book-price">
-                            {{ number_format($product->price,0,',','.') }} ₫
-                        </p>
-
-                    </a>
-
-                </div>
-
-            @endforeach
-
-        </div>
-
-    @endif
-
 </div>
+    @endforeach
+</div>
+
+        @endif
+
+    </div>
 </section>
 
 @endsection
@@ -327,6 +318,18 @@ document.addEventListener('DOMContentLoaded', function () {
         const bienTheDangChon = document.querySelector('input[name="product_variant_id"]:checked');
         if (!bienTheDangChon) { e.preventDefault(); alert('Vui lòng chọn phiên bản!'); return; }
     });
+});
+$('.related-carousel').owlCarousel({
+    loop:true,
+    margin:20,
+    nav:true,
+    dots:false,
+    responsive:{
+        0:{items:2},
+        576:{items:3},
+        768:{items:4},
+        992:{items:5}
+    }
 });
 </script>
 @endpush

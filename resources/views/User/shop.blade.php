@@ -115,80 +115,170 @@
         </aside>
 
         <!-- Cột phải: Vùng hiển thị sách -->
-        <section class="col-lg-9">
-            
-            {{-- TRƯỜNG HỢP 1: TRANG CỬA HÀNG CHUNG --}}
-            @if(isset($sanPhamTheoDanhMuc))
-                <div class="mb-4">
-                    <h2 class="serif-font font-weight-bold">Khám phá Tủ sách</h2>
-                    <p class="text-muted">Tuyển tập những cuốn sách hay nhất theo từng thể loại.</p>
+    <section class="col-lg-9">
+
+    {{-- ================= TRANG CỬA HÀNG ================= --}}
+    @if(isset($sanPhamTheoDanhMuc))
+
+        <div class="mb-4">
+            <h2 class="serif-font font-weight-bold">Khám phá Tủ sách</h2>
+            <p class="text-muted">
+                Tuyển tập những cuốn sách hay nhất theo từng thể loại.
+            </p>
+        </div>
+
+        @foreach($sanPhamTheoDanhMuc as $dm)
+
+            <div class="mb-5 bg-white p-4 rounded shadow-sm border">
+
+                <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-2">
+
+                    <h3 class="serif-font font-weight-bold mb-0"
+                        style="color:#2C3E50;">
+                        {{ $dm->name }}
+                    </h3>
+
+                    <a href="{{ route('user.category',$dm->id) }}"
+                       class="text-decoration-none"
+                       style="color:var(--primary-color);font-weight:600;">
+                        Xem thêm
+                        <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+
                 </div>
 
-                @foreach($sanPhamTheoDanhMuc as $dm)
-                    <div class="mb-5 bg-white p-4 rounded shadow-sm border">
-                        <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-2">
-                            <h3 class="serif-font font-weight-bold mb-0" style="color: #2C3E50;">{{ $dm->name }}</h3>
-                            <a href="{{ route('user.category', $dm->id) }}" class="text-decoration-none" style="color: var(--primary-color); font-weight: 600;">Xem thêm <i class="fas fa-arrow-right ml-1"></i></a>
-                        </div>
-                        
-                        <div class="book-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
-                            @foreach($dm->sanPham as $product)
-                                <div class="position-relative book-card text-center">
-                                    <!-- Nút Wishlist -->
-                                    <button class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute" data-id="{{ $product->id }}" style="top: 10px; right: 10px; z-index: 10; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: none;">
-                                        <i class="{{ in_array($product->id, $wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" style="color: #D35400; font-size: 16px;"></i>
-                                    </button>
+                <div class="book-grid">
 
-                                    <a href="{{ route('user.productDetails', $product->id) }}" class="text-decoration-none text-dark d-block">
-                                        <img src="{{ asset('uploads/products/' . $product->image) }}" class="book-cover" style="width:100%; height:auto;" alt="{{ $product->name }}">
-                                        <h3 class="book-title mt-2" title="{{ $product->name }}">{{ $product->name }}</h3>
-                                        <p class="book-price">{{ number_format($product->price, 0, ',', '.') }} ₫</p>
-                                    </a>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endforeach
-            @endif
+                    @foreach($dm->sanPham as $product)
 
-            {{-- TRƯỜNG HỢP 2: TRANG CHI TIẾT 1 DANH MỤC --}}
-            @if(isset($danhSachSanPham))
-                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-                    <h2 class="serif-font font-weight-bold mb-0" style="color: #2C3E50;">{{ $danhMuc->name }}</h2>
-                    <span class="text-muted"><i class="fas fa-book mr-1"></i> {{ $danhSachSanPham->total() }} tác phẩm</span>
+                        <div class="position-relative book-card text-center">
+
+                            <button
+                                class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute"
+                                data-id="{{ $product->id }}"
+                                style="top:10px;right:10px;width:34px;height:34px;">
+
+                                <i class="{{ in_array($product->id,$wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart"
+                                   style="color:#D35400"></i>
+
+                            </button>
+
+                            <a href="{{ route('user.productDetails',$product->id) }}"
+                               class="text-decoration-none text-dark d-block">
+
+                                <img src="{{ asset('uploads/products/'.$product->image) }}"
+                                     class="book-cover"
+                                     alt="{{ $product->name }}">
+
+                                <h3 class="book-title mt-2">
+                                    {{ $product->name }}
+                                </h3>
+
+                                <p class="book-price">
+                                    {{ number_format($product->price,0,',','.') }} ₫
+                                </p>
+
+                            </a>
+
+                        </div>
+
+                    @endforeach
+
                 </div>
 
-                @if($danhSachSanPham->isEmpty())
-                    <div class="text-center py-5 bg-light rounded shadow-sm border">
-                        <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">Chưa có tác phẩm nào phù hợp với bộ lọc.</h5>
-                    </div>
+            </div>
+
+        @endforeach
+
+    @endif
+
+
+
+    {{-- ================= TRANG DANH MỤC / TÁC GIẢ ================= --}}
+    @if(isset($danhSachSanPham))
+
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+
+            <h2 class="serif-font font-weight-bold mb-0"
+                style="color:#2C3E50;">
+
+                @if(isset($author))
+                    Sách của tác giả {{ $author->name }}
                 @else
-                    <div class="book-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
-                        @foreach ($danhSachSanPham as $product)
-                            <div class="position-relative book-card text-center">
-                                <!-- Nút Wishlist -->
-                                <button class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute" data-id="{{ $product->id }}" style="top: 10px; right: 10px; z-index: 10; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: none;">
-                                    <i class="{{ in_array($product->id, $wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" style="color: #D35400; font-size: 16px;"></i>
-                                </button>
-
-                                <a href="{{ route('user.productDetails', $product->id) }}" class="text-decoration-none text-dark d-block">
-                                    <img src="{{ asset('uploads/products/' . $product->image) }}" class="book-cover" style="width:100%; height:auto;" alt="{{ $product->name }}">
-                                    <h3 class="book-title mt-2" title="{{ $product->name }}">{{ $product->name }}</h3>
-                                    <p class="book-price">{{ number_format($product->price, 0, ',', '.') }} ₫</p>
-                                </a>
-                            </div>
-                        @endforeach
-                    </div>
-                    
-                    <!-- Hiển thị phân trang -->
-                    <div class="mt-5 d-flex justify-content-center custom-pagination">
-                        {{ $danhSachSanPham->links() }}
-                    </div>
+                    {{ $danhMuc->name }}
                 @endif
-            @endif
 
-        </section>
+            </h2>
+
+            <span class="text-muted">
+                <i class="fas fa-book mr-1"></i>
+                {{ $danhSachSanPham->total() }} tác phẩm
+            </span>
+
+        </div>
+
+        @if($danhSachSanPham->isEmpty())
+
+            <div class="text-center py-5 bg-light rounded shadow-sm border">
+
+                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+
+                <h5 class="text-muted">
+                    Chưa có tác phẩm nào.
+                </h5>
+
+            </div>
+
+        @else
+
+            <div class="book-grid">
+
+                @foreach($danhSachSanPham as $product)
+
+                    <div class="position-relative book-card text-center">
+
+                        <button
+                            class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute"
+                            data-id="{{ $product->id }}"
+                            style="top:10px;right:10px;width:34px;height:34px;">
+
+                            <i class="{{ in_array($product->id,$wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart"
+                               style="color:#D35400"></i>
+
+                        </button>
+
+                        <a href="{{ route('user.productDetails',$product->id) }}"
+                           class="text-decoration-none text-dark d-block">
+
+                            <img src="{{ asset('uploads/products/'.$product->image) }}"
+                                 class="book-cover"
+                                 alt="{{ $product->name }}">
+
+                            <h3 class="book-title mt-2">
+                                {{ $product->name }}
+                            </h3>
+
+                            <p class="book-price">
+                                {{ number_format($product->price,0,',','.') }} ₫
+                            </p>
+
+                        </a>
+
+                    </div>
+
+                @endforeach
+
+            </div>
+
+            <div class="mt-5 d-flex justify-content-center custom-pagination">
+                {{ $danhSachSanPham->links() }}
+            </div>
+
+        @endif
+
+    @endif
+
+</section>
     </div>
 </div>
 

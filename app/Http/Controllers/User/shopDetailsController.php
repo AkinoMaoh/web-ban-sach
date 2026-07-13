@@ -20,12 +20,12 @@ class shopDetailsController extends Controller
         $categories = categories::where('status', 1)->get();
         $authors = authors::all();
         $publishers = publishers::all();
-        $relatedProducts = products::where('category_id', $product->category_id)
+        $relatedProducts = products::where('author_id', $product->author_id)
             ->where('id', '!=', $product->id)
             ->where('status', 1)
-            ->take(4)
+            ->latest()
+            ->take(6)
             ->get();
-
         return view('User.shop-details', compact(
             'product',
             'categories',
