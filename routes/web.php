@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\PhoneLoginController;
-use App\Http\Controllers\Auth\PasswordResetController; 
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Models\Notification;
 
 
@@ -29,6 +29,7 @@ use App\Models\Notification;
 | 1. ROUTE CÔNG KHAI (CHỈ DÀNH CHO KHÁCH HÀNG / USER THƯỜNG KHÔNG PHẢI ADMIN)
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['user_only'])->group(function () {
     Route::get('/', [trangChuController::class, 'index'])->name('user.index');
     Route::get('/shop', [ShopController::class, 'index'])->name('user.shop');
@@ -39,11 +40,11 @@ Route::middleware(['user_only'])->group(function () {
     Route::get('/search-product', [trangChuController::class, 'searchProduct'])->name('search.product');
 
     Route::get('/product/{id}', [shopDetailsController::class, 'index'])->name('user.productDetails');
-    
+
     // Liên hệ
     Route::get('/contact', [ContactController::class, 'index'])->name('user.contact');
     Route::post('/contact', [ContactController::class, 'send'])->name('user.contact.send');
-    
+
     // Giỏ hàng
     Route::prefix('cart')->group(function () {
         Route::get('/', [CartController::class, 'index'])->name('cart.index');
@@ -185,7 +186,7 @@ Route::middleware(['auth', 'user_only'])->group(function () {
     Route::post('/password/send-otp', [PasswordResetController::class, 'sendOtp'])->name('password.verify.send');
     // API kiểm tra mã OTP khớp hay sai để mở khóa bước kế tiếp
     Route::post('/password/verify-otp', [PasswordResetController::class, 'verifyOtp'])->name('password.verify.match');
-    
+
     // Giao diện bước 2: Trang điền hai trường mật khẩu mới (Chỉ cho xem khi OTP đúng)
     Route::get('/password/reset-fields', [PasswordResetController::class, 'showResetFieldsForm'])->name('password.reset.fields');
     // Xử lý cập nhật chính thức mật khẩu đã băm vào Database
@@ -209,10 +210,10 @@ Route::post('login-phone-verify', [PhoneLoginController::class, 'verifyLogin'])-
 // Chuyển hướng khi click vào thông báo
 Route::get('/notifications/redirect/{id}', function ($id) {
     $n = \App\Models\Notification::findOrFail($id);
-    
+
     // Đánh dấu đã đọc
-    $n->update(['is_read' => true]); 
-    
+    $n->update(['is_read' => true]);
+
     if ($n->order_id) {
         // Kiểm tra xem ai đang click vào thông báo
         if (Auth::user()->role == 1) {
@@ -223,7 +224,7 @@ Route::get('/notifications/redirect/{id}', function ($id) {
             return redirect('/order-history/' . $n->order_id);
         }
     }
-    
+
     return back();
 })->name('notifications.redirect')->middleware('auth');
 
@@ -240,3 +241,7 @@ Route::get('/notifications/read-all', function () {
 })->name('notifications.read.all')->middleware('auth');
 // Các tuyến đường auth đăng nhập/đăng ký mặc định của hệ thống Người dùng thường
 require __DIR__ . '/auth.php';
+
+//Xem tất cả sách của tác giả
+Route::get('/author/{id}', [ShopController::class, 'author'])
+    ->name('user.author');
