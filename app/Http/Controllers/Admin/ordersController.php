@@ -100,9 +100,10 @@ class ordersController extends Controller
     // Tìm kiếm đơn hàng sđt bằng AJAX
     public function search(Request $request)
     {
-        $orders = Order::with('user')
+        $orders = Order::select('shipping_phone')
             ->where('shipping_phone', 'like', $request->phone . '%')
-            ->orderBy('created_at', 'desc')
+            ->distinct()
+            ->orderBy('shipping_phone')
             ->get();
 
         return response()->json($orders);
