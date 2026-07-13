@@ -19,7 +19,9 @@
                         name="phone"
                         class="form-control"
                         placeholder="Nhập số điện thoại..."
-                        autocomplete="off">
+                        autocomplete="off"
+                        value="{{ request('phone') }}">
+                        
 
                     <div id="search-order-result"></div>
 
