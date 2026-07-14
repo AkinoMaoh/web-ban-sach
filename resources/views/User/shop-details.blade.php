@@ -301,9 +301,21 @@
                                 </p>
 
                                 @if($review->admin_reply)
-                                    <div class="p-2 bg-light border-left border-primary mt-2 ml-3">
-                                        <small class="text-primary font-weight-bold">Phản hồi từ Shop:</small>
-                                        <p class="mb-0">{{ $review->admin_reply }}</p>
+                                    <div class="admin-reply-box mt-3 p-3 rounded shadow-sm" style="background-color: #f4f6f9; border-left: 4px solid var(--primary-color);">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <!-- Icon Admin -->
+                                            <div class="text-white rounded-circle d-flex justify-content-center align-items-center shadow-sm mr-2" 
+                                                style="width: 32px; height: 32px; background-color: var(--primary-color);">
+                                                <i class="fas fa-headset" style="font-size: 0.85rem;"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 font-weight-bold" style="color: var(--primary-color);">Phản hồi từ Shop</h6>
+                                            </div>
+                                        </div>
+                                        <!-- Nội dung trả lời -->
+                                        <div class="text-dark ml-4 pl-1" style="font-size: 0.95rem; line-height: 1.6;">
+                                            {!! nl2br(e($review->admin_reply)) !!}
+                                        </div>
                                     </div>
                                 @endif
                             </div>

@@ -20,7 +20,8 @@ class Review extends Model
         'variant_name',
         'rating',
         'comment',
-        'is_buyer'
+        'is_buyer',
+        'admin_reply'
     ];
 
     public function user() { return $this->belongsTo(User::class); }
