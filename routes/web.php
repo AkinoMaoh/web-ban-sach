@@ -226,8 +226,47 @@ Route::get('/notifications/redirect/{id}', function ($id) {
     $n = \App\Models\Notification::findOrFail($id);
 
     // Đánh dấu đã đọc
-    $n->update(['is_read' => true]);
+    $n->update(['is_read' => 1]);
 
+    // Chuyển message về chữ thường để dễ so sánh (dùng mb_strtolower để không lỗi font tiếng Việt)
+    $message = mb_strtolower($n->message, 'UTF-8');
+
+    // ==========================================
+    // 1. LUỒNG XỬ LÝ CHO ADMIN (role == 1)
+    // ==========================================
+    if (Auth::user()->role == 1) {
+        
+        // Nhận diện thông báo Khách hàng viết Đánh giá
+        if (str_contains($message, 'đánh giá')) {
+            // Chuyển thẳng tới trang Quản lý bình luận của Admin
+            return redirect()->route('admin.reviews.index'); // Hoặc dùng: redirect('/admin/reviews')
+        }
+
+        // Mặc định: Thông báo đơn hàng mới/trạng thái đơn
+        if ($n->order_id) {
+            return redirect('/admin/orders/' . $n->order_id);
+        }
+    } 
+    // ==========================================
+    // 2. LUỒNG XỬ LÝ CHO KHÁCH HÀNG (role == 0)
+    // ==========================================
+    else {
+        
+        // Nhận diện thông báo Shop phản hồi Đánh giá
+        if (str_contains($message, 'phản hồi')) {
+            // Tìm lại ID sách mà khách đã đánh giá dựa vào order_id
+            $review = \App\Models\Review::where('user_id', $n->user_id)
+                ->whereHas('orderDetail', function($q) use ($n) {
+                    $q->where('order_id', $n->order_id);
+                })->latest()->first();
+
+            if ($review) {
+                return redirect()->route('user.productDetails', $review->product_id);
+            }
+        }
+
+        // Mặc định: Thông báo cập nhật đơn hàng
+        if ($n->order_id) {
     if ($n->order_id) {
         if (Auth::user()->role == 1) {
             return redirect('/admin/orders/' . $n->order_id);
@@ -236,6 +275,7 @@ Route::get('/notifications/redirect/{id}', function ($id) {
         }
     }
 
+    // Dự phòng nếu không có order_id
     return back();
 })->name('notifications.redirect')->middleware('auth');
 
