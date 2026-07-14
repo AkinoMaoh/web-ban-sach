@@ -63,4 +63,10 @@
             <span>Duyệt tài khoản Admin</span>
         </a>
     </li>
+    <li class="nav-item {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('admin.reviews.index') }}">
+            <i class="fas fa-fw fa-comments"></i>
+            <span>Quản lý Bình luận</span>
+        </a>
+    </li>
 </ul>

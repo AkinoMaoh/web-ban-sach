@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Review;
+use App\Models\Notification;
 
 class ReviewManagerController extends Controller
 {
@@ -26,14 +27,29 @@ class ReviewManagerController extends Controller
             'admin_reply.required' => 'Vui lòng nhập nội dung trả lời.'
         ]);
 
-        $review = Review::findOrFail($id);
+        // Eager load orderDetail và product để lấy thông tin tạo thông báo
+        $review = Review::with(['orderDetail', 'product'])->findOrFail($id);
         
-        // Cập nhật câu trả lời của admin
+        // 1. Cập nhật câu trả lời của admin
         $review->update([
             'admin_reply' => $request->admin_reply
         ]);
 
-        return back()->with('success', 'Đã gửi phản hồi thành công!');
+        // 2. TẠO THÔNG BÁO CHO KHÁCH HÀNG (CLIENT)
+        if ($review->user_id) {
+            $productName = $review->product->name ?? 'sản phẩm';
+            
+            Notification::create([
+                'user_id'    => $review->user_id,
+                'order_id'   => $review->orderDetail->order_id ?? 0,
+                'message'    => "Shop vừa phản hồi đánh giá của bạn về sách: {$productName}",
+                'is_read'    => false,
+                // Thêm dòng này: Gắn link trực tiếp tới sản phẩm đó
+                'target_url' => route('user.productDetails', $review->product_id) 
+            ]);
+        }
+
+        return back()->with('success', 'Đã gửi phản hồi và thông báo cho khách hàng!');
     }
 
     // Admin xóa đánh giá (nếu vi phạm)

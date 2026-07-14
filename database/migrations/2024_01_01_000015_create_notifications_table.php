@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('message');
             $table->boolean('is_read')->default(false);
             $table->timestamps();
+            $table->string('target_url')->nullable();
         });
     }
 
