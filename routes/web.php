@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\User\shopDetailsController;
 use App\Http\Controllers\User\ShopController;
 use App\Http\Controllers\User\CartController;
+use App\Http\Controllers\User\WishlistController;
+use App\Http\Controllers\User\NewsController;
 use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\OrderHistoryController;
 use Illuminate\Support\Facades\Route;
@@ -21,7 +23,6 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\PhoneLoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
-use App\Models\Notification;
 
 
 /*
@@ -57,6 +58,9 @@ Route::middleware(['user_only'])->group(function () {
     Route::get('/checkout', [PaymentController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
+
+    Route::get('/tin-tuc', [NewsController::class, 'index'])->name('user.news');
+    Route::get('/tin-tuc/1', [NewsController::class, 'show'])->name('user.news.show');
 });
 
 
