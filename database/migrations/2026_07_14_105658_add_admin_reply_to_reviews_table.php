@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('comments', function (Blueprint $table) {
-        $table->boolean('is_purchased')->default(false)->after('comment');
+        Schema::table('reviews', function (Blueprint $table) {
+        $table->text('admin_reply')->nullable(); // Lưu nội dung admin trả lời
     });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('comments', function (Blueprint $table) {
+        Schema::table('reviews', function (Blueprint $table) {
             //
         });
     }

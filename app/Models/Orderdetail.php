@@ -3,7 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\productVariants;
+use App\Models\Review;
 class OrderDetail extends Model
 {
     protected $table = 'order_details';
@@ -32,6 +33,17 @@ class OrderDetail extends Model
      */
     public function productVariant()
     {
-        return $this->belongsTo(ProductVariants::class, 'product_variant_id');
+        return $this->belongsTo(productVariants::class, 'product_variant_id');
+    }
+
+    public function review()
+    {
+        return $this->hasOne(Review::class, 'order_detail_id');
+    }
+
+    // Quan hệ với biến thể (để hiển thị tên edition)
+    public function variant()
+    {
+        return $this->belongsTo(productVariants::class, 'product_variant_id');
     }
 }

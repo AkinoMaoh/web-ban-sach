@@ -108,10 +108,7 @@
         <div class="card stat-card border-left-purple shadow-sm h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #8E44AD;">Đánh giá / Phản hồi</div>
-                        <div class="h4 mb-0 font-weight-bold text-gray-800">{{ $phanHoiMoi }}</div>
-                    </div>
+                    
                     <div class="col-auto">
                         <div class="bg-light p-3 rounded-circle"><i class="fas fa-comments fa-2x" style="color: #8E44AD;"></i></div>
                     </div>

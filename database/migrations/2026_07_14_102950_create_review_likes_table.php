@@ -11,19 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('comments', function (Blueprint $table) {
+        Schema::create('review_likes', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id'); 
-            $table->unsignedBigInteger('product_id'); 
-            $table->text('content'); 
-            
-            // Cột này để đánh dấu tích xanh (mặc định là false)
-            $table->boolean('is_buyer')->default(false); 
-            
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('review_id');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('review_id')->references('id')->on('reviews')->onDelete('cascade');
+            
+
+            $table->unique(['user_id', 'review_id']); 
         });
     }
 
@@ -32,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('comments');
+        Schema::dropIfExists('review_likes');
     }
 };
