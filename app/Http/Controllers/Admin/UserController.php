@@ -13,20 +13,20 @@ class UserController extends Controller
     {
         // Lấy danh sách user mới nhất, phân trang 10 user/trang
         $users = User::latest()->paginate(10);
-        return view('admin.users.index', compact('users'));
+        return view('admin.users', compact('users'));
     }
 
     // 2. Xóa tài khoản người dùng
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $user = User::findOrFail($id);
-        
-        // Tránh trường hợp Admin tự xóa chính mình
+
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Bạn không thể tự xóa tài khoản của chính mình!');
         }
 
         $user->delete();
+
         return back()->with('success', 'Xóa người dùng thành công!');
     }
 }

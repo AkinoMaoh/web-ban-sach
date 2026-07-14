@@ -37,6 +37,7 @@
     .custom-list-item { border-left: none; border-right: none; padding: 15px 20px; transition: 0.2s; }
     .custom-list-item:hover { background-color: #f8f9fa; }
     .custom-list-item:first-child { border-top: none; }
+    
 </style>
 
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -121,9 +122,9 @@
 <!-- 2. TRẠNG THÁI ĐƠN HÀNG NHANH -->
 <div class="row mb-4">
     <div class="col-lg-3 col-md-6 mb-3">
-        <a href="{{ route('admin.orders', ['status' => 'pending']) }}" class="btn btn-warning order-status-btn shadow-sm text-dark font-weight-bold w-100 text-decoration-none">
+        <a href="{{ route('admin.orders', ['status' => 'pending']) }}" class="btn btn-warning order-status-btn shadow-sm text-white font-weight-bold w-100 text-decoration-none">
             <span><i class="fas fa-clock mr-2"></i> Chờ xác nhận</span>
-            <span class="badge badge-light text-dark shadow-sm">{{ $donMoi }}</span>
+            <span class="badge badge-light text-warning shadow-sm">{{ $donMoi }}</span>
         </a>
     </div>
     <div class="col-lg-3 col-md-6 mb-3">
@@ -195,7 +196,7 @@
                 <ul class="list-group list-group-flush">
                     @forelse($topSanPham as $sp)
                         <li class="list-group-item custom-list-item d-flex justify-content-between align-items-center">
-                            <span class="text-dark font-weight-bold" style="font-size: 14px;">{{ $sp->name }}</span> 
+                            <span class="text-muted font-weight-bold" style="font-size: 14px;">{{ $sp->name }}</span> 
                             <span class="badge text-white badge-pill px-2 py-1 bg-primary">{{ $sp->total_sold }} cuốn</span>
                         </li>
                     @empty
@@ -238,7 +239,7 @@
                     @forelse($khachVIP as $vip)
                         <li class="list-group-item custom-list-item d-flex justify-content-between align-items-center">
                             <div>
-                                <strong class="text-dark">{{ $vip->name }}</strong><br>
+                                <strong class="text-muted">{{ $vip->name }}</strong><br>
                                 <small class="text-muted">{{ $vip->email }}</small>
                             </div>
                             <span class="badge badge-primary badge-pill px-2 py-1">{{ number_format($vip->total_spent, 0, ',', '.') }}đ</span>

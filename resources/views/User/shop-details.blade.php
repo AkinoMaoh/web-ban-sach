@@ -300,24 +300,25 @@
                                     {{ $review->comment }}
                                 </p>
 
-                                @if($review->admin_reply)
-                                    <div class="admin-reply-box mt-3 p-3 rounded shadow-sm" style="background-color: #f4f6f9; border-left: 4px solid var(--primary-color);">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <!-- Icon Admin -->
-                                            <div class="text-white rounded-circle d-flex justify-content-center align-items-center shadow-sm mr-2" 
-                                                style="width: 32px; height: 32px; background-color: var(--primary-color);">
-                                                <i class="fas fa-headset" style="font-size: 0.85rem;"></i>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-0 font-weight-bold" style="color: var(--primary-color);">Phản hồi từ Shop</h6>
-                                            </div>
-                                        </div>
-                                        <!-- Nội dung trả lời -->
-                                        <div class="text-dark ml-4 pl-1" style="font-size: 0.95rem; line-height: 1.6;">
-                                            {!! nl2br(e($review->admin_reply)) !!}
-                                        </div>
-                                    </div>
-                                @endif
+                               @if($review->admin_reply)
+<div class="admin-reply-box mt-3 p-3 rounded shadow-sm">
+    <div class="d-flex align-items-center mb-2">
+        <div class="admin-reply-icon text-white rounded-circle d-flex justify-content-center align-items-center shadow-sm mr-2">
+            <i class="fas fa-headset"></i>
+        </div>
+
+        <div class="admin-reply-title">
+            <h6 class="mb-0 font-weight-bold">
+                Phản hồi từ Shop
+            </h6>
+        </div>
+    </div>
+
+    <div class="admin-reply-content ml-4 pl-1">
+        {!! nl2br(e($review->admin_reply)) !!}
+    </div>
+</div>
+@endif
                             </div>
                         </div>
                         <hr class="text-muted" style="opacity: 0.1">
