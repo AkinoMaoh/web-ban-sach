@@ -67,6 +67,10 @@
         <a class="nav-link" href="{{ route('admin.reviews.index') }}">
             <i class="fas fa-fw fa-comments"></i>
             <span>Quản lý Bình luận</span>
+    <li class="nav-item {{ Request::routeIs('admin.users.index') ? 'active' : '' }}">
+        <a class="nav-link text-white d-flex align-items-center py-2.5 px-3" href="{{ route('admin.users.index') }}" style="gap: 12px; font-size: 0.95rem; opacity: 0.85; transition: 0.2s;">
+            <i class="fas fa-users" style="width: 20px; font-size: 1.1rem; color: #a0aec0;"></i>
+            <span>Quản lý người dùng</span>
         </a>
     </li>
 </ul>
