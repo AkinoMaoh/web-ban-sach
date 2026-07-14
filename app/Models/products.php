@@ -41,4 +41,9 @@ class products extends Model
     {
         return $this->hasMany(productVariants::class, 'product_id');
     }
+
+    function reviews() 
+    { 
+        return $this->hasMany(Review::class, 'product_id')->orderBy('created_at', 'desc'); 
+    }
 }
