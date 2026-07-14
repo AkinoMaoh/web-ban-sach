@@ -167,8 +167,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/categories/{id}/destroy', [categoriesController::class, 'destroy'])->name('admin.categories.destroy');
 
     //Quản lí bình luận
-    Route::get('/reviews', [ReviewManagerController::class, 'index'])->name('reviews.index');
-    Route::delete('/reviews/{id}', [ReviewManagerController::class, 'destroy'])->name('reviews.destroy');
+    Route::get('/reviews', [App\Http\Controllers\Admin\ReviewManagerController::class, 'index'])->name('admin.reviews.index');
+    Route::post('/reviews/{id}/reply', [App\Http\Controllers\Admin\ReviewManagerController::class, 'reply'])->name('admin.reviews.reply');
+    Route::delete('/reviews/{id}', [App\Http\Controllers\Admin\ReviewManagerController::class, 'destroy'])->name('admin.reviews.destroy');
 });
 
 

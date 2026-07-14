@@ -8,33 +8,40 @@ use App\Models\Review;
 
 class ReviewManagerController extends Controller
 {
-    /**
-     * Hiển thị danh sách đánh giá
-     */
-    public function index(Request $request)
+    // Hiển thị danh sách đánh giá
+    public function index()
     {
-        // Khởi tạo query và lấy kèm User, Product
-        $query = Review::with(['user', 'product'])->latest();
-
-        // Tích hợp Lọc theo Số sao (Nếu có chọn trên giao diện)
-        if ($request->has('rating') && $request->rating != '') {
-            $query->where('rating', $request->rating);
-        }
-
-        // Phân trang (mỗi trang 15 bình luận)
-        $reviews = $query->paginate(15);
-
-        return view('admin.reviews.index', compact('reviews'));
+        // Lấy danh sách đánh giá mới nhất, kèm theo thông tin user và product
+        $reviews = Review::with(['user', 'product'])->latest()->paginate(10);
+        
+        return view('admin.reviews', compact('reviews'));
     }
 
-    /**
-     * Admin xóa đánh giá vi phạm
-     */
+    // Admin trả lời đánh giá
+    public function reply(Request $request, $id)
+    {
+        $request->validate([
+            'admin_reply' => 'required|string|max:1000',
+        ], [
+            'admin_reply.required' => 'Vui lòng nhập nội dung trả lời.'
+        ]);
+
+        $review = Review::findOrFail($id);
+        
+        // Cập nhật câu trả lời của admin
+        $review->update([
+            'admin_reply' => $request->admin_reply
+        ]);
+
+        return back()->with('success', 'Đã gửi phản hồi thành công!');
+    }
+
+    // Admin xóa đánh giá (nếu vi phạm)
     public function destroy($id)
     {
         $review = Review::findOrFail($id);
         $review->delete();
 
-        return back()->with('success', 'Đã xóa bình luận vi phạm thành công!');
+        return back()->with('success', 'Đã xóa đánh giá thành công!');
     }
 }
