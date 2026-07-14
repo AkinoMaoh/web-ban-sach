@@ -17,6 +17,7 @@ use App\Http\Controllers\User\WishlistController;
 use App\Http\Controllers\User\NewsController;
 use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\OrderHistoryController;
+use App\Http\Controllers\Admin\UserController; // Import Controller quản lý user mới tạo
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -141,16 +142,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/authors/{id}/edit', [authorsController::class, 'authorEdit'])->name('admin.authors.edit');
     Route::put('/authors/{id}/update', [authorsController::class, 'authorUpdate'])->name('admin.authors.update');
     Route::get('/authors/{id}/destroy', [authorsController::class, 'authorDestroy'])->name('admin.authors.destroy');
-    Route::post('/authors/{id}/toggleStatus', [authorsController::class, 'authorToggleStatus'])->name('admin.authors.toggleStatus');
+    Route::post('/authors/{id}/toggleStatus', [authorsController::class, 'authorToggleStatus'])->name('admin.authorToggleStatus');
     Route::get('/authors/{id}', [authorsController::class, 'authorShow'])->name('admin.authors.show');
 
     // Quản lý đơn hàng
     Route::get('/orders', [ordersController::class, 'index'])->name('admin.orders');
-
-    // Tìm kiếm đơn hàng ---------------------------------------------------------------------------
     Route::get('/orders/search', [ordersController::class, 'search'])->name('admin.orders.search');
-    // ---------------------------------------------------------------------------------------------
-
     Route::get('/orders/{id}', [ordersController::class, 'show'])->name('admin.orders.show');
     Route::get('/orders/{id}/edit', [ordersController::class, 'edit'])->name('admin.orders.edit');
     Route::put('/orders/{id}/update', [ordersController::class, 'update'])->name('admin.orders.update');
@@ -170,6 +167,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/reviews', [App\Http\Controllers\Admin\ReviewManagerController::class, 'index'])->name('admin.reviews.index');
     Route::post('/reviews/{id}/reply', [App\Http\Controllers\Admin\ReviewManagerController::class, 'reply'])->name('admin.reviews.reply');
     Route::delete('/reviews/{id}', [App\Http\Controllers\Admin\ReviewManagerController::class, 'destroy'])->name('admin.reviews.destroy');
+    Route::get('/reviews', [ReviewManagerController::class, 'index'])->name('reviews.index');
+    Route::delete('/reviews/{id}', [ReviewManagerController::class, 'destroy'])->name('reviews.destroy');
+    // === TÍCH HỢP MỚI: QUẢN LÝ NGƯỜI DÙNG THÀNH VIÊN ===
+    Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 });
 
 
@@ -192,16 +194,10 @@ Route::middleware(['auth', 'user_only'])->group(function () {
     Route::get('/wishlist/remove/{id}', [App\Http\Controllers\User\WishlistController::class, 'remove'])->name('user.wishlist.remove');
 
     // --- CẤU HÌNH MỚI: QUY TRÌNH ĐỔI MẬT KHẨU QUA MÃ OTP EMAIL ---
-    // Giao diện bước 1: Yêu cầu bấm gửi và nhập mã OTP
     Route::get('/password/verify', [PasswordResetController::class, 'showVerifyForm'])->name('password.verify.form');
-    // API xử lý gửi mã xác thực ngẫu nhiên vào hòm thư
     Route::post('/password/send-otp', [PasswordResetController::class, 'sendOtp'])->name('password.verify.send');
-    // API kiểm tra mã OTP khớp hay sai để mở khóa bước kế tiếp
     Route::post('/password/verify-otp', [PasswordResetController::class, 'verifyOtp'])->name('password.verify.match');
-
-    // Giao diện bước 2: Trang điền hai trường mật khẩu mới (Chỉ cho xem khi OTP đúng)
     Route::get('/password/reset-fields', [PasswordResetController::class, 'showResetFieldsForm'])->name('password.reset.fields');
-    // Xử lý cập nhật chính thức mật khẩu đã băm vào Database
     Route::post('/password/update-new', [PasswordResetController::class, 'updatePassword'])->name('password.reset.update');
 
     //review
@@ -233,12 +229,9 @@ Route::get('/notifications/redirect/{id}', function ($id) {
     $n->update(['is_read' => true]);
 
     if ($n->order_id) {
-        // Kiểm tra xem ai đang click vào thông báo
         if (Auth::user()->role == 1) {
-            // Nếu là Admin (role = 1) -> Trỏ vào trang chi tiết đơn của Admin
             return redirect('/admin/orders/' . $n->order_id);
         } else {
-            // Nếu là Khách hàng (role = 0) -> Trỏ vào lịch sử đơn hàng của khách
             return redirect('/order-history/' . $n->order_id);
         }
     }
@@ -257,9 +250,9 @@ Route::get('/notifications/read-all', function () {
     \App\Models\Notification::where('user_id', Auth::id())->update(['is_read' => true]);
     return back();
 })->name('notifications.read.all')->middleware('auth');
+
 // Các tuyến đường auth đăng nhập/đăng ký mặc định của hệ thống Người dùng thường
 require __DIR__ . '/auth.php';
 
-//Xem tất cả sách của tác giả
-Route::get('/author/{id}', [ShopController::class, 'author'])
-    ->name('user.author');
+// Xem tất cả sách của tác giả
+Route::get('/author/{id}', [ShopController::class, 'author'])->name('user.author');

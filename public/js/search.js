@@ -1,4 +1,46 @@
 
+// JS gợi ý tìm kiếm
+$('#search').focus(function(){
+
+    $.ajax({
+        url: "/search-product",
+        type: "GET",
+        data: {
+            keyword: ""
+        },
+        success: function(data){
+
+            let html = "";
+
+            data.forEach(function(product){
+
+                html += `
+                <a href="/product/${product.id}" class="search-item">
+                    <img src="/uploads/products/${product.image}" class="search-img">
+                    <div class="search-content">
+                        <div class="search-name">
+                            ${product.name}
+                        </div>
+                        <div class="search-price">
+                            ${Number(product.price).toLocaleString()} VNĐ
+                        </div>
+                    </div>
+                </a>
+                `;
+
+            });
+
+            $('#search-result').html(html).fadeIn(150);
+
+        }
+    });
+
+});
+
+
+
+
+// JS phần tìm kiếm sản phẩm
 $(document).ready(function(){
     $('#search').keyup(function(){
         let keyword = $(this).val();
