@@ -8,9 +8,18 @@ use App\Models\products;
 use App\Models\categories;
 use App\Models\authors;
 use App\Models\publishers;
+use Illuminate\Support\Facades\DB;
+use App\Models\Banner;
 
 class ShopController extends Controller
 {
+    private function getShopBanners()
+    {
+        return Banner::where('status', 1)
+            ->where('position', 'category')
+            ->orderBy('sort_order')
+            ->get();
+    }
     /**
      * Trang shop tổng – hiển thị sản phẩm theo từng danh mục
      */
@@ -19,6 +28,8 @@ class ShopController extends Controller
         $tatCaDanhMuc = categories::where('status', 1)->get();
         $tacGia       = authors::all();
         $nhaXuatBan   = publishers::all();
+
+
 
         // Lấy sản phẩm nhóm theo danh mục (mỗi danh mục lấy tối đa 6)
         $sanPhamTheoDanhMuc = $tatCaDanhMuc->map(function ($dm) {
@@ -29,12 +40,13 @@ class ShopController extends Controller
                 ->get();
             return $dm;
         })->filter(fn($dm) => $dm->sanPham->isNotEmpty());
-
+        $banners = $this->getShopBanners();
         return view('User.shop', compact(
             'tatCaDanhMuc',
             'sanPhamTheoDanhMuc',
             'tacGia',
-            'nhaXuatBan'
+            'nhaXuatBan',
+            'banners'
         ));
     }
 
@@ -79,13 +91,14 @@ class ShopController extends Controller
         }
 
         $danhSachSanPham = $truyVan->paginate(12)->appends($request->query());
-
+        $banners = $this->getShopBanners();
         return view('User.shop', compact(
             'tatCaDanhMuc',
             'tacGia',
             'nhaXuatBan',
             'danhMuc',
-            'danhSachSanPham'
+            'danhSachSanPham',
+            'banners'
         ));
     }
     public function author($id)
@@ -99,13 +112,14 @@ class ShopController extends Controller
         $danhSachSanPham = products::where('author_id', $id)
             ->where('status', 1)
             ->paginate(12);
-
+        $banners = $this->getShopBanners();
         return view('User.shop', compact(
             'tatCaDanhMuc',
             'tacGia',
             'nhaXuatBan',
             'author',
-            'danhSachSanPham'
+            'danhSachSanPham',
+            'banners'
         ));
     }
 }

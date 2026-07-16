@@ -9,6 +9,7 @@ use App\Models\categories;
 use App\Models\authors;
 use App\Models\publishers;
 use Illuminate\Support\Facades\DB;
+use App\Models\Banner;
 
 class trangChuController extends Controller
 {
@@ -80,9 +81,9 @@ class trangChuController extends Controller
         // 7. Thực thi lấy dữ liệu kèm phân trang (12 sản phẩm/trang) và giữ tham số trên URL
         $products = $query->paginate(15)->appends($request->query());
 
-        $bannerBooks = products::where('status', 1)
-            ->latest()
-            ->take(5)
+        $banners = Banner::where('status', 1)
+            ->where('position', 'home')
+            ->orderBy('sort_order')
             ->get();
 
         return view('User.index', compact(
@@ -90,9 +91,9 @@ class trangChuController extends Controller
             'categories',
             'authors',
             'publishers',
-            'bannerBooks',
             'product5',
-            'topSanPham'
+            'topSanPham',
+            'banners'
         ));
     }
 
@@ -110,7 +111,6 @@ class trangChuController extends Controller
                 ->where('status', 1)
                 ->limit(5)
                 ->get();
-
         }
         return response()->json($products);
     }
