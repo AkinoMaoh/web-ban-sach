@@ -78,4 +78,11 @@
         <span>Quản lý người dùng</span>
     </a>
 </li>
+
+<li class="nav-item {{ request()->routeIs('admin.banners*') ? 'active' : '' }}">
+    <a class="nav-link" href="{{ route('admin.banners.index') }}">
+        <i class="fas fa-fw fa-images"></i>
+        <span>Quản lý Banner</span>
+    </a>
+</li>
 </ul>

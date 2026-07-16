@@ -26,7 +26,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\User\ReviewController;
 use App\Http\Controllers\Admin\ReviewManagerController;
 use App\Http\Controllers\Admin\UserController;
-
+use App\Http\Controllers\Admin\BannerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -174,8 +174,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
 
     //quản lý user
-    Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
-    Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+    Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users.index');
+    Route::delete('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy');
+
+    //Quản lý banner
+    Route::get('/banners', [BannerController::class, 'index'])->name('admin.banners.index');
+    Route::get('/banners/create', [BannerController::class, 'create'])->name('admin.banners.create');
+    Route::post('/banners/store', [BannerController::class, 'store'])->name('admin.banners.store');
+    Route::get('/banners/{id}/edit', [BannerController::class, 'edit'])->name('admin.banners.edit');
+    Route::put('/banners/{id}/update', [BannerController::class, 'update'])->name('admin.banners.update');
+    Route::delete('/banners/{id}', [BannerController::class, 'destroy'])->name('admin.banners.destroy');
+    Route::post('/banners/{id}/toggleStatus', [BannerController::class, 'toggleStatus'])->name('admin.banners.toggleStatus');
+    Route::get('/banners/{id}', [BannerController::class, 'show'])->name('admin.banners.show');
 });
 
 
