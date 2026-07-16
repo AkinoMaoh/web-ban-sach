@@ -10,33 +10,110 @@
             ->toArray();
     }
 @endphp
-<!-- 1. Hero Banner Slider -->
+
+<!-- Hero Banner -->
 <section class="container mt-4 mb-5">
-    <div id="heroCarousel" class="carousel slide shadow-sm" data-ride="carousel" style="border-radius: 12px; overflow: hidden;">
-        <div class="carousel-inner" style="background: #2C3E50;">
-            @foreach($bannerBooks as $book)
-                <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
-                    <div class="row align-items-center p-5">
-                        <div class="col-md-7 text-white pl-md-5">
-                            <span class="badge badge-warning mb-3 px-3 py-2">SÁCH NỔI BẬT</span>
-                            <h1 class="serif-font display-4 mb-3" style="font-weight: 700;">{{ $book->name }}</h1>
-                            <p class="mb-4" style="font-size: 18px; color: #BDC3C7;">Hãy khám phá tác phẩm đang được yêu thích nhất tuần này.</p>
-                            <h3 class="mb-4" style="color: #E67E22;">{{ number_format($book->price, 0, ',', '.') }} VNĐ</h3>
-                            <a href="{{ route('user.productDetails', $book->id) }}" class="btn text-white rounded-pill px-4 py-2" style="background: #D35400; font-weight: 600;">Xem chi tiết <i class="fas fa-arrow-right ml-2"></i></a>
-                        </div>
-                        <div class="col-md-5 text-center d-none d-md-block">
-                            <img src="{{ asset('uploads/products/'.$book->image) }}" class="shadow-lg rounded" style="max-height: 380px; transform: rotate(5deg);">
-                        </div>
-                    </div>
-                </div>
+    <div id="heroCarousel"
+         class="carousel slide carousel-fade shadow-lg"
+         data-ride="carousel"
+         data-interval="5000"
+         style="border-radius:18px;overflow:hidden;">
+
+        <ol class="carousel-indicators">
+            @foreach($banners as $banner)
+                <li data-target="#heroCarousel"
+                    data-slide-to="{{ $loop->index }}"
+                    class="{{ $loop->first ? 'active' : '' }}">
+                </li>
             @endforeach
+        </ol>
+
+        <div class="carousel-inner">
+
+            @foreach($banners as $banner)
+            <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+
+                <div class="position-relative">
+
+                    <img src="{{ asset('uploads/banners/'.$banner->image) }}"
+                         class="w-100"
+                         style="
+                            height:520px;
+                            object-fit:cover;
+                            object-position:center;
+                         ">
+
+                    <!-- Overlay -->
+                    <div style="
+                        position:absolute;
+                        inset:0;
+                        background:linear-gradient(
+                            90deg,
+                            rgba(0,0,0,.75) 0%,
+                            rgba(0,0,0,.35) 45%,
+                            rgba(0,0,0,.05) 100%
+                        );
+                    "></div>
+
+                    <!-- Nội dung -->
+                    <div class="position-absolute"
+                         style="
+                            left:70px;
+                            top:50%;
+                            transform:translateY(-50%);
+                            max-width:520px;
+                            color:#fff;
+                         ">
+
+                        <span class="badge badge-warning px-3 py-2 mb-3">
+                            BOOK STORE
+                        </span>
+
+                        <h1 class="font-weight-bold mb-3"
+                            style="
+                                font-size:52px;
+                                line-height:1.2;
+                                text-shadow:0 3px 12px rgba(0,0,0,.4);
+                            ">
+                            {{ $banner->title }}
+                        </h1>
+
+                        @if($banner->description)
+                            <p class="mb-4"
+                               style="
+                                  font-size:18px;
+                                  color:#f1f1f1;
+                                  line-height:1.8;
+                               ">
+                                {{ $banner->description }}
+                            </p>
+                        @endif
+
+                        @if($banner->link)
+                            <a href="{{ $banner->link }}"
+                               class="btn btn-warning btn-lg rounded-pill px-5 shadow">
+                                Khám phá ngay
+                                <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        @endif
+
+                    </div>
+
+                </div>
+
+            </div>
+            @endforeach
+
         </div>
-        <a class="carousel-control-prev" href="#heroCarousel" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+
+        <a class="carousel-control-prev" href="#heroCarousel" data-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
         </a>
-        <a class="carousel-control-next" href="#heroCarousel" role="button" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+
+        <a class="carousel-control-next" href="#heroCarousel" data-slide="next">
+            <span class="carousel-control-next-icon"></span>
         </a>
+
     </div>
 </section>
 

@@ -1026,3 +1026,33 @@ html.dark .admin-reply-title h6,
 [data-theme="dark"] .admin-reply-title h6 {
     color: var(--primary-color) !important;
 }
+#heroCarousel .carousel-indicators li {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin: 0 5px;
+}
+
+#heroCarousel .carousel-control-prev,
+#heroCarousel .carousel-control-next {
+    width: 60px;
+}
+
+#heroCarousel .carousel-control-prev-icon,
+#heroCarousel .carousel-control-next-icon {
+    background-size: 70%;
+}
+
+#heroCarousel .carousel-item {
+    transition:
+        transform 0.8s ease,
+        opacity 0.8s ease;
+}
+
+#heroCarousel img {
+    transition: transform 8s ease;
+}
+
+#heroCarousel .carousel-item.active img {
+    transform: scale(1.05);
+}

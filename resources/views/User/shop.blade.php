@@ -10,6 +10,7 @@
             ->toArray();
     }
 @endphp
+
 <!-- Breadcrumb -->
 <div class="bg-light py-3 mb-4 border-bottom">
     <div class="container">
@@ -117,6 +118,190 @@
         <!-- Cột phải: Vùng hiển thị sách -->
     <section class="col-lg-9">
 
+<!-- Hero Banner -->
+<section class="container mt-4 mb-5">
+
+    <style>
+        #heroCarousel {
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        #heroCarousel .carousel-item img {
+            width: 100%;
+            height: 360px;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        #heroCarousel .banner-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(0,0,0,.75) 0%,
+                rgba(0,0,0,.35) 45%,
+                rgba(0,0,0,.05) 100%
+            );
+        }
+
+        #heroCarousel .banner-content {
+            position: absolute;
+            top: 50%;
+            left: 50px;
+            transform: translateY(-50%);
+            max-width: 450px;
+            color: #fff;
+        }
+
+        #heroCarousel .banner-title {
+            font-size: 38px;
+            font-weight: 700;
+            line-height: 1.25;
+            margin-bottom: 15px;
+            text-shadow: 0 3px 10px rgba(0,0,0,.35);
+        }
+
+        #heroCarousel .banner-desc {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #f5f5f5;
+            margin-bottom: 25px;
+        }
+
+        #heroCarousel .banner-btn {
+            padding: 10px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+
+        #heroCarousel .carousel-control-prev,
+        #heroCarousel .carousel-control-next {
+            width: 8%;
+        }
+
+        @media (max-width: 992px) {
+
+            #heroCarousel .carousel-item img {
+                height: 320px;
+            }
+
+            #heroCarousel .banner-content {
+                left: 35px;
+                max-width: 380px;
+            }
+
+            #heroCarousel .banner-title {
+                font-size: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            #heroCarousel .carousel-item img {
+                height: 200px;
+            }
+
+            #heroCarousel .banner-content {
+                left: 20px;
+                right: 20px;
+                max-width: 100%;
+            }
+
+            #heroCarousel .banner-title {
+                font-size: 24px;
+            }
+
+            #heroCarousel .banner-desc {
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+
+            #heroCarousel .banner-btn {
+                padding: 8px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+
+    <div id="heroCarousel"
+         class="carousel slide carousel-fade shadow"
+         data-ride="carousel"
+         data-interval="5000">
+
+        <ol class="carousel-indicators">
+            @foreach($banners as $banner)
+                <li data-target="#heroCarousel"
+                    data-slide-to="{{ $loop->index }}"
+                    class="{{ $loop->first ? 'active' : '' }}">
+                </li>
+            @endforeach
+        </ol>
+
+        <div class="carousel-inner">
+
+            @foreach($banners as $banner)
+
+                <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+
+                    <div class="position-relative">
+
+                        <img src="{{ asset('uploads/banners/'.$banner->image) }}"
+                             alt="{{ $banner->title }}">
+
+                        <div class="banner-overlay"></div>
+
+                        <div class="banner-content">
+
+                            <span class="badge badge-warning px-3 py-2 mb-3">
+                                BOOK STORE
+                            </span>
+
+                            <h2 class="banner-title">
+                                {{ $banner->title }}
+                            </h2>
+
+                            @if($banner->description)
+                                <div class="banner-desc">
+                                    {{ $banner->description }}
+                                </div>
+                            @endif
+
+                            @if($banner->link)
+                                <a href="{{ $banner->link }}"
+                                   class="btn btn-warning banner-btn shadow">
+                                    Khám phá ngay
+                                    <i class="fas fa-arrow-right ml-2"></i>
+                                </a>
+                            @endif
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            @endforeach
+
+        </div>
+
+        <a class="carousel-control-prev"
+           href="#heroCarousel"
+           role="button"
+           data-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </a>
+
+        <a class="carousel-control-next"
+           href="#heroCarousel"
+           role="button"
+           data-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </a>
+
+    </div>
+
+</section>
     {{-- ================= TRANG CỬA HÀNG ================= --}}
     @if(isset($sanPhamTheoDanhMuc))
 
