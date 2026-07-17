@@ -14,7 +14,7 @@ use App\Http\Controllers\User\shopDetailsController;
 use App\Http\Controllers\User\ShopController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\WishlistController;
-use App\Http\Controllers\User\NewsController;
+use App\Http\Controllers\User\UserNewsController;
 use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\OrderHistoryController;
 use Illuminate\Support\Facades\Route;
@@ -24,7 +24,7 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\PhoneLoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Models\Notification;
-use App\Http\Controllers\Admin\NewsController;
+use App\Http\Controllers\Admin\AdminNewsController;
 use App\Http\Controllers\User\ReviewController;
 use App\Http\Controllers\Admin\ReviewManagerController;
 use App\Http\Controllers\Admin\UserController;
@@ -65,8 +65,8 @@ Route::middleware(['user_only'])->group(function () {
     Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
 
-    Route::get('/news', [NewsController::class, 'index'])->name('user.news');
-    Route::get('/news/1', [NewsController::class, 'show'])->name('user.news.show');
+    Route::get('/news', [UserNewsController::class, 'index'])->name('user.news');
+    Route::get('/news/1', [UserNewsController::class, 'show'])->name('user.news.show');
 });
 
 
@@ -170,7 +170,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/categories/{id}/destroy', [categoriesController::class, 'destroy'])->name('admin.categories.destroy');
 
     // Quản lý tin tức
-    Route::resource('news', NewsController::class)->names('admin.news');
+    Route::resource('news', AdminNewsController::class)->names('admin.news');
 
     //Quản lí bình luận
     Route::get('/reviews', [App\Http\Controllers\Admin\ReviewManagerController::class, 'index'])->name('admin.reviews.index');
