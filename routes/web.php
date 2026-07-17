@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\User\shopDetailsController;
 use App\Http\Controllers\User\ShopController;
 use App\Http\Controllers\User\CartController;
+use App\Http\Controllers\User\WishlistController;
+use App\Http\Controllers\User\NewsController;
 use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\OrderHistoryController;
 use Illuminate\Support\Facades\Route;
@@ -23,7 +25,10 @@ use App\Http\Controllers\Auth\PhoneLoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Models\Notification;
 use App\Http\Controllers\Admin\NewsController;
-
+use App\Http\Controllers\User\ReviewController;
+use App\Http\Controllers\Admin\ReviewManagerController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\BannerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +46,7 @@ Route::middleware(['user_only'])->group(function () {
     Route::get('/search-product', [trangChuController::class, 'searchProduct'])->name('search.product');
 
     Route::get('/product/{id}', [shopDetailsController::class, 'index'])->name('user.productDetails');
+    Route::get('/product-details/{id}', [shopDetailsController::class, 'productDetails'])->name('user.productDetails.details');
 
     // Liên hệ
     Route::get('/contact', [ContactController::class, 'index'])->name('user.contact');
@@ -58,6 +64,9 @@ Route::middleware(['user_only'])->group(function () {
     Route::get('/checkout', [PaymentController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
+
+    Route::get('/news', [NewsController::class, 'index'])->name('user.news');
+    Route::get('/news/1', [NewsController::class, 'show'])->name('user.news.show');
 });
 
 
@@ -163,6 +172,25 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Quản lý tin tức
     Route::resource('news', NewsController::class)->names('admin.news');
 
+    //Quản lí bình luận
+    Route::get('/reviews', [App\Http\Controllers\Admin\ReviewManagerController::class, 'index'])->name('admin.reviews.index');
+    Route::post('/reviews/{id}/reply', [App\Http\Controllers\Admin\ReviewManagerController::class, 'reply'])->name('admin.reviews.reply');
+    Route::delete('/reviews/{id}', [App\Http\Controllers\Admin\ReviewManagerController::class, 'destroy'])->name('admin.reviews.destroy');
+
+
+    //quản lý user
+    Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users.index');
+    Route::delete('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy');
+
+    //Quản lý banner
+    Route::get('/banners', [BannerController::class, 'index'])->name('admin.banners.index');
+    Route::get('/banners/create', [BannerController::class, 'create'])->name('admin.banners.create');
+    Route::post('/banners/store', [BannerController::class, 'store'])->name('admin.banners.store');
+    Route::get('/banners/{id}/edit', [BannerController::class, 'edit'])->name('admin.banners.edit');
+    Route::put('/banners/{id}/update', [BannerController::class, 'update'])->name('admin.banners.update');
+    Route::delete('/banners/{id}', [BannerController::class, 'destroy'])->name('admin.banners.destroy');
+    Route::post('/banners/{id}/toggleStatus', [BannerController::class, 'toggleStatus'])->name('admin.banners.toggleStatus');
+    Route::get('/banners/{id}', [BannerController::class, 'show'])->name('admin.banners.show');
 });
 
 
@@ -196,6 +224,12 @@ Route::middleware(['auth', 'user_only'])->group(function () {
     Route::get('/password/reset-fields', [PasswordResetController::class, 'showResetFieldsForm'])->name('password.reset.fields');
     // Xử lý cập nhật chính thức mật khẩu đã băm vào Database
     Route::post('/password/update-new', [PasswordResetController::class, 'updatePassword'])->name('password.reset.update');
+
+    //review
+    Route::post('/review/store', [ReviewController::class, 'store'])->name('review.store');
+    Route::put('/reviews/{id}', [\App\Http\Controllers\User\ReviewController::class, 'update'])->name('review.update');
+    Route::delete('/reviews/{id}', [\App\Http\Controllers\User\ReviewController::class, 'destroy'])->name('review.destroy');
+    Route::post('/reviews/{id}/like', [\App\Http\Controllers\User\ReviewController::class, 'toggleLike'])->name('review.like');
 });
 
 
@@ -217,19 +251,52 @@ Route::get('/notifications/redirect/{id}', function ($id) {
     $n = \App\Models\Notification::findOrFail($id);
 
     // Đánh dấu đã đọc
-    $n->update(['is_read' => true]);
+    $n->update(['is_read' => 1]);
 
-    if ($n->order_id) {
-        // Kiểm tra xem ai đang click vào thông báo
-        if (Auth::user()->role == 1) {
-            // Nếu là Admin (role = 1) -> Trỏ vào trang chi tiết đơn của Admin
+    // Chuyển message về chữ thường để dễ so sánh (dùng mb_strtolower để không lỗi font tiếng Việt)
+    $message = mb_strtolower($n->message, 'UTF-8');
+
+    // ==========================================
+    // 1. LUỒNG XỬ LÝ CHO ADMIN (role == 1)
+    // ==========================================
+    if (Auth::user()->role == 1) {
+
+        // Nhận diện thông báo Khách hàng viết Đánh giá
+        if (str_contains($message, 'đánh giá')) {
+            // Chuyển thẳng tới trang Quản lý bình luận của Admin
+            return redirect()->route('admin.reviews.index'); // Hoặc dùng: redirect('/admin/reviews')
+        }
+
+        // Mặc định: Thông báo đơn hàng mới/trạng thái đơn
+        if ($n->order_id) {
             return redirect('/admin/orders/' . $n->order_id);
-        } else {
-            // Nếu là Khách hàng (role = 0) -> Trỏ vào lịch sử đơn hàng của khách
+        }
+    }
+    // ==========================================
+    // 2. LUỒNG XỬ LÝ CHO KHÁCH HÀNG (role == 0)
+    // ==========================================
+    else {
+
+        // Nhận diện thông báo Shop phản hồi Đánh giá
+        if (str_contains($message, 'phản hồi')) {
+            // Tìm lại ID sách mà khách đã đánh giá dựa vào order_id
+            $review = \App\Models\Review::where('user_id', $n->user_id)
+                ->whereHas('orderDetail', function ($q) use ($n) {
+                    $q->where('order_id', $n->order_id);
+                })->latest()->first();
+
+            if ($review) {
+                return redirect()->route('user.productDetails', $review->product_id);
+            }
+        }
+
+        // Mặc định: Thông báo cập nhật đơn hàng
+        if ($n->order_id) {
             return redirect('/order-history/' . $n->order_id);
         }
     }
 
+    // Dự phòng nếu không có order_id
     return back();
 })->name('notifications.redirect')->middleware('auth');
 

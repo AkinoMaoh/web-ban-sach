@@ -5,33 +5,35 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\products;
-use App\Models\categories;
-use App\Models\authors;
-use App\Models\publishers;
+use App\Models\Review;
+use Illuminate\Support\Facades\Auth;
 
 class shopDetailsController extends Controller
 {
     public function index($id)
     {
-        // 1. Lấy thông tin sản phẩm theo ID
-        $product = products::findOrFail($id);
-
-        // 2. Lấy danh mục, tác giả, nhà xuất bản để hiển thị lên thanh bộ lọc (Sidebar)
-        $categories = categories::where('status', 1)->get();
-        $authors = authors::all();
-        $publishers = publishers::all();
+        // 1. Lấy dữ liệu sản phẩm cùng các quan hệ cần thiết
+        $product = products::with(['variants', 'author', 'publishers', 'category', 'reviews.user'])->findOrFail($id);
+        
+        // 2. Lấy sách cùng tác giả (liên quan)
         $relatedProducts = products::where('author_id', $product->author_id)
-            ->where('id', '!=', $product->id)
-            ->where('status', 1)
-            ->latest()
-            ->take(6)
-            ->get();
+                                  ->where('id', '!=', $id)
+                                  ->take(6)
+                                  ->get();
+
+        // 3. Tính toán stats (đảm bảo hàm này đã có trong Model Review)
+        $stats = Review::getProductRatingStats($id);
+        $avgRating = $stats['avg'];
+        $totalReviews = $stats['total'];
+        $ratingPercentages = $stats['percentages'];
+
+        // 4. Trả về view
         return view('User.shop-details', compact(
             'product',
-            'categories',
-            'authors',
-            'publishers',
-            'relatedProducts'
+            'relatedProducts',
+            'avgRating',
+            'totalReviews',
+            'ratingPercentages'
         ));
     }
 }

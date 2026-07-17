@@ -80,7 +80,42 @@ h6,
 .serif-font {
     font-family: "Lora", serif; /* Font chữ có chân tạo cảm giác văn học */
 }
+html.dark-mode .admin-reply-title h6 {
+    color: var(--primary-color) !important;
+}
 
+/* ===== Dark Mode - Bảng chi tiết đơn hàng ===== */
+body.dark-mode .table thead th,
+html.dark-mode .table thead th {
+    color: #f8f9fa !important;
+}
+
+body.dark-mode .table tbody td,
+html.dark-mode .table tbody td {
+    color: #e9ecef !important;
+}
+
+body.dark-mode .table .text-dark,
+html.dark-mode .table .text-dark {
+    color: #f8f9fa !important;
+}
+
+body.dark-mode .table .text-muted,
+html.dark-mode .table .text-muted {
+    color: #adb5bd !important;
+}
+
+body.dark-mode .table .badge-light,
+html.dark-mode .table .badge-light {
+    background: #343a40 !important;
+    color: #f8f9fa !important;
+    border-color: #495057 !important;
+}
+
+body.dark-mode .table tbody tr,
+html.dark-mode .table tbody tr {
+    border-color: #495057 !important;
+}
 /* Header & Nav */
 .modern-header {
     border-bottom: 1px solid var(--border-color);
@@ -860,4 +895,164 @@ html.dark-mode .notification-header {
 
 html.dark-mode .notification-header {
     color: #fff !important;
+}
+/* ===== Rating Star ===== */
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: #cfcfcf;
+    margin-right: 4px;
+    transition: color 0.2s ease;
+}
+
+/* Hover */
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #ffc107;
+}
+
+/* Đã chọn */
+.star-rating input:checked ~ label {
+    color: #ffc107;
+}
+
+/* ===== Dark Mode ===== */
+body.dark-mode .star-rating label,
+[data-theme="dark"] .star-rating label {
+    color: #5f6368;
+}
+
+body.dark-mode .star-rating label:hover,
+body.dark-mode .star-rating label:hover ~ label,
+body.dark-mode .star-rating input:checked ~ label,
+[data-theme="dark"] .star-rating label:hover,
+[data-theme="dark"] .star-rating label:hover ~ label,
+[data-theme="dark"] .star-rating input:checked ~ label {
+    color: #ffd54f;
+}
+body.dark-mode .review-form,
+[data-theme="dark"] .review-form {
+    background: #1f2937;
+    color: #f3f4f6;
+    border: 1px solid #374151;
+}
+/* Ẩn radio */
+.star-rating input {
+    display: none;
+}
+
+/* Sao mặc định */
+.star-rating label {
+    color: #d0d0d0;
+    font-size: 28px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+/* Hover */
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #ffc107 !important;
+}
+
+/* Đã chọn */
+.star-rating input:checked ~ label {
+    color: #ffc107 !important;
+}
+
+/* ===== DARK MODE ===== */
+.dark-mode .star-rating label,
+body.dark-mode .star-rating label,
+html.dark .star-rating label,
+[data-theme="dark"] .star-rating label {
+    color: #8b8b8b !important;
+}
+
+.dark-mode .star-rating label i,
+body.dark-mode .star-rating label i,
+html.dark .star-rating label i,
+[data-theme="dark"] .star-rating label i {
+    color: inherit !important;
+}
+
+.dark-mode .star-rating input:checked ~ label,
+.dark-mode .star-rating label:hover,
+.dark-mode .star-rating label:hover ~ label,
+body.dark-mode .star-rating input:checked ~ label,
+body.dark-mode .star-rating label:hover,
+body.dark-mode .star-rating label:hover ~ label,
+html.dark .star-rating input:checked ~ label,
+[data-theme="dark"] .star-rating input:checked ~ label {
+    color: #ffd700 !important;
+}
+
+/* ===== Phản hồi từ Shop ===== */
+.admin-reply-box {
+    background: #f5e9e9;
+    border-left: 4px solid var(--primary-color);
+}
+
+.admin-reply-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--primary-color);
+}
+
+.admin-reply-icon i {
+    font-size: 0.85rem;
+}
+
+.admin-reply-content {
+    color: #212529;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+.admin-reply-title h6 {
+    color: var(--primary-color);
+}
+
+body.dark-mode .admin-reply-title h6,
+html.dark .admin-reply-title h6,
+[data-theme="dark"] .admin-reply-title h6 {
+    color: var(--primary-color) !important;
+}
+#heroCarousel .carousel-indicators li {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin: 0 5px;
+}
+
+#heroCarousel .carousel-control-prev,
+#heroCarousel .carousel-control-next {
+    width: 60px;
+}
+
+#heroCarousel .carousel-control-prev-icon,
+#heroCarousel .carousel-control-next-icon {
+    background-size: 70%;
+}
+
+#heroCarousel .carousel-item {
+    transition:
+        transform 0.8s ease,
+        opacity 0.8s ease;
+}
+
+#heroCarousel img {
+    transition: transform 8s ease;
+}
+
+#heroCarousel .carousel-item.active img {
+    transform: scale(1.05);
 }

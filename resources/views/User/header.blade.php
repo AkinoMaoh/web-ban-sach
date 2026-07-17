@@ -15,12 +15,13 @@
     </a>
 
     <a href="{{ route('user.shop') }}"
-       class="menu-item {{ request()->routeIs('user.shop','user.category') ? 'active' : '' }}">
+       class="menu-item {{ request()->routeIs('user.shop','user.category', 'user.productDetails') ? 'active' : '' }}">
         Tủ sách
     </a>
 
-    <a href="#" class="menu-item">
-        Blog
+    <a href="{{ route('user.news') }}" 
+        class="menu-item {{ request()->routeIs('user.news', 'user.news.show') ? 'active' : '' }}">
+        Tin tức
     </a>
 
     <a href="{{ route('user.contact') }}"

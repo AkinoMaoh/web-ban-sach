@@ -121,7 +121,6 @@ class DashboardController extends Controller
             ->whereMonth('created_at', $hienTai->month)
             ->count();
 
-        $phanHoiMoi = Comment::whereMonth('created_at', $hienTai->month)->count();
         
         // Khách VIP (Chi nhiều tiền nhất)
         $khachVIP = DB::table('orders')
@@ -133,7 +132,7 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return compact('khachMoiThang', 'phanHoiMoi', 'khachVIP');
+        return compact('khachMoiThang',  'khachVIP');
     }
 
     /*
