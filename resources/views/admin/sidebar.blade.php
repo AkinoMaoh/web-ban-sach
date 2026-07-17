@@ -57,6 +57,13 @@
         </a>
     </li>
 
+    <li class="nav-item {{ request()->routeIs('admin.news*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('admin.news.index') }}">
+            <i class="fas fa-fw fa-newspaper"></i>
+            <span>Quản lý Tin tức</span>
+        </a>
+    </li>
+
     <li class="nav-item {{ request()->routeIs('admin.manage*') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('admin.manage') }}">
             <i class="fas fa-fw fa-user-shield"></i>

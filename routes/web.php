@@ -22,6 +22,7 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\PhoneLoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Models\Notification;
+use App\Http\Controllers\Admin\NewsController;
 
 
 /*
@@ -158,6 +159,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::put('/categories/{id}/update', [categoriesController::class, 'update'])->name('admin.categories.update');
     Route::post('/categories/{id}/toggleStatus', [categoriesController::class, 'toggleStatus'])->name('admin.categories.toggleStatus');
     Route::get('/categories/{id}/destroy', [categoriesController::class, 'destroy'])->name('admin.categories.destroy');
+
+    // Quản lý tin tức
+    Route::resource('news', NewsController::class)->names('admin.news');
+
 });
 
 
