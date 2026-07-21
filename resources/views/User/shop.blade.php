@@ -122,112 +122,171 @@
 <section class="container mt-4 mb-5">
 
     <style>
-        #heroCarousel {
-            border-radius: 16px;
-            overflow: hidden;
-        }
+       #heroCarousel{
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 12px 35px rgba(0,0,0,.12);
+}
 
-        #heroCarousel .carousel-item img {
-            width: 100%;
-            height: 360px;
-            object-fit: cover;
-            object-position: center;
-        }
+/* Ảnh */
+#heroCarousel .carousel-item img{
+    width:100%;
+    height:420px;
+    object-fit:cover;
+    object-position:center;
+}
 
-        #heroCarousel .banner-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(
-                90deg,
-                rgba(0,0,0,.75) 0%,
-                rgba(0,0,0,.35) 45%,
-                rgba(0,0,0,.05) 100%
-            );
-        }
+/* Overlay */
+#heroCarousel .banner-overlay{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(
+        90deg,
+        rgba(0,0,0,.65) 0%,
+        rgba(0,0,0,.35) 45%,
+        rgba(0,0,0,.08) 100%
+    );
+}
 
-        #heroCarousel .banner-content {
-            position: absolute;
-            top: 50%;
-            left: 50px;
-            transform: translateY(-50%);
-            max-width: 450px;
-            color: #fff;
-        }
+/* Nội dung */
+#heroCarousel .banner-content{
+    position:absolute;
+    top:50%;
+    left:60px;
+    transform:translateY(-50%);
+    max-width:480px;
+    color:#fff;
+}
 
-        #heroCarousel .banner-title {
-            font-size: 38px;
-            font-weight: 700;
-            line-height: 1.25;
-            margin-bottom: 15px;
-            text-shadow: 0 3px 10px rgba(0,0,0,.35);
-        }
+#heroCarousel .banner-title{
+    font-size:42px;
+    font-weight:700;
+    line-height:1.25;
+    margin-bottom:15px;
+    text-shadow:0 3px 12px rgba(0,0,0,.35);
+}
 
-        #heroCarousel .banner-desc {
-            font-size: 16px;
-            line-height: 1.7;
-            color: #f5f5f5;
-            margin-bottom: 25px;
-        }
+#heroCarousel .banner-desc{
+    font-size:17px;
+    line-height:1.7;
+    color:#f3f3f3;
+    margin-bottom:28px;
+}
 
-        #heroCarousel .banner-btn {
-            padding: 10px 28px;
-            border-radius: 50px;
-            font-weight: 600;
-        }
+#heroCarousel .banner-btn{
+    padding:12px 30px;
+    border-radius:40px;
+    font-weight:600;
+    transition:.3s;
+}
 
-        #heroCarousel .carousel-control-prev,
-        #heroCarousel .carousel-control-next {
-            width: 8%;
-        }
+#heroCarousel .banner-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(255,193,7,.35);
+}
 
-        @media (max-width: 992px) {
+/* ===== Arrow ===== */
 
-            #heroCarousel .carousel-item img {
-                height: 320px;
-            }
+#heroCarousel .carousel-control-prev,
+#heroCarousel .carousel-control-next{
+    width:70px;
+    opacity:0;
+    transition:.3s;
+}
 
-            #heroCarousel .banner-content {
-                left: 35px;
-                max-width: 380px;
-            }
+#heroCarousel:hover .carousel-control-prev,
+#heroCarousel:hover .carousel-control-next{
+    opacity:1;
+}
 
-            #heroCarousel .banner-title {
-                font-size: 30px;
-            }
-        }
+#heroCarousel .carousel-control-prev-icon,
+#heroCarousel .carousel-control-next-icon{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    background-color:rgba(255,255,255,.22);
+    backdrop-filter:blur(4px);
+    background-size:40%;
+}
 
-        @media (max-width: 768px) {
+/* ===== Indicator ===== */
 
-            #heroCarousel .carousel-item img {
-                height: 200px;
-            }
+#heroCarousel .carousel-indicators{
+    bottom:15px;
+    margin-bottom:0;
+}
 
-            #heroCarousel .banner-content {
-                left: 20px;
-                right: 20px;
-                max-width: 100%;
-            }
+#heroCarousel .carousel-indicators li{
+    width:8px;
+    height:8px;
+    margin:0 5px;
+    border:none;
+    border-radius:50%;
+    background:#fff;
+    opacity:.45;
+    transition:.3s;
+}
 
-            #heroCarousel .banner-title {
-                font-size: 24px;
-            }
+#heroCarousel .carousel-indicators .active{
+    width:22px;
+    border-radius:20px;
+    background:#ffc107;
+    opacity:1;
+}
 
-            #heroCarousel .banner-desc {
-                font-size: 14px;
-                margin-bottom: 15px;
-            }
+/* Responsive */
 
-            #heroCarousel .banner-btn {
-                padding: 8px 20px;
-                font-size: 14px;
-            }
-        }
+@media(max-width:992px){
+
+    #heroCarousel .carousel-item img{
+        height:320px;
+    }
+
+    #heroCarousel .banner-content{
+        left:35px;
+        max-width:360px;
+    }
+
+    #heroCarousel .banner-title{
+        font-size:30px;
+    }
+
+}
+
+@media(max-width:768px){
+
+    #heroCarousel .carousel-item img{
+        height:220px;
+    }
+
+    #heroCarousel .banner-content{
+        left:20px;
+        right:20px;
+        max-width:100%;
+    }
+
+    #heroCarousel .banner-title{
+        font-size:22px;
+    }
+
+    #heroCarousel .banner-desc{
+        font-size:14px;
+    }
+
+    #heroCarousel .banner-btn{
+        padding:8px 18px;
+        font-size:14px;
+    }
+
+}
     </style>
 
     <div id="heroCarousel"
-         class="carousel slide carousel-fade shadow"
-         data-ride="carousel"
-         data-interval="5000">
+     class="carousel slide shadow"
+     data-ride="carousel"
+     data-interval="5000"
+     data-pause="false"
+     data-wrap="true">
 
         <ol class="carousel-indicators">
             @foreach($banners as $banner)
@@ -541,6 +600,16 @@ $(document).ready(function(){
             console.error(error);
             toastr.error("Có lỗi xảy ra, vui lòng thử lại!");
         });
+    });
+});
+</script>
+<script>
+$(document).ready(function () {
+    $('#heroCarousel').carousel({
+        interval: 5000,
+        pause: false,
+        wrap: true,
+        keyboard: true
     });
 });
 </script>

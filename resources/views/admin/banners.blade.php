@@ -25,7 +25,7 @@
                             <a href="{{ route('admin.banners.create') }}" class="btn btn-success mb-3">Thêm Banner</a>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                <table class="table table-bordered"  width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
                                             <th>ID</th>
@@ -51,9 +51,28 @@
                                             <td>{{ $banner->sort_order }}</td>
                                             <td>
                                             @if($banner->status)
-                                                <span class="badge badge-success">Hiển thị</span>
+                                                <span class="badge badge-success px-3 py-2">Hiển thị</span>
                                             @else
-                                                <span class="badge badge-danger">Ẩn</span>
+                                                <span class="badge badge-danger px-3 py-2">Ẩn</span>
+                                            @endif
+                                            @php
+                                                $now = now();
+                                            @endphp
+
+                                            @if($banner->start_date && $now->lt($banner->start_date))
+                                                <span class="badge badge-primary px-3 py-2">
+                                                    <i class="fas fa-clock"></i> Chưa tới
+                                                </span>
+
+                                            @elseif($banner->end_date && $now->gt($banner->end_date))
+                                                <span class="badge badge-danger px-3 py-2">
+                                                    <i class="fas fa-times-circle"></i> Hết hạn
+                                                </span>
+
+                                            @else
+                                                <span class="badge badge-success px-3 py-2">
+                                                    <i class="fas fa-check-circle"></i> Đang diễn ra
+                                                </span>
                                             @endif
                                             </td>
                                             <td> 

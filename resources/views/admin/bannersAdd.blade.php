@@ -78,9 +78,10 @@
                             <div class="col-md-4">
                                 <label>Thứ tự</label>
                                 <input type="number"
-                                       class="form-control"
-                                       name="sort_order"
-                                       value="{{ old('sort_order',1) }}">
+                                class="form-control"
+                                name="sort_order"
+                                value="{{ old('sort_order') }}"
+                                placeholder="Để trống để tự tăng">
                             </div>
 
                             <div class="col-md-4">

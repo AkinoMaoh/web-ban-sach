@@ -1026,33 +1026,213 @@ html.dark .admin-reply-title h6,
 [data-theme="dark"] .admin-reply-title h6 {
     color: var(--primary-color) !important;
 }
-#heroCarousel .carousel-indicators li {
-    width: 12px;
-    height: 12px;
+/* HERO */
+#heroCarousel {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+}
+
+.hero-item {
+    position: relative;
+}
+
+.hero-image {
+    width: 100%;
+    height: 520px;
+    object-fit: cover;
+    object-position: center;
+    transform: none;
+    transition: none;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.75) 0%,
+        rgba(0, 0, 0, 0.45) 45%,
+        rgba(0, 0, 0, 0.05) 100%
+    );
+}
+
+.hero-content {
+    position: absolute;
+    top: 50%;
+    left: 70px;
+    transform: translateY(-50%);
+    max-width: 550px;
+    color: #fff;
+    z-index: 2;
+}
+
+.hero-content h1 {
+    font-size: 54px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    text-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+}
+
+.hero-content p {
+    font-size: 18px;
+    color: #f5f5f5;
+    line-height: 1.8;
+    margin-bottom: 30px;
+}
+
+.hero-btn {
+    padding: 14px 40px;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: 0.35s;
+}
+
+.hero-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(255, 193, 7, 0.45);
+}
+
+/* Arrow */
+.carousel-control-prev,
+.carousel-control-next {
+    width: 70px;
+    opacity: 0;
+    transition: 0.3s;
+}
+
+#heroCarousel:hover .carousel-control-prev,
+#heroCarousel:hover .carousel-control-next {
+    opacity: 1;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
-    margin: 0 5px;
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    background-size: 45%;
 }
 
-#heroCarousel .carousel-control-prev,
-#heroCarousel .carousel-control-next {
-    width: 60px;
+/* Indicators */
+.carousel-indicators {
+    bottom: 18px;
+    margin-bottom: 0;
 }
 
-#heroCarousel .carousel-control-prev-icon,
-#heroCarousel .carousel-control-next-icon {
-    background-size: 70%;
+.carousel-indicators li {
+    width: 8px;
+    height: 8px;
+    margin: 0 4px;
+    border-radius: 50%;
+    border: none;
+    background: #ffffff;
+    opacity: 0.5;
+    transition: all 0.3s ease;
 }
 
-#heroCarousel .carousel-item {
-    transition:
-        transform 0.8s ease,
-        opacity 0.8s ease;
+.carousel-indicators li:hover {
+    opacity: 0.8;
 }
 
-#heroCarousel img {
-    transition: transform 8s ease;
+/* Chấm đang active */
+.carousel-indicators .active {
+    width: 20px;
+    height: 8px;
+    border-radius: 20px;
+    background: #ffc107;
+    opacity: 1;
 }
 
-#heroCarousel .carousel-item.active img {
-    transform: scale(1.05);
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-image {
+        height: 320px;
+    }
+
+    .hero-content {
+        left: 25px;
+        right: 25px;
+        max-width: 90%;
+    }
+
+    .hero-content h1 {
+        font-size: 30px;
+    }
+
+    .hero-content p {
+        font-size: 15px;
+    }
+
+    .hero-btn {
+        padding: 10px 25px;
+    }
+}
+/* Hiệu ứng chuyển ngang mượt */
+.carousel-item {
+    transition: transform 0.9s ease-in-out;
+}
+
+.carousel-item-next,
+.carousel-item-prev,
+.carousel-item.active {
+    display: block;
+}
+.hero-content {
+    animation: fadeUp 0.8s ease;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(calc(-50% + 30px));
+    }
+    to {
+        opacity: 1;
+        transform: translateY(-50%);
+    }
+}
+/* Floating Buttons */
+.floating-buttons {
+    position: fixed;
+    right: 20px;
+    bottom: 30px; /* Hiện góc dưới bên phải */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 99999;
+}
+
+.floating-btn {
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    color: #fff;
+    font-size: 18px;
+
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    transition: 0.3s;
+}
+
+.floating-btn:hover {
+    transform: translateX(-5px) scale(1.08);
+}
+
+.reload-btn {
+    background: #ffc107;
+}
+
+.top-btn {
+    background: #343a40;
+    display: none;
 }

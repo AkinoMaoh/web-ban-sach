@@ -81,6 +81,11 @@
                                            class="form-control"
                                            name="sort_order"
                                            value="{{ old('sort_order',$banner->sort_order) }}">
+                                           @error('sort_order')
+                                                <div class="invalid-feedback">
+                                                    {{ $message }}
+                                                </div>
+                                            @enderror
                                 </div>
                             </div>
 

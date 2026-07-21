@@ -14,7 +14,6 @@ use App\Http\Controllers\User\shopDetailsController;
 use App\Http\Controllers\User\ShopController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\WishlistController;
-use App\Http\Controllers\User\UserNewsController;
 use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\OrderHistoryController;
 use Illuminate\Support\Facades\Route;

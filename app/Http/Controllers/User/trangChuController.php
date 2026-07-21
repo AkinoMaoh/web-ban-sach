@@ -10,6 +10,9 @@ use App\Models\authors;
 use App\Models\publishers;
 use Illuminate\Support\Facades\DB;
 use App\Models\Banner;
+use Carbon\Carbon;
+
+
 
 class trangChuController extends Controller
 {
@@ -80,9 +83,16 @@ class trangChuController extends Controller
 
         // 7. Thực thi lấy dữ liệu kèm phân trang (12 sản phẩm/trang) và giữ tham số trên URL
         $products = $query->paginate(15)->appends($request->query());
-
         $banners = Banner::where('status', 1)
             ->where('position', 'home')
+            ->where(function ($q) {
+                $q->whereNull('start_date')
+                    ->orWhere('start_date', '<=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('end_date')
+                    ->orWhere('end_date', '>=', now());
+            })
             ->orderBy('sort_order')
             ->get();
 
