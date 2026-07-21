@@ -7,7 +7,7 @@ use App\Models\News;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class NewsController extends Controller
+class AdminNewsController extends Controller
 {
     /**
      * Display a listing of the resource.

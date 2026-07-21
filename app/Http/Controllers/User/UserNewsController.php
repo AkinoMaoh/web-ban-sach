@@ -5,7 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class NewsController extends Controller
+class UserNewsController extends Controller
 {
     // Hàm hiển thị giao diện Tin tức
     public function index()
