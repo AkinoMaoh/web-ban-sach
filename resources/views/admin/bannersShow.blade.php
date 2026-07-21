@@ -71,14 +71,34 @@
                             <th>Trạng thái</th>
                             <td>
                                 @if($banner->status)
-                                    <span class="badge badge-success">
+                                    <span class="badge badge-success px-3 py-2">
                                         Hiển thị
                                     </span>
                                 @else
-                                    <span class="badge badge-danger">
+                                    <span class="badge badge-danger px-3 py-2">
                                         Ẩn
                                     </span>
                                 @endif
+                                  @php
+                                                $now = now();
+                                            @endphp
+
+                                            @if($banner->start_date && $now->lt($banner->start_date))
+                                                <span class="badge badge-primary px-3 py-2">
+                                                    <i class="fas fa-clock"></i> Chưa tới
+                                                </span>
+
+                                            @elseif($banner->end_date && $now->gt($banner->end_date))
+                                                <span class="badge badge-danger px-3 py-2">
+                                                    <i class="fas fa-times-circle"></i> Hết hạn
+                                                </span>
+
+                                            @else
+                                                <span class="badge badge-success px-3 py-2">
+                                                    <i class="fas fa-check-circle"></i> Đang diễn ra
+                                                </span>
+                                            @endif
+                                            </td>
                             </td>
                         </tr>
 

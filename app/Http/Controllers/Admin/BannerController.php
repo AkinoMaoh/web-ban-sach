@@ -28,7 +28,7 @@ class BannerController extends Controller
         $banners = $query
             ->orderBy('sort_order')
             ->latest()
-            ->paginate(10);
+            ->paginate(8);
 
         return view('admin.banners', compact('banners'));
     }
@@ -48,21 +48,55 @@ class BannerController extends Controller
     {
         $request->validate([
             'title' => 'required|max:255',
-            'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'link' => 'nullable|max:255',
             'description' => 'nullable',
             'position' => 'required',
-            'sort_order' => 'nullable|integer',
+            'sort_order' => 'nullable|integer|min:1',
             'status' => 'required|boolean',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+        ], [
+            'title.required' => 'Vui lòng nhập tiêu đề.',
+            'image.image' => 'Tệp tải lên phải là hình ảnh.',
+            'image.mimes' => 'Ảnh chỉ được phép có định dạng jpg, jpeg, png hoặc webp.',
+            'image.max' => 'Kích thước ảnh không được vượt quá 2MB.',
+            'position.required' => 'Vui lòng chọn vị trí hiển thị.',
+            'sort_order.integer' => 'Thứ tự hiển thị phải là số nguyên.',
+            'sort_order.min' => 'Thứ tự hiển thị phải lớn hơn 0.',
+            'status.required' => 'Vui lòng chọn trạng thái.',
+            'start_date.date' => 'Ngày bắt đầu không hợp lệ.',
+            'end_date.date' => 'Ngày kết thúc không hợp lệ.',
+            'end_date.after_or_equal' => 'Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.',
         ]);
 
+        // Xử lý thứ tự
+        if ($request->filled('sort_order')) {
+
+            if (Banner::where('sort_order', $request->sort_order)->exists()) {
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'sort_order' => 'Thứ tự này đã tồn tại.'
+                    ]);
+            }
+
+            $sortOrder = $request->sort_order;
+        } else {
+
+            $sortOrder = (Banner::max('sort_order') ?? 0) + 1;
+        }
+
+        // Upload ảnh
         $imageName = null;
 
-        if ($request->hasFile('image')) {
-            $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('uploads/banners'), $imageName);
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+
+            $file = $request->file('image');
+
+            $imageName = time() . '.' . $file->getClientOriginalExtension();
+
+            $file->move(public_path('uploads/banners'), $imageName);
         }
 
         Banner::create([
@@ -71,7 +105,7 @@ class BannerController extends Controller
             'image' => $imageName,
             'link' => $request->link,
             'position' => $request->position,
-            'sort_order' => $request->sort_order ?? 0,
+            'sort_order' => $sortOrder,
             'status' => $request->status,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
@@ -93,18 +127,67 @@ class BannerController extends Controller
     {
         $banner = Banner::findOrFail($id);
 
-        // validate ...
+        $request->validate([
+            'title' => 'required|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'link' => 'nullable|max:255',
+            'description' => 'nullable',
+            'position' => 'required',
+            'sort_order' => 'nullable|integer|min:1',
+            'status' => 'required|boolean',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+        ], [
+            'title.required' => 'Vui lòng nhập tiêu đề.',
+            'image.image' => 'Tệp tải lên phải là hình ảnh.',
+            'image.mimes' => 'Ảnh chỉ được phép có định dạng jpg, jpeg, png hoặc webp.',
+            'image.max' => 'Kích thước ảnh không được vượt quá 2MB.',
+
+            'position.required' => 'Vui lòng chọn vị trí hiển thị.',
+
+
+            'sort_order.integer' => 'Thứ tự hiển thị phải là số nguyên.',
+            'sort_order.min' => 'Thứ tự hiển thị phải lớn hơn 0.',
+
+            'status.required' => 'Vui lòng chọn trạng thái.',
+
+            'start_date.date' => 'Ngày bắt đầu không hợp lệ.',
+            'end_date.date' => 'Ngày kết thúc không hợp lệ.',
+            'end_date.after_or_equal' => 'Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.',
+        ]);
+
+        $sortOrder = $request->filled('sort_order')
+            ? $request->sort_order
+            : $banner->sort_order;
+
+        if ($request->filled('sort_order')) {
+
+            $exists = Banner::where('sort_order', $sortOrder)
+                ->where('id', '!=', $banner->id)
+                ->exists();
+
+            if ($exists) {
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'sort_order' => 'Thứ tự này đã tồn tại.'
+                    ]);
+            }
+        }
 
         $imageName = $banner->image;
 
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
 
             if ($banner->image && file_exists(public_path('uploads/banners/' . $banner->image))) {
                 unlink(public_path('uploads/banners/' . $banner->image));
             }
 
-            $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('uploads/banners'), $imageName);
+            $file = $request->file('image');
+
+            $imageName = time() . '.' . $file->getClientOriginalExtension();
+
+            $file->move(public_path('uploads/banners'), $imageName);
         }
 
         $banner->update([
@@ -113,7 +196,7 @@ class BannerController extends Controller
             'image' => $imageName,
             'link' => $request->link,
             'position' => $request->position,
-            'sort_order' => $request->sort_order ?? 0,
+            'sort_order' => $sortOrder,
             'status' => $request->status,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,

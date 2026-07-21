@@ -13,12 +13,15 @@
 
 <!-- Hero Banner -->
 <section class="container mt-4 mb-5">
-    <div id="heroCarousel"
-         class="carousel slide carousel-fade shadow-lg"
-         data-ride="carousel"
-         data-interval="5000"
-         style="border-radius:18px;overflow:hidden;">
 
+    <div id="heroCarousel"
+         class="carousel slide "
+         data-ride="carousel"
+         data-interval="4000"
+         data-pause="false"
+         data-wrap="true">
+
+        <!-- Indicators -->
         <ol class="carousel-indicators">
             @foreach($banners as $banner)
                 <li data-target="#heroCarousel"
@@ -28,70 +31,42 @@
             @endforeach
         </ol>
 
+        <!-- Banner -->
         <div class="carousel-inner">
 
             @foreach($banners as $banner)
+
             <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
 
-                <div class="position-relative">
+                <div class="hero-item">
 
                     <img src="{{ asset('uploads/banners/'.$banner->image) }}"
-                         class="w-100"
-                         style="
-                            height:520px;
-                            object-fit:cover;
-                            object-position:center;
-                         ">
+                         class="hero-image"
+                         alt="{{ $banner->title }}">
 
                     <!-- Overlay -->
-                    <div style="
-                        position:absolute;
-                        inset:0;
-                        background:linear-gradient(
-                            90deg,
-                            rgba(0,0,0,.75) 0%,
-                            rgba(0,0,0,.35) 45%,
-                            rgba(0,0,0,.05) 100%
-                        );
-                    "></div>
+                    <div class="hero-overlay"></div>
 
                     <!-- Nội dung -->
-                    <div class="position-absolute"
-                         style="
-                            left:70px;
-                            top:50%;
-                            transform:translateY(-50%);
-                            max-width:520px;
-                            color:#fff;
-                         ">
+                    <div class="hero-content">
 
                         <span class="badge badge-warning px-3 py-2 mb-3">
-                            BOOK STORE
+                            📚 BOOK STORE
                         </span>
 
-                        <h1 class="font-weight-bold mb-3"
-                            style="
-                                font-size:52px;
-                                line-height:1.2;
-                                text-shadow:0 3px 12px rgba(0,0,0,.4);
-                            ">
+                        <h1>
                             {{ $banner->title }}
                         </h1>
 
                         @if($banner->description)
-                            <p class="mb-4"
-                               style="
-                                  font-size:18px;
-                                  color:#f1f1f1;
-                                  line-height:1.8;
-                               ">
+                            <p>
                                 {{ $banner->description }}
                             </p>
                         @endif
 
                         @if($banner->link)
                             <a href="{{ $banner->link }}"
-                               class="btn btn-warning btn-lg rounded-pill px-5 shadow">
+                               class="btn btn-warning btn-lg hero-btn">
                                 Khám phá ngay
                                 <i class="fas fa-arrow-right ml-2"></i>
                             </a>
@@ -102,20 +77,43 @@
                 </div>
 
             </div>
+
             @endforeach
 
         </div>
 
-        <a class="carousel-control-prev" href="#heroCarousel" data-slide="prev">
+        <!-- Previous -->
+        <a class="carousel-control-prev"
+           href="#heroCarousel"
+           role="button"
+           data-slide="prev">
+
             <span class="carousel-control-prev-icon"></span>
+
         </a>
 
-        <a class="carousel-control-next" href="#heroCarousel" data-slide="next">
+        <!-- Next -->
+        <a class="carousel-control-next"
+           href="#heroCarousel"
+           role="button"
+           data-slide="next">
+
             <span class="carousel-control-next-icon"></span>
+
         </a>
 
     </div>
+
 </section>
+
+<script>
+$('#heroCarousel').carousel({
+    interval: 5000,
+    pause: false,
+    wrap: true,
+    keyboard: true
+});
+</script>
 
 <!-- 2. Danh mục sách -->
 <section class="container mb-5">
@@ -183,7 +181,7 @@
                                         <span class="badge mb-2" style="background-color: #2C3E50; color: white;">MỚI PHÁT HÀNH</span>
                                         <h5 class="font-weight-bold mb-2" style="font-size: 18px; line-height: 1.4;">{{ $pro->name }}</h5>
                                         <h4 class="mb-3" style="color: #D35400; font-weight: 700;">{{ number_format($pro->price, 0, ',', '.') }} ₫</h4>
-                                        <span class="btn btn-outline-dark btn-sm rounded-pill px-4">Đọc ngay</span>
+                                        <span class="btn btn-outline-dark btn-sm rounded-pill px-4">Mua ngay</span>
                                     </div>
                                 </a>
                             </div>
