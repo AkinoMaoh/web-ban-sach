@@ -28,6 +28,7 @@ use App\Http\Controllers\User\ReviewController;
 use App\Http\Controllers\Admin\ReviewManagerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\User\UserNewsController;
 
 /*
 |--------------------------------------------------------------------------

@@ -11,11 +11,7 @@
                         <i class="fas fa-envelope me-2"></i>Email / Mật khẩu
                     </button>
                 </li>
-                <!-- <li class="nav-item" role="presentation">
-                    <button class="nav-link text-muted fw-bold" id="tab-phone" type="button" role="tab" style="border-bottom: 2px solid transparent;">
-                        <i class="fas fa-phone me-2"></i>Số điện thoại OTP
-                    </button>
-                </li> -->
+               
             </ul>
 
             <form id="form-email-login" method="POST" action="{{ route('login') }}">
