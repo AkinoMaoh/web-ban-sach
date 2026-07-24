@@ -151,17 +151,20 @@
 
                         <div class="d-flex justify-content-between mb-3 text-muted">
                             <span>Tạm tính</span>
-                            <span>{{ number_format($totalAmount ?? 0) }} đ</span>
+                            <span id="subtotal_text" data-value="{{ $totalAmount ?? 0 }}">{{ number_format($totalAmount ?? 0) }} đ</span>
                         </div>
                         <div class="d-flex justify-content-between mb-3 text-muted">
                             <span>Phí vận chuyển</span>
-                            <span>Miễn phí</span>
+                            <span id="shipping_fee_text">Vui lòng chọn địa chỉ</span>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mb-4 pt-3 border-top">
                             <span class="font-weight-bold text-dark" style="font-size: 18px;">TỔNG CỘNG:</span>
-                            <span class="font-weight-bold" style="color: #e74c3c; font-size: 24px;">{{ number_format($totalAmount ?? 0) }} đ</span>
+                            <span class="font-weight-bold" id="total_amount_text" style="color: #e74c3c; font-size: 24px;">{{ number_format($totalAmount ?? 0) }} đ</span>
                         </div>
+
+                        <!-- Thêm dòng này để gửi phí ship về Controller -->
+                        <input type="hidden" name="shipping_fee" id="hidden_shipping_fee" value="0">
 
                         <button type="submit" class="btn btn-orange btn-block rounded-pill py-3 font-weight-bold shadow-sm text-uppercase" style="font-size: 16px; letter-spacing: 0.5px;">
                             <i class="fas fa-check-circle mr-2"></i> Đặt hàng ngay
@@ -208,27 +211,54 @@ $(document).ready(function() {
 
     function renderData(array, selectId, defaultText) {
         let row = `<option value="">${defaultText}</option>`;
-        array.forEach(element => {
-            row += `<option data-name="${element.name}" value="${element.code}">${element.name}</option>`;
-        });
+        if (array && array.length > 0) {
+            array.forEach(element => {
+                row += `<option data-name="${element.name}" value="${element.code}">${element.name}</option>`;
+            });
+        }
         $("#" + selectId).html(row);
     }
 
-    // Khi đổi Tỉnh -> Load Huyện
+    // 1. Khi đổi Tỉnh -> Load Huyện và Tính phí ship
     $("#province").on("change", function() {
         let code = $(this).val();
+        let shippingFee = 0;
+        
+        // Lấy tổng tiền hàng từ thuộc tính data-value đã gài ở HTML
+        let subTotal = parseInt($('#subtotal_text').attr('data-value')) || 0;
+
         if(code) {
+            // Logic tính tiền: Code '01' (Hà Nội), '79' (TP.HCM) phí 30k, còn lại 50k
+            if(code === '01' || code === '79') {
+                shippingFee = 30000;
+            } else {
+                shippingFee = 50000;
+            }
+
+            // Cập nhật text hiển thị trên giao diện
+            $('#shipping_fee_text').text(new Intl.NumberFormat('vi-VN').format(shippingFee) + ' đ');
+            $('#total_amount_text').text(new Intl.NumberFormat('vi-VN').format(subTotal + shippingFee) + ' đ');
+            
+            // Cập nhật value cho thẻ input ẩn để submit form
+            $('#hidden_shipping_fee').val(shippingFee);
+
+            // Gọi API lấy Huyện
             axios.get(host + "p/" + code + "?depth=2").then((response) => {
                 renderData(response.data.districts, "district", "Chọn Quận/Huyện");
                 $("#ward").html('<option value="">Chọn Phường/Xã</option>'); // Xóa phường xã cũ
             });
         } else {
+            // Nếu người dùng reset tỉnh/thành
+            $('#shipping_fee_text').text('Vui lòng chọn địa chỉ');
+            $('#total_amount_text').text(new Intl.NumberFormat('vi-VN').format(subTotal) + ' đ');
+            $('#hidden_shipping_fee').val(0);
+
             $("#district").html('<option value="">Chọn Quận/Huyện</option>');
             $("#ward").html('<option value="">Chọn Phường/Xã</option>');
         }
     });
 
-    // Khi đổi Huyện -> Load Xã
+    // 2. [ĐÂY LÀ ĐOẠN CODE BỊ THIẾU NÀY] Khi đổi Huyện -> Load Xã
     $("#district").on("change", function() {
         let code = $(this).val();
         if(code) {
@@ -240,7 +270,7 @@ $(document).ready(function() {
         }
     });
 
-    // Khi Submit form -> Nối chuỗi gửi cho Laravel (Giữ nguyên logic của bạn)
+    // 3. Khi Submit form -> Nối chuỗi full địa chỉ gửi cho Laravel Controller
     $('#checkoutForm').on('submit', function(e) {
         let provinceName = $("#province option:selected").attr('data-name');
         let districtName = $("#district option:selected").attr('data-name');
@@ -252,7 +282,7 @@ $(document).ready(function() {
             fullAddress = street + ", " + wardName + ", " + districtName + ", " + provinceName;
         }
         
-        // Gán vào input ẩn. Nếu thiếu, full_address rỗng -> Laravel báo lỗi required
+        // Gán vào input ẩn
         $('#full_address').val(fullAddress);
     });
 });

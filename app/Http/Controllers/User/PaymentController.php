@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Notification;
-use App\Models\User; // Thêm thư viện User để tìm Admin
+use App\Models\User; 
 
 class PaymentController extends Controller
 {
@@ -49,10 +49,8 @@ class PaymentController extends Controller
             $sessionCart = session()->get('cart', []);
 
             if (!empty($sessionCart)) {
-                // Lấy tất cả mã biến thể (variant_id) đang có trong session
                 $variantIds = array_keys($sessionCart);
 
-                // Lọc theo các món khách vừa tick chọn (nếu có)
                 if ($itemIds) {
                     $idsArray = explode(',', $itemIds);
                     $variantIds = array_intersect($variantIds, $idsArray);
@@ -60,7 +58,6 @@ class PaymentController extends Controller
                 }
 
                 if (!empty($variantIds)) {
-                    // TRUY VẤN DB ĐỂ LẤY GIÁ THẬT (Chống lỗi thiếu Price từ Session)
                     $variants = DB::table('product_variants')
                         ->join('products', 'product_variants.product_id', '=', 'products.id')
                         ->whereIn('product_variants.id', $variantIds)
@@ -69,7 +66,6 @@ class PaymentController extends Controller
 
                     foreach ($variants as $variant) {
                         $vid = $variant->id;
-                        // An toàn: nếu session thiếu số lượng thì gán mặc định là 1
                         $quantity = isset($sessionCart[$vid]['quantity']) ? $sessionCart[$vid]['quantity'] : 1;
 
                         $totalAmount += $variant->price * $quantity;
@@ -89,12 +85,13 @@ class PaymentController extends Controller
 
     public function process(Request $request)
     {
-        // 1. CHUẨN HÓA SỐ ĐIỆN THOẠI & EMAIL
+        // 1. CHUẨN HÓA SỐ ĐIỆN THOẠI & EMAIL KÈM TIỀN SHIP
         $validated = $request->validate([
             'shipping_name' => 'required|string|max:255',
             'shipping_phone' => ['required', 'regex:/^0[0-9]{9}$/'],
             'billing_email' => 'required|email|max:255',
             'full_address' => 'required|string',
+            'shipping_fee' => 'required|numeric|min:0',
         ], [
             'shipping_name.required' => 'Vui lòng nhập họ và tên người nhận.',
             'shipping_phone.required' => 'Vui lòng nhập số điện thoại.',
@@ -165,12 +162,17 @@ class PaymentController extends Controller
             }
         }
 
-        DB::beginTransaction();
+        // --- CỘNG TIỀN SHIP BÊN JS ĐẨY SANG VÀO TỔNG ĐƠN ---
+        $shipping_fee = $validated['shipping_fee'];
+        $totalAmount += $shipping_fee; 
+
+        DB::beginTransaction(); // Đã xóa cái bị lặp, chỉ giữ 1 cái chuẩn
         try {
             $orderId = DB::table('orders')->insertGetId([
                 'user_id' => $userId,
                 'billing_email' => $billing_email,
                 'total_amount' => $totalAmount,
+                'shipping_fee' => $shipping_fee, // BỔ SUNG CỘT LƯU TIỀN SHIP
                 'status' => 'pending',
                 'shipping_name' => $shipping_name,
                 'shipping_phone' => $shipping_phone,
@@ -216,9 +218,58 @@ class PaymentController extends Controller
                 }
 
                 return view('User.thankyou', ['orderId' => $orderId, 'message' => 'Đặt hàng thành công!']);
-            } elseif ($payment_method == 'vnpay') {
-                // Return to VNPAY (giả định biến $vnp_Url đã được khởi tạo theo logic cũ của ông)
-                return redirect()->to($vnp_Url ?? '/'); 
+            } 
+            elseif ($payment_method == 'vnpay') {
+                // --- LOGIC TẠO LINK VNPAY ĐƯỢC KHÔI PHỤC LẠI ---
+                $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"; // Link chuẩn test VNPAY
+                $vnp_Returnurl = url('/vnpay-return'); // Trỏ về Route của function vnpayReturn
+                $vnp_TmnCode = env('VNP_TMN_CODE'); 
+                $vnp_HashSecret = env('VNP_HASH_SECRET'); 
+
+                $vnp_TxnRef = $orderId; // Mã đơn hàng vừa tạo
+                $vnp_OrderInfo = "Thanh toán đơn hàng #" . $orderId;
+                $vnp_OrderType = 'billpayment';
+                $vnp_Amount = $totalAmount * 100; // VNPAY luôn nhân 100
+                $vnp_Locale = 'vn';
+                $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
+
+                $inputData = array(
+                    "vnp_Version" => "2.1.0",
+                    "vnp_TmnCode" => $vnp_TmnCode,
+                    "vnp_Amount" => $vnp_Amount,
+                    "vnp_Command" => "pay",
+                    "vnp_CreateDate" => date('YmdHis'),
+                    "vnp_CurrCode" => "VND",
+                    "vnp_IpAddr" => $vnp_IpAddr,
+                    "vnp_Locale" => $vnp_Locale,
+                    "vnp_OrderInfo" => $vnp_OrderInfo,
+                    "vnp_OrderType" => $vnp_OrderType,
+                    "vnp_ReturnUrl" => $vnp_Returnurl,
+                    "vnp_TxnRef" => $vnp_TxnRef
+                );
+
+                ksort($inputData);
+                $query = "";
+                $i = 0;
+                $hashdata = "";
+                foreach ($inputData as $key => $value) {
+                    if ($i == 1) {
+                        $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
+                    } else {
+                        $hashdata .= urlencode($key) . "=" . urlencode($value);
+                        $i = 1;
+                    }
+                    $query .= urlencode($key) . "=" . urlencode($value) . '&';
+                }
+
+                $vnp_Url = $vnp_Url . "?" . $query;
+                if (isset($vnp_HashSecret)) {
+                    $vnpSecureHash =   hash_hmac('sha512', $hashdata, $vnp_HashSecret);
+                    $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
+                }
+
+                // Chuyển hướng người dùng sang giao diện VNPAY
+                return redirect()->to($vnp_Url); 
             }
         } catch (\Exception $e) {
             DB::rollBack();
@@ -229,7 +280,6 @@ class PaymentController extends Controller
     private function handleOrderAndStock($realCart, $orderId)
     {
         foreach ($realCart as $item) {
-            // 1. Lock và kiểm tra kho
             $variant = DB::table('product_variants')
                 ->where('id', $item['product_variant_id'])
                 ->lockForUpdate()
@@ -239,7 +289,6 @@ class PaymentController extends Controller
                 throw new \Exception('Sản phẩm có ID ' . $item['product_variant_id'] . ' đã hết hàng hoặc không đủ số lượng. Vui lòng kiểm tra lại giỏ hàng!');
             }
 
-            // 2. Lấy thông tin model để insert detail
             $variantModel = \App\Models\ProductVariants::with('product')->findOrFail($item['product_variant_id']);
 
             DB::table('order_details')->insert([
@@ -254,7 +303,6 @@ class PaymentController extends Controller
                 'updated_at'         => now(),
             ]);
 
-            // 3. Trừ kho
             DB::table('product_variants')
                 ->where('id', $item['product_variant_id'])
                 ->decrement('stock', $item['quantity']);
@@ -320,7 +368,6 @@ class PaymentController extends Controller
                             ->whereIn('product_variant_id', $boughtVariants)
                             ->delete();
                     } else {
-                        // Khách vãng lai: Xóa các món đã mua khỏi session
                         $checkoutItemIds = session()->get('checkout_item_ids');
                         if ($checkoutItemIds) {
                             $sessionCart = session()->get('cart', []);
