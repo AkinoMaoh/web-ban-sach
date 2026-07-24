@@ -41,6 +41,7 @@ class productsController extends Controller
 
     public function store(Request $request)
     {
+
         $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
@@ -48,9 +49,11 @@ class productsController extends Controller
             'author_id' => 'required|exists:authors,id',
             'description' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'variants' => 'required|array',
+            'variants' => 'required|array|min:1',
+            'variants.*.edition' => 'required|string|max:100',
             'variants.*.price' => 'required|numeric|min:0',
-            'variants.*.stock' => 'required|integer|min:0',
+            'variants.*.stock' => 'required|numeric|min:0',
+
         ]);
 
         // ======================
@@ -78,17 +81,20 @@ class productsController extends Controller
         // ======================
         $standardPrice = 0;
 
-        foreach ($request->variants as $edition => $data) {
+        $standardPrice = 0;
+
+        foreach ($request->variants as $data) {
 
             $variant = new ProductVariants();
             $variant->product_id = $product->id;
-            $variant->edition = $edition;
+            $variant->edition = $data['edition'];
             $variant->price = $data['price'];
             $variant->stock = $data['stock'];
 
             $variant->save();
 
-            if ($edition === 'Standard') {
+            // Lấy giá của phiên bản đầu tiên làm giá hiển thị
+            if ($standardPrice == 0) {
                 $standardPrice = $data['price'];
             }
         }
@@ -114,29 +120,6 @@ class productsController extends Controller
         $categories = Categories::all();
         $authors = Authors::all();
         $publishers = Publishers::all();
-
-        // Luôn tạo đủ 3 biến thể
-        $editions = [
-            'Standard',
-            'Special',
-            'Special Signed'
-        ];
-
-        foreach ($editions as $edition) {
-
-            ProductVariants::firstOrCreate(
-                [
-                    'product_id' => $product->id,
-                    'edition' => $edition
-                ],
-                [
-                    'price' => 0,
-                    'stock' => 0,
-
-                ]
-            );
-        }
-
         $productVariants = ProductVariants::where('product_id', $product->id)->get();
 
         return view('admin.productEdit', compact(
@@ -157,16 +140,21 @@ class productsController extends Controller
             'author_id' => 'required|exists:authors,id',
             'description' => 'required|string',
             'image' => 'nullable|image',
-            'variants' => 'required|array',
-            'variants.*.stock' => 'required|integer|min:0',
+            'variants' => 'required|array|min:1',
+            'variants.*.edition' => 'required|string|max:100',
             'variants.*.price' => 'required|numeric|min:0',
+            'variants.*.stock' => 'required|integer|min:0',
+        ], [
+            'variants.*.edition.required' => 'Vui lòng nhập tên phiên bản.',
+            'variants.*.price.required' => 'Vui lòng nhập giá.',
+            'variants.*.price.numeric' => 'Giá phải là số.',
+            'variants.*.stock.required' => 'Vui lòng nhập số lượng.',
+            'variants.*.stock.integer' => 'Số lượng phải là số nguyên.',
         ]);
 
         $product = Products::findOrFail($id);
 
-        // ======================
-        // 1. UPDATE PRODUCT INFO
-        // ======================
+        // Cập nhật thông tin sản phẩm
         $product->name = $request->name;
         $product->category_id = $request->category_id;
         $product->publisher_id = $request->publisher_id;
@@ -182,40 +170,28 @@ class productsController extends Controller
 
         $product->save();
 
-        // ======================
-        // 2. UPDATE VARIANTS
-        // ======================
+        // Xóa toàn bộ biến thể cũ
+        ProductVariants::where('product_id', $id)->delete();
+
         $standardPrice = 0;
 
-        foreach ($request->variants as $edition => $data) {
+        // Thêm lại các biến thể từ form
+        foreach ($request->variants as $index => $data) {
 
-            $variant = ProductVariants::where('product_id', $id)
-                ->where('edition', $edition)
-                ->first();
+            ProductVariants::create([
+                'product_id' => $id,
+                'edition'   => $data['edition'],
+                'price'     => $data['price'],
+                'stock'     => $data['stock'],
+            ]);
 
-            if (!$variant) {
-                $variant = new ProductVariants();
-                $variant->product_id = $id;
-                $variant->edition = $edition;
+            // Lấy giá của phiên bản đầu tiên
+            if ($index == 0) {
+                $standardPrice = $data['price'];
             }
-
-            $variant->stock = $data['stock'] ?? 0;
-            $variant->price = $data['price'] ?? 0;
-
-
-            if ($edition === 'Standard') {
-                $standardPrice = $variant->price;
-            }
-
-            $variant->save();
         }
 
-        // ======================
-        // 3. UPDATE PRODUCT SUMMARY
-        // ======================
         $product->price = $standardPrice;
-        $totalStock = ProductVariants::where('product_id', $product->id)->sum('stock');
-
         $product->save();
 
         return redirect()

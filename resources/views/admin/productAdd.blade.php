@@ -1,7 +1,78 @@
 @extends('admin.layout')
 
 @section('admin_content')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
 
+    let index = document.querySelectorAll('#variantTable tbody tr').length;
+
+    // Thêm biến thể
+    document.getElementById('addVariant').addEventListener('click', function () {
+
+        let html = `
+        <tr>
+            <td>
+                <input type="text"
+                       class="form-control"
+                       name="variants[${index}][edition]"
+                       placeholder="Tên phiên bản"
+                       required>
+            </td>
+
+            <td>
+                <input type="number"
+                       class="form-control"
+                       name="variants[${index}][price]"
+                       value="0"
+                       min="0"
+                       required>
+            </td>
+
+            <td>
+                <input type="number"
+                       class="form-control"
+                       name="variants[${index}][stock]"
+                       value="0"
+                       min="0"
+                       required>
+            </td>
+
+            <td>
+                <button type="button" class="btn btn-danger removeRow">
+                    X
+                </button>
+            </td>
+        </tr>
+        `;
+
+        document.querySelector('#variantTable tbody')
+            .insertAdjacentHTML('beforeend', html);
+
+        index++;
+    });
+
+    // Xóa biến thể
+    document.addEventListener('click', function (e) {
+
+        if (!e.target.classList.contains('removeRow')) return;
+
+        const tbody = document.querySelector('#variantTable tbody');
+        const rows = tbody.querySelectorAll('tr');
+
+        // Không cho xóa hết
+        if (rows.length <= 1) {
+            alert('Sản phẩm phải có ít nhất một phiên bản.');
+            return;
+        }
+
+        if (confirm('Bạn có chắc muốn xóa phiên bản này?')) {
+            e.target.closest('tr').remove();
+        }
+
+    });
+
+});
+</script>
 <div class="container-fluid">
 
     <h1 class="h3 mb-2 text-gray-800">Trang thêm sản phẩm</h1>
@@ -16,7 +87,15 @@
             </div>
 
             <div class="card-body">
-
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
                 <form action="{{ route('admin.products.store') }}"
                       method="POST"
                       enctype="multipart/form-data">
@@ -87,64 +166,61 @@
                                required>
                     </div>
 
-                    {{-- VARIANTS --}}
-                    @php
-                        $editions = [
-                            'Standard',
-                            'Special',
-                            'Special Signed'
-                        ];
-                    @endphp
+                   <div class="form-group">
+    <label>Danh sách biến thể</label>
 
-                    <div class="form-group">
-                        <label>Danh sách biến thể</label>
+    <table class="table table-bordered" id="variantTable">
+        <thead>
+            <tr>
+                <th>Phiên bản</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                <th></th>
+            </tr>
+        </thead>
 
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Phiên bản</th>
-                                    <th>Giá</th>
-                                    <th>Số lượng</th>
-                                </tr>
-                            </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <input type="text"
+                           class="form-control"
+                           name="variants[0][edition]"
+                           placeholder="Ví dụ: Bản thường">
+                </td>
 
-                            <tbody>
-                                @foreach($editions as $edition)
-                                <tr>
+                <td>
+                    <input type="number"
+                        class="form-control"
+                        name="variants[0][price]"
+                        min="0"
+                        step="1"
+                        value="0"
+                        onkeydown="return event.key.match(/[0-9]|Backspace|Delete|Tab|ArrowLeft|ArrowRight/) != null"
+                        oninput="this.value=this.value.replace(/\D/g,'')">
+                </td>
 
-                                    <td>
-                                        {{ $edition == 'Standard'
-                                            ? 'Bản thường'
-                                            : ($edition == 'Special'
-                                                ? 'Bản đặc biệt'
-                                                : 'Bản đặc biệt có chữ ký') }}
+                <td>
+                    <input type="number"
+                        class="form-control"
+                        name="variants[0][stock]"
+                        min="0"
+                        step="1"
+                        value="0"
+                        onkeydown="return event.key.match(/[0-9]|Backspace|Delete|Tab|ArrowLeft|ArrowRight/) != null"
+                        oninput="this.value=this.value.replace(/\D/g,'')">
+                </td>
 
-                                        <input type="hidden"
-                                               name="variants[{{ $edition }}][edition]"
-                                               value="{{ $edition }}">
-                                    </td>
+                <td>
+                    <button type="button" class="btn btn-danger removeRow">X</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
-                                    <td>
-                                        <input type="number"
-                                               class="form-control"
-                                               name="variants[{{ $edition }}][price]"
-                                               value="0"
-                                               min="0">
-                                    </td>
-
-                                    <td>
-                                        <input type="number"
-                                               class="form-control"
-                                               name="variants[{{ $edition }}][stock]"
-                                               value="0"
-                                               min="0">
-                                    </td>
-
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+    <button type="button" class="btn btn-success" id="addVariant">
+        + Thêm phiên bản
+    </button>
+</div>
 
                     {{-- IMAGE --}}
                     <div class="form-group">

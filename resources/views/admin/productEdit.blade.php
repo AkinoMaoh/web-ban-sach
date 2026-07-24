@@ -1,7 +1,78 @@
 @extends('admin.layout')
 
 @section('admin_content')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
 
+    let index = {{ $productVariants->count() }};
+
+    // Thêm biến thể
+    document.getElementById('addVariant').addEventListener('click', function () {
+
+        let html = `
+        <tr>
+            <td>
+                <input type="text"
+                       class="form-control"
+                       name="variants[${index}][edition]"
+                       placeholder="Tên phiên bản"
+                       required>
+            </td>
+
+            <td>
+                <input type="number"
+                       class="form-control"
+                       name="variants[${index}][price]"
+                       value="0"
+                       min="0"
+                       required>
+            </td>
+
+            <td>
+                <input type="number"
+                       class="form-control"
+                       name="variants[${index}][stock]"
+                       value="0"
+                       min="0"
+                       required>
+            </td>
+
+            <td>
+                <button type="button" class="btn btn-danger removeRow">
+                    X
+                </button>
+            </td>
+        </tr>
+        `;
+
+        document.querySelector('#variantTable tbody')
+            .insertAdjacentHTML('beforeend', html);
+
+        index++;
+    });
+
+    // Xóa biến thể
+    document.addEventListener('click', function (e) {
+
+        if (!e.target.classList.contains('removeRow')) return;
+
+        const tbody = document.querySelector('#variantTable tbody');
+        const rows = tbody.querySelectorAll('tr');
+
+        // Không cho xóa hết
+        if (rows.length <= 1) {
+            alert('Sản phẩm phải có ít nhất một phiên bản.');
+            return;
+        }
+
+        if (confirm('Bạn có chắc muốn xóa phiên bản này?')) {
+            e.target.closest('tr').remove();
+        }
+
+    });
+
+});
+</script>
 <div class="container-fluid">
 
     <h1 class="h3 mb-2 text-gray-800">Trang cập nhật sản phẩm</h1>
@@ -86,62 +157,57 @@
                     </div>
 
                     {{-- VARIANTS --}}
-                    @php
-                        $editions = ['Standard', 'Special', 'Special Signed'];
-                    @endphp
+                  <div class="form-group">
+    <label>Danh sách biến thể</label>
 
-                    <div class="form-group">
-                        <label>Danh sách biến thể</label>
+    <table class="table table-bordered" id="variantTable">
+        <thead>
+            <tr>
+                <th>Phiên bản</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                <th></th>
+            </tr>
+        </thead>
 
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Phiên bản</th>
-                                    <th>Giá</th>
-                                    <th>Số lượng</th>
-                                    
-                                </tr>
-                            </thead>
+        <tbody>
+            @foreach($productVariants as $index => $variant)
+            <tr>
+                <td>
+                    <input type="text"
+                           class="form-control"
+                           name="variants[{{ $index }}][edition]"
+                           value="{{ $variant->edition }}">
+                </td>
 
-                            <tbody>
-                                @foreach($editions as $edition)
+                <td>
+                    <input type="number"
+                           class="form-control"
+                           name="variants[{{ $index }}][price]"
+                           value="{{ (int)$variant->price }}"
+                           min="0">
+                </td>
 
-                                    @php
-                                        $variant = $productVariants->firstWhere('edition', $edition);
-                                    @endphp
+                <td>
+                    <input type="number"
+                           class="form-control"
+                           name="variants[{{ $index }}][stock]"
+                           value="{{ $variant->stock }}"
+                           min="0">
+                </td>
 
-                                    <tr>
-                                        <td>
-                                            {{ $edition == 'Standard' ? 'Bản thường' : ($edition == 'Special' ? 'Bản đặc biệt' : 'Bản đặc biệt có chữ ký') }}
+                <td>
+                    <button type="button" class="btn btn-danger removeRow">X</button>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
 
-                                            <input type="hidden"
-                                                   name="variants[{{ $edition }}][edition]"
-                                                   value="{{ $edition }}">
-                                        </td>
-
-                                        {{-- PRICE --}}
-                                        <td>
-                                            <input type="number"
-                                                class="form-control"
-                                                name="variants[{{ $edition }}][price]"
-                                                value="{{ (int) ($variant->price ?? 0) }}">
-                                        </td>
-
-                                        {{-- STOCK --}}
-                                        <td>
-                                            <input type="number"
-                                                   class="form-control"
-                                                   name="variants[{{ $edition }}][stock]"
-                                                   value="{{ $variant->stock ?? 0 }}">
-                                        </td>
-
-                                       
-                                    </tr>
-
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+    <button type="button" class="btn btn-success" id="addVariant">
+        + Thêm phiên bản
+    </button>
+</div>
 
                     {{-- TOTAL STOCK --}}
                     <div class="form-group">

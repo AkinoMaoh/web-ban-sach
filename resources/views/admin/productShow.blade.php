@@ -60,7 +60,7 @@
                         </div>
                     </div>
                                     <div class="form-group">
-                                        <label for="description">Đánh giá</label>
+                                        <label for="description">Mô tả</label>
                                         <input type="text" class="form-control" id="description" name="description" value="{{ $product->description }}" readonly>
                                     </div>
                                   
@@ -71,7 +71,7 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Phiên bản</th>
+                <th>Tên biến thể</th>
                 <th>Giá</th>
                 <th>Số lượng</th>
                 
@@ -82,8 +82,8 @@
             @foreach($productVariants as $variant)
                 <tr>
                     <td>
-                        {{ $variant->edition == 'Standard' ? 'Bản thường' : ($variant->edition == 'Special' ? 'Bản đặc biệt' : 'Bản có chữ ký') }}
-                    </td>
+    {{ $variant->edition }}
+</td>
 
                     <td>
                         {{ number_format($variant->price, 0, ',', '.') }} đ
