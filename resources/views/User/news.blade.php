@@ -31,7 +31,7 @@
                 <div class="card border-0 shadow-sm rounded mb-4 overflow-hidden news-card bg-white">
                     <div class="row no-gutters g-0">
                         <div class="col-md-5">
-                            <a href="#">
+                            <a href="{{ route('user.news.show', $post->id) }}">
                                 <img src="{{ asset('uploads/news/' . ($post->image ?? 'default.jpg')) }}" 
                                      class="img-fluid w-100 h-100 object-fit-cover" 
                                      alt="{{ $post->title }}" style="min-height: 220px;">
@@ -43,18 +43,18 @@
                                     <span class="badge px-2 py-1" style="background-color: #FFF6F0; color: #D35400; font-weight: 500;">Tin Sách</span>
                                     <small class="text-muted ms-2 ml-2"><i class="far fa-calendar-alt me-1 mr-1"></i> {{ $post->created_at->format('d/m/Y') }}</small>
                                     <span class="mx-2 text-black-50">|</span>
-                                    <small class="text-muted"><i class="far fa-user me-1 mr-1"></i> {{ $post->author->name ?? 'Admin' }}</small>
                                 </div>
                                 <h4 class="font-weight-bold mb-3 serif-font" style="line-height: 1.4;">
-                                    <a href="#" class="text-dark text-decoration-none hover-primary text-truncate-2">
+                                    <a href="{{ route('user.news.show', $post->id) }}"
+                                    class="text-dark text-decoration-none hover-primary text-truncate-2">
                                         {{ $post->title }}
                                     </a>
                                 </h4>
                                 <p class="card-text text-muted mb-4 text-truncate-3" style="line-height: 1.6;">
-                                    {{ Str::limit($post->excerpt ?? 'Nội dung bài viết đang được cập nhật...', 150) }}
+                                    {{ Str::limit($post->summary, 150) }}
                                 </p>
                                 <div class="mt-auto">
-                                    <a href="#" class="font-weight-bold text-decoration-none hover-primary" style="color: var(--primary-color);">
+                                    <a href="{{ route('user.news.show', $post->id) }}" class="font-weight-bold text-decoration-none hover-primary" style="color: var(--primary-color);">
                                         Đọc tiếp <i class="fas fa-arrow-right ms-1 ml-1" style="font-size: 12px;"></i>
                                     </a>
                                 </div>
@@ -69,39 +69,6 @@
                     {{ $posts->links('pagination::bootstrap-5') }}
                 </div>
             @else
-                <!-- DỮ LIỆU ẢO (MOCKUP) -->
-                @for($i = 1; $i <= 5; $i++)
-                <div class="card border-0 shadow-sm rounded mb-4 overflow-hidden news-card bg-white">
-                    <div class="row no-gutters g-0">
-                        <div class="col-md-5">
-                            <a href="#">
-                                <img src="https://picsum.photos/400/300?random={{ $i }}" class="img-fluid w-100 h-100 object-fit-cover" alt="Ảnh bài viết" style="min-height: 230px;">
-                            </a>
-                        </div>
-                        <div class="col-md-7">
-                            <div class="card-body p-4 d-flex flex-column h-100 justify-content-center">
-                                <div class="mb-2">
-                                    <span class="badge px-2 py-1" style="background-color: #FFF6F0; color: #D35400; font-weight: 500;">Review Sách</span>
-                                    <small class="text-muted ms-2 ml-2"><i class="far fa-calendar-alt me-1 mr-1"></i> 10/07/2026</small>
-                                </div>
-                                <h4 class="font-weight-bold mb-3 serif-font" style="line-height: 1.4;">
-                                    <a href="#" class="text-dark text-decoration-none hover-primary text-truncate-2">
-                                        Top 10 cuốn tiểu thuyết kinh điển bạn nhất định phải đọc một lần trong đời
-                                    </a>
-                                </h4>
-                                <p class="card-text text-muted mb-4 text-truncate-3" style="line-height: 1.6;">
-                                    Khám phá những tựa sách đã làm say đắm hàng triệu độc giả trên toàn thế giới với những câu chuyện sâu sắc, đầy ý nghĩa nhân văn và bài học cuộc sống thiết thực...
-                                </p>
-                                <div class="mt-auto">
-                                    <a href="#" class="font-weight-bold text-decoration-none hover-primary" style="color: var(--primary-color);">
-                                        Đọc tiếp <i class="fas fa-arrow-right ms-1 ml-1" style="font-size: 12px;"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @endfor
                 
                 <!-- Phân trang ảo -->
                 <div class="mt-5 d-flex justify-content-center custom-pagination">
@@ -119,24 +86,7 @@
         <!-- CỘT PHẢI: SIDEBAR (col-lg-4) -->
         <aside class="col-lg-4 pl-lg-4">
             
-            <!-- Box Tìm Kiếm -->
-            <div class="card border-0 shadow-sm rounded mb-4">
-                <div class="card-header text-white font-weight-bold serif-font rounded-top" style="background-color: #2C3E50;">
-                    <i class="fas fa-search mr-2"></i> TÌM KIẾM BÀI VIẾT
-                </div>
-                <div class="card-body bg-light p-4">
-                    <form action="#" method="GET">
-                        <div class="input-group">
-                            <input type="text" name="q" class="form-control border-0 shadow-none px-3" placeholder="Nhập từ khóa..." style="border-radius: 4px 0 0 4px;">
-                            <div class="input-group-append">
-                                <button class="btn text-white px-3" type="submit" style="background-color: var(--primary-color); border-radius: 0 4px 4px 0;">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+
 
             <!-- Box Bài Viết Đọc Nhiều Nhất (Đã chỉnh lại top: 100px và z-index: 1) -->
             <div class="card border-0 shadow-sm rounded mb-4 sticky-top" style="top: 100px; z-index: 1;">

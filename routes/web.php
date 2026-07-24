@@ -65,7 +65,7 @@ Route::middleware(['user_only'])->group(function () {
     Route::get('/checkout/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
 
     Route::get('/news', [UserNewsController::class, 'index'])->name('user.news');
-    Route::get('/news/1', [UserNewsController::class, 'show'])->name('user.news.show');
+    Route::get('/news/{id}', [UserNewsController::class, 'show'])->name('user.news.show');
 });
 
 
