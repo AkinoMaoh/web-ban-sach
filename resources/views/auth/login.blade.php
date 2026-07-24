@@ -54,7 +54,7 @@
                 </div>
             </form>
 
-            <div id="form-phone-login" class="d-none">
+            <!-- <div id="form-phone-login" class="d-none">
                 <div id="phone-input-block">
                     <label class="form-label fw-semibold">Số điện thoại nhận OTP</label>
                     <input id="txt-phone" class="form-control mb-3" type="tel" placeholder="Ví dụ: 0987654321">
@@ -70,7 +70,7 @@
                         XÁC NHẬN ĐĂNG NHẬP
                     </button>
                 </div>
-            </div>
+            </div> -->
 
             <div class="d-flex align-items-center my-4">
                 <hr class="flex-grow-1">
