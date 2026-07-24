@@ -13,9 +13,19 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id');
             $table->string('edition', 100)->default('Standard');
             $table->string('sku', 100)->unique()->nullable();
+
             $table->decimal('price', 15, 2);
+
+            // Giá sau giảm
+            $table->decimal('sale_price', 15, 2)->default(0);
+
+            // % giảm (tự tính)
+            $table->integer('discount_percent')->default(0);
+
             $table->integer('stock')->default(0);
+
             $table->timestamps();
+
             $table->foreign('product_id')
                 ->references('id')
                 ->on('products')

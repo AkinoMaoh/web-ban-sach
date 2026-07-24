@@ -66,41 +66,61 @@
                                   
 
                                     <div class="form-group">
+    <div class="form-group">
     <label>Danh sách biến thể</label>
 
     <table class="table table-bordered">
         <thead>
             <tr>
                 <th>Tên biến thể</th>
-                <th>Giá</th>
+                <th>Giá gốc</th>
+                <th>Giá giảm</th>
+                <th>Giảm giá</th>
                 <th>Số lượng</th>
-                
             </tr>
         </thead>
 
         <tbody>
             @foreach($productVariants as $variant)
-                <tr>
-                    <td>
-    {{ $variant->edition }}
-</td>
+            <tr>
 
-                    <td>
-                        {{ number_format($variant->price, 0, ',', '.') }} đ
-                    </td>
+                <td>
+                    {{ $variant->edition }}
+                </td>
 
-                    <td>
-                        {{ $variant->stock }}
-                    </td>
-                     
-                </tr>
+                <td>
+                    {{ number_format($variant->price, 0, ',', '.') }} đ
+                </td>
+
+                <td>
+                    @if($variant->sale_price > 0)
+                        {{ number_format($variant->sale_price, 0, ',', '.') }} đ
+                    @else
+                        Không giảm
+                    @endif
+                </td>
+
+                <td>
+                    @if($variant->discount_percent > 0)
+                        <span class="badge badge-danger">
+                            -{{ $variant->discount_percent }}%
+                        </span>
+                    @else
+                        <span class="badge badge-secondary">
+                            0%
+                        </span>
+                    @endif
+                </td>
+
+                <td>
+                    {{ $variant->stock }}
+                </td>
+
+            </tr>
             @endforeach
         </tbody>
     </table>
 </div>
-
-                                   
-
                                     <div class="form-group">
                                         <label>Tổng số lượng</label>
                                         <input type="text"

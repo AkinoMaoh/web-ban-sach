@@ -27,7 +27,14 @@ document.addEventListener('DOMContentLoaded', function () {
                        min="0"
                        required>
             </td>
-
+<td>
+    <input type="number"
+           class="form-control"
+           name="variants[${index}][sale_price]"
+value=""
+min="0"
+placeholder="Để trống nếu không giảm"
+</td>
             <td>
                 <input type="number"
                        class="form-control"
@@ -36,6 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
                        min="0"
                        required>
             </td>
+            
 
             <td>
                 <button type="button" class="btn btn-danger removeRow">
@@ -162,45 +170,56 @@ document.addEventListener('DOMContentLoaded', function () {
 
     <table class="table table-bordered" id="variantTable">
         <thead>
-            <tr>
-                <th>Phiên bản</th>
-                <th>Giá</th>
-                <th>Số lượng</th>
-                <th></th>
-            </tr>
-        </thead>
+<tr>
+    <th>Phiên bản</th>
+    <th>Giá gốc</th>
+    <th>Giá giảm</th>
+    <th>Số lượng</th>
+    <th></th>
+</tr>
+</thead>
 
         <tbody>
-            @foreach($productVariants as $index => $variant)
-            <tr>
-                <td>
-                    <input type="text"
-                           class="form-control"
-                           name="variants[{{ $index }}][edition]"
-                           value="{{ $variant->edition }}">
-                </td>
+           @foreach($productVariants as $index => $variant)
+<tr>
 
-                <td>
-                    <input type="number"
-                           class="form-control"
-                           name="variants[{{ $index }}][price]"
-                           value="{{ (int)$variant->price }}"
-                           min="0">
-                </td>
+<td>
+    <input type="text"
+           class="form-control"
+           name="variants[{{ $index }}][edition]"
+           value="{{ $variant->edition }}">
+</td>
 
-                <td>
-                    <input type="number"
-                           class="form-control"
-                           name="variants[{{ $index }}][stock]"
-                           value="{{ $variant->stock }}"
-                           min="0">
-                </td>
+<td>
+    <input type="number"
+           class="form-control"
+           name="variants[{{ $index }}][price]"
+           value="{{ $variant->price }}"
+           min="0">
+</td>
 
-                <td>
-                    <button type="button" class="btn btn-danger removeRow">X</button>
-                </td>
-            </tr>
-            @endforeach
+<td>
+    <input type="number"
+           class="form-control"
+           name="variants[{{ $index }}][sale_price]"
+           value="{{ old("variants.$index.sale_price", $variant->sale_price) }}"
+           min="0">
+</td>
+
+<td>
+    <input type="number"
+           class="form-control"
+           name="variants[{{ $index }}][stock]"
+           value="{{ $variant->stock }}"
+           min="0">
+</td>
+
+<td>
+    <button type="button" class="btn btn-danger removeRow">X</button>
+</td>
+
+</tr>
+@endforeach
         </tbody>
     </table>
 

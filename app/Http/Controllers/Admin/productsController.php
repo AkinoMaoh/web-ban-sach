@@ -52,6 +52,7 @@ class productsController extends Controller
             'variants' => 'required|array|min:1',
             'variants.*.edition' => 'required|string|max:100',
             'variants.*.price' => 'required|numeric|min:0',
+            'variants.*.sale_price' => 'nullable|numeric|min:0',
             'variants.*.stock' => 'required|numeric|min:0',
 
         ]);
@@ -85,10 +86,23 @@ class productsController extends Controller
 
         foreach ($request->variants as $data) {
 
+            $price = $data['price'];
+            $salePrice = $data['sale_price'] ?? 0;
+
+            // Không nhập hoặc nhập 0 => không giảm giá
+            if (empty($salePrice) || $salePrice <= 0 || $salePrice >= $price) {
+                $salePrice = null;
+                $discount = 0;
+            } else {
+                $discount = round((($price - $salePrice) / $price) * 100);
+            }
+
             $variant = new ProductVariants();
             $variant->product_id = $product->id;
             $variant->edition = $data['edition'];
-            $variant->price = $data['price'];
+            $variant->price = $price;
+            $variant->sale_price = $salePrice;
+            $variant->discount_percent = $discount;
             $variant->stock = $data['stock'];
 
             $variant->save();
@@ -143,6 +157,7 @@ class productsController extends Controller
             'variants' => 'required|array|min:1',
             'variants.*.edition' => 'required|string|max:100',
             'variants.*.price' => 'required|numeric|min:0',
+            'variants.*.sale_price' => 'nullable|numeric|min:0',
             'variants.*.stock' => 'required|integer|min:0',
         ], [
             'variants.*.edition.required' => 'Vui lòng nhập tên phiên bản.',
@@ -176,20 +191,42 @@ class productsController extends Controller
         $standardPrice = 0;
 
         // Thêm lại các biến thể từ form
+        // Thêm lại các biến thể từ form
         foreach ($request->variants as $index => $data) {
 
+            $price = $data['price'];
+
+            // Nếu không nhập sale_price thì lấy bằng giá gốc
+            $salePrice = !empty($data['sale_price'])
+                ? $data['sale_price']
+                : $price;
+
+
+            // Không cho sale_price lớn hơn hoặc bằng giá gốc
+            if ($salePrice >= $price) {
+                $salePrice = $price;
+                $discount = 0;
+            } else {
+                $discount = round((($price - $salePrice) / $price) * 100);
+            }
+
+
             ProductVariants::create([
-                'product_id' => $id,
-                'edition'   => $data['edition'],
-                'price'     => $data['price'],
-                'stock'     => $data['stock'],
+                'product_id'        => $id,
+                'edition'           => $data['edition'],
+                'price'             => $price,
+                'sale_price'        => $salePrice,
+                'discount_percent'  => $discount,
+                'stock'             => $data['stock'],
             ]);
 
-            // Lấy giá của phiên bản đầu tiên
-            if ($index == 0) {
-                $standardPrice = $data['price'];
+
+            // Lấy đúng giá phiên bản Standard
+            if ($data['edition'] == 'Standard') {
+                $standardPrice = $price;
             }
         }
+
 
         $product->price = $standardPrice;
         $product->save();

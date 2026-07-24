@@ -70,6 +70,26 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
     });
+    document.addEventListener("input", function(e){
+
+    if(e.target.classList.contains("price") ||
+       e.target.classList.contains("sale_price")){
+
+        let row = e.target.closest("tr");
+
+        let price = parseFloat(row.querySelector(".price").value) || 0;
+        let sale = parseFloat(row.querySelector(".sale_price").value) || 0;
+
+        let percent = 0;
+
+        if(price > 0 && sale < price){
+            percent = Math.round((price - sale) / price * 100);
+        }
+
+        row.querySelector(".discount_percent").value = percent;
+    }
+
+});
 
 });
 </script>
@@ -174,6 +194,8 @@ document.addEventListener('DOMContentLoaded', function () {
             <tr>
                 <th>Phiên bản</th>
                 <th>Giá</th>
+                <th>Giá giảm</th>
+                <th>% Giảm</th>
                 <th>Số lượng</th>
                 <th></th>
             </tr>
@@ -197,6 +219,19 @@ document.addEventListener('DOMContentLoaded', function () {
                         value="0"
                         onkeydown="return event.key.match(/[0-9]|Backspace|Delete|Tab|ArrowLeft|ArrowRight/) != null"
                         oninput="this.value=this.value.replace(/\D/g,'')">
+                </td>
+                <td>
+                    <input type="number"
+       class="form-control sale_price"
+       name="variants[0][sale_price]"
+       value="0"
+       min="0">
+                </td>
+                <td>
+                    <input type="number"
+       class="form-control discount_percent"
+       value="0"
+       readonly>
                 </td>
 
                 <td>
