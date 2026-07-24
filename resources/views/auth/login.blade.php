@@ -54,24 +54,7 @@
                 </div>
             </form>
 
-            <div id="form-phone-login" class="d-none">
-                <div id="phone-input-block">
-                    <label class="form-label fw-semibold">Số điện thoại nhận OTP</label>
-                    <input id="txt-phone" class="form-control mb-3" type="tel" placeholder="Ví dụ: 0987654321">
-                    <button type="button" id="btn-send-sms" class="btn btn-success w-100 fw-bold py-2">
-                        GỬI MÃ OTP
-                    </button>
-                </div>
-
-                <div id="otp-input-block" class="d-none">
-                    <label class="form-label fw-semibold">Nhập 6 số OTP từ tệp tin laravel.log</label>
-                    <input id="txt-otp" class="form-control text-center fw-bold fs-4 mb-3" type="text" maxlength="6" placeholder="******" style="letter-spacing: 5px;">
-                    <button type="button" id="btn-verify-otp" class="btn btn-primary w-100 fw-bold py-2">
-                        XÁC NHẬN ĐĂNG NHẬP
-                    </button>
-                </div>
-            </div>
-
+          
             <div class="d-flex align-items-center my-4">
                 <hr class="flex-grow-1">
                 <span class="mx-3 text-muted small">Hoặc tiếp tục bằng</span>
