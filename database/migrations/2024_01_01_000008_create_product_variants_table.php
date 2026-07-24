@@ -10,16 +10,16 @@ return new class extends Migration
     {
         Schema::create('product_variants', function (Blueprint $table) {
             $table->id();
-            $table->integer('product_id');
-            $table->enum('edition', [
-                'Standard',
-                'Special',
-                'Special Signed'
-            ])->default('Standard');
+            $table->unsignedBigInteger('product_id');
+            $table->string('edition', 100)->default('Standard');
             $table->string('sku', 100)->unique()->nullable();
             $table->decimal('price', 15, 2);
             $table->integer('stock')->default(0);
             $table->timestamps();
+            $table->foreign('product_id')
+                ->references('id')
+                ->on('products')
+                ->onDelete('cascade');
         });
     }
 
