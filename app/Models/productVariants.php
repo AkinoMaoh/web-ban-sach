@@ -13,11 +13,21 @@ class productVariants extends Model
         'edition',
         'sku',
         'price',
-        'stock'
+        'sale_price',
+        'discount_percent',
+        'stock',
     ];
 
     public function product()
     {
         return $this->belongsTo(products::class, 'product_id');
+    }
+    public function getDiscountPercentAttribute()
+    {
+        if (!$this->sale_price || $this->sale_price >= $this->price) {
+            return 0;
+        }
+
+        return round((($this->price - $this->sale_price) / $this->price) * 100);
     }
 }

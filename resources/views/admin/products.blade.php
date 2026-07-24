@@ -47,7 +47,30 @@
                                             <td>{{ $product->id }}</td>
                                             <td>{{ $product->name }}</td>
                                             <td>{{ $product->category->name ?? 'N/A' }}</td>
-                                            <td>{{ number_format($product->price, 0, ',', '.') }}</td>
+                                            <td>
+    @php
+        $variant = $product->variants->sortBy('sale_price')->first();
+    @endphp
+
+    @if($variant)
+        @if($variant->sale_price < $variant->price)
+            <span style="text-decoration: line-through;color:gray">
+                {{ number_format($variant->price,0,',','.') }} đ
+            </span>
+            <br>
+
+            <span class="text-danger font-weight-bold">
+                {{ number_format($variant->sale_price,0,',','.') }} đ
+            </span>
+
+            <span class="badge badge-danger">
+                -{{ $variant->discount_percent }}%
+            </span>
+        @else
+            {{ number_format($variant->price,0,',','.') }} đ
+        @endif
+    @endif
+</td>
                                             <td>{{ $product->variants->sum('stock') }}</td>
                                             <td>
                                                 <img src="{{ asset('uploads/products/' . $product->image) }}" alt="Ảnh sản phẩm" width="100">
