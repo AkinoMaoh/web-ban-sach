@@ -42,8 +42,13 @@ class products extends Model
         return $this->hasMany(productVariants::class, 'product_id');
     }
 
-    function reviews() 
-    { 
-        return $this->hasMany(Review::class, 'product_id')->orderBy('created_at', 'desc'); 
+    function reviews()
+    {
+        return $this->hasMany(Review::class, 'product_id')->orderBy('created_at', 'desc');
+    }
+    public function firstVariant()
+    {
+        return $this->hasOne(ProductVariants::class, 'product_id')
+            ->oldest('id'); // Lấy biến thể đầu tiên
     }
 }

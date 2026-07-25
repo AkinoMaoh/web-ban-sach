@@ -16,7 +16,7 @@ class productsController extends Controller
     {
         $categories = categories::all();
 
-        $query = products::with('publishers', 'author', 'category');
+        $query = products::with('publishers', 'author', 'category', 'firstVariant', 'variants');
 
         if ($request->category_id) {
             $query->where('category_id', $request->category_id);

@@ -393,41 +393,96 @@
 
                 <div class="book-grid">
 
-                    @foreach($dm->sanPham as $product)
+                   @foreach($dm->sanPham as $product)
 
-                        <div class="position-relative book-card text-center">
+<div class="position-relative book-card text-center">
 
-                            <button
-                                class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute"
-                                data-id="{{ $product->id }}"
-                                style="top:10px;right:10px;width:34px;height:34px;">
+    {{-- Badge giảm giá --}}
+    @if(
+        $product->firstVariant &&
+        $product->firstVariant->sale_price > 0 &&
+        $product->firstVariant->sale_price < $product->firstVariant->price
+    )
+        <span class="position-absolute d-flex align-items-center justify-content-center text-white"
+              style="
+                    top:8px;
+                    left:8px;
+                    z-index:10;
+                    width:34px;
+                    height:34px;
+                    border-radius:50%;
+                    background:#D35400;
+                    font-size:10px;
+                    font-weight:700;
+              ">
+            -{{ $product->firstVariant->discount_percent }}%
+        </span>
+    @endif
 
-                                <i class="{{ in_array($product->id,$wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart"
-                                   style="color:#D35400"></i>
+    {{-- Wishlist --}}
+    <button
+        class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute"
+        data-id="{{ $product->id }}"
+        style="top:10px;right:10px;width:34px;height:34px;">
 
-                            </button>
+        <i class="{{ in_array($product->id,$wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart"
+           style="color:#D35400"></i>
 
-                            <a href="{{ route('user.productDetails',$product->id) }}"
-                               class="text-decoration-none text-dark d-block">
+    </button>
 
-                                <img src="{{ asset('uploads/products/'.$product->image) }}"
-                                     class="book-cover"
-                                     alt="{{ $product->name }}">
+    <a href="{{ route('user.productDetails',$product->id) }}"
+       class="text-decoration-none text-dark d-block">
 
-                                <h3 class="book-title mt-2">
-                                    {{ $product->name }}
-                                </h3>
+        <img src="{{ asset('uploads/products/'.$product->image) }}"
+             class="book-cover"
+             alt="{{ $product->name }}">
 
-                                <p class="book-price">
-                                    {{ number_format($product->price,0,',','.') }} ₫
-                                </p>
+        <h3 class="book-title mt-2">
+            {{ $product->name }}
+        </h3>
 
-                            </a>
+        @if(
+            $product->firstVariant &&
+            $product->firstVariant->sale_price > 0 &&
+            $product->firstVariant->sale_price < $product->firstVariant->price
+        )
+            <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
 
-                        </div>
+                <span style="
+                    color:#dc3545;
+                    font-size:18px;
+                    font-weight:700;
+                ">
+                    {{ number_format($product->firstVariant->sale_price,0,',','.') }} ₫
+                </span>
 
-                    @endforeach
+                <span style="
+                    color:#999;
+                    font-size:14px;
+                    text-decoration:line-through;
+                    text-decoration-thickness:2px;
+                ">
+                    {{ number_format($product->firstVariant->price,0,',','.') }} ₫
+                </span>
 
+            </div>
+        @else
+            <p style="
+                color:#D35400;
+                font-size:18px;
+                font-weight:700;
+                margin-top:8px;
+                margin-bottom:0;
+            ">
+                {{ number_format($product->price,0,',','.') }} ₫
+            </p>
+        @endif
+
+    </a>
+
+</div>
+
+@endforeach
                 </div>
 
             </div>
@@ -477,40 +532,96 @@
 
             <div class="book-grid">
 
-                @foreach($danhSachSanPham as $product)
+               @foreach($danhSachSanPham as $product)
 
-                    <div class="position-relative book-card text-center">
+<div class="position-relative book-card text-center">
 
-                        <button
-                            class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute"
-                            data-id="{{ $product->id }}"
-                            style="top:10px;right:10px;width:34px;height:34px;">
+    {{-- Badge giảm giá --}}
+    @if(
+        $product->firstVariant &&
+        $product->firstVariant->sale_price > 0 &&
+        $product->firstVariant->sale_price < $product->firstVariant->price
+    )
+        <span class="position-absolute d-flex align-items-center justify-content-center text-white"
+              style="
+                    top:8px;
+                    left:8px;
+                    z-index:10;
+                    width:34px;
+                    height:34px;
+                    border-radius:50%;
+                    background:#D35400;
+                    font-size:10px;
+                    font-weight:700;
+              ">
+            -{{ $product->firstVariant->discount_percent }}%
+        </span>
+    @endif
 
-                            <i class="{{ in_array($product->id,$wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart"
-                               style="color:#D35400"></i>
+    {{-- Wishlist --}}
+    <button
+        class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute"
+        data-id="{{ $product->id }}"
+        style="top:10px;right:10px;width:34px;height:34px;">
 
-                        </button>
+        <i class="{{ in_array($product->id,$wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart"
+           style="color:#D35400"></i>
 
-                        <a href="{{ route('user.productDetails',$product->id) }}"
-                           class="text-decoration-none text-dark d-block">
+    </button>
 
-                            <img src="{{ asset('uploads/products/'.$product->image) }}"
-                                 class="book-cover"
-                                 alt="{{ $product->name }}">
+    <a href="{{ route('user.productDetails',$product->id) }}"
+       class="text-decoration-none text-dark d-block">
 
-                            <h3 class="book-title mt-2">
-                                {{ $product->name }}
-                            </h3>
+        <img src="{{ asset('uploads/products/'.$product->image) }}"
+             class="book-cover"
+             alt="{{ $product->name }}">
 
-                            <p class="book-price">
-                                {{ number_format($product->price,0,',','.') }} ₫
-                            </p>
+        <h3 class="book-title mt-2">
+            {{ $product->name }}
+        </h3>
 
-                        </a>
+        @if(
+            $product->firstVariant &&
+            $product->firstVariant->sale_price > 0 &&
+            $product->firstVariant->sale_price < $product->firstVariant->price
+        )
+            <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
 
-                    </div>
+                <span style="
+                    color:#dc3545;
+                    font-size:18px;
+                    font-weight:700;
+                ">
+                    {{ number_format($product->firstVariant->sale_price,0,',','.') }} ₫
+                </span>
 
-                @endforeach
+                <span style="
+                    color:#999;
+                    font-size:14px;
+                    text-decoration:line-through;
+                    text-decoration-thickness:2px;
+                ">
+                    {{ number_format($product->firstVariant->price,0,',','.') }} ₫
+                </span>
+
+            </div>
+        @else
+            <p style="
+                color:#D35400;
+                font-size:18px;
+                font-weight:700;
+                margin-top:8px;
+                margin-bottom:0;
+            ">
+                {{ number_format($product->price,0,',','.') }} ₫
+            </p>
+        @endif
+
+    </a>
+
+</div>
+
+@endforeach
 
             </div>
 
