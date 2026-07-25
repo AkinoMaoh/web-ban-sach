@@ -1236,3 +1236,15 @@ html.dark .admin-reply-title h6,
     background: #343a40;
     display: none;
 }
+.price-sale {
+    color: #dc3545;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.price-old {
+    color: #999;
+    font-size: 14px;
+    text-decoration: line-through;
+    margin-left: 8px;
+}

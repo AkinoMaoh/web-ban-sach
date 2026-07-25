@@ -47,28 +47,42 @@
                                             <td>{{ $product->id }}</td>
                                             <td>{{ $product->name }}</td>
                                             <td>{{ $product->category->name ?? 'N/A' }}</td>
-                                            <td>
+<td>
     @php
-        $variant = $product->variants->sortBy('sale_price')->first();
+        $variant = $product->firstVariant;
     @endphp
 
     @if($variant)
-        @if($variant->sale_price < $variant->price)
-            <span style="text-decoration: line-through;color:gray">
-                {{ number_format($variant->price,0,',','.') }} đ
-            </span>
-            <br>
 
-            <span class="text-danger font-weight-bold">
-                {{ number_format($variant->sale_price,0,',','.') }} đ
-            </span>
+        @if($variant->sale_price > 0 && $variant->sale_price < $variant->price)
 
-            <span class="badge badge-danger">
-                -{{ $variant->discount_percent }}%
-            </span>
+            <div class="d-flex align-items-center">
+                <span class="text-danger font-weight-bold mr-2" style="font-size:16px;">
+                    {{ number_format($variant->sale_price, 0, ',', '.') }} đ
+                </span>
+
+                <span style="
+                    color:#999;
+                    font-size:13px;
+                    text-decoration:line-through;
+                    text-decoration-thickness:2px;
+                ">
+                    {{ number_format($variant->price, 0, ',', '.') }} đ
+                </span>
+            </div>
+
         @else
-            {{ number_format($variant->price,0,',','.') }} đ
+
+            <span style="
+                color:#D35400;
+                font-size:16px;
+                font-weight:700;
+            ">
+                {{ number_format($variant->price, 0, ',', '.') }} đ
+            </span>
+
         @endif
+
     @endif
 </td>
                                             <td>{{ $product->variants->sum('stock') }}</td>

@@ -24,7 +24,11 @@ class productVariants extends Model
     }
     public function getDiscountPercentAttribute()
     {
-        if (!$this->sale_price || $this->sale_price >= $this->price) {
+        if (
+            is_null($this->sale_price) ||
+            $this->sale_price <= 0 ||
+            $this->sale_price >= $this->price
+        ) {
             return 0;
         }
 

@@ -14,12 +14,14 @@ class shopDetailsController extends Controller
     {
         // 1. Lấy dữ liệu sản phẩm cùng các quan hệ cần thiết
         $product = products::with(['variants', 'author', 'publishers', 'category', 'reviews.user'])->findOrFail($id);
-        
+
         // 2. Lấy sách cùng tác giả (liên quan)
-        $relatedProducts = products::where('author_id', $product->author_id)
-                                  ->where('id', '!=', $id)
-                                  ->take(6)
-                                  ->get();
+        $relatedProducts = products::with('firstVariant')
+            ->where('author_id', $product->author_id)
+            ->where('id', '!=', $product->id)
+            ->where('status', 1)
+            ->take(6)
+            ->get();
 
         // 3. Tính toán stats (đảm bảo hàm này đã có trong Model Review)
         $stats = Review::getProductRatingStats($id);

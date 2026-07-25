@@ -22,34 +22,31 @@ class trangChuController extends Controller
         $categories = categories::where('status', 1)->get();
         $authors = authors::all();
         $publishers = publishers::all();
-        $product5 = products::where('status', 1)
-            ->orderByDesc('id') // Sắp xếp theo ID giảm dần (ID lớn nhất lên đầu)
-            ->take(5)           // Lấy 5 sản phẩm
+        $product5 = products::with('firstVariant')
+            ->where('status', 1)
+            ->orderByDesc('id')
+            ->take(5)
             ->get();
-        $topSanPham = DB::table('order_details')
+        $topIds = DB::table('order_details')
             ->join('orders', 'order_details.order_id', '=', 'orders.id')
             ->join('product_variants', 'order_details.product_variant_id', '=', 'product_variants.id')
-            ->join('products', 'product_variants.product_id', '=', 'products.id')
             ->where('orders.status', 'completed')
             ->select(
-                'products.id',
-                'products.name',
-                'products.image',
-                'products.price',
+                'product_variants.product_id',
                 DB::raw('SUM(order_details.quantity) as total_sold')
             )
-            ->groupBy(
-                'products.id',
-                'products.name',
-                'products.image',
-                'products.price'
-            )
+            ->groupBy('product_variants.product_id')
             ->orderByDesc('total_sold')
             ->take(5)
+            ->pluck('product_id');
+
+        $topSanPham = Products::with('firstVariant')
+            ->whereIn('id', $topIds)
             ->get();
 
         // 2. Khởi tạo Query lấy sản phẩm đang hoạt động
-        $query = products::where('status', 1);
+        $query = products::with('firstVariant')
+            ->where('status', 1);
 
         // Kiểm tra điều kiện ràng buộc tác giả (Nếu bạn có setup quan hệ 'author' trong model products)
         if (method_exists(products::class, 'author')) {

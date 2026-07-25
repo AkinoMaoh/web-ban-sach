@@ -129,28 +129,110 @@ $('#heroCarousel').carousel({
 <section class="container mb-5">
     <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-2">
         <h2 class="serif-font font-weight-bold mb-0">Tác phẩm nổi bật</h2>
-        <a href="{{ route('user.shop') }}" class="text-muted text-decoration-none">Xem tất cả <i class="fas fa-angle-right"></i></a>
+        <a href="{{ route('user.shop') }}" class="text-muted text-decoration-none">
+            Xem tất cả <i class="fas fa-angle-right"></i>
+        </a>
     </div>
-    
+
     @if($products->isEmpty())
-        <div class="text-center text-muted py-5">Không tìm thấy sách nào.</div>
+        <div class="text-center text-muted py-5">
+            Không tìm thấy sách nào.
+        </div>
     @else
-        <div class="book-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
-            @foreach ($products as $product)
+
+        <div class="book-grid"
+            style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;">
+
+            @foreach($products as $product)
+
                 <div class="book-card text-center position-relative">
-                    <!-- Nút Wishlist -->
-                    <button class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute" data-id="{{ $product->id }}" style="top: 10px; right: 10px; z-index: 10; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: none;">
-                        <i class="{{ in_array($product->id, $wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" style="color: #D35400; font-size: 16px;"></i>
+
+                    {{-- Badge giảm giá --}}
+  @if(
+    $product->firstVariant &&
+    $product->firstVariant->sale_price > 0 &&
+    $product->firstVariant->sale_price < $product->firstVariant->price
+)
+    <span class="position-absolute d-flex align-items-center justify-content-center text-white"
+          style="
+                top:8px;
+                left:8px;
+                z-index:10;
+                width:36px;
+                height:36px;
+                border-radius:50%;
+                background:#D35400;
+                font-size:11px;
+                font-weight:700;
+                line-height:1;
+          ">
+        -{{ $product->firstVariant->discount_percent }}%
+    </span>
+@endif
+
+                    {{-- Wishlist --}}
+                    <button class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute"
+                        data-id="{{ $product->id }}"
+                        style="top:10px;right:10px;z-index:10;width:34px;height:34px;border:none;">
+                        <i class="{{ in_array($product->id,$wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart"
+                            style="color:#D35400;"></i>
                     </button>
 
-                    <a href="{{ route('user.productDetails', $product->id) }}" class="text-decoration-none text-dark d-block">
-                        <img src="{{ asset('uploads/products/' . $product->image) }}" class="book-cover" style="width:100%; height:auto;" alt="{{ $product->name }}">
-                        <h3 class="book-title mt-2" title="{{ $product->name }}">{{ $product->name }}</h3>
-                        <p class="book-price">{{ number_format($product->price, 0, ',', '.') }} ₫</p>
+                    <a href="{{ route('user.productDetails',$product->id) }}"
+                        class="text-decoration-none text-dark d-block">
+
+                        <img src="{{ asset('uploads/products/'.$product->image) }}"
+                            class="book-cover"
+                            alt="{{ $product->name }}">
+
+                        <h3 class="book-title mt-2">
+                            {{ $product->name }}
+                        </h3>
+
+   @if(
+    $product->firstVariant &&
+    $product->firstVariant->sale_price > 0 &&
+    $product->firstVariant->sale_price < $product->firstVariant->price
+)
+    <div class="d-flex justify-content-center align-items-center mt-2">
+
+        <span style="
+            color:#dc3545;
+            font-size:18px;
+            font-weight:700;
+            margin-right:8px;
+        ">
+            {{ number_format($product->firstVariant->sale_price, 0, ',', '.') }} ₫
+        </span>
+
+        <span style="
+            color:#999;
+            font-size:15px;
+            text-decoration:line-through;
+        ">
+            {{ number_format($product->firstVariant->price, 0, ',', '.') }} ₫
+        </span>
+
+    </div>
+@else
+    <p style="
+        color:#D35400;
+        font-size:18px;
+        font-weight:700;
+        margin-top:8px;
+    ">
+        {{ number_format($product->price, 0, ',', '.') }} ₫
+    </p>
+@endif
+
                     </a>
+
                 </div>
+
             @endforeach
+
         </div>
+
     @endif
 </section>
 
@@ -175,12 +257,49 @@ $('#heroCarousel').carousel({
                                 <button class="btn btn-white rounded-circle shadow-sm btn-wishlist position-absolute" data-id="{{ $pro->id }}" style="top: 0; right: 0; z-index: 10; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: none; background: white;">
                                     <i class="{{ in_array($pro->id, $wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" style="color: #D35400; font-size: 16px;"></i>
                                 </button>
+                                @if(
+    $pro->firstVariant &&
+    $pro->firstVariant->sale_price > 0 &&
+    $pro->firstVariant->sale_price < $pro->firstVariant->price
+)
+    <span class="position-absolute d-flex align-items-center justify-content-center text-white"
+          style="
+            top:10px;
+            left:10px;
+            width:34px;
+            height:34px;
+            border-radius:50%;
+            background:#D35400;
+            font-size:10px;
+            font-weight:700;
+            z-index:10;">
+        -{{ $pro->firstVariant->discount_percent }}%
+    </span>
+@endif
                                 <a href="{{ route('user.productDetails', $pro->id) }}" class="d-flex align-items-center text-decoration-none text-dark">
                                     <img src="{{ asset('uploads/products/' . $pro->image) }}" class="rounded shadow" style="width: 120px; height: 180px; object-fit: cover;">
                                     <div class="ml-4 pr-4">
                                         <span class="badge mb-2" style="background-color: #2C3E50; color: white;">MỚI PHÁT HÀNH</span>
                                         <h5 class="font-weight-bold mb-2" style="font-size: 18px; line-height: 1.4;">{{ $pro->name }}</h5>
-                                        <h4 class="mb-3" style="color: #D35400; font-weight: 700;">{{ number_format($pro->price, 0, ',', '.') }} ₫</h4>
+                                       @if(
+    $pro->firstVariant &&
+    $pro->firstVariant->sale_price > 0 &&
+    $pro->firstVariant->sale_price < $pro->firstVariant->price
+)
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <span style="color:#dc3545;font-size:22px;font-weight:700;">
+            {{ number_format($pro->firstVariant->sale_price,0,',','.') }} ₫
+        </span>
+
+        <span style="color:#999;text-decoration:line-through;font-size:15px;">
+            {{ number_format($pro->firstVariant->price,0,',','.') }} ₫
+        </span>
+    </div>
+@else
+    <h4 class="mb-3" style="color:#D35400;font-weight:700;">
+        {{ number_format($pro->price,0,',','.') }} ₫
+    </h4>
+@endif
                                         <span class="btn btn-outline-dark btn-sm rounded-pill px-4">Mua ngay</span>
                                     </div>
                                 </a>
@@ -209,12 +328,49 @@ $('#heroCarousel').carousel({
                                 <button class="btn btn-white rounded-circle shadow-sm btn-wishlist position-absolute" data-id="{{ $pro->id }}" style="top: 0; right: 0; z-index: 10; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: none; background: white;">
                                     <i class="{{ in_array($pro->id, $wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" style="color: #D35400; font-size: 16px;"></i>
                                 </button>
+                                @if(
+    $pro->firstVariant &&
+    $pro->firstVariant->sale_price > 0 &&
+    $pro->firstVariant->sale_price < $pro->firstVariant->price
+)
+    <span class="position-absolute d-flex align-items-center justify-content-center text-white"
+          style="
+            top:10px;
+            left:10px;
+            width:34px;
+            height:34px;
+            border-radius:50%;
+            background:#D35400;
+            font-size:10px;
+            font-weight:700;
+            z-index:10;">
+        -{{ $pro->firstVariant->discount_percent }}%
+    </span>
+@endif
                                 <a href="{{ route('user.productDetails', $pro->id) }}" class="d-flex align-items-center text-decoration-none text-dark">
                                     <img src="{{ asset('uploads/products/' . $pro->image) }}" class="rounded shadow" style="width: 120px; height: 180px; object-fit: cover;">
                                     <div class="ml-4 pr-4">
                                         <span class="badge mb-2" style="background-color: #e74c3c; color: white;">BEST SELLER</span>
                                         <h5 class="font-weight-bold mb-2" style="font-size: 18px; line-height: 1.4;">{{ $pro->name }}</h5>
-                                        <h4 class="mb-3" style="color: #D35400; font-weight: 700;">{{ number_format($pro->price, 0, ',', '.') }} ₫</h4>
+                                       @if(
+    $pro->firstVariant &&
+    $pro->firstVariant->sale_price > 0 &&
+    $pro->firstVariant->sale_price < $pro->firstVariant->price
+)
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <span style="color:#dc3545;font-size:22px;font-weight:700;">
+            {{ number_format($pro->firstVariant->sale_price,0,',','.') }} ₫
+        </span>
+
+        <span style="color:#999;text-decoration:line-through;font-size:15px;">
+            {{ number_format($pro->firstVariant->price,0,',','.') }} ₫
+        </span>
+    </div>
+@else
+    <h4 class="mb-3" style="color:#D35400;font-weight:700;">
+        {{ number_format($pro->price,0,',','.') }} ₫
+    </h4>
+@endif
                                         <span class="btn btn-outline-dark btn-sm rounded-pill px-4">Đọc ngay</span>
                                     </div>
                                 </a>

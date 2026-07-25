@@ -29,17 +29,85 @@
                 @csrf
                 <div class="row">
                     <!-- Ảnh Sách -->
-                    <div class="col-lg-5 mb-4 mb-lg-0 text-center">
-                        <img src="{{ asset('uploads/products/' . $product->image) }}" class="img-fluid rounded shadow" alt="{{ $product->name }}" style="max-height: 500px; object-fit: contain;">
-                    </div>
+                       <div class="col-lg-5 mb-4 mb-lg-0 text-center">
+
+    @php
+        $variant = $product->firstVariant;
+    @endphp
+
+    @if(
+        $variant &&
+        $variant->sale_price > 0 &&
+        $variant->sale_price < $variant->price
+    )
+       <span id="discount-badge"
+      class="position-absolute align-items-center justify-content-center text-white"
+      style="
+            display:none;
+            top:10px;
+            left:10px;
+            width:40px;
+            height:40px;
+            border-radius:50%;
+            background:#D35400;
+            font-size:12px;
+            font-weight:700;
+            z-index:20;">
+</span>
+    @endif
+
+    <img src="{{ asset('uploads/products/' . $product->image) }}"
+         class="img-fluid rounded shadow"
+         alt="{{ $product->name }}">
+</div>
                     
                     <!-- Thông tin Sách -->
                     <div class="col-lg-7 pl-lg-5">
                         <h1 class="serif-font font-weight-bold mb-3" style="color: var(--text-main); line-height: 1.3;">{{ $product->name }}</h1>
                         
-                        <h2 class="display-4 font-weight-bold mb-4" style="color: var(--primary-color);">
-                            <span id="hien-thi-gia">{{ number_format($product->price) }} VNĐ</span>
-                        </h2>
+                        @php
+    $variant = $product->firstVariant;
+@endphp
+
+<h2 class="display-4 font-weight-bold mb-4">
+    <div id="price-box">
+
+        @if(
+            $variant &&
+            $variant->sale_price > 0 &&
+            $variant->sale_price < $variant->price
+        )
+
+            <div class="d-flex align-items-center flex-wrap">
+
+                <span id="sale-price"
+                      style="color:#dc3545;font-size:34px;font-weight:700;">
+                    {{ number_format($variant->sale_price,0,',','.') }} ₫
+                </span>
+
+                <span id="old-price"
+                      class="ml-3"
+                      style="color:#999;font-size:24px;text-decoration:line-through;">
+                    {{ number_format($variant->price,0,',','.') }} ₫
+                </span>
+
+
+            </div>
+
+        @else
+
+            <span id="sale-price"
+                  style="color:#D35400;font-size:34px;font-weight:700;">
+                {{ number_format($variant?->price ?? $product->price,0,',','.') }} ₫
+            </span>
+
+            <span id="old-price"></span>
+            <span id="discount-badge"></span>
+
+        @endif
+
+    </div>
+</h2>
                         <p class="text-muted mb-4" style="line-height: 1.8; font-size: 15px;">Tác giả: {{ $product->author->name }}</p>
                         <p class="text-muted mb-4" style="line-height: 1.8; font-size: 15px;">NXB: {{ $product->publishers->name }}</p>
                         <p class="text-muted mb-4" style="line-height: 1.8; font-size: 15px;">Danh mục: {{ $product->category->name }}</p>
@@ -53,11 +121,13 @@
                                 @foreach($product->variants as $bienThe)
                                     @if($bienThe->price > 0)
                                         <label class="chon-phien-ban mb-2 mr-2">
-                                            <input type="radio" 
-                                                name="product_variant_id" 
-                                                value="{{ $bienThe->id }}" 
-                                                data-gia="{{ $bienThe->price }}" 
-                                                data-ton-kho="{{ $bienThe->stock }}" 
+                                            <input type="radio"
+    name="product_variant_id"
+    value="{{ $bienThe->id }}"
+    data-price="{{ $bienThe->price }}"
+    data-sale-price="{{ $bienThe->sale_price ?? 0 }}"
+    data-discount="{{ $bienThe->discount_percent }}"
+    data-stock="{{ $bienThe->stock }}"
                                                 {{ $bienThe->stock <= 0 ? 'disabled' : '' }}
                                                 @if(!$hasChecked && $bienThe->stock > 0)
                                                     checked
@@ -349,10 +419,51 @@
                                 <a href="{{ route('user.productDetails',$item->id) }}" class="d-flex justify-content-center mt-2">
                                     <img src="{{ asset('uploads/products/'.$item->image) }}" class="rounded shadow" style="width:120px; height:180px; object-fit:cover;" alt="{{ $item->name }}">
                                 </a>
-                                <div class="card-body p-2">
-                                    <h6 class="mb-2 text-truncate">{{ $item->name }}</h6>
-                                    <div class="font-weight-bold" style="color:#D35400;">{{ number_format($item->price,0,',','.') }} ₫</div>
-                                </div>
+                               <div class="card-body p-2">
+    <h6 class="mb-2 text-truncate">{{ $item->name }}</h6>
+
+    @php
+        $variant = $item->firstVariant;
+    @endphp
+
+    @if(
+        $variant &&
+        $variant->sale_price > 0 &&
+        $variant->sale_price < $variant->price
+    )
+
+        <div class="d-flex justify-content-center align-items-center flex-wrap">
+            <span style="
+                color:#dc3545;
+                font-size:16px;
+                font-weight:700;
+                margin-right:6px;
+            ">
+                {{ number_format($variant->sale_price,0,',','.') }} ₫
+            </span>
+
+            <span style="
+                color:#999;
+                font-size:13px;
+                text-decoration:line-through;
+                text-decoration-thickness:2px;
+            ">
+                {{ number_format($variant->price,0,',','.') }} ₫
+            </span>
+        </div>
+
+    @else
+
+        <div style="
+            color:#D35400;
+            font-size:16px;
+            font-weight:700;
+        ">
+            {{ number_format($variant?->price ?? $item->price,0,',','.') }} ₫
+        </div>
+
+    @endif
+</div>
                             </div>
                         </div>
                     @endforeach
@@ -382,7 +493,56 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     toastr.options = { "closeButton": true, "progressBar": true, "positionClass": "toast-bottom-right", "timeOut": "2500" };
+function updateVariantPrice() {
 
+    let variant = $('input[name="product_variant_id"]:checked');
+
+    if (variant.length === 0) return;
+
+    let price = Number(variant.attr('data-price')) || 0;
+    let salePrice = Number(variant.attr('data-sale-price')) || 0;
+    let discount = Number(variant.attr('data-discount')) || 0;
+
+
+    if (salePrice > 0 && salePrice < price && discount > 0) {
+
+        $('#sale-price')
+            .text(salePrice.toLocaleString('vi-VN') + ' ₫')
+            .css('color', '#dc3545');
+
+        $('#old-price')
+            .text(price.toLocaleString('vi-VN') + ' ₫')
+            .show();
+
+        $('#discount-badge')
+            .text('-' + discount + '%')
+            .css('display', 'flex');
+
+    } else {
+
+        $('#sale-price')
+            .text(price.toLocaleString('vi-VN') + ' ₫')
+            .css('color', '#D35400');
+
+        $('#old-price').hide();
+
+        $('#discount-badge')
+            .text('')
+            .hide();
+    }
+}
+
+
+// Khi đổi variant
+$('input[name="product_variant_id"]').on('change', function () {
+    updateVariantPrice();
+});
+
+
+// Khi vừa mở trang
+$(document).ready(function () {
+    updateVariantPrice();
+});
     // Yêu thích
     document.querySelector('.btn-wishlist').addEventListener('click', function(e) {
         e.preventDefault();
