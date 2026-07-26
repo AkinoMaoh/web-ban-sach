@@ -30,7 +30,7 @@
                         {{ $danhMuc->name }}
                     </li>
                 @else
-                    <!-- 3. Nếu KHÔNG CÓ danh mục -> Đang ở trang Tủ sách chung -> Tủ sách sáng lên -->
+                    <!-- 3. Nếu KHÔNG CÓ danh mục -> Đang ở trang Tủ sách chung hoặc Tìm kiếm -> Tủ sách sáng lên -->
                     <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">
                         Tủ sách
                     </li>
@@ -116,524 +116,263 @@
         </aside>
 
         <!-- Cột phải: Vùng hiển thị sách -->
-    <section class="col-lg-9">
+        <section class="col-lg-9">
 
-<!-- Hero Banner -->
-<section class="container mt-4 mb-5">
+            <!-- Hero Banner -->
+            <section class="mt-4 mb-5">
+                <style>
+                    #heroCarousel{
+                        border-radius:18px;
+                        overflow:hidden;
+                        box-shadow:0 12px 35px rgba(0,0,0,.12);
+                    }
+                    #heroCarousel .carousel-item img{
+                        width:100%;
+                        height:420px;
+                        object-fit:cover;
+                        object-position:center;
+                    }
+                    #heroCarousel .banner-overlay{
+                        position:absolute;
+                        inset:0;
+                        background:linear-gradient(90deg, rgba(0,0,0,.65) 0%, rgba(0,0,0,.35) 45%, rgba(0,0,0,.08) 100%);
+                    }
+                    #heroCarousel .banner-content{
+                        position:absolute;
+                        top:50%;
+                        left:60px;
+                        transform:translateY(-50%);
+                        max-width:480px;
+                        color:#fff;
+                    }
+                    #heroCarousel .banner-title{
+                        font-size:42px;
+                        font-weight:700;
+                        line-height:1.25;
+                        margin-bottom:15px;
+                        text-shadow:0 3px 12px rgba(0,0,0,.35);
+                    }
+                    #heroCarousel .banner-desc{
+                        font-size:17px;
+                        line-height:1.7;
+                        color:#f3f3f3;
+                        margin-bottom:28px;
+                    }
+                    #heroCarousel .banner-btn{
+                        padding:12px 30px;
+                        border-radius:40px;
+                        font-weight:600;
+                        transition:.3s;
+                    }
+                    #heroCarousel .banner-btn:hover{
+                        transform:translateY(-2px);
+                        box-shadow:0 8px 20px rgba(255,193,7,.35);
+                    }
+                    #heroCarousel .carousel-control-prev,
+                    #heroCarousel .carousel-control-next{
+                        width:70px;
+                        opacity:0;
+                        transition:.3s;
+                    }
+                    #heroCarousel:hover .carousel-control-prev,
+                    #heroCarousel:hover .carousel-control-next{
+                        opacity:1;
+                    }
+                    #heroCarousel .carousel-control-prev-icon,
+                    #heroCarousel .carousel-control-next-icon{
+                        width:48px;
+                        height:48px;
+                        border-radius:50%;
+                        background-color:rgba(255,255,255,.22);
+                        backdrop-filter:blur(4px);
+                        background-size:40%;
+                    }
+                    #heroCarousel .carousel-indicators{
+                        bottom:15px;
+                        margin-bottom:0;
+                    }
+                    #heroCarousel .carousel-indicators li{
+                        width:8px;
+                        height:8px;
+                        margin:0 5px;
+                        border:none;
+                        border-radius:50%;
+                        background:#fff;
+                        opacity:.45;
+                        transition:.3s;
+                    }
+                    #heroCarousel .carousel-indicators .active{
+                        width:22px;
+                        border-radius:20px;
+                        background:#ffc107;
+                        opacity:1;
+                    }
+                </style>
 
-    <style>
-       #heroCarousel{
-    border-radius:18px;
-    overflow:hidden;
-    box-shadow:0 12px 35px rgba(0,0,0,.12);
-}
+                <div id="heroCarousel" class="carousel slide shadow" data-ride="carousel" data-interval="5000" data-pause="false" data-wrap="true">
+                    <ol class="carousel-indicators">
+                        @foreach($banners as $banner)
+                            <li data-target="#heroCarousel" data-slide-to="{{ $loop->index }}" class="{{ $loop->first ? 'active' : '' }}"></li>
+                        @endforeach
+                    </ol>
 
-/* Ảnh */
-#heroCarousel .carousel-item img{
-    width:100%;
-    height:420px;
-    object-fit:cover;
-    object-position:center;
-}
-
-/* Overlay */
-#heroCarousel .banner-overlay{
-    position:absolute;
-    inset:0;
-    background:linear-gradient(
-        90deg,
-        rgba(0,0,0,.65) 0%,
-        rgba(0,0,0,.35) 45%,
-        rgba(0,0,0,.08) 100%
-    );
-}
-
-/* Nội dung */
-#heroCarousel .banner-content{
-    position:absolute;
-    top:50%;
-    left:60px;
-    transform:translateY(-50%);
-    max-width:480px;
-    color:#fff;
-}
-
-#heroCarousel .banner-title{
-    font-size:42px;
-    font-weight:700;
-    line-height:1.25;
-    margin-bottom:15px;
-    text-shadow:0 3px 12px rgba(0,0,0,.35);
-}
-
-#heroCarousel .banner-desc{
-    font-size:17px;
-    line-height:1.7;
-    color:#f3f3f3;
-    margin-bottom:28px;
-}
-
-#heroCarousel .banner-btn{
-    padding:12px 30px;
-    border-radius:40px;
-    font-weight:600;
-    transition:.3s;
-}
-
-#heroCarousel .banner-btn:hover{
-    transform:translateY(-2px);
-    box-shadow:0 8px 20px rgba(255,193,7,.35);
-}
-
-/* ===== Arrow ===== */
-
-#heroCarousel .carousel-control-prev,
-#heroCarousel .carousel-control-next{
-    width:70px;
-    opacity:0;
-    transition:.3s;
-}
-
-#heroCarousel:hover .carousel-control-prev,
-#heroCarousel:hover .carousel-control-next{
-    opacity:1;
-}
-
-#heroCarousel .carousel-control-prev-icon,
-#heroCarousel .carousel-control-next-icon{
-    width:48px;
-    height:48px;
-    border-radius:50%;
-    background-color:rgba(255,255,255,.22);
-    backdrop-filter:blur(4px);
-    background-size:40%;
-}
-
-/* ===== Indicator ===== */
-
-#heroCarousel .carousel-indicators{
-    bottom:15px;
-    margin-bottom:0;
-}
-
-#heroCarousel .carousel-indicators li{
-    width:8px;
-    height:8px;
-    margin:0 5px;
-    border:none;
-    border-radius:50%;
-    background:#fff;
-    opacity:.45;
-    transition:.3s;
-}
-
-#heroCarousel .carousel-indicators .active{
-    width:22px;
-    border-radius:20px;
-    background:#ffc107;
-    opacity:1;
-}
-
-/* Responsive */
-
-@media(max-width:992px){
-
-    #heroCarousel .carousel-item img{
-        height:320px;
-    }
-
-    #heroCarousel .banner-content{
-        left:35px;
-        max-width:360px;
-    }
-
-    #heroCarousel .banner-title{
-        font-size:30px;
-    }
-
-}
-
-@media(max-width:768px){
-
-    #heroCarousel .carousel-item img{
-        height:220px;
-    }
-
-    #heroCarousel .banner-content{
-        left:20px;
-        right:20px;
-        max-width:100%;
-    }
-
-    #heroCarousel .banner-title{
-        font-size:22px;
-    }
-
-    #heroCarousel .banner-desc{
-        font-size:14px;
-    }
-
-    #heroCarousel .banner-btn{
-        padding:8px 18px;
-        font-size:14px;
-    }
-
-}
-    </style>
-
-    <div id="heroCarousel"
-     class="carousel slide shadow"
-     data-ride="carousel"
-     data-interval="5000"
-     data-pause="false"
-     data-wrap="true">
-
-        <ol class="carousel-indicators">
-            @foreach($banners as $banner)
-                <li data-target="#heroCarousel"
-                    data-slide-to="{{ $loop->index }}"
-                    class="{{ $loop->first ? 'active' : '' }}">
-                </li>
-            @endforeach
-        </ol>
-
-        <div class="carousel-inner">
-
-            @foreach($banners as $banner)
-
-                <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
-
-                    <div class="position-relative">
-
-                        <img src="{{ asset('uploads/banners/'.$banner->image) }}"
-                             alt="{{ $banner->title }}">
-
-                        <div class="banner-overlay"></div>
-
-                        <div class="banner-content">
-
-                            <span class="badge badge-warning px-3 py-2 mb-3">
-                                BOOK STORE
-                            </span>
-
-                            <h2 class="banner-title">
-                                {{ $banner->title }}
-                            </h2>
-
-                            @if($banner->description)
-                                <div class="banner-desc">
-                                    {{ $banner->description }}
+                    <div class="carousel-inner">
+                        @foreach($banners as $banner)
+                            <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+                                <div class="position-relative">
+                                    <img src="{{ asset('uploads/banners/'.$banner->image) }}" alt="{{ $banner->title }}">
+                                    <div class="banner-overlay"></div>
+                                    <div class="banner-content">
+                                        <span class="badge badge-warning px-3 py-2 mb-3">BOOK STORE</span>
+                                        <h2 class="banner-title">{{ $banner->title }}</h2>
+                                        @if($banner->description)
+                                            <div class="banner-desc">{{ $banner->description }}</div>
+                                        @endif
+                                        @if($banner->link)
+                                            <a href="{{ $banner->link }}" class="btn btn-warning banner-btn shadow">
+                                                Khám phá ngay <i class="fas fa-arrow-right ml-2"></i>
+                                            </a>
+                                        @endif
+                                    </div>
                                 </div>
-                            @endif
-
-                            @if($banner->link)
-                                <a href="{{ $banner->link }}"
-                                   class="btn btn-warning banner-btn shadow">
-                                    Khám phá ngay
-                                    <i class="fas fa-arrow-right ml-2"></i>
-                                </a>
-                            @endif
-
-                        </div>
-
+                            </div>
+                        @endforeach
                     </div>
 
-                </div>
-
-            @endforeach
-
-        </div>
-
-        <a class="carousel-control-prev"
-           href="#heroCarousel"
-           role="button"
-           data-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
-        </a>
-
-        <a class="carousel-control-next"
-           href="#heroCarousel"
-           role="button"
-           data-slide="next">
-            <span class="carousel-control-next-icon"></span>
-        </a>
-
-    </div>
-
-</section>
-    {{-- ================= TRANG CỬA HÀNG ================= --}}
-    @if(isset($sanPhamTheoDanhMuc))
-
-        <div class="mb-4">
-            <h2 class="serif-font font-weight-bold">Khám phá Tủ sách</h2>
-            <p class="text-muted">
-                Tuyển tập những cuốn sách hay nhất theo từng thể loại.
-            </p>
-        </div>
-
-        @foreach($sanPhamTheoDanhMuc as $dm)
-
-            <div class="mb-5 bg-white p-4 rounded shadow-sm border">
-
-                <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-2">
-
-                    <h3 class="serif-font font-weight-bold mb-0"
-                        style="color:#2C3E50;">
-                        {{ $dm->name }}
-                    </h3>
-
-                    <a href="{{ route('user.category',$dm->id) }}"
-                       class="text-decoration-none"
-                       style="color:var(--primary-color);font-weight:600;">
-                        Xem thêm
-                        <i class="fas fa-arrow-right ml-1"></i>
+                    <a class="carousel-control-prev" href="#heroCarousel" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
                     </a>
+                    <a class="carousel-control-next" href="#heroCarousel" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </a>
+                </div>
+            </section>
 
+            {{-- ================= TRANG CỬA HÀNG (HIỂN THỊ THEO DANH MỤC) ================= --}}
+            @if(isset($sanPhamTheoDanhMuc))
+                <div class="mb-4">
+                    <h2 class="serif-font font-weight-bold">Khám phá Tủ sách</h2>
+                    <p class="text-muted">Tuyển tập những cuốn sách hay nhất theo từng thể loại.</p>
                 </div>
 
-                <div class="book-grid">
+                @foreach($sanPhamTheoDanhMuc as $dm)
+                    <div class="mb-5 bg-white p-4 rounded shadow-sm border">
+                        <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-2">
+                            <h3 class="serif-font font-weight-bold mb-0" style="color:#2C3E50;">
+                                {{ $dm->name }}
+                            </h3>
+                            <a href="{{ route('user.category',$dm->id) }}" class="text-decoration-none" style="color:var(--primary-color);font-weight:600;">
+                                Xem thêm <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
 
-                   @foreach($dm->sanPham as $product)
+                        <div class="book-grid">
+                            @foreach($dm->sanPham as $product)
+                                <div class="position-relative book-card text-center">
+                                    @if($product->firstVariant && $product->firstVariant->sale_price > 0 && $product->firstVariant->sale_price < $product->firstVariant->price)
+                                        <span class="position-absolute d-flex align-items-center justify-content-center text-white" style="top:8px;left:8px;z-index:10;width:34px;height:34px;border-radius:50%;background:#D35400;font-size:10px;font-weight:700;">
+                                            -{{ $product->firstVariant->discount_percent }}%
+                                        </span>
+                                    @endif
 
-<div class="position-relative book-card text-center">
+                                    <button class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute" data-id="{{ $product->id }}" style="top:10px;right:10px;width:34px;height:34px;">
+                                        <i class="{{ in_array($product->id,$wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" style="color:#D35400"></i>
+                                    </button>
 
-    {{-- Badge giảm giá --}}
-    @if(
-        $product->firstVariant &&
-        $product->firstVariant->sale_price > 0 &&
-        $product->firstVariant->sale_price < $product->firstVariant->price
-    )
-        <span class="position-absolute d-flex align-items-center justify-content-center text-white"
-              style="
-                    top:8px;
-                    left:8px;
-                    z-index:10;
-                    width:34px;
-                    height:34px;
-                    border-radius:50%;
-                    background:#D35400;
-                    font-size:10px;
-                    font-weight:700;
-              ">
-            -{{ $product->firstVariant->discount_percent }}%
-        </span>
-    @endif
+                                    <a href="{{ route('user.productDetails',$product->id) }}" class="text-decoration-none text-dark d-block">
+                                        <img src="{{ asset('uploads/products/'.$product->image) }}" class="book-cover" alt="{{ $product->name }}">
+                                        <h3 class="book-title mt-2">{{ $product->name }}</h3>
 
-    {{-- Wishlist --}}
-    <button
-        class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute"
-        data-id="{{ $product->id }}"
-        style="top:10px;right:10px;width:34px;height:34px;">
+                                        @if($product->firstVariant && $product->firstVariant->sale_price > 0 && $product->firstVariant->sale_price < $product->firstVariant->price)
+                                            <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
+                                                <span style="color:#dc3545;font-size:18px;font-weight:700;">
+                                                    {{ number_format($product->firstVariant->sale_price,0,',','.') }} ₫
+                                                </span>
+                                                <span style="color:#999;font-size:14px;text-decoration:line-through;text-decoration-thickness:2px;">
+                                                    {{ number_format($product->firstVariant->price,0,',','.') }} ₫
+                                                </span>
+                                            </div>
+                                        @else
+                                            <p style="color:#D35400;font-size:18px;font-weight:700;margin-top:8px;margin-bottom:0;">
+                                                {{ number_format($product->price,0,',','.') }} ₫
+                                            </p>
+                                        @endif
+                                    </a>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+            @endif
 
-        <i class="{{ in_array($product->id,$wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart"
-           style="color:#D35400"></i>
+            {{-- ================= TRANG DANH MỤC / TÁC GIẢ / KẾT QUẢ TÌM KIẾM ================= --}}
+            @if(isset($danhSachSanPham))
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                    <h2 class="serif-font font-weight-bold mb-0" style="color:#2C3E50;">
+                        @if(isset($author))
+                            Sách của tác giả {{ $author->name }}
+                        @elseif(isset($keyword))
+                            Kết quả tìm kiếm cho: "{{ $keyword }}"
+                        @else
+                            {{ $danhMuc->name ?? 'Tất cả sản phẩm' }}
+                        @endif
+                    </h2>
 
-    </button>
-
-    <a href="{{ route('user.productDetails',$product->id) }}"
-       class="text-decoration-none text-dark d-block">
-
-        <img src="{{ asset('uploads/products/'.$product->image) }}"
-             class="book-cover"
-             alt="{{ $product->name }}">
-
-        <h3 class="book-title mt-2">
-            {{ $product->name }}
-        </h3>
-
-        @if(
-            $product->firstVariant &&
-            $product->firstVariant->sale_price > 0 &&
-            $product->firstVariant->sale_price < $product->firstVariant->price
-        )
-            <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
-
-                <span style="
-                    color:#dc3545;
-                    font-size:18px;
-                    font-weight:700;
-                ">
-                    {{ number_format($product->firstVariant->sale_price,0,',','.') }} ₫
-                </span>
-
-                <span style="
-                    color:#999;
-                    font-size:14px;
-                    text-decoration:line-through;
-                    text-decoration-thickness:2px;
-                ">
-                    {{ number_format($product->firstVariant->price,0,',','.') }} ₫
-                </span>
-
-            </div>
-        @else
-            <p style="
-                color:#D35400;
-                font-size:18px;
-                font-weight:700;
-                margin-top:8px;
-                margin-bottom:0;
-            ">
-                {{ number_format($product->price,0,',','.') }} ₫
-            </p>
-        @endif
-
-    </a>
-
-</div>
-
-@endforeach
+                    <span class="text-muted">
+                        <i class="fas fa-book mr-1"></i>
+                        {{ $danhSachSanPham->total() }} tác phẩm
+                    </span>
                 </div>
 
-            </div>
-
-        @endforeach
-
-    @endif
-
-
-
-    {{-- ================= TRANG DANH MỤC / TÁC GIẢ ================= --}}
-    @if(isset($danhSachSanPham))
-
-        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-
-            <h2 class="serif-font font-weight-bold mb-0"
-                style="color:#2C3E50;">
-
-                @if(isset($author))
-                    Sách của tác giả {{ $author->name }}
+                @if($danhSachSanPham->isEmpty())
+                    <div class="text-center py-5 bg-light rounded shadow-sm border">
+                        <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Không tìm thấy tác phẩm nào.</h5>
+                    </div>
                 @else
-                    {{ $danhMuc->name }}
+                    <div class="book-grid">
+                        @foreach($danhSachSanPham as $product)
+                            <div class="position-relative book-card text-center">
+                                @if($product->firstVariant && $product->firstVariant->sale_price > 0 && $product->firstVariant->sale_price < $product->firstVariant->price)
+                                    <span class="position-absolute d-flex align-items-center justify-content-center text-white" style="top:8px;left:8px;z-index:10;width:34px;height:34px;border-radius:50%;background:#D35400;font-size:10px;font-weight:700;">
+                                        -{{ $product->firstVariant->discount_percent }}%
+                                    </span>
+                                @endif
+
+                                <button class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute" data-id="{{ $product->id }}" style="top:10px;right:10px;width:34px;height:34px;">
+                                    <i class="{{ in_array($product->id,$wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" style="color:#D35400"></i>
+                                </button>
+
+                                <a href="{{ route('user.productDetails',$product->id) }}" class="text-decoration-none text-dark d-block">
+                                    <img src="{{ asset('uploads/products/'.$product->image) }}" class="book-cover" alt="{{ $product->name }}">
+                                    <h3 class="book-title mt-2">{{ $product->name }}</h3>
+
+                                    @if($product->firstVariant && $product->firstVariant->sale_price > 0 && $product->firstVariant->sale_price < $product->firstVariant->price)
+                                        <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
+                                            <span style="color:#dc3545;font-size:18px;font-weight:700;">
+                                                {{ number_format($product->firstVariant->sale_price,0,',','.') }} ₫
+                                            </span>
+                                            <span style="color:#999;font-size:14px;text-decoration:line-through;text-decoration-thickness:2px;">
+                                                {{ number_format($product->firstVariant->price,0,',','.') }} ₫
+                                            </span>
+                                        </div>
+                                    @else
+                                        <p style="color:#D35400;font-size:18px;font-weight:700;margin-top:8px;margin-bottom:0;">
+                                            {{ number_format($product->price,0,',','.') }} ₫
+                                        </p>
+                                    @endif
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="mt-5 d-flex justify-content-center custom-pagination">
+                        {{ $danhSachSanPham->appends(request()->query())->links() }}
+                    </div>
                 @endif
+            @endif
 
-            </h2>
-
-            <span class="text-muted">
-                <i class="fas fa-book mr-1"></i>
-                {{ $danhSachSanPham->total() }} tác phẩm
-            </span>
-
-        </div>
-
-        @if($danhSachSanPham->isEmpty())
-
-            <div class="text-center py-5 bg-light rounded shadow-sm border">
-
-                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
-
-                <h5 class="text-muted">
-                    Chưa có tác phẩm nào.
-                </h5>
-
-            </div>
-
-        @else
-
-            <div class="book-grid">
-
-               @foreach($danhSachSanPham as $product)
-
-<div class="position-relative book-card text-center">
-
-    {{-- Badge giảm giá --}}
-    @if(
-        $product->firstVariant &&
-        $product->firstVariant->sale_price > 0 &&
-        $product->firstVariant->sale_price < $product->firstVariant->price
-    )
-        <span class="position-absolute d-flex align-items-center justify-content-center text-white"
-              style="
-                    top:8px;
-                    left:8px;
-                    z-index:10;
-                    width:34px;
-                    height:34px;
-                    border-radius:50%;
-                    background:#D35400;
-                    font-size:10px;
-                    font-weight:700;
-              ">
-            -{{ $product->firstVariant->discount_percent }}%
-        </span>
-    @endif
-
-    {{-- Wishlist --}}
-    <button
-        class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute"
-        data-id="{{ $product->id }}"
-        style="top:10px;right:10px;width:34px;height:34px;">
-
-        <i class="{{ in_array($product->id,$wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart"
-           style="color:#D35400"></i>
-
-    </button>
-
-    <a href="{{ route('user.productDetails',$product->id) }}"
-       class="text-decoration-none text-dark d-block">
-
-        <img src="{{ asset('uploads/products/'.$product->image) }}"
-             class="book-cover"
-             alt="{{ $product->name }}">
-
-        <h3 class="book-title mt-2">
-            {{ $product->name }}
-        </h3>
-
-        @if(
-            $product->firstVariant &&
-            $product->firstVariant->sale_price > 0 &&
-            $product->firstVariant->sale_price < $product->firstVariant->price
-        )
-            <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
-
-                <span style="
-                    color:#dc3545;
-                    font-size:18px;
-                    font-weight:700;
-                ">
-                    {{ number_format($product->firstVariant->sale_price,0,',','.') }} ₫
-                </span>
-
-                <span style="
-                    color:#999;
-                    font-size:14px;
-                    text-decoration:line-through;
-                    text-decoration-thickness:2px;
-                ">
-                    {{ number_format($product->firstVariant->price,0,',','.') }} ₫
-                </span>
-
-            </div>
-        @else
-            <p style="
-                color:#D35400;
-                font-size:18px;
-                font-weight:700;
-                margin-top:8px;
-                margin-bottom:0;
-            ">
-                {{ number_format($product->price,0,',','.') }} ₫
-            </p>
-        @endif
-
-    </a>
-
-</div>
-
-@endforeach
-
-            </div>
-
-            <div class="mt-5 d-flex justify-content-center custom-pagination">
-                {{ $danhSachSanPham->links() }}
-            </div>
-
-        @endif
-
-    @endif
-
-</section>
+        </section>
     </div>
 </div>
 
@@ -651,7 +390,6 @@
 @endsection
 
 @push('scripts')
-<!-- Thư viện cho Wishlist -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -659,7 +397,6 @@
 
 <script>
 $(document).ready(function(){
-    // Cấu hình Toastr
     toastr.options = { 
         "closeButton": true, 
         "progressBar": true, 
@@ -670,7 +407,6 @@ $(document).ready(function(){
     $('.btn-wishlist').click(function(e) {
         e.preventDefault(); 
         
-        // 1. Cảnh báo Đăng nhập bằng SweetAlert2
         @if(!Auth::check())
             Swal.fire({
                 icon: 'warning',
@@ -689,7 +425,6 @@ $(document).ready(function(){
             return;
         @endif
 
-        // 2. Xử lý Thả tim qua AJAX
         let btn = $(this);
         let productId = btn.data('id');
         let icon = btn.find('i');

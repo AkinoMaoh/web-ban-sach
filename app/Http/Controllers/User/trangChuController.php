@@ -104,22 +104,4 @@ class trangChuController extends Controller
         ));
     }
 
-    // Tìm kiếm JS ------------------------------------------------------
-    public function searchProduct(Request $request)
-    {
-        $keyword = $request->keyword;
-        if ($keyword == "") {
-            $products = products::where('status', 1)
-                ->latest()
-                ->limit(5)
-                ->get();
-        } else {
-            $products = products::where('name', 'like', $keyword . '%')
-                ->where('status', 1)
-                ->limit(5)
-                ->get();
-        }
-        return response()->json($products);
-    }
-    // ------------------------------------------------------------------
 }

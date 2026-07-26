@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\productVariants;
+use App\Models\categories;
+use App\Models\authors;
+use App\Models\publishers;
+use App\Models\Review;
 
 class products extends Model
 {
@@ -36,7 +40,6 @@ class products extends Model
         return $this->belongsTo(publishers::class, 'publisher_id');
     }
 
-    // Thêm đoạn này
     public function variants()
     {
         return $this->hasMany(productVariants::class, 'product_id');
@@ -48,7 +51,7 @@ class products extends Model
     }
     public function firstVariant()
     {
-        return $this->hasOne(ProductVariants::class, 'product_id')
-            ->oldest('id'); // Lấy biến thể đầu tiên
+        return $this->hasOne(productVariants::class, 'product_id')
+            ->oldest('id');
     }
 }

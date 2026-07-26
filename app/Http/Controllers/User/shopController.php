@@ -8,8 +8,8 @@ use App\Models\products;
 use App\Models\categories;
 use App\Models\authors;
 use App\Models\publishers;
-use Illuminate\Support\Facades\DB;
 use App\Models\Banner;
+use Illuminate\Support\Facades\DB;
 
 class ShopController extends Controller
 {
@@ -20,18 +20,63 @@ class ShopController extends Controller
             ->orderBy('sort_order')
             ->get();
     }
-    /**
-     * Trang shop tổng – hiển thị sản phẩm theo từng danh mục
-     */
+    
     public function index(Request $request)
     {
         $tatCaDanhMuc = categories::where('status', 1)->get();
         $tacGia       = authors::all();
         $nhaXuatBan   = publishers::all();
+        $banners      = $this->getShopBanners();
 
+        // XỬ LÝ TỪ KHÓA TÌM KIẾM TRỌN GÓI TRONG CONTROLLER
+        if ($request->filled('keyword')) {
+            $keyword = mb_strtolower(trim($request->keyword), 'UTF-8');
+            
+            $truyVan = products::with(['author', 'firstVariant', 'category'])
+                ->where('status', 1)
+                ->where(function($query) use ($keyword) {
+                    $query->where(DB::raw('LOWER(name)'), 'LIKE', '%' . $keyword . '%')
+                          ->orWhereHas('category', function($q) use ($keyword) {
+                              $q->where(DB::raw('LOWER(name)'), 'LIKE', '%' . $keyword . '%');
+                          })
+                          ->orWhereHas('author', function($q) use ($keyword) {
+                              $q->where(DB::raw('LOWER(name)'), 'LIKE', '%' . $keyword . '%');
+                          });
+                });
 
+            if ($request->filled('author')) {
+                $truyVan->where('author_id', $request->author);
+            }
+            if ($request->filled('publisher')) {
+                $truyVan->where('publisher_id', $request->publisher);
+            }
+            if ($request->filled('price_min')) {
+                $truyVan->where('price', '>=', $request->price_min);
+            }
+            if ($request->filled('price_max')) {
+                $truyVan->where('price', '<=', $request->price_max);
+            }
+            
+            switch ($request->get('sort')) {
+                case 'price_asc': $truyVan->orderBy('price', 'asc'); break;
+                case 'price_desc': $truyVan->orderBy('price', 'desc'); break;
+                case 'newest': $truyVan->latest(); break;
+                default: $truyVan->orderBy('id', 'desc'); break;
+            }
 
-        // Lấy sản phẩm nhóm theo danh mục (mỗi danh mục lấy tối đa 6)
+            $danhSachSanPham = $truyVan->paginate(12)->appends($request->query());
+
+            return view('User.shop', compact(
+                'tatCaDanhMuc',
+                'tacGia',
+                'nhaXuatBan',
+                'banners',
+                'danhSachSanPham',
+                'keyword'
+            ));
+        }
+
+        // MẶC ĐỊNH: Hiển thị sản phẩm theo từng danh mục
         $sanPhamTheoDanhMuc = $tatCaDanhMuc->map(function ($dm) {
             $dm->sanPham = products::where('status', 1)
                 ->where('category_id', $dm->id)
@@ -40,7 +85,7 @@ class ShopController extends Controller
                 ->get();
             return $dm;
         })->filter(fn($dm) => $dm->sanPham->isNotEmpty());
-        $banners = $this->getShopBanners();
+        
         return view('User.shop', compact(
             'tatCaDanhMuc',
             'sanPhamTheoDanhMuc',
@@ -50,9 +95,6 @@ class ShopController extends Controller
         ));
     }
 
-    /**
-     * Trang shop theo danh mục – lọc, sắp xếp, phân trang
-     */
     public function category(Request $request, $id)
     {
         $danhMuc      = categories::where('id', $id)->where('status', 1)->firstOrFail();
@@ -76,22 +118,15 @@ class ShopController extends Controller
         }
 
         switch ($request->get('sort')) {
-            case 'price_asc':
-                $truyVan->orderBy('price', 'asc');
-                break;
-            case 'price_desc':
-                $truyVan->orderBy('price', 'desc');
-                break;
-            case 'newest':
-                $truyVan->latest();
-                break;
-            default:
-                $truyVan->orderBy('id', 'asc');
-                break;
+            case 'price_asc': $truyVan->orderBy('price', 'asc'); break;
+            case 'price_desc': $truyVan->orderBy('price', 'desc'); break;
+            case 'newest': $truyVan->latest(); break;
+            default: $truyVan->orderBy('id', 'asc'); break;
         }
 
         $danhSachSanPham = $truyVan->paginate(12)->appends($request->query());
         $banners = $this->getShopBanners();
+        
         return view('User.shop', compact(
             'tatCaDanhMuc',
             'tacGia',
@@ -101,10 +136,10 @@ class ShopController extends Controller
             'banners'
         ));
     }
+    
     public function author($id)
     {
         $author = authors::findOrFail($id);
-
         $tatCaDanhMuc = categories::where('status', 1)->get();
         $tacGia = authors::all();
         $nhaXuatBan = publishers::all();
@@ -113,6 +148,7 @@ class ShopController extends Controller
             ->where('status', 1)
             ->paginate(12);
         $banners = $this->getShopBanners();
+        
         return view('User.shop', compact(
             'tatCaDanhMuc',
             'tacGia',
