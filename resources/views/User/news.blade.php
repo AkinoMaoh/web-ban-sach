@@ -88,30 +88,55 @@
             
 
 
-            <!-- Box Bài Viết Đọc Nhiều Nhất (Đã chỉnh lại top: 100px và z-index: 1) -->
+            <!-- Box tin tức nổi bật (Đã chỉnh lại top: 100px và z-index: 1) -->
             <div class="card border-0 shadow-sm rounded mb-4 sticky-top" style="top: 100px; z-index: 1;">
                 <div class="card-header text-white font-weight-bold serif-font rounded-top" style="background-color: #2C3E50;">
-                    <i class="fas fa-fire mr-2" style="color: #D35400;"></i> ĐỌC NHIỀU NHẤT
+                    <i class="fas fa-fire mr-2" style="color: #D35400;"></i> TIN TỨC NỔI BẬT
                 </div>
                 <div class="card-body bg-white p-3">
-                    @for($i = 5; $i <= 9; $i++)
+
+                @forelse($featuredPosts as $featured)
+
                     <div class="row align-items-center mb-3 pb-3 border-bottom mx-0 last-no-border">
+
                         <div class="col-4 px-1">
-                            <a href="#">
-                                <img src="https://picsum.photos/100/100?random={{ $i }}" class="img-fluid rounded w-100 object-fit-cover shadow-sm" style="height: 75px;" alt="News">
+                            <a href="{{ route('user.news.show', $featured->id) }}">
+                                <img
+                                    src="{{ asset('uploads/news/' . $featured->image) }}"
+                                    class="img-fluid rounded w-100 object-fit-cover shadow-sm"
+                                    style="height:75px;"
+                                    alt="{{ $featured->title }}">
                             </a>
                         </div>
+
                         <div class="col-8 px-2">
+
                             <h6 class="mb-1">
-                                <a href="#" class="text-dark text-decoration-none hover-primary font-weight-bold text-truncate-2" style="font-size: 14px; line-height: 1.4;">
-                                    Lợi ích tuyệt vời của thói quen đọc 20 trang sách mỗi ngày
+                                <a href="{{ route('user.news.show', $featured->id) }}"
+                                class="text-dark text-decoration-none hover-primary text-truncate-2"
+                                style="font-size:14px;line-height:1.4;">
+                                    {{ $featured->title }}
                                 </a>
                             </h6>
-                            <small class="text-muted"><i class="far fa-clock me-1 mr-1"></i> 05/07/2026</small>
+
+                            <small class="text-muted">
+                                <i class="far fa-clock me-1"></i>
+                                {{ $featured->created_at->format('d/m/Y') }}
+                            </small>
+
                         </div>
+
                     </div>
-                    @endfor
-                </div>
+
+                @empty
+
+                    <p class="text-center text-muted mb-0">
+                        Chưa có tin tức nổi bật.
+                    </p>
+
+                @endforelse
+
+            </div>
             </div>
 
         </aside>

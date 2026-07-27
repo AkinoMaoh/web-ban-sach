@@ -46,21 +46,6 @@
 
                         <div class="form-group">
 
-                            <label for="slug">
-                                Slug
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="slug"
-                                name="slug"
-                                required>
-
-                        </div>
-
-                        <div class="form-group">
-
                             <label for="image">
                                 Ảnh
                             </label>
@@ -119,6 +104,22 @@
 
                             </select>
 
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tin tức nổi bật</label>
+
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="is_featured"
+                                    value="1">
+
+                                <label class="form-check-label">
+                                    Hiển thị ở mục Tin tức nổi bật
+                                </label>
+                            </div>
                         </div>
 
                         <button type="submit" class="btn btn-primary">
