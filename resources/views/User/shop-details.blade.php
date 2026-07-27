@@ -120,7 +120,17 @@
                                                 required>
                                             <span class="hop-phien-ban">
                                                 <strong class="d-block mb-1 text-dark">{{ $bienThe->edition }}</strong>
-                                                <small class="d-block text-muted mb-1">{{ number_format($bienThe->price) }} VNĐ</small>
+                                                <small class="d-block mb-1">
+    @if($bienThe->sale_price > 0 && $bienThe->sale_price < $bienThe->price)
+        <span class="text-danger font-weight-bold">
+            {{ number_format($bienThe->sale_price) }} VNĐ
+        </span>
+    @else
+        <span class="text-muted">
+            {{ number_format($bienThe->price) }} VNĐ
+        </span>
+    @endif
+</small>
                                                 <small class="{{ $bienThe->stock > 0 ? 'text-success' : 'text-danger' }} font-weight-bold">
                                                     {{ $bienThe->stock > 0 ? 'Còn ' . $bienThe->stock : 'Hết hàng' }}
                                                 </small>
