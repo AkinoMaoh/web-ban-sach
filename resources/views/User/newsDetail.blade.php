@@ -25,7 +25,7 @@
 <div class="container mb-5">
     <div class="row">
         <!-- CỘT TRÁI: NỘI DUNG BÀI VIẾT (col-lg-8) -->
-        <div class="col-lg-8 mb-5 mb-lg-0">
+        <div class="col-lg-12">
             <div class="card border-0 shadow-sm rounded bg-white">
                 <div class="card-body p-4 p-md-5"> <!-- Tăng padding để đọc thoải mái hơn -->
                     
@@ -51,7 +51,7 @@
                     </div>
 
                     <!-- Nội dung chính (Article Content) -->
-                    <div class="article-content text-justify" style="color: #444; font-size: 17px; line-height: 1.8;">
+                    <div class="article-content text-justify" font-size: 17px; line-height: 1.8;">
                         {!! $post->content !!}
                     </div>
 

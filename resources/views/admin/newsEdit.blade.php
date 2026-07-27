@@ -136,6 +136,30 @@
 
                         </div>
 
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Tin tức nổi bật
+                            </label>
+
+                            <div class="form-check">
+
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="is_featured"
+                                    value="1"
+
+                                    {{ $news->is_featured ? 'checked' : '' }}>
+
+                                <label class="form-check-label">
+                                    Hiển thị ở mục Tin tức nổi bật
+                                </label>
+
+                            </div>
+
+                        </div>
+
                         <button type="submit" class="btn btn-primary">
                             Cập nhật tin tức
                         </button>

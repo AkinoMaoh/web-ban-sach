@@ -33,20 +33,20 @@ class AdminNewsController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'required|string|max:255',
             'summary' => 'required|string',
             'content' => 'required|string',
             'status' => 'required',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'is_featured' => 'nullable|boolean'
         ]);
 
         $news = new News();
 
         $news->title = $request->title;
-        $news->slug = $request->slug;
         $news->summary = $request->summary;
         $news->content = $request->content;
         $news->status = $request->status;
+        $news->is_featured = $request->has('is_featured');
 
         // Upload ảnh
         if ($request->hasFile('image')) {
@@ -86,20 +86,20 @@ class AdminNewsController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'required|string|max:255',
             'summary' => 'required|string',
             'content' => 'required|string',
             'status' => 'required',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'is_featured' => 'nullable|boolean'
         ]);
 
         $news = News::findOrFail($id);
 
         $news->title = $request->title;
-        $news->slug = $request->slug;
         $news->summary = $request->summary;
         $news->content = $request->content;
         $news->status = $request->status;
+        $news->is_featured = $request->has('is_featured');
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
