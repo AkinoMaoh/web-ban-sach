@@ -35,12 +35,8 @@
         $variant = $product->firstVariant;
     @endphp
 
-    @if(
-        $variant &&
-        $variant->sale_price > 0 &&
-        $variant->sale_price < $variant->price
-    )
-       <span id="discount-badge"
+
+     <span id="discount-ball"
       class="position-absolute align-items-center justify-content-center text-white"
       style="
             display:none;
@@ -54,7 +50,7 @@
             font-weight:700;
             z-index:20;">
 </span>
-    @endif
+  
 
     <img src="{{ asset('uploads/products/' . $product->image) }}"
          class="img-fluid rounded shadow"
@@ -65,47 +61,35 @@
                     <div class="col-lg-7 pl-lg-5">
                         <h1 class="serif-font font-weight-bold mb-3" style="color: var(--text-main); line-height: 1.3;">{{ $product->name }}</h1>
                         
-                        @php
-    $variant = $product->firstVariant;
+                    @php
+    $variant = $product->variants
+        ->where('stock', '>', 0)
+        ->first() ?? $product->variants->first();
 @endphp
 
 <h2 class="display-4 font-weight-bold mb-4">
     <div id="price-box">
-
-        @if(
-            $variant &&
-            $variant->sale_price > 0 &&
-            $variant->sale_price < $variant->price
-        )
-
-            <div class="d-flex align-items-center flex-wrap">
-
-                <span id="sale-price"
-                      style="color:#dc3545;font-size:34px;font-weight:700;">
-                    {{ number_format($variant->sale_price,0,',','.') }} ₫
-                </span>
-
-                <span id="old-price"
-                      class="ml-3"
-                      style="color:#999;font-size:24px;text-decoration:line-through;">
-                    {{ number_format($variant->price,0,',','.') }} ₫
-                </span>
-
-
-            </div>
-
-        @else
+        <div class="d-flex align-items-center flex-wrap">
 
             <span id="sale-price"
-                  style="color:#D35400;font-size:34px;font-weight:700;">
-                {{ number_format($variant?->price ?? $product->price,0,',','.') }} ₫
+                  style="font-size:34px;font-weight:700;">
+                {{ number_format(
+                    ($variant && $variant->sale_price > 0 && $variant->sale_price < $variant->price)
+                        ? $variant->sale_price
+                        : ($variant?->price ?? $product->price),
+                    0, ',', '.'
+                ) }} ₫
             </span>
 
-            <span id="old-price"></span>
-            <span id="discount-badge"></span>
+            <span id="old-price"
+                  class="ml-3"
+                  style="color:#999;font-size:24px;text-decoration:line-through;
+                  {{ ($variant && $variant->sale_price > 0 && $variant->sale_price < $variant->price) ? '' : 'display:none;' }}">
+                {{ number_format($variant?->price ?? 0, 0, ',', '.') }} ₫
+            </span>
 
-        @endif
 
+        </div>
     </div>
 </h2>
                         <p class="text-muted mb-4" style="line-height: 1.8; font-size: 15px;">Tác giả: {{ $product->author->name }}</p>
@@ -514,10 +498,9 @@ function updateVariantPrice() {
             .text(price.toLocaleString('vi-VN') + ' ₫')
             .show();
 
-        $('#discount-badge')
-            .text('-' + discount + '%')
-            .css('display', 'flex');
-
+       $('#discount-ball')
+    .text('-' + discount + '%')
+    .css('display', 'flex');
     } else {
 
         $('#sale-price')
@@ -526,9 +509,9 @@ function updateVariantPrice() {
 
         $('#old-price').hide();
 
-        $('#discount-badge')
-            .text('')
-            .hide();
+       $('#discount-ball')
+    .text('')
+    .hide();
     }
 }
 

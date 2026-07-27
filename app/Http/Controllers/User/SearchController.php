@@ -19,7 +19,7 @@ class SearchController extends Controller
             $categories = categories::where('status', 1)
                 ->limit(4)
                 ->get()
-                ->map(function($cat) {
+                ->map(function ($cat) {
                     return [
                         'id' => $cat->id,
                         'name' => $cat->name,
@@ -28,7 +28,10 @@ class SearchController extends Controller
                 });
 
             $hot_keywords = [
-                'Conan', 'Đắc Nhân Tâm', 'Nhà Giả Kim', 'Tiểu Thuyết'
+                'Conan',
+                'Đắc Nhân Tâm',
+                'Nhà Giả Kim',
+                'Tiểu Thuyết'
             ];
 
             return response()->json([
@@ -36,8 +39,8 @@ class SearchController extends Controller
                 'categories' => $categories,
                 'hot_keywords' => $hot_keywords
             ]);
-        } 
-        
+        }
+
         // 2. Có từ khóa -> Truy vấn AJAX tìm sản phẩm
         else {
             $products = products::with(['author', 'firstVariant'])
