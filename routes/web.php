@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\ReviewManagerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\User\UserNewsController;
+use App\Http\Controllers\User\SearchController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,11 +43,10 @@ Route::middleware(['user_only'])->group(function () {
     Route::get('/shop/category/{id}', [ShopController::class, 'category'])->name('user.category');
 
     // Tìm kiếm 
-    Route::get('/search', [trangChuController::class, 'search'])->name('user.search');
-    Route::get('/search-product', [trangChuController::class, 'searchProduct'])->name('search.product');
+    Route::get('/api/search', [SearchController::class, 'searchProduct'])->name('api.search');
 
+    // Chi tiết sản phẩm
     Route::get('/product/{id}', [shopDetailsController::class, 'index'])->name('user.productDetails');
-    Route::get('/product-details/{id}', [shopDetailsController::class, 'productDetails'])->name('user.productDetails.details');
 
     // Liên hệ
     Route::get('/contact', [ContactController::class, 'index'])->name('user.contact');

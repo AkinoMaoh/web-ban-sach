@@ -69,6 +69,7 @@ body {
 }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
 $(document).ready(function() {
     $('.btn-wishlist').click(function(e) {
@@ -124,7 +125,7 @@ $(document).ready(function() {
 
     <!-- Biến route -->
     <script>
-    const searchUrl = "{{ route('search.product') }}";
+    const searchUrl = "{{ route('api.search') }}";
     </script>
 
     <!-- Cuối cùng mới load search.js -->
