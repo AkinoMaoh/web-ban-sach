@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\products;
 use App\Models\OrderDetail;
@@ -24,19 +25,33 @@ class Review extends Model
         'admin_reply'
     ];
 
-    public function user() { return $this->belongsTo(User::class); }
-    public function product() { return $this->belongsTo(products::class); }
-    public function orderDetail() { return $this->belongsTo(OrderDetail::class); }
-    
-    // Các hàm phục vụ like/dislike
-    public function likes() { return $this->hasMany(ReviewLike::class); }
-    
-    public function isLikedByAuthUser() { 
-        return $this->likes()->where('user_id', auth()->id())->exists(); 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
-    
-    public function likesCount() { 
-        return $this->likes()->count(); 
+    public function product()
+    {
+        return $this->belongsTo(products::class);
+    }
+    public function orderDetail()
+    {
+        return $this->belongsTo(OrderDetail::class);
+    }
+
+    // Các hàm phục vụ like/dislike
+    public function likes()
+    {
+        return $this->hasMany(ReviewLike::class);
+    }
+
+    public function isLikedByAuthUser()
+    {
+        return $this->likes()->where('user_id', Auth::id())->exists();
+    }
+
+    public function likesCount()
+    {
+        return $this->likes()->count();
     }
 
     public static function getProductRatingStats($productId)
