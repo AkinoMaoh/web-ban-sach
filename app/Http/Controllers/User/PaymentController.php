@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http; // Đã thêm thư viện Http để gọi API
 use App\Models\Notification;
 use App\Models\User; 
 
@@ -81,6 +82,47 @@ class PaymentController extends Controller
         }
 
         return view('User.checkout', compact('cart', 'totalAmount'));
+    }
+
+    // --- HÀM MỚI: TÍNH TIỀN SHIP QUA API GHN ---
+    public function calculateShippingFee(Request $request)
+    {
+        // 1. Nhận ID Huyện và Mã Xã từ JS gửi lên
+        $request->validate([
+            'district_id' => 'required',
+            'ward_code' => 'required',
+        ]);
+
+        try {
+            // 2. Gọi API của Giao Hàng Nhanh (Môi trường thật + Bỏ qua kiểm tra SSL)
+            $response = Http::withoutVerifying()->withHeaders([
+                'Token' => env('GHN_API_TOKEN'),
+                'ShopId' => env('GHN_SHOP_ID'),
+            ])->post('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee', [
+                "from_district_id" => (int) env('STORE_DISTRICT_ID'), // Kho của bạn ở Hải Phòng
+                "to_district_id"   => (int) $request->district_id,    // Huyện của khách
+                "to_ward_code"     => (string) $request->ward_code,   // Xã của khách
+                "weight"           => 1000, // Cân nặng mặc định (1000g = 1kg)
+                "service_type_id"  => 2,    // Loại dịch vụ: 2 = Giao Hàng Chuẩn
+            ]);
+
+            $data = $response->json();
+
+            // 3. Nếu API trả về thành công, gửi số tiền về cho JavaScript
+            if ($response->successful() && isset($data['data']['total'])) {
+                return response()->json([
+                    'success' => true,
+                    'fee' => $data['data']['total']
+                ]);
+            }
+
+            // Nếu lỗi từ GHN, set tạm giá ship mặc định để khách vẫn mua được hàng
+            return response()->json(['success' => false, 'fee' => 30000]); 
+
+        } catch (\Exception $e) {
+            // Lỗi đứt mạng, server GHN sập...
+            return response()->json(['success' => false, 'fee' => 30000]);
+        }
     }
 
     public function process(Request $request)

@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\productsController;
 use App\Http\Controllers\Admin\categoriesController;
@@ -64,6 +64,7 @@ Route::middleware(['user_only'])->group(function () {
     Route::get('/checkout', [PaymentController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
+    Route::post('/payment/calculate-fee', [\App\Http\Controllers\User\PaymentController::class, 'calculateShippingFee'])->name('payment.calculate_fee');
 
     Route::get('/news', [UserNewsController::class, 'index'])->name('user.news');
     Route::get('/news/{id}', [UserNewsController::class, 'show'])->name('user.news.show');
@@ -262,3 +263,16 @@ require __DIR__ . '/auth.php';
 //Xem tất cả sách của tác giả
 Route::get('/author/{id}', [ShopController::class, 'author'])
     ->name('user.author');
+
+// --- API NỘI BỘ LẤY ĐỊA CHỈ (Tỉnh / Huyện / Xã) ---
+Route::get('/api/locations/provinces', function() {
+    return response()->json(DB::table('provinces')->orderBy('name', 'asc')->get());
+});
+
+Route::get('/api/locations/districts/{province_id}', function($province_id) {
+    return response()->json(DB::table('districts')->where('province_id', $province_id)->orderBy('name', 'asc')->get());
+});
+
+Route::get('/api/locations/wards/{district_id}', function($district_id) {
+    return response()->json(DB::table('wards')->where('district_id', $district_id)->orderBy('name', 'asc')->get());
+});

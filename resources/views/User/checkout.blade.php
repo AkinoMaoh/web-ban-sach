@@ -202,75 +202,106 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script>
 $(document).ready(function() {
-    const host = "https://provinces.open-api.vn/api/";
-    
-    // Gọi API lấy Tỉnh/Thành
-    axios.get(host + '?depth=1').then((response) => {
-        renderData(response.data, "province", "Chọn Tỉnh/Thành");
-    });
-
-    function renderData(array, selectId, defaultText) {
-        let row = `<option value="">${defaultText}</option>`;
-        if (array && array.length > 0) {
-            array.forEach(element => {
-                row += `<option data-name="${element.name}" value="${element.code}">${element.name}</option>`;
+    // 1. Gọi API NỘI BỘ lấy Tỉnh/Thành từ Database
+    axios.get('/api/locations/provinces')
+        .then((response) => {
+            let html = '<option value="">Chọn Tỉnh/Thành</option>';
+            // Tuỳ vào cách bạn viết API (bọc data array hoặc không)
+            let provinces = response.data.data || response.data; 
+            provinces.forEach(element => {
+                html += `<option data-name="${element.name}" value="${element.id}">${element.name}</option>`;
             });
-        }
-        $("#" + selectId).html(row);
-    }
+            $("#province").html(html);
+        }).catch(err => console.log('Lỗi tải Tỉnh/Thành:', err));
 
-    // 1. Khi đổi Tỉnh -> Load Huyện và Tính phí ship
+    // 2. Khi đổi Tỉnh -> Load Huyện từ API NỘI BỘ
     $("#province").on("change", function() {
-        let code = $(this).val();
-        let shippingFee = 0;
-        
-        // Lấy tổng tiền hàng từ thuộc tính data-value đã gài ở HTML
-        let subTotal = parseInt($('#subtotal_text').attr('data-value')) || 0;
+        let provinceId = $(this).val();
+        resetShippingFee(); 
 
-        if(code) {
-            // Logic tính tiền: Code '01' (Hà Nội), '79' (TP.HCM) phí 30k, còn lại 50k
-            if(code === '01' || code === '79') {
-                shippingFee = 30000;
-            } else {
-                shippingFee = 50000;
-            }
-
-            // Cập nhật text hiển thị trên giao diện
-            $('#shipping_fee_text').text(new Intl.NumberFormat('vi-VN').format(shippingFee) + ' đ');
-            $('#total_amount_text').text(new Intl.NumberFormat('vi-VN').format(subTotal + shippingFee) + ' đ');
-            
-            // Cập nhật value cho thẻ input ẩn để submit form
-            $('#hidden_shipping_fee').val(shippingFee);
-
-            // Gọi API lấy Huyện
-            axios.get(host + "p/" + code + "?depth=2").then((response) => {
-                renderData(response.data.districts, "district", "Chọn Quận/Huyện");
-                $("#ward").html('<option value="">Chọn Phường/Xã</option>'); // Xóa phường xã cũ
-            });
+        if(provinceId) {
+            axios.get(`/api/locations/districts/${provinceId}`)
+                .then((response) => {
+                    let html = '<option value="">Chọn Quận/Huyện</option>';
+                    let districts = response.data.data || response.data;
+                    districts.forEach(element => {
+                        html += `<option data-name="${element.name}" value="${element.id}">${element.name}</option>`;
+                    });
+                    $("#district").html(html);
+                    $("#ward").html('<option value="">Chọn Phường/Xã</option>'); // Xóa phường xã cũ
+                });
         } else {
-            // Nếu người dùng reset tỉnh/thành
-            $('#shipping_fee_text').text('Vui lòng chọn địa chỉ');
-            $('#total_amount_text').text(new Intl.NumberFormat('vi-VN').format(subTotal) + ' đ');
-            $('#hidden_shipping_fee').val(0);
-
             $("#district").html('<option value="">Chọn Quận/Huyện</option>');
             $("#ward").html('<option value="">Chọn Phường/Xã</option>');
         }
     });
 
-    // 2. [ĐÂY LÀ ĐOẠN CODE BỊ THIẾU NÀY] Khi đổi Huyện -> Load Xã
+    // 3. Khi đổi Huyện -> Load Xã từ API NỘI BỘ
     $("#district").on("change", function() {
-        let code = $(this).val();
-        if(code) {
-            axios.get(host + "d/" + code + "?depth=2").then((response) => {
-                renderData(response.data.wards, "ward", "Chọn Phường/Xã");
-            });
+        let districtId = $(this).val();
+        resetShippingFee(); 
+
+        if(districtId) {
+            axios.get(`/api/locations/wards/${districtId}`)
+                .then((response) => {
+                    let html = '<option value="">Chọn Phường/Xã</option>';
+                    let wards = response.data.data || response.data;
+                    wards.forEach(element => {
+                        html += `<option data-name="${element.name}" value="${element.code}">${element.name}</option>`;
+                    });
+                    $("#ward").html(html);
+                });
         } else {
             $("#ward").html('<option value="">Chọn Phường/Xã</option>');
         }
     });
 
-    // 3. Khi Submit form -> Nối chuỗi full địa chỉ gửi cho Laravel Controller
+    // 4. Khi chọn xong Phường/Xã -> Gọi Backend Laravel để tính phí ship GHN
+    $("#ward").on("change", function() {
+        let wardCode = $(this).val();
+        let districtId = $("#district").val();
+
+        if (wardCode && districtId) {
+            $('#shipping_fee_text').html('<i class="fas fa-spinner fa-spin"></i> Đang tính phí...');
+            
+            // Gọi Route Laravel tính phí (nó sẽ kết nối API GHN ở backend)
+            axios.post('{{ route('payment.calculate_fee') }}', {
+                district_id: districtId,
+                ward_code: wardCode,
+                _token: '{{ csrf_token() }}' // Token bảo mật bắt buộc của Laravel
+            }).then((response) => {
+                if(response.data.success) {
+                    let fee = response.data.fee;
+                    updateShippingFee(fee);
+                } else {
+                    alert('Không thể tính phí vận chuyển lúc này, áp dụng phí mặc định 30,000đ.');
+                    updateShippingFee(response.data.fee); 
+                }
+            }).catch(err => {
+                updateShippingFee(30000); 
+            });
+        }
+    });
+
+    // Hàm cập nhật tiền ship ra màn hình
+    function updateShippingFee(fee) {
+        let subTotal = parseInt($('#subtotal_text').attr('data-value')) || 0;
+        
+        $('#shipping_fee_text').text(new Intl.NumberFormat('vi-VN').format(fee) + ' đ');
+        $('#total_amount_text').text(new Intl.NumberFormat('vi-VN').format(subTotal + fee) + ' đ');
+        $('#hidden_shipping_fee').val(fee);
+    }
+
+    // Hàm reset tiền ship
+    function resetShippingFee() {
+        let subTotal = parseInt($('#subtotal_text').attr('data-value')) || 0;
+        
+        $('#shipping_fee_text').text('Vui lòng chọn địa chỉ');
+        $('#total_amount_text').text(new Intl.NumberFormat('vi-VN').format(subTotal) + ' đ');
+        $('#hidden_shipping_fee').val(0);
+    }
+
+    // 5. Khi Submit form -> Nối chuỗi full địa chỉ gửi cho Laravel Controller
     $('#checkoutForm').on('submit', function(e) {
         let provinceName = $("#province option:selected").attr('data-name');
         let districtName = $("#district option:selected").attr('data-name');
@@ -282,7 +313,7 @@ $(document).ready(function() {
             fullAddress = street + ", " + wardName + ", " + districtName + ", " + provinceName;
         }
         
-        // Gán vào input ẩn
+        // Gán vào input ẩn để đẩy lên database đơn hàng
         $('#full_address').val(fullAddress);
     });
 });
