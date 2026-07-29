@@ -254,7 +254,7 @@ class PaymentController extends Controller
                         'user_id'    => $admin->id,
                         'message'    => "Có đơn hàng mới (COD): #{$orderId} từ khách {$shipping_name}",
                         'is_read'    => false,
-                        'target_url' => url('/admin/orders/' . $orderId) // Lưu cứng link chi tiết đơn hàng cho admin
+                        'target_url' => url('/admin/orders/' . $orderId . '/edit') // Lưu cứng link chi tiết đơn hàng cho admin
                     ]);
                 }
 
@@ -394,7 +394,7 @@ class PaymentController extends Controller
                             'user_id'    => $admin->id,
                             'message'    => "Có đơn hàng mới (Đã thanh toán VNPAY): #{$orderId} từ khách {$order->shipping_name}",
                             'is_read'    => false,
-                            'target_url' => url('/admin/orders/' . $orderId) // Lưu cứng link chi tiết đơn hàng cho admin
+                            'target_url' => url('/admin/orders/' . $orderId . '/edit') // Lưu cứng link chi tiết đơn hàng cho admin
                         ]);
                     }
 

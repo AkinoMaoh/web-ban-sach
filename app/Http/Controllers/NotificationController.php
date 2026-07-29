@@ -16,9 +16,9 @@ class NotificationController extends Controller
         // 1. Đánh dấu đã đọc
         $n->update(['is_read' => 1]);
 
-        // 2. Ưu tiên kiểm tra nếu có sẵn target_url (như thông báo bài viết mới) thì chuyển thẳng luôn
+        // 2. Xử lý ưu tiên nếu có sẵn target_url
         if (!empty($n->target_url)) {
-            return redirect($n->target_url);
+            return redirect()->to($n->target_url);
         }
 
         // 3. Logic xử lý cũ cho đơn hàng / đánh giá (Dành cho các thông báo cũ không có target_url)
@@ -42,7 +42,7 @@ class NotificationController extends Controller
                     })->latest()->first();
 
                 if ($review) {
-                    return redirect()->route('user.productDetails', $review->product_id);
+                    return redirect()->to(route('user.productDetails', $review->product_id) . '#review-' . $review->id);
                 }
             }
             if ($n->order_id) {

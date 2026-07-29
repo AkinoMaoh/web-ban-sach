@@ -43,7 +43,7 @@ class ReviewManagerController extends Controller
                 'user_id'    => $review->user_id,
                 'message'    => "Shop vừa phản hồi đánh giá của bạn về sách: {$productName}",
                 'is_read'    => false,
-                'target_url' => route('user.productDetails', $review->product_id) // Trỏ thẳng về trang sách 
+                'target_url' => route('user.productDetails', $review->product_id) . '#review-' . $review->id // Trỏ thẳng về đúng review cụ thể
             ]);
         }
 

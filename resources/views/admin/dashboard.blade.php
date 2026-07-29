@@ -47,21 +47,23 @@
 
     <!-- 1. THẺ THỐNG KÊ DOANH THU & USER -->
     <div class="row">
-        <!-- Doanh thu hôm nay -->
+        <!-- Doanh thu hôm nay (Click chuyển sang đơn hàng hôm nay) -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card border-left-blue shadow-sm h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Doanh Thu (Hôm nay)</div>
-                            <div class="h4 mb-0 font-weight-bold text-gray-800">{{ number_format($doanhThuHomNay, 0, ',', '.') }} đ</div>
-                        </div>
-                        <div class="col-auto">
-                            <div class="bg-light p-3 rounded-circle"><i class="fas fa-wallet fa-2x text-primary"></i></div>
+            <a href="{{ route('admin.orders', ['date' => 'today']) }}" class="text-decoration-none">
+                <div class="card stat-card border-left-blue shadow-sm h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Doanh Thu (Hôm nay)</div>
+                                <div class="h4 mb-0 font-weight-bold text-gray-800">{{ number_format($doanhThuHomNay, 0, ',', '.') }} đ</div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="bg-light p-3 rounded-circle"><i class="fas fa-wallet fa-2x text-primary"></i></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <!-- Doanh thu tháng -->
@@ -85,38 +87,42 @@
             </div>
         </div>
 
-        <!-- Khách mới -->
+        <!-- Khách mới (Click chuyển sang danh sách người dùng) -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card border-left-green shadow-sm h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Khách Mới (Tháng)</div>
-                            <div class="h4 mb-0 font-weight-bold text-gray-800">{{ $khachMoiThang }} User</div>
-                        </div>
-                        <div class="col-auto">
-                            <div class="bg-light p-3 rounded-circle"><i class="fas fa-user-plus fa-2x text-success"></i></div>
+            <a href="{{ route('admin.users.index') }}" class="text-decoration-none">
+                <div class="card stat-card border-left-green shadow-sm h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Khách Mới (Tháng)</div>
+                                <div class="h4 mb-0 font-weight-bold text-gray-800">{{ $khachMoiThang }} User</div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="bg-light p-3 rounded-circle"><i class="fas fa-user-plus fa-2x text-success"></i></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
 
-        <!-- Phản hồi (Đã bổ sung đầy đủ nội dung bị thiếu) -->
+        <!-- Phản hồi / Đánh giá (Click chuyển sang trang Quản lý đánh giá) -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card border-left-purple shadow-sm h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #8E44AD;">Phản Hồi / Đánh Giá</div>
-                            <div class="h4 mb-0 font-weight-bold text-gray-800">{{ $tongPhanHoi ?? 0 }} Ý kiến</div>
-                        </div>
-                        <div class="col-auto">
-                            <div class="bg-light p-3 rounded-circle"><i class="fas fa-comments fa-2x" style="color: #8E44AD;"></i></div>
+            <a href="{{ route('admin.reviews.index') }}" class="text-decoration-none">
+                <div class="card stat-card border-left-purple shadow-sm h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #8E44AD;">Phản Hồi / Đánh Giá</div>
+                                <div class="h4 mb-0 font-weight-bold text-gray-800">{{ $tongPhanHoi ?? 0 }} Ý kiến</div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="bg-light p-3 rounded-circle"><i class="fas fa-comments fa-2x" style="color: #8E44AD;"></i></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
