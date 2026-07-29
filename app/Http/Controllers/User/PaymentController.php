@@ -166,13 +166,13 @@ class PaymentController extends Controller
         $shipping_fee = $validated['shipping_fee'];
         $totalAmount += $shipping_fee; 
 
-        DB::beginTransaction(); // Đã xóa cái bị lặp, chỉ giữ 1 cái chuẩn
+        DB::beginTransaction(); 
         try {
             $orderId = DB::table('orders')->insertGetId([
                 'user_id' => $userId,
                 'billing_email' => $billing_email,
                 'total_amount' => $totalAmount,
-                'shipping_fee' => $shipping_fee, // BỔ SUNG CỘT LƯU TIỀN SHIP
+                'shipping_fee' => $shipping_fee, 
                 'status' => 'pending',
                 'shipping_name' => $shipping_name,
                 'shipping_phone' => $shipping_phone,
@@ -206,14 +206,13 @@ class PaymentController extends Controller
                     }
                 }
 
-                // --- THÔNG BÁO CHO ADMIN ĐỐI VỚI ĐƠN COD ---
                 $admins = User::where('role', 1)->get();
                 foreach ($admins as $admin) {
                     Notification::create([
-                        'user_id'  => $admin->id,
-                        'order_id' => $orderId,
-                        'message'  => "Có đơn hàng mới (COD): #{$orderId} từ khách {$shipping_name}",
-                        'is_read'  => false
+                        'user_id'    => $admin->id,
+                        'message'    => "Có đơn hàng mới (COD): #{$orderId} từ khách {$shipping_name}",
+                        'is_read'    => false,
+                        'target_url' => url('/admin/orders/' . $orderId) // Lưu cứng link chi tiết đơn hàng cho admin
                     ]);
                 }
 
@@ -226,7 +225,7 @@ class PaymentController extends Controller
                 $vnp_TmnCode = env('VNP_TMN_CODE'); 
                 $vnp_HashSecret = env('VNP_HASH_SECRET'); 
 
-                $vnp_TxnRef = $orderId; // Mã đơn hàng vừa tạo
+                $vnp_TxnRef = $orderId; 
                 $vnp_OrderInfo = "Thanh toán đơn hàng #" . $orderId;
                 $vnp_OrderType = 'billpayment';
                 $vnp_Amount = $totalAmount * 100; // VNPAY luôn nhân 100
@@ -347,14 +346,13 @@ class PaymentController extends Controller
                 $order = DB::table('orders')->where('id', $orderId)->first();
                 if ($order) {
                     
-                    // --- THÔNG BÁO CHO TẤT CẢ ADMIN ĐỐI VỚI ĐƠN VNPAY ---
                     $admins = User::where('role', 1)->get();
                     foreach ($admins as $admin) {
                         Notification::create([
-                            'user_id'  => $admin->id,
-                            'order_id' => $orderId,
-                            'message'  => "Có đơn hàng mới (Đã thanh toán VNPAY): #{$orderId} từ khách {$order->shipping_name}",
-                            'is_read'  => false
+                            'user_id'    => $admin->id,
+                            'message'    => "Có đơn hàng mới (Đã thanh toán VNPAY): #{$orderId} từ khách {$order->shipping_name}",
+                            'is_read'    => false,
+                            'target_url' => url('/admin/orders/' . $orderId) // Lưu cứng link chi tiết đơn hàng cho admin
                         ]);
                     }
 

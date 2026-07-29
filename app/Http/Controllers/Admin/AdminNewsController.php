@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\News;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\User;
+use App\Models\Notification;
 
 class AdminNewsController extends Controller
 {
@@ -55,10 +57,33 @@ class AdminNewsController extends Controller
             $image->move(public_path('uploads/news'), $imageName);
             $news->image = $imageName;
         }
+        
         $news->save();
+
+        $userIds = User::where('role', '!=', 1)->pluck('id');
+        
+        $notifications = [];
+        $now = now(); 
+        
+        // 2. Gom dữ liệu vào 1 mảng
+        foreach ($userIds as $userId) {
+            $notifications[] = [
+                'user_id'    => $userId,
+                'message'    => "Đã có bài viết mới: " . $news->title,
+                'is_read'    => false,
+                'target_url' => route('user.news.show', $news->id),
+                'created_at' => $now, 
+                'updated_at' => $now, 
+            ];
+        }
+
+        foreach (array_chunk($notifications, 1000) as $chunk) {
+            Notification::insert($chunk);
+        }
+
         return redirect()
-        ->route('admin.news.index')
-        ->with('success', 'Thêm tin tức thành công');
+            ->route('admin.news.index')
+            ->with('success', 'Thêm tin tức thành công');
     }
 
     /**
@@ -122,11 +147,15 @@ class AdminNewsController extends Controller
     {
         $news = News::findOrFail($id);
 
-        // Xóa ảnh nếu có
+        // 1. Xóa ảnh nếu có
         if ($news->image && file_exists(public_path('uploads/news/' . $news->image))) {
             unlink(public_path('uploads/news/' . $news->image));
         }
 
+        $targetUrl = route('user.news.show', $news->id);
+        Notification::where('target_url', $targetUrl)->delete();
+
+        // 3. Xóa bài viết
         $news->delete();
 
         return redirect()
