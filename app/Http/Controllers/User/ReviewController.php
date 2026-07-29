@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Review;
 use App\Models\OrderDetail;
-use App\Models\User; // Thêm model User để lấy danh sách Admin
-use App\Models\Notification; // Thêm model Notification
+use App\Models\User; 
+use App\Models\Notification; 
 use Illuminate\Support\Facades\Auth;
 
 class ReviewController extends Controller
@@ -43,14 +43,16 @@ class ReviewController extends Controller
             'is_buyer'        => true
         ]);
 
-        // 2. THÔNG BÁO CHO ADMIN ĐỐI VỚI ĐÁNH GIÁ MỚI
+        // ==============================================================
+        // 2. THÔNG BÁO CHO ADMIN ĐỐI VỚI ĐÁNH GIÁ MỚI (DÙNG TARGET_URL)
+        // ==============================================================
         $admins = User::where('role', 1)->get();
         foreach ($admins as $admin) {
             Notification::create([
-                'user_id'  => $admin->id,
-                'order_id' => $orderDetail->order_id, // Lấy ID của đơn hàng gốc từ OrderDetail
-                'message'  => "Khách hàng {$user->name} vừa đánh giá {$request->rating} sao cho đơn hàng #{$orderDetail->order_id}",
-                'is_read'  => false
+                'user_id'    => $admin->id,
+                'message'    => "Khách hàng {$user->name} vừa đánh giá {$request->rating} sao cho đơn hàng #{$orderDetail->order_id}",
+                'is_read'    => false,
+                'target_url' => route('admin.reviews.index') // Trỏ thẳng về trang Quản lý bình luận của Admin
             ]);
         }
 

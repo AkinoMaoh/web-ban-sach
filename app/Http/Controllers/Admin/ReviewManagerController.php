@@ -41,11 +41,9 @@ class ReviewManagerController extends Controller
             
             Notification::create([
                 'user_id'    => $review->user_id,
-                'order_id'   => $review->orderDetail->order_id ?? 0,
                 'message'    => "Shop vừa phản hồi đánh giá của bạn về sách: {$productName}",
                 'is_read'    => false,
-                // Thêm dòng này: Gắn link trực tiếp tới sản phẩm đó
-                'target_url' => route('user.productDetails', $review->product_id) 
+                'target_url' => route('user.productDetails', $review->product_id) // Trỏ thẳng về trang sách 
             ]);
         }
 
