@@ -4,7 +4,6 @@
 
 <style>
     /* --- CUSTOM CSS CHO DASHBOARD --- */
-    /* Ghi đè thẻ thống kê */
     .stat-card {
         border: none;
         border-radius: 12px;
@@ -37,220 +36,228 @@
     .custom-list-item { border-left: none; border-right: none; padding: 15px 20px; transition: 0.2s; }
     .custom-list-item:hover { background-color: #f8f9fa; }
     .custom-list-item:first-child { border-top: none; }
-    
 </style>
 
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800 serif-font font-weight-bold">Tổng Quan Thống Kê</h1>
-   
-</div>
+<div class="container-fluid">
 
-<!-- 1. THẺ THỐNG KÊ DOANH THU & USER -->
-<div class="row">
-    <!-- Doanh thu hôm nay -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card stat-card border-left-blue shadow-sm h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Doanh Thu (Hôm nay)</div>
-                        <div class="h4 mb-0 font-weight-bold text-gray-800">{{ number_format($doanhThuHomNay, 0, ',', '.') }} đ</div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="bg-light p-3 rounded-circle"><i class="fas fa-wallet fa-2x text-primary"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- Tiêu đề trang -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Tổng Quan Thống Kê</h1>
     </div>
 
-    <!-- Doanh thu tháng -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card stat-card border-left-dark shadow-sm h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Doanh Thu (Tháng)</div>
-                        <div class="h4 mb-0 font-weight-bold text-gray-800">{{ number_format($doanhThuThangNay, 0, ',', '.') }} đ</div>
-                        <div class="mt-2 small font-weight-bold {{ $tangTruong >= 0 ? 'text-success' : 'text-danger' }}">
-                            <i class="fas {{ $tangTruong >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
-                            {{ abs($tangTruong) }}% so với tháng trước
+    <!-- 1. THẺ THỐNG KÊ DOANH THU & USER -->
+    <div class="row">
+        <!-- Doanh thu hôm nay -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card border-left-blue shadow-sm h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Doanh Thu (Hôm nay)</div>
+                            <div class="h4 mb-0 font-weight-bold text-gray-800">{{ number_format($doanhThuHomNay, 0, ',', '.') }} đ</div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="bg-light p-3 rounded-circle"><i class="fas fa-wallet fa-2x text-primary"></i></div>
                         </div>
                     </div>
-                    <div class="col-auto">
-                        <div class="bg-light p-3 rounded-circle"><i class="fas fa-chart-line fa-2x text-secondary"></i></div>
-                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Khách mới -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card stat-card border-left-green shadow-sm h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Khách Mới (Tháng)</div>
-                        <div class="h4 mb-0 font-weight-bold text-gray-800">{{ $khachMoiThang }} User</div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="bg-light p-3 rounded-circle"><i class="fas fa-user-plus fa-2x text-success"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Phản hồi -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card stat-card border-left-purple shadow-sm h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    
-                    <div class="col-auto">
-                        <div class="bg-light p-3 rounded-circle"><i class="fas fa-comments fa-2x" style="color: #8E44AD;"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 2. TRẠNG THÁI ĐƠN HÀNG NHANH -->
-<div class="row mb-4">
-    <div class="col-lg-3 col-md-6 mb-3">
-        <a href="{{ route('admin.orders', ['status' => 'pending']) }}" class="btn btn-warning order-status-btn shadow-sm text-white font-weight-bold w-100 text-decoration-none">
-            <span><i class="fas fa-clock mr-2"></i> Chờ xác nhận</span>
-            <span class="badge badge-light text-warning shadow-sm">{{ $donMoi }}</span>
-        </a>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <a href="{{ route('admin.orders', ['status' => 'shipping']) }}" class="btn btn-info order-status-btn shadow-sm text-white font-weight-bold w-100 text-decoration-none">
-            <span><i class="fas fa-truck mr-2"></i> Đang giao</span>
-            <span class="badge badge-light text-info shadow-sm">{{ $donDangGiao }}</span>
-        </a>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <a href="{{ route('admin.orders', ['status' => 'completed']) }}" class="btn btn-success order-status-btn shadow-sm text-white font-weight-bold w-100 text-decoration-none">
-            <span><i class="fas fa-check-circle mr-2"></i> Thành công</span>
-            <span class="badge badge-light text-success shadow-sm">{{ $donThanhCong }}</span>
-        </a>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <a href="{{ route('admin.orders', ['status' => 'cancelled']) }}" class="btn btn-danger order-status-btn shadow-sm text-white font-weight-bold w-100 text-decoration-none">
-            <span><i class="fas fa-times-circle mr-2"></i> Đã hủy</span>
-            <span class="badge badge-light text-danger shadow-sm">{{ $donDaHuy }}</span>
-        </a>
-    </div>
-</div>
-
-<!-- 3. BIỂU ĐỒ (CHARTS) -->
-<div class="row">
-    <div class="col-xl-8 col-lg-7">
-        <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
-            <div class="custom-card-header d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-dark serif-font"><i class="fas fa-chart-area mr-2 text-primary"></i>Doanh Thu Năm {{ date('Y') }}</h6>
-            </div>
-            <div class="card-body">
-                <div class="chart-area"><canvas id="myAreaChart"></canvas></div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-xl-4 col-lg-5">
-        <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
-            <div class="custom-card-header d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-dark serif-font"><i class="fas fa-chart-pie mr-2 text-primary"></i>Tỷ Trọng Danh Mục</h6>
-            </div>
-            <div class="card-body">
-                @if(count($bieuDoDanhMuc) > 0)
-                    <div class="chart-pie pt-4 pb-2">
-                        <canvas id="myPieChart"></canvas>
-                    </div>
-                    <div class="mt-4 text-center small text-muted">
-                        Biểu đồ phân bổ doanh thu theo từng Thể loại sách
-                    </div>
-                @else
-                    <div class="d-flex flex-column align-items-center justify-content-center text-center" style="height: 250px;">
-                        <i class="fas fa-box-open fa-3x text-gray-300 mb-3"></i>
-                        <span class="text-muted">Chưa có dữ liệu bán hàng</span>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 4. DANH SÁCH XẾP HẠNG -->
-<div class="row">
-    <!-- Top 5 Bán Chạy -->
-    <div class="col-lg-4 mb-4">
-        <div class="card shadow-sm border-0" style="border-radius: 12px;">
-            <div class="custom-card-header bg-white">
-                <h6 class="m-0 font-weight-bold text-dark serif-font"><i class="fas fa-trophy mr-2 text-warning"></i>Top 5 Sách Bán Chạy</h6>
-            </div>
-            <div class="card-body p-0">
-                <ul class="list-group list-group-flush">
-                    @forelse($topSanPham as $sp)
-                        <li class="list-group-item custom-list-item d-flex justify-content-between align-items-center">
-                            <span class="text-muted font-weight-bold" style="font-size: 14px;">{{ $sp->name }}</span> 
-                            <span class="badge text-white badge-pill px-2 py-1 bg-primary">{{ $sp->total_sold }} cuốn</span>
-                        </li>
-                    @empty
-                        <li class="list-group-item text-muted text-center py-4">Chưa có dữ liệu</li>
-                    @endforelse
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- Sắp hết hàng -->
-    <div class="col-lg-4 mb-4">
-        <div class="card shadow-sm border-0" style="border-radius: 12px;">
-            <div class="custom-card-header bg-white">
-                <h6 class="m-0 font-weight-bold text-dark serif-font"><i class="fas fa-exclamation-triangle mr-2 text-danger"></i>Sắp Hết Hàng (< 5)</h6>
-            </div>
-            <div class="card-body p-0">
-                <ul class="list-group list-group-flush">
-                    @forelse($sapHetHang as $sp)
-                        <li class="list-group-item custom-list-item d-flex justify-content-between align-items-center">
-                            <a href="{{ route('admin.products.edit', $sp->id) }}" class="text-danger font-weight-bold text-decoration-none" style="font-size: 14px;">{{ $sp->name }}</a> 
-                            <span class="badge badge-danger badge-pill px-2 py-1">Còn {{ $sp->stock }}</span>
-                        </li>
-                    @empty
-                        <li class="list-group-item text-muted text-center py-4"><i class="fas fa-check-circle text-success mr-2"></i>Kho hàng dồi dào</li>
-                    @endforelse
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- Khách VIP -->
-    <div class="col-lg-4 mb-4">
-        <div class="card shadow-sm border-0" style="border-radius: 12px;">
-            <div class="custom-card-header bg-white">
-                <h6 class="m-0 font-weight-bold text-dark serif-font"><i class="fas fa-gem mr-2 text-primary"></i>Khách Hàng VIP</h6>
-            </div>
-            <div class="card-body p-0">
-                <ul class="list-group list-group-flush">
-                    @forelse($khachVIP as $vip)
-                        <li class="list-group-item custom-list-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong class="text-muted">{{ $vip->name }}</strong><br>
-                                <small class="text-muted">{{ $vip->email }}</small>
+        <!-- Doanh thu tháng -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card border-left-dark shadow-sm h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Doanh Thu (Tháng)</div>
+                            <div class="h4 mb-0 font-weight-bold text-gray-800">{{ number_format($doanhThuThangNay, 0, ',', '.') }} đ</div>
+                            <div class="mt-2 small font-weight-bold {{ $tangTruong >= 0 ? 'text-success' : 'text-danger' }}">
+                                <i class="fas {{ $tangTruong >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
+                                {{ abs($tangTruong) }}% so với tháng trước
                             </div>
-                            <span class="badge badge-primary badge-pill px-2 py-1">{{ number_format($vip->total_spent, 0, ',', '.') }}đ</span>
-                        </li>
-                    @empty
-                        <li class="list-group-item text-muted text-center py-4">Chưa có dữ liệu</li>
-                    @endforelse
-                </ul>
+                        </div>
+                        <div class="col-auto">
+                            <div class="bg-light p-3 rounded-circle"><i class="fas fa-chart-line fa-2x text-secondary"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Khách mới -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card border-left-green shadow-sm h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Khách Mới (Tháng)</div>
+                            <div class="h4 mb-0 font-weight-bold text-gray-800">{{ $khachMoiThang }} User</div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="bg-light p-3 rounded-circle"><i class="fas fa-user-plus fa-2x text-success"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phản hồi (Đã bổ sung đầy đủ nội dung bị thiếu) -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card border-left-purple shadow-sm h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1" style="color: #8E44AD;">Phản Hồi / Đánh Giá</div>
+                            <div class="h4 mb-0 font-weight-bold text-gray-800">{{ $tongPhanHoi ?? 0 }} Ý kiến</div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="bg-light p-3 rounded-circle"><i class="fas fa-comments fa-2x" style="color: #8E44AD;"></i></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- 2. TRẠNG THÁI ĐƠN HÀNG NHANH -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <a href="{{ route('admin.orders', ['status' => 'pending']) }}" class="btn btn-warning order-status-btn shadow-sm text-white font-weight-bold w-100 text-decoration-none">
+                <span><i class="fas fa-clock mr-2"></i> Chờ xác nhận</span>
+                <span class="badge badge-light text-warning shadow-sm">{{ $donMoi }}</span>
+            </a>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <a href="{{ route('admin.orders', ['status' => 'shipping']) }}" class="btn btn-info order-status-btn shadow-sm text-white font-weight-bold w-100 text-decoration-none">
+                <span><i class="fas fa-truck mr-2"></i> Đang giao</span>
+                <span class="badge badge-light text-info shadow-sm">{{ $donDangGiao }}</span>
+            </a>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <a href="{{ route('admin.orders', ['status' => 'completed']) }}" class="btn btn-success order-status-btn shadow-sm text-white font-weight-bold w-100 text-decoration-none">
+                <span><i class="fas fa-check-circle mr-2"></i> Thành công</span>
+                <span class="badge badge-light text-success shadow-sm">{{ $donThanhCong }}</span>
+            </a>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <a href="{{ route('admin.orders', ['status' => 'cancelled']) }}" class="btn btn-danger order-status-btn shadow-sm text-white font-weight-bold w-100 text-decoration-none">
+                <span><i class="fas fa-times-circle mr-2"></i> Đã hủy</span>
+                <span class="badge badge-light text-danger shadow-sm">{{ $donDaHuy }}</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 3. BIỂU ĐỒ (CHARTS) -->
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
+                <div class="custom-card-header d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-chart-area mr-2 text-primary"></i>Doanh Thu Năm {{ date('Y') }}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area" style="height: 320px;"><canvas id="myAreaChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
+                <div class="custom-card-header d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-chart-pie mr-2 text-primary"></i>Tỷ Trọng Danh Mục</h6>
+                </div>
+                <div class="card-body">
+                    @if(count($bieuDoDanhMuc) > 0)
+                        <div class="chart-pie pt-2 pb-2" style="height: 260px;">
+                            <canvas id="myPieChart"></canvas>
+                        </div>
+                        <div class="mt-3 text-center small text-muted">
+                            Biểu đồ phân bổ doanh thu theo từng Thể loại sách
+                        </div>
+                    @else
+                        <div class="d-flex flex-column align-items-center justify-content-center text-center" style="height: 280px;">
+                            <i class="fas fa-box-open fa-3x text-gray-300 mb-3"></i>
+                            <span class="text-muted">Chưa có dữ liệu bán hàng</span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. DANH SÁCH XẾP HẠNG -->
+    <div class="row">
+        <!-- Top 5 Bán Chạy -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0" style="border-radius: 12px;">
+                <div class="custom-card-header bg-white">
+                    <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-trophy mr-2 text-warning"></i>Top 5 Sách Bán Chạy</h6>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        @forelse($topSanPham as $sp)
+                            <li class="list-group-item custom-list-item d-flex justify-content-between align-items-center">
+                                <span class="text-dark font-weight-bold text-truncate mr-2" style="font-size: 14px; max-width: 70%;">{{ $sp->name }}</span> 
+                                <span class="badge text-white badge-pill px-2 py-1 bg-primary">{{ $sp->total_sold }} cuốn</span>
+                            </li>
+                        @empty
+                            <li class="list-group-item text-muted text-center py-4">Chưa có dữ liệu</li>
+                        @endforelse
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sắp hết hàng -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0" style="border-radius: 12px;">
+                <div class="custom-card-header bg-white">
+                    <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-exclamation-triangle mr-2 text-danger"></i>Sắp Hết Hàng (< 5)</h6>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        @forelse($sapHetHang as $sp)
+                            <li class="list-group-item custom-list-item d-flex justify-content-between align-items-center">
+                                <a href="{{ route('admin.products.edit', $sp->id) }}" class="text-danger font-weight-bold text-decoration-none text-truncate mr-2" style="font-size: 14px; max-width: 70%;">{{ $sp->name }}</a> 
+                                <span class="badge badge-danger badge-pill px-2 py-1">Còn {{ $sp->stock }}</span>
+                            </li>
+                        @empty
+                            <li class="list-group-item text-muted text-center py-4"><i class="fas fa-check-circle text-success mr-2"></i>Kho hàng dồi dào</li>
+                        @endforelse
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Khách VIP -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0" style="border-radius: 12px;">
+                <div class="custom-card-header bg-white">
+                    <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-gem mr-2 text-primary"></i>Khách Hàng VIP</h6>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        @forelse($khachVIP as $vip)
+                            <li class="list-group-item custom-list-item d-flex justify-content-between align-items-center">
+                                <div class="text-truncate mr-2" style="max-width: 65%;">
+                                    <strong class="text-dark">{{ $vip->name }}</strong><br>
+                                    <small class="text-muted">{{ $vip->email }}</small>
+                                </div>
+                                <span class="badge badge-primary badge-pill px-2 py-1">{{ number_format($vip->total_spent, 0, ',', '.') }}đ</span>
+                            </li>
+                        @empty
+                            <li class="list-group-item text-muted text-center py-4">Chưa có dữ liệu</li>
+                        @endforelse
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
+<!-- SCRIPT XỬ LÝ BIỂU ĐỒ -->
+@push('scripts')
 <script>
     var doanhThuData = @json($bieuDoDoanhThu);
     var danhMucLabels = @json(array_keys($bieuDoDanhMuc));
@@ -279,7 +286,7 @@
             return s.join(dec);
         }
 
-        // 1. BIỂU ĐỒ ĐƯỜNG (DOANH THU) - Tone Xanh Dương
+        // 1. BIỂU ĐỒ ĐƯỜNG (DOANH THU)
         var ctxArea = document.getElementById("myAreaChart");
         if(ctxArea) {
             new Chart(ctxArea, {
@@ -289,8 +296,8 @@
                     datasets: [{
                         label: "Doanh thu",
                         lineTension: 0.4,
-                        backgroundColor: "rgba(26, 115, 232, 0.05)", /* Xanh dương nhạt */
-                        borderColor: "rgba(26, 115, 232, 1)", /* Xanh dương đậm */
+                        backgroundColor: "rgba(26, 115, 232, 0.05)",
+                        borderColor: "rgba(26, 115, 232, 1)",
                         pointRadius: 4,
                         pointBackgroundColor: "rgba(26, 115, 232, 1)",
                         pointBorderColor: "#fff",
@@ -329,7 +336,7 @@
             });
         }
 
-        // 2. BIỂU ĐỒ TRÒN (TỶ TRỌNG DANH MỤC) - Bảng màu Lạnh/Sáng
+        // 2. BIỂU ĐỒ TRÒN (TỶ TRỌNG DANH MỤC)
         var ctxPie = document.getElementById("myPieChart");
         if(ctxPie && danhMucData.length > 0) {
             new Chart(ctxPie, {
@@ -356,5 +363,6 @@
         }
     });
 </script>
+@endpush
 
 @endsection

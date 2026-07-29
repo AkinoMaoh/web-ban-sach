@@ -2,145 +2,169 @@
 
 @section('admin_content')
 
-                <!-- Begin Page Content -->
-                <div class="container-fluid">
+<div class="container-fluid">
 
-                    <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Trang chi tiết sản phẩm</h1>
-                   <div class="card-body">
-                            <a href="{{ route('admin.products') }}" class="btn btn-success mb-3">Quay lại</a>
-                        <div class="card-body">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Thông tin sản phẩm</h6>
-                        </div>
-                            <div class="card-body">
-                                <form action="{{ route('admin.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
-                                    @csrf
-                                  
-                                    <div class="form-group">
-                                        <label for="name">Tên sách</label>
-                                        <input type="text" class="form-control" id="name" name="name" value="{{ $product->name }}" readonly>
-                                    </div>
-                                 <div class="row">
-                        {{-- Danh mục --}}
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="category_id">Danh mục</label>
-                                <input type="text"
-                                    class="form-control"
-                                    id="category_id"
-                                    value="{{ $product->category->name ?? 'N/A' }}"
-                                    readonly>
-                            </div>
-                        </div>
+    <!-- Tiêu đề trang & Nút hành động -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Chi tiết sản phẩm: <span class="text-primary">{{ $product->name }}</span></h1>
+        <div>
+            <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-sm btn-success shadow-sm mr-1">
+                <i class="fas fa-edit fa-sm text-white-50 mr-1"></i> Chỉnh sửa
+            </a>
+            <a href="{{ route('admin.products') }}" class="btn btn-sm btn-secondary shadow-sm">
+                <i class="fas fa-arrow-left fa-sm text-white-50 mr-1"></i> Quay lại danh sách
+            </a>
+        </div>
+    </div>
 
-                        {{-- Tác giả --}}
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="author_id">Tác giả</label>
-                                <input type="text"
-                                    class="form-control"
-                                    id="author_id"
-                                    value="{{ $product->author->name ?? 'N/A' }}"
-                                    readonly>
-                            </div>
+    <div class="row">
+        <!-- CỘT TRÁI: Thông tin chi tiết & Bảng biến thể -->
+        <div class="col-lg-8">
+            
+            <!-- Thẻ Thông tin chung -->
+            <div class="card shadow mb-4 border-0 rounded-lg">
+                <div class="card-header py-3 bg-white">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-info-circle mr-2"></i> Thông tin sản phẩm</h6>
+                </div>
+                <div class="card-body">
+                    
+                    <!-- Tên sách -->
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-uppercase small text-muted d-block mb-1">Tên sách</label>
+                        <h4 class="text-dark font-weight-bold">{{ $product->name }}</h4>
+                    </div>
+
+                    <div class="row">
+                        <!-- Danh mục -->
+                        <div class="col-md-4 form-group mb-3">
+                            <label class="font-weight-bold text-uppercase small text-muted d-block mb-1">Danh mục</label>
+                            <span class="badge badge-light border px-2 py-1 font-weight-bold text-dark">{{ $product->category->name ?? 'N/A' }}</span>
                         </div>
 
-                        {{-- Nhà xuất bản --}}
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="publisher_id">NXB</label>
-                                <input type="text"
-                                    class="form-control"
-                                    id="publisher_id"
-                                    value="{{ $product->publishers->name ?? 'N/A' }}"
-                                    readonly>
-                            </div>
+                        <!-- Tác giả -->
+                        <div class="col-md-4 form-group mb-3">
+                            <label class="font-weight-bold text-uppercase small text-muted d-block mb-1">Tác giả</label>
+                            <span class="font-weight-bold text-dark">{{ $product->author->name ?? 'N/A' }}</span>
+                        </div>
+
+                        <!-- Nhà xuất bản -->
+                        <div class="col-md-4 form-group mb-3">
+                            <label class="font-weight-bold text-uppercase small text-muted d-block mb-1">NXB</label>
+                            <span class="font-weight-bold text-dark">{{ $product->publisher->name ?? ($product->publishers->name ?? 'N/A') }}</span>
                         </div>
                     </div>
-                                    <div class="form-group">
-                                        <label for="description">Mô tả</label>
-                                        <input type="text" class="form-control" id="description" name="description" value="{{ $product->description }}" readonly>
-                                    </div>
-                                  
 
-                                    <div class="form-group">
-    <div class="form-group">
-    <label>Danh sách biến thể</label>
-
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Tên biến thể</th>
-                <th>Giá gốc</th>
-                <th>Giá giảm</th>
-                <th>Giảm giá</th>
-                <th>Số lượng</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            @foreach($productVariants as $variant)
-            <tr>
-
-                <td>
-                    {{ $variant->edition }}
-                </td>
-
-                <td>
-                    {{ number_format($variant->price, 0, ',', '.') }} đ
-                </td>
-
-                <td>
-                    @if($variant->sale_price > 0)
-                        {{ number_format($variant->sale_price, 0, ',', '.') }} đ
-                    @else
-                        Không giảm
-                    @endif
-                </td>
-
-                <td>
-                    @if($variant->discount_percent > 0)
-                        <span class="badge badge-danger">
-                            -{{ $variant->discount_percent }}%
-                        </span>
-                    @else
-                        <span class="badge badge-secondary">
-                            0%
-                        </span>
-                    @endif
-                </td>
-
-                <td>
-                    {{ $variant->stock }}
-                </td>
-
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
-                                    <div class="form-group">
-                                        <label>Tổng số lượng</label>
-                                        <input type="text"
-                                            class="form-control"
-                                            value="{{ $productVariants->sum('stock') }}"
-                                            readonly>
-                                    </div>  
-                                   <div class="form-group">
-                                        <label>Hình ảnh</label>
-                                        <br>
-                                        <img src="{{ asset('uploads/products/' . $product->image) }}"
-                                            alt="Ảnh sản phẩm"
-                                            width="150">
-                                </div>
-                                </form>
-                            </div>
-                        </div>
-
+                    <!-- Mô tả -->
+                    <div class="form-group mb-0">
+                        <label class="font-weight-bold text-uppercase small text-muted d-block mb-1">Mô tả sản phẩm</label>
+                        <div class="text-dark bg-light p-3 rounded border" style="line-height: 1.6;">{{ $product->description ?? 'Không có mô tả' }}</div>
                     </div>
 
                 </div>
+            </div>
+
+            <!-- Thẻ Danh sách biến thể -->
+            <div class="card shadow mb-4 border-0 rounded-lg">
+                <div class="card-header py-3 bg-white">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-layer-group mr-2"></i> Danh sách phiên bản & Giá</h6>
+                </div>
+                <div class="card-body">
+                    
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle mb-0">
+                            <thead class="bg-light text-uppercase font-weight-bold text-dark" style="font-size: 0.8rem;">
+                                <tr>
+                                    <th width="28%">Tên biến thể</th>
+                                    <th width="22%">Giá gốc</th>
+                                    <th width="22%">Giá giảm</th>
+                                    <th width="14%">% Giảm</th>
+                                    <th width="14%" class="text-center">Số lượng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($productVariants as $variant)
+                                <tr>
+                                    <td class="font-weight-bold text-dark">{{ $variant->edition }}</td>
+                                    <td>{{ number_format($variant->price, 0, ',', '.') }} đ</td>
+                                    <td>
+                                        @if($variant->sale_price > 0)
+                                            <span class="text-danger font-weight-bold">{{ number_format($variant->sale_price, 0, ',', '.') }} đ</span>
+                                        @else
+                                            <span class="text-muted small">Không giảm</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if(isset($variant->discount_percent) && $variant->discount_percent > 0)
+                                            <span class="badge badge-danger px-2 py-1">-{{ $variant->discount_percent }}%</span>
+                                        @else
+                                            <span class="badge badge-secondary px-2 py-1">0%</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center font-weight-bold">{{ $variant->stock }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">Không có phiên bản nào.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CỘT PHẢI: Hình ảnh, Kho hàng & Thao tác -->
+        <div class="col-lg-4">
+            
+            <!-- Thẻ Ảnh -->
+            <div class="card shadow mb-4 border-0 rounded-lg">
+                <div class="card-header py-3 bg-white">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-image mr-2"></i> Ảnh sản phẩm</h6>
+                </div>
+                <div class="card-body text-center">
+                    @if($product->image)
+                        <img src="{{ asset('uploads/products/' . $product->image) }}" 
+                             alt="{{ $product->name }}" 
+                             class="img-fluid rounded shadow-sm border" 
+                             style="max-height: 220px; width: 100%; object-fit: cover;">
+                    @else
+                        <span class="text-muted small font-italic py-4 d-block">Không có ảnh</span>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Thẻ Tổng số lượng & Thao tác -->
+            <div class="card shadow mb-4 border-0 rounded-lg sticky-top" style="top: 20px;">
+                <div class="card-header py-3 bg-white">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-boxes mr-2"></i> Thống kê & Thao tác</h6>
+                </div>
+                <div class="card-body">
+                    
+                    <div class="form-group mb-4">
+                        <label class="font-weight-bold text-dark small text-uppercase">Tổng số lượng tồn kho</label>
+                        <input type="text" class="form-control font-weight-bold text-success bg-light text-center" value="{{ $productVariants->sum('stock') }} cuốn" readonly>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <div class="d-flex flex-column">
+                        <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-success btn-block py-2 font-weight-bold shadow-sm mb-2">
+                            <i class="fas fa-edit mr-1"></i> Chỉnh sửa sản phẩm
+                        </a>
+                        <a href="{{ route('admin.products') }}" class="btn btn-light btn-block text-muted py-2 border">
+                            Quay lại danh sách
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
 
 @endsection
