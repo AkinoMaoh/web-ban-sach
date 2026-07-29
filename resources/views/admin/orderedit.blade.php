@@ -22,6 +22,12 @@
         </a>
     </div>
 
+    @if (session('error'))
+        <div class="alert alert-danger shadow-sm border-0 mb-4">
+            <i class="fas fa-exclamation-triangle mr-1"></i> {{ session('error') }}
+        </div>
+    @endif
+
     @if ($errors->any())
         <div class="alert alert-danger shadow-sm border-0 mb-4">
             <h6 class="font-weight-bold mb-2"><i class="fas fa-exclamation-circle mr-1"></i> Vui lòng kiểm tra lại:</h6>
@@ -40,7 +46,6 @@
         <div class="row">
             <!-- CỘT TRÁI: Thông tin giao hàng & Danh sách sản phẩm -->
             <div class="col-lg-8">
-                
                 <!-- Bảng sản phẩm trong đơn -->
                 <div class="card shadow mb-4 border-0 rounded-lg">
                     <div class="card-header py-3 bg-white">
@@ -184,28 +189,62 @@
                         <!-- Form chọn trạng thái -->
                         <div class="form-group mb-4">
                             <label for="status" class="font-weight-bold text-dark small text-uppercase">Trạng thái đơn hàng <span class="text-danger">*</span></label>
-                            <select class="form-control" name="status" id="status" required>
-                                <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }} {{ $currentIndex !== false && $currentIndex > array_search('pending', $statusOrder) ? 'disabled' : '' }}>
-                                    Chờ xử lý{{ $currentIndex !== false && $currentIndex > array_search('pending', $statusOrder) ? ' (khóa)' : '' }}
+                            
+                            <!-- Nếu đơn đã Hủy hoặc Hoàn thành thì Khóa (disabled) toàn bộ không cho sửa nữa -->
+                            <select class="form-control" name="status" id="status" {{ in_array($order->status, ['cancelled', 'completed']) ? 'disabled' : '' }} required>
+                                
+                                @php $pendingIdx = array_search('pending', $statusOrder); @endphp
+                                <option value="pending" 
+                                    {{ $order->status == 'pending' ? 'selected' : '' }} 
+                                    {{ $currentIndex !== false && ($currentIndex > $pendingIdx || $pendingIdx - $currentIndex > 1) ? 'disabled' : '' }}>
+                                    Chờ xử lý{{ $currentIndex !== false && ($currentIndex > $pendingIdx || $pendingIdx - $currentIndex > 1) ? ' (khóa)' : '' }}
                                 </option>
-                                <option value="confirmed" {{ $order->status == 'confirmed' ? 'selected' : '' }} {{ $currentIndex !== false && $currentIndex > array_search('confirmed', $statusOrder) ? 'disabled' : '' }}>
-                                    Đã xác nhận{{ $currentIndex !== false && $currentIndex > array_search('confirmed', $statusOrder) ? ' (khóa)' : '' }}
+                                
+                                @php $confirmedIdx = array_search('confirmed', $statusOrder); @endphp
+                                <option value="confirmed" 
+                                    {{ $order->status == 'confirmed' ? 'selected' : '' }} 
+                                    {{ $currentIndex !== false && ($currentIndex > $confirmedIdx || $confirmedIdx - $currentIndex > 1) ? 'disabled' : '' }}>
+                                    Đã xác nhận{{ $currentIndex !== false && ($currentIndex > $confirmedIdx || $confirmedIdx - $currentIndex > 1) ? ' (khóa)' : '' }}
                                 </option>
-                                <option value="shipping" {{ $order->status == 'shipping' ? 'selected' : '' }} {{ $currentIndex !== false && $currentIndex > array_search('shipping', $statusOrder) ? 'disabled' : '' }}>
-                                    Đang giao{{ $currentIndex !== false && $currentIndex > array_search('shipping', $statusOrder) ? ' (khóa)' : '' }}
+                                
+                                @php $shippingIdx = array_search('shipping', $statusOrder); @endphp
+                                <option value="shipping" 
+                                    {{ $order->status == 'shipping' ? 'selected' : '' }} 
+                                    {{ $currentIndex !== false && ($currentIndex > $shippingIdx || $shippingIdx - $currentIndex > 1) ? 'disabled' : '' }}>
+                                    Đang giao{{ $currentIndex !== false && ($currentIndex > $shippingIdx || $shippingIdx - $currentIndex > 1) ? ' (khóa)' : '' }}
                                 </option>
-                                <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Hoàn thành</option>
-                                <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Đã hủy</option>
+                                
+                                @php $completedIdx = array_search('completed', $statusOrder); @endphp
+                                <option value="completed" 
+                                    {{ $order->status == 'completed' ? 'selected' : '' }}
+                                    {{ $currentIndex !== false && ($currentIndex > $completedIdx || $completedIdx - $currentIndex > 1) ? 'disabled' : '' }}>
+                                    Hoàn thành{{ $currentIndex !== false && ($currentIndex > $completedIdx || $completedIdx - $currentIndex > 1) ? ' (khóa)' : '' }}
+                                </option>
+                                
+                                <!-- ĐÃ CẬP NHẬT: Không cho phép hủy nếu đơn đang giao hoặc đã hoàn thành -->
+                                <option value="cancelled" 
+                                    {{ $order->status == 'cancelled' ? 'selected' : '' }}
+                                    {{ in_array($order->status, ['shipping', 'completed']) ? 'disabled' : '' }}>
+                                    Đã hủy{{ in_array($order->status, ['shipping', 'completed']) ? ' (khóa)' : '' }}
+                                </option>
                             </select>
+                            
+                            <!-- Bổ sung input hidden để gửi giá trị nếu select bị disabled -->
+                            @if(in_array($order->status, ['cancelled', 'completed']))
+                                <input type="hidden" name="status" value="{{ $order->status }}">
+                            @endif
                         </div>
 
                         <!-- Nút lưu hành động -->
                         <div class="d-flex flex-column">
-                            <button type="submit" class="btn btn-success btn-block py-2 font-weight-bold shadow-sm mb-2">
-                                <i class="fas fa-save mr-1"></i> Lưu thay đổi
-                            </button>
+                            <!-- Nếu đơn đã Hủy hoặc Hoàn thành thì ẩn nút Lưu -->
+                            @if(!in_array($order->status, ['cancelled', 'completed']))
+                                <button type="submit" class="btn btn-success btn-block py-2 font-weight-bold shadow-sm mb-2">
+                                    <i class="fas fa-save mr-1"></i> Lưu thay đổi
+                                </button>
+                            @endif
                             <a href="{{ route('admin.orders') }}" class="btn btn-light btn-block text-muted py-2 border">
-                                Hủy bỏ
+                                {{ in_array($order->status, ['cancelled', 'completed']) ? 'Trở về danh sách' : 'Hủy bỏ' }}
                             </a>
                         </div>
 

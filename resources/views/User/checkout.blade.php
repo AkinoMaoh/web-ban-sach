@@ -140,6 +140,11 @@
                                         <div class="pr-3">
                                             <h6 class="mb-1 text-dark" style="font-size: 15px; line-height: 1.4;">{{ $details['name'] ?? 'Sách ID '.$id }}</h6>
                                             <span class="text-muted small">Số lượng: <strong class="text-dark">{{ $details['quantity'] }}</strong></span>
+                                            
+                                            <!-- Hiển thị gạch ngang giá gốc nếu có giảm giá -->
+                                            @if(isset($details['original_price']) && $details['original_price'] > $details['price'])
+                                                <span class="text-muted small ml-2"><del>{{ number_format($details['original_price']) }} đ</del></span>
+                                            @endif
                                         </div>
                                         <span class="font-weight-bold" style="color: var(--primary-color);">{{ number_format($details['price'] * $details['quantity']) }} đ</span>
                                     </div>

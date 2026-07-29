@@ -53,18 +53,28 @@ class GhnLocationSeeder extends Seeder
             return;
         }
 
+        // Lấy danh sách ID của các Tỉnh đã được lưu thành công vào DB
+        $existingProvinceIds = DB::table('provinces')->pluck('id')->toArray();
+
         foreach ($districts as $d) {
-            DB::table('districts')->updateOrInsert(
-                ['id' => $d['DistrictID']],
-                [
-                    'province_id' => $d['ProvinceID'],
-                    'name' => $d['DistrictName']
-                ]
-            );
+            // CHỈ LƯU NHỮNG QUẬN/HUYỆN THUỘC VỀ TỈNH ĐANG TỒN TẠI TRONG DB
+            if (in_array($d['ProvinceID'], $existingProvinceIds)) {
+                DB::table('districts')->updateOrInsert(
+                    ['id' => $d['DistrictID']],
+                    [
+                        'province_id' => $d['ProvinceID'],
+                        'name' => $d['DistrictName']
+                    ]
+                );
+            } else {
+                // Hiển thị cảnh báo nhỏ để biết API trả về data thừa
+                $this->command->warn("Đã bỏ qua Huyện [{$d['DistrictName']}] vì Tỉnh ID [{$d['ProvinceID']}] không tồn tại.");
+            }
         }
 
         // 3. Phường / Xã
-        $this->command->info('3/3 - Đang đồng bộ Phường/Xã (Vui lòng đợi khoảng 1-2 phút)...');
+        $this->command->info('3/3 - Đang đồng bộ Phường/Xã (Vui lòng đợi khoảng 2-5 phút)...');
+        // Vì ta chỉ query dựa trên ID quận/huyện sẵn có trong DB, nên bước này tự động an toàn 100%
         $districtIds = DB::table('districts')->pluck('id');
         
         foreach ($districtIds as $districtId) {
