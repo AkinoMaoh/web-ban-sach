@@ -32,7 +32,13 @@
                 @foreach($cartItems as $item)
                     @php 
                         $isOutOfStock = ($item->variant->stock <= 0 || $item->quantity > $item->variant->stock);
-                        $unitPrice = $item->variant->price;
+                        
+                        // KIỂM TRA GIÁ GIẢM: Nếu có sale_price hợp lệ thì lấy sale_price, ngược lại lấy price gốc
+                        $variant = $item->variant;
+                        $unitPrice = ($variant->sale_price > 0 && $variant->sale_price < $variant->price) 
+                            ? $variant->sale_price 
+                            : $variant->price;
+
                         $subTotal = $unitPrice * $item->quantity;
                     @endphp
                     
@@ -52,10 +58,16 @@
                             
                             <div class="col-3">
                                 <h6 class="font-weight-bold mb-1">{{ $item->variant->product->name }}</h6>
+                                <small class="text-muted">Phân loại: {{ $item->variant->edition }}</small>
                             </div>
                             
                             <div class="col-2 text-center">
-                                <small class="text-muted d-block">{{ number_format($unitPrice) }} đ x {{ $item->quantity }}</small>
+                                @if($variant->sale_price > 0 && $variant->sale_price < $variant->price)
+                                    <small class="text-muted d-block"><del>{{ number_format($variant->price) }} đ</del></small>
+                                    <small class="text-danger font-weight-bold d-block">{{ number_format($unitPrice) }} đ x {{ $item->quantity }}</small>
+                                @else
+                                    <small class="text-muted d-block">{{ number_format($unitPrice) }} đ x {{ $item->quantity }}</small>
+                                @endif
                                 <strong class="text-dark">{{ number_format($subTotal) }} đ</strong>
                             </div>
                             
@@ -69,7 +81,7 @@
                                     @endforeach
                                 </select>
                                 
-                                <!-- Ô nhập số lượng ĐÃ ĐƯỢC THÊM LẠI -->
+                                <!-- Ô nhập số lượng -->
                                 <input type="number" value="{{ $item->quantity }}" min="1" max="{{ $item->variant->stock }}"
                                        oninput="this.value = Math.max(1, Math.min(this.value, {{ $item->variant->stock }}))"
                                        class="form-control form-control-sm auto-update mt-2" 
@@ -130,7 +142,6 @@
         el.addEventListener('change', function() {
             let row = this.closest('.card');
             
-            // Lấy giá trị của Select và Input Number
             let variantVal = row.querySelector('select').value;
             let qtyVal = row.querySelector('input[type="number"]').value;
             
@@ -140,7 +151,7 @@
                 body: JSON.stringify({
                     old_variant_id: this.dataset.oldId,
                     product_variant_id: variantVal,
-                    quantity: qtyVal // Đã sửa lại để lấy số lượng thực tế
+                    quantity: qtyVal
                 })
             }).then(() => location.reload());
         });

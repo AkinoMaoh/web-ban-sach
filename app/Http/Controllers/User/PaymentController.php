@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http; // Đã thêm thư viện Http để gọi API
+use Illuminate\Support\Facades\Http; 
 use App\Models\Notification;
 use App\Models\User; 
 
@@ -25,7 +25,8 @@ class PaymentController extends Controller
                 ->join('product_variants', 'carts.product_variant_id', '=', 'product_variants.id')
                 ->join('products', 'product_variants.product_id', '=', 'products.id')
                 ->where('carts.user_id', $userId)
-                ->select('carts.*', 'product_variants.price', 'products.name');
+                // ĐÃ FIX: Thêm cột sale_price
+                ->select('carts.*', 'product_variants.price', 'product_variants.sale_price', 'products.name');
 
             if ($itemIds) {
                 $idsArray = explode(',', $itemIds);
@@ -36,10 +37,14 @@ class PaymentController extends Controller
             $cartItems = $query->get();
 
             foreach ($cartItems as $item) {
-                $totalAmount += $item->price * $item->quantity;
+                // ĐÃ FIX: Kiểm tra giá giảm
+                $unitPrice = ($item->sale_price > 0 && $item->sale_price < $item->price) ? $item->sale_price : $item->price;
+
+                $totalAmount += $unitPrice * $item->quantity;
                 $cart[$item->id] = [
                     'name' => $item->name,
-                    'price' => $item->price,
+                    'price' => $unitPrice,
+                    'original_price' => $item->price, // Truyền giá gốc sang giao diện
                     'quantity' => $item->quantity,
                     'variant_id' => $item->product_variant_id
                 ];
@@ -62,6 +67,7 @@ class PaymentController extends Controller
                     $variants = DB::table('product_variants')
                         ->join('products', 'product_variants.product_id', '=', 'products.id')
                         ->whereIn('product_variants.id', $variantIds)
+                        // Lấy tất cả thông tin product_variants bao gồm cả sale_price
                         ->select('product_variants.*', 'products.name')
                         ->get();
 
@@ -69,10 +75,14 @@ class PaymentController extends Controller
                         $vid = $variant->id;
                         $quantity = isset($sessionCart[$vid]['quantity']) ? $sessionCart[$vid]['quantity'] : 1;
 
-                        $totalAmount += $variant->price * $quantity;
+                        // ĐÃ FIX: Kiểm tra giá giảm
+                        $unitPrice = ($variant->sale_price > 0 && $variant->sale_price < $variant->price) ? $variant->sale_price : $variant->price;
+
+                        $totalAmount += $unitPrice * $quantity;
                         $cart[$vid] = [
                             'name' => $variant->name,
-                            'price' => $variant->price,
+                            'price' => $unitPrice,
+                            'original_price' => $variant->price, // Truyền giá gốc sang giao diện
                             'quantity' => $quantity,
                             'variant_id' => $vid
                         ];
@@ -84,31 +94,27 @@ class PaymentController extends Controller
         return view('User.checkout', compact('cart', 'totalAmount'));
     }
 
-    // --- HÀM MỚI: TÍNH TIỀN SHIP QUA API GHN ---
     public function calculateShippingFee(Request $request)
     {
-        // 1. Nhận ID Huyện và Mã Xã từ JS gửi lên
         $request->validate([
             'district_id' => 'required',
             'ward_code' => 'required',
         ]);
 
         try {
-            // 2. Gọi API của Giao Hàng Nhanh (Môi trường thật + Bỏ qua kiểm tra SSL)
             $response = Http::withoutVerifying()->withHeaders([
                 'Token' => env('GHN_API_TOKEN'),
                 'ShopId' => env('GHN_SHOP_ID'),
             ])->post('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee', [
-                "from_district_id" => (int) env('STORE_DISTRICT_ID'), // Kho của bạn ở Hải Phòng
-                "to_district_id"   => (int) $request->district_id,    // Huyện của khách
-                "to_ward_code"     => (string) $request->ward_code,   // Xã của khách
-                "weight"           => 1000, // Cân nặng mặc định (1000g = 1kg)
-                "service_type_id"  => 2,    // Loại dịch vụ: 2 = Giao Hàng Chuẩn
+                "from_district_id" => (int) env('STORE_DISTRICT_ID'), 
+                "to_district_id"   => (int) $request->district_id,    
+                "to_ward_code"     => (string) $request->ward_code,   
+                "weight"           => 1000, 
+                "service_type_id"  => 2,    
             ]);
 
             $data = $response->json();
 
-            // 3. Nếu API trả về thành công, gửi số tiền về cho JavaScript
             if ($response->successful() && isset($data['data']['total'])) {
                 return response()->json([
                     'success' => true,
@@ -116,18 +122,15 @@ class PaymentController extends Controller
                 ]);
             }
 
-            // Nếu lỗi từ GHN, set tạm giá ship mặc định để khách vẫn mua được hàng
             return response()->json(['success' => false, 'fee' => 30000]); 
 
         } catch (\Exception $e) {
-            // Lỗi đứt mạng, server GHN sập...
             return response()->json(['success' => false, 'fee' => 30000]);
         }
     }
 
     public function process(Request $request)
     {
-        // 1. CHUẨN HÓA SỐ ĐIỆN THOẠI & EMAIL KÈM TIỀN SHIP
         $validated = $request->validate([
             'shipping_name' => 'required|string|max:255',
             'shipping_phone' => ['required', 'regex:/^0[0-9]{9}$/'],
@@ -159,7 +162,8 @@ class PaymentController extends Controller
             $query = DB::table('carts')
                 ->join('product_variants', 'carts.product_variant_id', '=', 'product_variants.id')
                 ->where('carts.user_id', $userId)
-                ->select('carts.*', 'product_variants.price');
+                // ĐÃ FIX: Lấy thêm sale_price
+                ->select('carts.*', 'product_variants.price', 'product_variants.sale_price');
 
             if ($checkoutItemIds) {
                 $query->whereIn('carts.id', $checkoutItemIds);
@@ -172,10 +176,13 @@ class PaymentController extends Controller
             }
 
             foreach ($cartItems as $item) {
-                $totalAmount += $item->price * $item->quantity;
+                // ĐÃ FIX: Logic tính giá
+                $unitPrice = ($item->sale_price > 0 && $item->sale_price < $item->price) ? $item->sale_price : $item->price;
+
+                $totalAmount += $unitPrice * $item->quantity;
                 $realCart[] = [
                     'product_variant_id' => $item->product_variant_id,
-                    'price' => $item->price,
+                    'price' => $unitPrice, // Đẩy giá cuối cùng sang mảng xử lý
                     'quantity' => $item->quantity,
                 ];
             }
@@ -195,16 +202,19 @@ class PaymentController extends Controller
             foreach ($variants as $variant) {
                 $vid = $variant->id;
                 $quantity = isset($sessionCart[$vid]['quantity']) ? $sessionCart[$vid]['quantity'] : 1;
-                $totalAmount += $variant->price * $quantity;
+                
+                // ĐÃ FIX: Logic tính giá
+                $unitPrice = ($variant->sale_price > 0 && $variant->sale_price < $variant->price) ? $variant->sale_price : $variant->price;
+                
+                $totalAmount += $unitPrice * $quantity;
                 $realCart[] = [
                     'product_variant_id' => $vid,
-                    'price' => $variant->price,
+                    'price' => $unitPrice, // Đẩy giá cuối cùng sang mảng xử lý
                     'quantity' => $quantity,
                 ];
             }
         }
 
-        // --- CỘNG TIỀN SHIP BÊN JS ĐẨY SANG VÀO TỔNG ĐƠN ---
         $shipping_fee = $validated['shipping_fee'];
         $totalAmount += $shipping_fee; 
 
@@ -224,11 +234,11 @@ class PaymentController extends Controller
                 'created_at' => now('Asia/Ho_Chi_Minh'),
             ]);
 
-            // --- GỌI HÀM XỬ LÝ KHO ---
             $this->handleOrderAndStock($realCart, $orderId);
 
             DB::commit();
 
+            // Phần xử lý Redirect COD và VNPay giữ nguyên của bạn ...
             if ($payment_method == 'cod') {
                 if (Auth::check()) {
                     if ($checkoutItemIds) {
@@ -254,23 +264,22 @@ class PaymentController extends Controller
                         'user_id'    => $admin->id,
                         'message'    => "Có đơn hàng mới (COD): #{$orderId} từ khách {$shipping_name}",
                         'is_read'    => false,
-                        'target_url' => url('/admin/orders/' . $orderId . '/edit') // Lưu cứng link chi tiết đơn hàng cho admin
+                        'target_url' => url('/admin/orders/' . $orderId . '/edit')
                     ]);
                 }
 
                 return view('User.thankyou', ['orderId' => $orderId, 'message' => 'Đặt hàng thành công!']);
             } 
             elseif ($payment_method == 'vnpay') {
-                // --- LOGIC TẠO LINK VNPAY ĐƯỢC KHÔI PHỤC LẠI ---
-                $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"; // Link chuẩn test VNPAY
-                $vnp_Returnurl = url('/vnpay-return'); // Trỏ về Route của function vnpayReturn
+                $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"; 
+                $vnp_Returnurl = url('/vnpay-return'); 
                 $vnp_TmnCode = env('VNP_TMN_CODE'); 
                 $vnp_HashSecret = env('VNP_HASH_SECRET'); 
 
                 $vnp_TxnRef = $orderId; 
                 $vnp_OrderInfo = "Thanh toán đơn hàng #" . $orderId;
                 $vnp_OrderType = 'billpayment';
-                $vnp_Amount = $totalAmount * 100; // VNPAY luôn nhân 100
+                $vnp_Amount = $totalAmount * 100; 
                 $vnp_Locale = 'vn';
                 $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
 
@@ -309,7 +318,6 @@ class PaymentController extends Controller
                     $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
                 }
 
-                // Chuyển hướng người dùng sang giao diện VNPAY
                 return redirect()->to($vnp_Url); 
             }
         } catch (\Exception $e) {
@@ -332,14 +340,15 @@ class PaymentController extends Controller
 
             $variantModel = \App\Models\ProductVariants::with('product')->findOrFail($item['product_variant_id']);
 
+            // ĐÃ FIX: Đưa giá chuẩn ($item['price']) vào chi tiết hoá đơn thay vì lấy lại $variantModel->price bị sai sót
             DB::table('order_details')->insert([
                 'order_id'           => $orderId,
                 'product_variant_id' => $variantModel->id,
                 'product_name'       => $variantModel->product->name,
                 'variant_name'       => $variantModel->edition,
-                'price'              => $variantModel->price,
+                'price'              => $item['price'], // Sử dụng giá đã qua check logic giảm giá
                 'quantity'           => $item['quantity'],
-                'subtotal'           => $variantModel->price * $item['quantity'],
+                'subtotal'           => $item['price'] * $item['quantity'], // Tính subtotal dựa trên giá khuyến mãi (nếu có)
                 'created_at'         => now(),
                 'updated_at'         => now(),
             ]);
@@ -352,19 +361,17 @@ class PaymentController extends Controller
 
     public function vnpayReturn(Request $request)
     {
+        // ... (Giữ nguyên toàn bộ logic hiện tại của bạn) ...
         $vnp_HashSecret = env('VNP_HASH_SECRET');
-
         $inputData = array();
         foreach ($request->all() as $key => $value) {
             if (substr($key, 0, 4) == "vnp_") {
                 $inputData[$key] = $value;
             }
         }
-
         $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? '';
         unset($inputData['vnp_SecureHash']);
         unset($inputData['vnp_SecureHashType']);
-
         ksort($inputData);
         $i = 0;
         $hashData = "";
@@ -394,7 +401,7 @@ class PaymentController extends Controller
                             'user_id'    => $admin->id,
                             'message'    => "Có đơn hàng mới (Đã thanh toán VNPAY): #{$orderId} từ khách {$order->shipping_name}",
                             'is_read'    => false,
-                            'target_url' => url('/admin/orders/' . $orderId . '/edit') // Lưu cứng link chi tiết đơn hàng cho admin
+                            'target_url' => url('/admin/orders/' . $orderId . '/edit')
                         ]);
                     }
 
@@ -421,22 +428,18 @@ class PaymentController extends Controller
                         }
                     }
                 }
-
                 return view('User.thankyou', ['orderId' => $orderId, 'message' => 'Giao dịch thành công!']);
             } else {
-                // 1. Cập nhật đơn hàng thành Đã hủy
                 DB::table('orders')->where('id', $orderId)->update([
                     'status' => 'cancelled'
                 ]);
 
-                // 2. [QUAN TRỌNG] CỘNG TRẢ LẠI SỐ LƯỢNG VÀO KHO
                 $cancelledItems = DB::table('order_details')->where('order_id', $orderId)->get();
                 foreach ($cancelledItems as $item) {
                     DB::table('product_variants')
                         ->where('id', $item->product_variant_id)
                         ->increment('stock', $item->quantity);
                 }
-
                 return redirect()->route('checkout.index')->with('error', 'Giao dịch thất bại hoặc bạn đã hủy thanh toán. Hàng hóa đã được hoàn lại kho.');
             }
         } else {

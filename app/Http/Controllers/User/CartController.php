@@ -35,8 +35,15 @@ class CartController extends Controller
 
         foreach ($cartItems as $item) {
             $item->is_out_of_stock = ($item->variant->stock <= 0 || $item->quantity > $item->variant->stock);
-            $item->unit_price = $item->variant->price;
-            $item->subtotal = $item->variant->price * $item->quantity;
+            
+            // KIỂM TRA GIÁ GIẢM: Nếu có sale_price và sale_price > 0 thì lấy sale_price, ngược lại lấy price gốc
+            $variant = $item->variant;
+            $unitPrice = ($variant->sale_price > 0 && $variant->sale_price < $variant->price) 
+                ? $variant->sale_price 
+                : $variant->price;
+
+            $item->unit_price = $unitPrice;
+            $item->subtotal = $unitPrice * $item->quantity;
         }
 
         return view('User.cart', compact('cartItems'));
