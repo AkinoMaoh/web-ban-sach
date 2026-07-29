@@ -43,12 +43,18 @@ class OrderHistoryController extends Controller
             return redirect()->route('user.history')->with('error', 'Đơn hàng không tồn tại hoặc không thuộc quyền sở hữu của bạn!');
         }
 
-        // 2. Lấy danh sách sản phẩm trong đơn hàng đó
+        // 2. Lấy danh sách sản phẩm trong đơn hàng đó (Đã bổ sung product_id vào select)
         $orderDetails = DB::table('order_details')
             ->join('product_variants', 'order_details.product_variant_id', '=', 'product_variants.id')
             ->join('products', 'product_variants.product_id', '=', 'products.id')
             ->where('order_details.order_id', $id)
-            ->select('order_details.*', 'products.name as product_name', 'products.image as product_image', 'product_variants.edition')
+            ->select(
+                'order_details.*', 
+                'products.name as product_name', 
+                'products.image as product_image', 
+                'product_variants.edition', 
+                'product_variants.product_id' // <--- THÊM DÒNG NÀY VÀO
+            )
             ->get();
 
         return view('User.order_detail', compact('order', 'orderDetails'));

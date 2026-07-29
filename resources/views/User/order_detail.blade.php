@@ -1,6 +1,29 @@
 @extends('layout.user')
 @include('User.header')
 
+<style>
+    /* --- CSS RIÊNG CHO TRANG CHI TIẾT ĐƠN HÀNG --- */
+    .serif-font {
+        font-family: 'Playfair Display', Georgia, serif;
+    }
+    .order-detail-section .table td, 
+    .order-detail-section .table th {
+        vertical-align: middle;
+    }
+    .badge {
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+    .btn-outline-primary {
+        color: var(--primary-color, #1a73e8);
+        border-color: var(--primary-color, #1a73e8);
+    }
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color, #1a73e8);
+        color: #fff;
+    }
+</style>
+
 <!-- Breadcrumb -->
 <div class="bg-white py-3 mb-4 shadow-sm border-bottom">
     <div class="container">
@@ -8,7 +31,7 @@
             <ol class="breadcrumb bg-transparent px-0 mb-0 py-0">
                 <li class="breadcrumb-item"><a href="{{ route('user.index') }}" class="text-muted"><i class="fas fa-home"></i> Trang chủ</a></li>
                 <li class="breadcrumb-item"><a href="{{ route('user.orderHistory') }}" class="text-muted">Lịch sử mua hàng</a></li>
-                <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">Chi tiết đơn hàng #{{ $order->id }}</li>
+                <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color, #1a73e8); font-weight: 600;">Chi tiết đơn hàng #{{ $order->id }}</li>
             </ol>
         </nav>
     </div>
@@ -19,7 +42,7 @@
         
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
             <h3 class="serif-font font-weight-bold mb-2 mb-md-0 text-dark">
-                Chi tiết đơn hàng <span style="color: var(--primary-color);">#{{ $order->id }}</span>
+                Chi tiết đơn hàng <span style="color: var(--primary-color, #1a73e8);">#{{ $order->id }}</span>
             </h3>
             <div>
                 @if($order->status == 'pending')
@@ -27,7 +50,7 @@
                 @elseif($order->status == 'confirmed')
                     <span class="badge badge-primary px-4 py-2 text-white shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-truck mr-1"></i> Đang giao</span>
                 @elseif($order->status == 'shipping')
-                    <span class="badge badge-info px-4 py-2 shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-check-circle mr-1"></i> Thành công</span>
+                    <span class="badge badge-info px-4 py-2 shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-check-circle mr-1"></i> Đang giao</span>
                 @elseif($order->status == 'completed')
                     <span class="badge badge-success px-4 py-2 shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-check-circle mr-1"></i> Thành công</span>
                 @elseif($order->status == 'cancelled')
@@ -96,13 +119,24 @@
                             <tbody>
                                 @foreach($orderDetails as $item)
                                     <tr class="border-bottom">
-                                        <!-- Cột Tên + Ảnh -->
+                                        <!-- Cột Tên + Ảnh + Nút Đánh giá to bản ở dưới -->
                                         <td class="py-3 pl-4">
-                                            <div class="d-flex align-items-center">
-                                                <img src="{{ asset('uploads/products/' . $item->product_image) }}" class="rounded shadow-sm" style="width: 55px; height: 80px; object-fit: cover;" alt="Book">
-                                                <div class="ml-3">
-                                                    <span class="d-block font-weight-bold text-dark" style="font-size: 15px;">{{ $item->product_name }}</span>
-                                                    <small class="text-muted">Phiên bản: <strong class="text-dark">{{ $item->edition ?? 'Tiêu chuẩn' }}</strong></small>
+                                            <div class="d-flex align-items-start">
+                                                <img src="{{ asset('uploads/products/' . $item->product_image) }}" class="rounded shadow-sm border" style="width: 65px; height: 90px; object-fit: cover;" alt="Book">
+                                                <div class="ml-3 flex-grow-1">
+                                                    <span class="d-block font-weight-bold text-dark" style="font-size: 16px;">{{ $item->product_name }}</span>
+                                                    <small class="text-muted d-block mb-3">Phiên bản: <strong class="text-dark">{{ $item->edition ?? 'Tiêu chuẩn' }}</strong></small>
+                                                    
+                                                    <!-- Nút Đánh giá sản phẩm to bản, nằm ở dưới -->
+                                                    @if($order->status == 'completed')
+                                                        <div class="mt-2">
+                                                            <a href="{{ route('user.productDetails', $item->product_id) }}#review-section" 
+                                                               class="btn btn-outline-primary font-weight-bold px-3 py-2 shadow-sm d-inline-flex align-items-center" 
+                                                               style="border-radius: 8px; font-size: 13px; border-width: 2px;">
+                                                                <i class="fas fa-star text-warning mr-2" style="font-size: 15px;"></i> Viết đánh giá sản phẩm
+                                                            </a>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </td>
@@ -139,12 +173,13 @@
                         </div>
                         <div class="d-flex justify-content-end align-items-center border-top pt-3 mt-2">
                             <span class="font-weight-bold text-dark mr-4" style="font-size: 16px;">TỔNG CỘNG:</span>
-                            <span class="font-weight-bold" style="color: var(--primary-color); font-size: 24px; width: 120px;">{{ number_format($order->total_amount, 0, ',', '.') }} đ</span>
+                            <span class="font-weight-bold" style="color: var(--primary-color, #1a73e8); font-size: 24px; width: 120px;">{{ number_format($order->total_amount, 0, ',', '.') }} đ</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        
         <div class="text-center mt-4">
             <!-- Nút Quay lại -->
             <a href="{{ route('user.orderHistory') }}" class="btn btn-outline-dark rounded-pill px-4 py-2 font-weight-bold mr-2">
