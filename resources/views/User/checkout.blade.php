@@ -206,7 +206,6 @@ $(document).ready(function() {
     axios.get('/api/locations/provinces')
         .then((response) => {
             let html = '<option value="">Chọn Tỉnh/Thành</option>';
-            // Tuỳ vào cách bạn viết API (bọc data array hoặc không)
             let provinces = response.data.data || response.data; 
             provinces.forEach(element => {
                 html += `<option data-name="${element.name}" value="${element.id}">${element.name}</option>`;
@@ -219,6 +218,10 @@ $(document).ready(function() {
         let provinceId = $(this).val();
         resetShippingFee(); 
 
+        // [QUAN TRỌNG] Làm trống ngay lập tức Quận/Huyện và Phường/Xã cũ
+        $("#district").html('<option value="">Chọn Quận/Huyện</option>');
+        $("#ward").html('<option value="">Chọn Phường/Xã</option>');
+
         if(provinceId) {
             axios.get(`/api/locations/districts/${provinceId}`)
                 .then((response) => {
@@ -228,11 +231,7 @@ $(document).ready(function() {
                         html += `<option data-name="${element.name}" value="${element.id}">${element.name}</option>`;
                     });
                     $("#district").html(html);
-                    $("#ward").html('<option value="">Chọn Phường/Xã</option>'); // Xóa phường xã cũ
                 });
-        } else {
-            $("#district").html('<option value="">Chọn Quận/Huyện</option>');
-            $("#ward").html('<option value="">Chọn Phường/Xã</option>');
         }
     });
 
@@ -240,6 +239,9 @@ $(document).ready(function() {
     $("#district").on("change", function() {
         let districtId = $(this).val();
         resetShippingFee(); 
+
+        // [QUAN TRỌNG] Làm trống Phường/Xã cũ ngay lập tức
+        $("#ward").html('<option value="">Chọn Phường/Xã</option>');
 
         if(districtId) {
             axios.get(`/api/locations/wards/${districtId}`)
@@ -251,8 +253,6 @@ $(document).ready(function() {
                     });
                     $("#ward").html(html);
                 });
-        } else {
-            $("#ward").html('<option value="">Chọn Phường/Xã</option>');
         }
     });
 
@@ -264,11 +264,10 @@ $(document).ready(function() {
         if (wardCode && districtId) {
             $('#shipping_fee_text').html('<i class="fas fa-spinner fa-spin"></i> Đang tính phí...');
             
-            // Gọi Route Laravel tính phí (nó sẽ kết nối API GHN ở backend)
             axios.post('{{ route('payment.calculate_fee') }}', {
                 district_id: districtId,
                 ward_code: wardCode,
-                _token: '{{ csrf_token() }}' // Token bảo mật bắt buộc của Laravel
+                _token: '{{ csrf_token() }}'
             }).then((response) => {
                 if(response.data.success) {
                     let fee = response.data.fee;
@@ -313,7 +312,6 @@ $(document).ready(function() {
             fullAddress = street + ", " + wardName + ", " + districtName + ", " + provinceName;
         }
         
-        // Gán vào input ẩn để đẩy lên database đơn hàng
         $('#full_address').val(fullAddress);
     });
 });
