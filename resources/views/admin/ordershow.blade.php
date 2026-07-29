@@ -110,7 +110,23 @@
                                 <td>{{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y H:i:s') }}</td>
                             </tr>
                             <tr>
-                                <th>Tổng tiền hóa đơn:</th>
+                                <th>Tiền hàng:</th>
+                                <td>
+                                    <h5 class="text font-weight-bold mb-0">
+                                        {{ number_format($order->total_amount - $order->shipping_fee, 0, ',', '.') }} VNĐ
+                                    </h5>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Phí vận chuyển:</th>
+                                <td>
+                                    <h5 class="text font-weight-bold mb-0">
+                                        {{ number_format($order->shipping_fee, 0, ',', '.') }} VNĐ
+                                    </h5>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Tổng cộng:</th>
                                 <td>
                                     <h5 class="text-danger font-weight-bold mb-0">
                                         {{ number_format($order->total_amount, 0, ',', '.') }} VNĐ
