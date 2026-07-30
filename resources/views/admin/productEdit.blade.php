@@ -214,14 +214,16 @@
 </div>
 
                         <div class="form-group text-left mb-0">
-                            <input
-                                type="file"
-                                class="form-control"
-                                id="images"
-                                name="images[]"
-                                accept="image/*"
-                                multiple>
-                            <small class="text-muted d-block mt-2">Chọn ảnh mới nếu muốn thêm</small>
+                           <input
+    type="file"
+    id="images"
+    name="images[]"
+    accept="image/*"
+    multiple>
+<div id="new-preview" class="preview-list mt-3"></div>
+<small class="text-muted">
+    Chọn ảnh muốn thêm - Tối đa 7 tấm
+</small>
                         </div>
                     </div>
                 </div>
@@ -315,34 +317,53 @@ const imageInput = document.getElementById('images');
 const preview = document.getElementById('preview');
 const container = document.getElementById('new-preview');
 
-if (imageInput) {
+if (imageInput && preview && container) {
 
     imageInput.addEventListener('change', function (e) {
 
+        let oldImages = document.querySelectorAll('#image-list .image-item').length;
+        let newImages = this.files.length;
+
+
+        // Kiểm tra tổng ảnh cũ + ảnh mới
+        if (oldImages + newImages > 7) {
+
+            alert(
+                `Sản phẩm hiện có ${oldImages} ảnh. Bạn chỉ được thêm tối đa ${7 - oldImages} ảnh nữa!`
+            );
+
+            this.value = '';
+            container.innerHTML = '';
+
+            return;
+        }
+
+
         container.innerHTML = '';
+
 
         Array.from(e.target.files).forEach((file, index) => {
 
             const url = URL.createObjectURL(file);
 
+
+            // Ảnh đầu tiên làm ảnh chính
             if (index === 0) {
                 preview.src = url;
             }
 
-           const img = document.createElement('img');
 
-img.src = url;
-img.className = 'thumb-image new-thumb';
+            const img = document.createElement('img');
 
-img.onclick = function () {
-    preview.src = this.src;
-};
+            img.src = url;
+            img.className = 'thumb-image new-thumb';
 
-container.appendChild(img);
 
-        });
+            img.style.width = '92px';
+            img.style.height = '92px';
+            img.style.objectFit = 'cover';
+            img.style.margin = '5px';
 
-        document.querySelectorAll('.new-thumb').forEach(img => {
 
             img.onclick = function () {
 
@@ -350,12 +371,14 @@ container.appendChild(img);
 
             };
 
+
+            container.appendChild(img);
+
         });
 
     });
 
 }
-
 // Click ảnh cũ
 document.querySelectorAll('.thumb-image').forEach(img => {
 

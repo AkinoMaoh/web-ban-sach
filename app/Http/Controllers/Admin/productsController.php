@@ -49,7 +49,7 @@ class productsController extends Controller
             'publisher_id' => 'required|exists:publishers,id',
             'author_id' => 'required|exists:authors,id',
             'description' => 'required|string',
-            'images' => 'nullable|array',
+            'images' => 'nullable|array|max:7',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'variants' => 'required|array|min:1',
             'variants.*.edition' => 'required|string|max:100',
@@ -188,6 +188,23 @@ class productsController extends Controller
 
         $product = Products::findOrFail($id);
 
+
+        // Kiểm tra tổng số ảnh hiện tại + ảnh mới
+        $currentImages = $product->images()->count();
+
+        $newImages = $request->hasFile('images')
+            ? count($request->file('images'))
+            : 0;
+
+
+        if ($currentImages + $newImages > 7) {
+
+            return back()
+                ->withErrors([
+                    'images' => "Sản phẩm chỉ được tối đa 7 ảnh. Hiện tại đang có {$currentImages} ảnh."
+                ])
+                ->withInput();
+        }
         // Cập nhật thông tin sản phẩm
         $product->name = $request->name;
         $product->category_id = $request->category_id;
