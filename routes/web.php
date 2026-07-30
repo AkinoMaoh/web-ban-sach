@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\productsController;
@@ -134,6 +135,21 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/products/{id}/toggleStatus', [productsController::class, 'toggleStatus'])->name('admin.products.toggleStatus');
     Route::get('/products/{id}', [productsController::class, 'show'])->name('admin.products.show');
     Route::get('/products/{id}/destroy', [productsController::class, 'destroy'])->name('admin.products.destroy');
+    // Ảnh biến thể sản phẩm
+    Route::get(
+        '/product-image/{id}/primary',
+        [ProductsController::class, 'setPrimary']
+    )
+        ->name('admin.products.image.primary');
+    Route::delete(
+        '/product-image/{id}',
+        [ProductsController::class, 'deleteImage']
+    )->name('admin.products.image.delete');
+    Route::post(
+        '/products/image/sort',
+        [ProductsController::class, 'sortImages']
+    )
+        ->name('admin.products.image.sort');
 
     // Quản lý nhà xuất bản
     Route::resource('publishers', publisherController::class)->names('admin.publishers');
@@ -265,14 +281,14 @@ Route::get('/author/{id}', [ShopController::class, 'author'])
     ->name('user.author');
 
 // --- API NỘI BỘ LẤY ĐỊA CHỈ (Tỉnh / Huyện / Xã) ---
-Route::get('/api/locations/provinces', function() {
+Route::get('/api/locations/provinces', function () {
     return response()->json(DB::table('provinces')->orderBy('name', 'asc')->get());
 });
 
-Route::get('/api/locations/districts/{province_id}', function($province_id) {
+Route::get('/api/locations/districts/{province_id}', function ($province_id) {
     return response()->json(DB::table('districts')->where('province_id', $province_id)->orderBy('name', 'asc')->get());
 });
 
-Route::get('/api/locations/wards/{district_id}', function($district_id) {
+Route::get('/api/locations/wards/{district_id}', function ($district_id) {
     return response()->json(DB::table('wards')->where('district_id', $district_id)->orderBy('name', 'asc')->get());
 });

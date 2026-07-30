@@ -190,9 +190,10 @@
              style="height:220px;width:100%;object-fit:cover;">
 
         <!-- Thumbnail -->
-        <div id="thumbnail-list"
-             class="d-flex flex-wrap justify-content-start gap-2 mb-3">
-        </div>
+<div id="thumbnail-list" class="d-flex flex-wrap">
+
+</div>
+
 
         <input
             type="file"
@@ -316,49 +317,96 @@ const input = document.getElementById('images');
 const mainPreview = document.getElementById('main-preview');
 const thumbnailList = document.getElementById('thumbnail-list');
 
-input.addEventListener('change', function () {
+if(input && thumbnailList){
 
-    thumbnailList.innerHTML = "";
+    input.addEventListener('change', function () {
 
-    const files = Array.from(this.files);
+        thumbnailList.innerHTML = "";
 
-    files.forEach((file,index)=>{
+        const files = Array.from(this.files);
 
-        const reader = new FileReader();
+        files.forEach((file,index)=>{
 
-        reader.onload = function(e){
+            const reader = new FileReader();
 
-            const img=document.createElement('img');
+            reader.onload = function(e){
 
-            img.src=e.target.result;
+                const img = document.createElement('img');
 
-            // ảnh đầu tiên
-            if(index===0){
+                img.src = e.target.result;
 
-                mainPreview.src=e.target.result;
+                if(index === 0){
+                    mainPreview.src = e.target.result;
+                    img.classList.add("active");
+                }
 
-                img.classList.add("active");
-            }
 
-            img.onclick=function(){
+                img.onclick=function(){
 
-                mainPreview.src=this.src;
+                    mainPreview.src=this.src;
 
-                document.querySelectorAll('#thumbnail-list img')
+                    document.querySelectorAll('#thumbnail-list img')
                     .forEach(i=>i.classList.remove('active'));
 
-                this.classList.add('active');
+                    this.classList.add('active');
+
+                };
+
+
+                thumbnailList.appendChild(img);
+
             }
 
-            thumbnailList.appendChild(img);
 
-        }
+            reader.readAsDataURL(file);
 
-        reader.readAsDataURL(file);
+        });
 
     });
 
-});
+}
+const imageList = document.getElementById('image-list');
+
+if(imageList){
+
+    new Sortable(imageList,{
+
+        animation:200,
+
+        ghostClass:'sortable-ghost',
+
+        onEnd:function(){
+
+            let images=[];
+
+            document.querySelectorAll('#image-list .image-item')
+                .forEach(item=>{
+
+                    images.push(item.dataset.id);
+
+                });
+
+            fetch("{{ route('admin.products.image.sort') }}",{
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json",
+                    "X-CSRF-TOKEN":"{{ csrf_token() }}"
+                },
+
+                body:JSON.stringify({
+                    images:images
+                })
+
+            });
+
+        }
+
+    });
+
+}
+
 </script>
 
 @endpush
