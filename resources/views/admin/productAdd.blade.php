@@ -1,7 +1,27 @@
 @extends('admin.layout')
 
 @section('admin_content')
+<style>
+#thumbnail-list img{
+    width:70px;
+    height:70px;
+    object-fit:cover;
+    border:2px solid #ddd;
+    border-radius:6px;
+    cursor:pointer;
+    margin:5px;
+    transition:.2s;
+}
 
+#thumbnail-list img:hover{
+    border-color:#0d6efd;
+    transform:scale(1.05);
+}
+
+#thumbnail-list img.active{
+    border:3px solid #0d6efd;
+}
+</style>
 <div class="container-fluid">
 
     <!-- Tiêu đề trang & Nút quay lại -->
@@ -152,29 +172,38 @@
             <!-- CỘT PHẢI: Hình ảnh và Nút thao tác -->
             <div class="col-lg-4">
                 
-                <!-- Thẻ Hình ảnh -->
-                <div class="card shadow mb-4 border-0 rounded-lg">
-                    <div class="card-header py-3 bg-white">
-                        <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-image mr-2"></i> Ảnh sản phẩm <span class="text-danger">*</span></h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <img id="preview"
-                                 src="https://placehold.co/350x200?text=Product+Preview"
-                                 class="img-fluid rounded shadow-sm border"
-                                 style="max-height: 200px; width: 100%; object-fit: cover;"
-                                 alt="Product Preview">
-                        </div>
+                        <!-- Thẻ Hình ảnh -->
+         <div class="card shadow mb-4 border-0 rounded-lg">
+    <div class="card-header py-3 bg-white">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-image mr-2"></i>
+            Ảnh sản phẩm <span class="text-danger">*</span>
+        </h6>
+    </div>
 
-                        <div class="form-group text-left mb-0">
-                            <input type="file" class="form-control-file @error('image') is-invalid @enderror" id="image" name="image" accept="image/*" required>
-                            <small class="text-muted d-block mt-2">Định dạng: jpeg, png, jpg, gif</small>
-                            @error('image')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
+    <div class="card-body text-center">
+
+        <!-- Ảnh lớn -->
+        <img id="main-preview"
+             src="https://placehold.co/350x200?text=Product+Preview"
+             class="img-fluid rounded border shadow-sm mb-3"
+             style="height:220px;width:100%;object-fit:cover;">
+
+        <!-- Thumbnail -->
+        <div id="thumbnail-list"
+             class="d-flex flex-wrap justify-content-start gap-2 mb-3">
+        </div>
+
+        <input
+            type="file"
+            id="images"
+            name="images[]"
+            class="form-control"
+            accept="image/*"
+            multiple>
+
+    </div>
+</div>
 
                 <!-- Thẻ Lưu thao tác -->
                 <div class="card shadow mb-4 border-0 rounded-lg sticky-top" style="top: 20px;">
@@ -283,7 +312,55 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+const input = document.getElementById('images');
+const mainPreview = document.getElementById('main-preview');
+const thumbnailList = document.getElementById('thumbnail-list');
+
+input.addEventListener('change', function () {
+
+    thumbnailList.innerHTML = "";
+
+    const files = Array.from(this.files);
+
+    files.forEach((file,index)=>{
+
+        const reader = new FileReader();
+
+        reader.onload = function(e){
+
+            const img=document.createElement('img');
+
+            img.src=e.target.result;
+
+            // ảnh đầu tiên
+            if(index===0){
+
+                mainPreview.src=e.target.result;
+
+                img.classList.add("active");
+            }
+
+            img.onclick=function(){
+
+                mainPreview.src=this.src;
+
+                document.querySelectorAll('#thumbnail-list img')
+                    .forEach(i=>i.classList.remove('active'));
+
+                this.classList.add('active');
+            }
+
+            thumbnailList.appendChild(img);
+
+        }
+
+        reader.readAsDataURL(file);
+
+    });
+
+});
 </script>
+
 @endpush
 
 @endsection
