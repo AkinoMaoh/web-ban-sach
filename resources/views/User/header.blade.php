@@ -31,7 +31,7 @@
                 <form action="{{ route('user.shop') }}" method="GET" id="searchForm">
                     <div class="custom-search-bar position-relative d-flex align-items-center">
                         <input type="text" id="searchInput" name="keyword" value="{{ request('keyword') }}" placeholder="Tìm tên sách..." class="form-control shadow-none" autocomplete="off">
-                        <button class="btn text-white d-flex align-items-center justify-content-center custom-search-btn" type="submit" aria-label="Tìm kiếm">
+                        <button class="btn text-white d-flex align-items-center justify-content-center glow-pill-btn" type="submit" aria-label="Tìm kiếm" style="width: 34px; height: 34px; border-radius: 50%;">
                             <i class="fas fa-search" style="font-size: 11px;"></i>
                         </button>
                     </div>
@@ -39,7 +39,7 @@
 
                 <!-- Hộp Dropdown kết quả tìm kiếm -->
                 <div class="search-dropdown-menu shadow-lg mt-2" id="searchDropdown" style="width: 440px; right: 0; left: auto; max-height: 420px; overflow-y: auto;">
-                    <div class="text-white text-center py-3 px-3 font-weight-bold sticky-top search-dropdown-header d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #FF7A00, #D35400); font-size: 14px; letter-spacing: 0.3px; gap: 8px;">
+                    <div class="text-white text-center py-3 px-3 font-weight-bold sticky-top search-dropdown-header d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #FF7A00, #D35400); font-size: 14px; letter-spacing: 0.3px; gap: 8px; border-top-left-radius: 23px; border-top-right-radius: 23px;">
                         <i class="fas fa-compass"></i> Khám phá kho tàng tri thức
                     </div>
                     <div class="p-3" id="searchContentBox">
@@ -80,35 +80,60 @@
                 @endif
             </a>
             
-            <!-- THÔNG BÁO -->
+            <!-- THÔNG BÁO (THIẾT KẾ MỚI TỐI GIẢN, SANG TRỌNG, KHÔNG LỖI VIỀN) -->
             @auth
                 @php
                     $notifs = \App\Models\Notification::where('user_id', Auth::id())->latest()->take(5)->get();
                     $count = \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count();
                 @endphp
                 <div class="dropdown">
-                    <a class="header-icon-btn position-relative" href="#" data-toggle="dropdown" title="Thông báo">
+                    <a class="header-icon-btn position-relative" href="#" data-toggle="dropdown" data-display="static" title="Thông báo">
                         <i class="fas fa-bell"></i>
                         @if($count > 0) 
                             <span class="badge badge-danger rounded-circle header-badge">{{ $count }}</span> 
                         @endif
                     </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow border-0 mt-2 search-dropdown-menu" style="width: 300px; z-index: 9999; border-radius: 16px; overflow: hidden;">
-                        <h6 class="dropdown-header text-uppercase font-weight-bold py-2 bg-light dark-mode-header-text">Thông báo</h6>
-                        @forelse($notifs as $n)
-                            <div class="dropdown-item d-flex justify-content-between align-items-start py-2 border-bottom dark-mode-item {{ !$n->is_read ? 'font-weight-bold bg-light' : '' }}">
-                                <a href="{{ route('notifications.redirect', $n->id) }}" class="text-dark text-decoration-none dark-mode-link" style="white-space: normal; line-height: 1.4; font-size: 13px;">
-                                    {{ $n->message }}
+                    <div class="dropdown-menu dropdown-menu-right shadow-lg mt-2 search-dropdown-menu notification-dropdown" style="width: 360px; z-index: 9999; border-radius: 24px; overflow: hidden; border: 1px solid rgba(0,0,0,0.08);">
+                        <!-- Header tối giản, sang trọng -->
+                        <div class="py-3 px-4 font-weight-bold d-flex align-items-center justify-content-between notification-dropdown-header" style="font-size: 14px; border-bottom: 1px solid rgba(0,0,0,0.06);">
+                            <span class="text-dark dark-mode-link"><i class="fas fa-bell mr-2" style="color: var(--primary-color, #D35400);"></i> Thông báo của bạn</span>
+                            @if($count > 0)
+                                <span class="badge badge-pill px-2 py-1" style="font-size: 11px; background: rgba(211,84,0,0.1); color: var(--primary-color, #D35400) !important;">{{ $count }} mới</span>
+                            @endif
+                        </div>
+
+                        <!-- Danh sách thông báo -->
+                        <div class="notification-list px-2 py-2" style="max-height: 340px; overflow-y: auto;">
+                            @forelse($notifs as $n)
+                                <div class="dropdown-item d-flex align-items-start py-2 px-3 my-1 rounded-lg notification-item {{ !$n->is_read ? 'unread-notification' : '' }}" style="white-space: normal;">
+                                    @if(!$n->is_read)
+                                        <span class="unread-dot mr-2 mt-1" style="width: 8px; height: 8px; background-color: var(--primary-color, #D35400); border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px rgba(211,84,0,0.6);"></span>
+                                    @else
+                                        <span class="mr-2 mt-1" style="width: 8px; height: 8px; display: inline-block; flex-shrink: 0;"></span>
+                                    @endif
+                                    <a href="{{ route('notifications.redirect', $n->id) }}" class="text-dark text-decoration-none dark-mode-link flex-grow-1" style="line-height: 1.4; font-size: 13px;">
+                                        {{ $n->message }}
+                                    </a>
+                                    <form action="{{ route('notifications.delete', $n->id) }}" method="POST" class="ml-2 flex-shrink-0" onsubmit="return confirm('Xóa thông báo?')">
+                                        @csrf
+                                        <button type="submit" class="btn btn-link btn-sm text-muted delete-notif-btn p-0" title="Xóa"><i class="fas fa-times"></i></button>
+                                    </form>
+                                </div>
+                            @empty
+                                <div class="text-center text-muted py-4" style="font-size: 13px;">
+                                    <i class="far fa-bell-slash fa-2x mb-2 text-muted opacity-50"></i><br>Chưa có thông báo nào
+                                </div>
+                            @endforelse
+                        </div>
+
+                        <!-- Footer thông báo -->
+                        @if($notifs->count() > 0)
+                            <div class="p-2 text-center border-top notification-footer">
+                                <a class="text-decoration-none font-weight-bold d-block py-2" href="{{ route('notifications.read.all') }}" style="font-size: 13px; color: var(--primary-color, #D35400);">
+                                    Đánh dấu tất cả đã đọc <i class="fas fa-check-double ml-1"></i>
                                 </a>
-                                <form action="{{ route('notifications.delete', $n->id) }}" method="POST" class="ml-2" onsubmit="return confirm('Xóa thông báo?')">
-                                    @csrf
-                                    <button type="submit" class="btn btn-link btn-sm text-danger p-0"><i class="fas fa-times"></i></button>
-                                </form>
                             </div>
-                        @empty
-                            <div class="dropdown-item text-muted text-center py-3">Chưa có thông báo</div>
-                        @endforelse
-                        <a class="dropdown-item text-center text-primary font-weight-bold py-2 bg-white dark-mode-footer" href="{{ route('notifications.read.all') }}">Đánh dấu đã đọc</a>
+                        @endif
                     </div>
                 </div>
             @endauth
@@ -159,13 +184,13 @@
         background: linear-gradient(135deg, #FF7A00, #D35400) !important;
         box-shadow: 0 0 12px 3px rgba(255, 122, 0, 0.35) !important;
         transition: all 0.25s ease !important;
+        border: none !important;
     }
     .glow-pill-btn:hover {
         box-shadow: 0 0 18px 5px rgba(255, 122, 0, 0.55) !important;
         transform: translateY(-1px);
     }
 
-    /* THANH TÌM KIẾM BO TRÒN TUYỆT ĐỐI */
     .custom-search-bar {
         background-color: #f8f9fa;
         border: 1px solid rgba(0, 0, 0, 0.08);
@@ -193,22 +218,7 @@
     .custom-search-bar input::placeholder {
         color: #999;
     }
-    .custom-search-btn {
-        background: linear-gradient(135deg, #FF7A00, #D35400);
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        border: none;
-        flex-shrink: 0;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 8px rgba(211, 84, 0, 0.3);
-    }
-    .custom-search-btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 10px rgba(211, 84, 0, 0.4);
-    }
 
-    /* Dark Mode cho thanh tìm kiếm */
     html.dark-mode .custom-search-bar,
     body.dark-mode .custom-search-bar,
     .dark-mode .custom-search-bar {
@@ -232,20 +242,56 @@
         box-shadow: none !important;
     }
 
-    /* Dropdown tìm kiếm */
+    .dropdown-menu-right {
+        right: 0 !important;
+        left: auto !important;
+        transform: none !important;
+    }
+
     .search-dropdown-menu {
         position: absolute;
         top: calc(100% + 10px);
         background-color: #ffffff;
-        border-radius: 16px;
+        border-radius: 24px;
         border: 1px solid rgba(0, 0, 0, 0.08);
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
         overflow: hidden;
         display: none;
-        animation: dropdownFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         z-index: 1060;
     }
-    .search-wrapper.show .search-dropdown-menu { display: block; }
+    .show > .search-dropdown-menu,
+    .dropdown.show .search-dropdown-menu,
+    .search-wrapper.show .search-dropdown-menu { 
+        display: block !important; 
+    }
+
+    .notification-item {
+        border-radius: 12px !important;
+        transition: background-color 0.2s ease;
+    }
+    .notification-item:hover {
+        background-color: rgba(211, 84, 0, 0.06) !important;
+    }
+    .unread-notification {
+        background-color: rgba(255, 122, 0, 0.04);
+    }
+    .delete-notif-btn {
+        opacity: 0.5;
+        transition: opacity 0.2s ease;
+    }
+    .notification-item:hover .delete-notif-btn {
+        opacity: 1;
+    }
+    .delete-notif-btn:hover {
+        color: #dc3545 !important;
+    }
+    .notification-footer {
+        background-color: #f8f9fa !important;
+        border-color: rgba(0,0,0,0.05) !important;
+    }
+    .notification-footer a:hover {
+        text-decoration: underline !important;
+    }
     
     .search-keyword-pill {
         background-color: #f8f9fa;
@@ -267,13 +313,33 @@
         transform: translateY(-2px);
     }
 
-    /* Dark Mode cho Dropdown */
     html.dark-mode .search-dropdown-menu,
     body.dark-mode .search-dropdown-menu,
     .dark-mode .search-dropdown-menu {
         background-color: #1a1d20 !important;
         border-color: rgba(255, 255, 255, 0.1) !important;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4) !important;
+    }
+    html.dark-mode .notification-dropdown-header,
+    body.dark-mode .notification-dropdown-header,
+    .dark-mode .notification-dropdown-header {
+        border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    html.dark-mode .notification-item:hover,
+    body.dark-mode .notification-item:hover,
+    .dark-mode .notification-item:hover {
+        background-color: rgba(255, 153, 0, 0.1) !important;
+    }
+    html.dark-mode .unread-notification,
+    body.dark-mode .unread-notification,
+    .dark-mode .unread-notification {
+        background-color: rgba(255, 153, 0, 0.06) !important;
+    }
+    html.dark-mode .notification-footer,
+    body.dark-mode .notification-footer,
+    .dark-mode .notification-footer {
+        background-color: #212529 !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
     }
     html.dark-mode .search-keyword-pill,
     body.dark-mode .search-keyword-pill,
@@ -343,7 +409,7 @@
         background-color: #f1f2f6 !important;
         color: #2C3E50 !important;
         text-decoration: none !important;
-        transition: all 0.2s ease !important;
+        transition: all 0.25s ease !important;
         border: none !important;
         cursor: pointer !important;
         outline: none !important;
@@ -359,14 +425,19 @@
     }
 
     .header-icon-btn:hover {
-        background-color: var(--primary-color, #D35400) !important;
+        background: linear-gradient(135deg, #FF7A00, #D35400) !important;
+        box-shadow: 0 0 14px 4px rgba(255, 122, 0, 0.45) !important;
         color: #fff !important;
         transform: translateY(-2px) !important;
-        box-shadow: 0 4px 10px rgba(211, 84, 0, 0.25) !important;
+    }
+
+    .header-icon-btn:hover i {
+        color: #fff !important;
     }
 
     .header-icon-btn i {
         font-size: 17px !important;
+        transition: color 0.2s ease;
     }
 
     .header-badge {
@@ -434,11 +505,6 @@
     .search-wrapper { z-index: 1050; }
     .search-dropdown-menu::-webkit-scrollbar { width: 6px; }
     .search-dropdown-menu::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.15); border-radius: 10px; }
-    
-    @keyframes dropdownFadeIn { 
-        from { opacity: 0; transform: translateY(12px); } 
-        to { opacity: 1; transform: translateY(0); } 
-    }
 </style>
 
 <script>
