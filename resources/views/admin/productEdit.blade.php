@@ -23,7 +23,14 @@
             </ul>
         </div>
     @endif
+<form id="deleteImageForm"
+      method="POST"
+      style="display:none">
 
+    @csrf
+    @method('DELETE')
+
+</form>
     <form action="{{ route('admin.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
@@ -174,23 +181,38 @@
 
                         </div>
 
-                 <div class="row">
+<div id="image-list" class="d-flex flex-wrap">
 
-   <div id="preview-list" class="preview-list">
+@foreach($product->images->sortBy('sort_order') as $image)
 
-    @foreach($product->images as $image)
-        <img
-            src="{{ asset('uploads/products/'.$image->image) }}"
-            class="thumb-image"
-            alt=""
-        >
-    @endforeach
+<div class="image-item" data-id="{{ $image->id }}">
+
+    <img src="{{ asset('uploads/products/'.$image->image) }}" class="thumb-image">
+
+    @if($image->is_primary)
+        <span class="primary-badge">Ảnh đại diện</span>
+    @endif
+
+    <div class="image-actions">
+
+        <a href="{{ route('admin.products.image.primary',$image->id) }}"
+           class="btn btn-warning btn-sm">
+            <i class="fas fa-star"></i>
+        </a>
+
+      <button type="button"
+        class="btn btn-danger btn-sm btn-delete-image"
+        data-url="{{ route('admin.products.image.delete',$image->id) }}">
+    <i class="fas fa-trash"></i>
+</button>
+    </div>
 
 </div>
 
-<div id="new-preview" class="preview-list"></div>
+@endforeach
 
 </div>
+
                         <div class="form-group text-left mb-0">
                             <input
                                 type="file"
@@ -344,7 +366,66 @@ document.querySelectorAll('.thumb-image').forEach(img => {
     };
 
 });
+const imageList = document.getElementById('image-list');
 
+if(imageList){
+
+    new Sortable(imageList,{
+
+        animation:200,
+
+        ghostClass:'sortable-ghost',
+
+        onEnd:function(){
+
+            let images=[];
+
+            document.querySelectorAll('#image-list .image-item')
+                .forEach(item=>{
+
+                    images.push(item.dataset.id);
+
+                });
+
+            fetch("{{ route('admin.products.image.sort') }}",{
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json",
+                    "X-CSRF-TOKEN":"{{ csrf_token() }}"
+                },
+
+                body:JSON.stringify({
+                    images:images
+                })
+
+            });
+
+        }
+
+    });
+
+}
+document.querySelectorAll('.btn-delete-image').forEach(btn => {
+
+    btn.addEventListener('click', function(e){
+
+        e.preventDefault();
+
+        if(confirm('Bạn có chắc muốn xóa ảnh này?')){
+
+            let form = document.getElementById('deleteImageForm');
+
+            form.action = this.dataset.url;
+
+            form.submit();
+
+        }
+
+    });
+
+});
 });
 </script>
 <style>
@@ -367,6 +448,62 @@ document.querySelectorAll('.thumb-image').forEach(img => {
 
 .thumb-image:hover{
     border-color:#007bff;
+}
+#image-list{
+    gap:12px;
+}
+
+.image-item{
+    width:92px;
+    text-align:center;
+}
+
+.thumb-image{
+    width:92px;
+    height:92px;
+    border-radius:8px;
+    object-fit:cover;
+    border:2px solid #ddd;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.thumb-image:hover{
+    border-color:#0d6efd;
+}
+
+.primary-badge{
+    display:block;
+    margin-top:6px;
+    font-size:11px;
+    background:#28a745;
+    color:#fff;
+    border-radius:4px;
+    padding:2px 4px;
+}
+
+.image-actions{
+    display:flex;
+    justify-content:center;
+    gap:3px;
+    margin-top:6px;
+}
+.image-item{
+
+    cursor:move;
+
+}
+
+.sortable-ghost{
+
+    opacity:.4;
+
+}
+
+.sortable-chosen{
+
+    transform:scale(1.05);
+
 }
 </style>
 @endpush

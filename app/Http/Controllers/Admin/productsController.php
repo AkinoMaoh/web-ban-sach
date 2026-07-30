@@ -308,4 +308,80 @@ class productsController extends Controller
 
         ));
     }
+    public function setPrimary($id)
+    {
+        $image = ProductImage::findOrFail($id);
+
+        ProductImage::where('product_id', $image->product_id)
+            ->update([
+                'is_primary' => 0
+            ]);
+
+        $image->update([
+            'is_primary' => 1
+        ]);
+
+        Products::where('id', $image->product_id)
+            ->update([
+                'image' => $image->image
+            ]);
+
+        return back()->with('success', 'Đã đổi ảnh đại diện.');
+    }
+    public function deleteImage($id)
+    {
+        $image = ProductImage::findOrFail($id);
+
+        $path = public_path('uploads/products/' . $image->image);
+
+        if (file_exists($path)) {
+            unlink($path);
+        }
+
+        $productId = $image->product_id;
+        $wasPrimary = $image->is_primary;
+
+        $image->delete();
+
+        if ($wasPrimary) {
+
+            $newPrimary = ProductImage::where('product_id', $productId)
+                ->orderBy('sort_order')
+                ->first();
+
+            if ($newPrimary) {
+
+                $newPrimary->update([
+                    'is_primary' => 1
+                ]);
+
+                Products::where('id', $productId)
+                    ->update([
+                        'image' => $newPrimary->image
+                    ]);
+            } else {
+
+                Products::where('id', $productId)
+                    ->update([
+                        'image' => null
+                    ]);
+            }
+        }
+
+        return back();
+    }
+    public function sortImages(Request $request)
+    {
+        foreach ($request->images as $index => $id) {
+
+            ProductImage::where('id', $id)
+                ->update([
+                    'sort_order' => $index
+                ]);
+        }
+
+        return response()->json([
+            'success' => true
+        ]);
+    }
 }
