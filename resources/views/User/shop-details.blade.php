@@ -28,21 +28,79 @@
             <form id="them-vao-gio-hang" action="{{ route('cart.add') }}" method="POST">
                 @csrf
                 <div class="row">
-                    <!-- Ảnh Sách -->
-                    <div class="col-lg-5 mb-4 mb-lg-0 text-center position-relative">
-                        @php
-                            $variant = $product->firstVariant;
-                        @endphp
+                   <!-- Ảnh Sách -->
+<div class="col-lg-5 mb-4 mb-lg-0 text-center position-relative">
 
-                        <span id="discount-ball"
-                              class="position-absolute align-items-center justify-content-center text-white"
-                              style="display:none; top:10px; left:10px; width:40px; height:40px; border-radius:50%; background:#D35400; font-size:12px; font-weight:700; z-index:20;">
-                        </span>
+    {{-- Bóng giảm giá --}}
+    <span id="discount-ball"
+        class="position-absolute align-items-center justify-content-center text-white"
+        style="
+            display:none;
+            top:10px;
+            left:10px;
+            width:45px;
+            height:45px;
+            border-radius:50%;
+            background:#D35400;
+            font-size:13px;
+            font-weight:700;
+            z-index:20;
+        ">
+    </span>
 
-                        <img src="{{ asset('uploads/products/' . $product->image) }}"
-                             class="img-fluid rounded shadow"
-                             alt="{{ $product->name }}">
-                    </div>
+
+    {{-- Ảnh chính --}}
+    <div class="main-image mb-3 w-100">
+        <img id="main-product-image"
+             src="{{ asset('uploads/products/' . $product->image) }}"
+             class="img-fluid rounded shadow"
+             style="
+                width:100%;
+                height:520px;
+                object-fit:contain;
+             "
+             alt="{{ $product->name }}">
+    </div>
+
+
+    {{-- Danh sách ảnh nhỏ --}}
+{{-- Danh sách ảnh nhỏ --}}
+<div class="thumbnail-wrapper position-relative">
+
+    <button type="button" class="thumb-btn prev" onclick="prevThumbnail()">
+        ‹
+    </button>
+
+
+    <div class="thumbnail-view">
+
+        <div class="thumbnail-list" id="thumbnailList">
+
+            @foreach($product->images->sortBy('sort_order') as $image)
+
+                <div class="thumbnail-item">
+
+                    <img src="{{ asset('uploads/products/'.$image->image) }}"
+                         class="product-thumbnail"
+                         onclick="changeImage(this.src)">
+
+                </div>
+
+            @endforeach
+
+        </div>
+
+    </div>
+
+
+    <button type="button" class="thumb-btn next" onclick="nextThumbnail()">
+        ›
+    </button>
+
+</div>
+
+</div>
+                 
                     
                     <!-- Thông tin Sách -->
                     <div class="col-lg-7 pl-lg-5">
@@ -298,6 +356,87 @@
         scroll-margin-top: 100px;
     }
 
+/* =====================
+   THUMBNAIL ẢNH SẢN PHẨM
+===================== */
+
+.thumbnail-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+
+.thumbnail-view {
+    width: 330px;
+    overflow: hidden;
+}
+
+
+
+.thumbnail-list {
+    display: flex;
+    gap: 10px;
+    transition: transform 0.3s ease;
+}
+
+
+
+.thumbnail-item {
+    width: 75px;
+    height: 75px;
+    flex: 0 0 75px;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 2px solid #eee;
+}
+
+
+
+.product-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+
+
+.product-thumbnail:hover {
+    border-color: #ff6600;
+}
+
+
+
+.thumb-btn {
+
+    width: 35px;
+    height: 35px;
+
+    border-radius: 50%;
+    border: none;
+
+    background: #333;
+    color: white;
+
+    font-size: 25px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    cursor:pointer;
+
+}
+
+
+
+.thumb-btn:hover {
+
+    background:#ff6600;
+
+}
     /* Hiệu ứng nhấp nháy vàng nhanh gọn trong khoảng 0.8 giây */
     .highlight-review {
         animation: flashHighlight 0.8s ease-in-out;
@@ -318,17 +457,283 @@
 </style>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Tự động cuộn và làm nổi bật review nếu trên URL có chứa #review-{id}
-    if (window.location.hash && window.location.hash.startsWith('#review-')) {
-        let targetElement = document.querySelector(window.location.hash);
-        if (targetElement) {
-            setTimeout(() => {
-                targetElement.classList.add('highlight-review');
-                targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 300);
-        }
+
+
+// =====================
+// BIẾN THỂ + GIÁ
+// =====================
+
+document.addEventListener('DOMContentLoaded', function(){
+
+
+    document.querySelectorAll('input[name="product_variant_id"]')
+    .forEach(function(radio){
+
+
+        radio.addEventListener('change', function(){
+
+            updateVariant(this);
+
+        });
+
+
+    });
+
+
+
+    let checkedVariant =
+        document.querySelector('input[name="product_variant_id"]:checked');
+
+
+
+    if(checkedVariant){
+
+        updateVariant(checkedVariant);
+
     }
+
+
 });
+
+
+
+
+
+
+function updateVariant(radio){
+
+
+    let price =
+        Number(radio.dataset.price || 0);
+
+
+    let salePrice =
+        Number(radio.dataset.salePrice || 0);
+
+
+    let discount =
+        Number(radio.dataset.discount || 0);
+
+
+
+    let priceText =
+        document.getElementById('sale-price');
+
+
+    let oldPrice =
+        document.getElementById('old-price');
+
+
+    let discountBall =
+        document.getElementById('discount-ball');
+
+
+
+    if(!priceText) return;
+
+
+
+    let money =
+        new Intl.NumberFormat('vi-VN');
+
+
+
+    // GIÁ GIẢM
+
+    if(
+        salePrice > 0 &&
+        salePrice < price
+    ){
+
+
+        priceText.innerHTML =
+            money.format(salePrice)+' ₫';
+
+
+
+        if(oldPrice){
+
+            oldPrice.innerHTML =
+                money.format(price)+' ₫';
+
+            oldPrice.style.display='inline';
+
+        }
+
+
+    }else{
+
+
+        priceText.innerHTML =
+            money.format(price)+' ₫';
+
+
+
+        if(oldPrice){
+
+            oldPrice.innerHTML='';
+
+            oldPrice.style.display='none';
+
+        }
+
+
+    }
+
+
+
+
+    // BÓNG %
+
+    if(discountBall){
+
+
+        discountBall.style.display='none';
+
+
+        if(
+            salePrice > 0 &&
+            salePrice < price &&
+            discount > 0
+        ){
+
+
+            discountBall.style.display='flex';
+
+            discountBall.innerHTML =
+                '-'+discount+'%';
+
+
+        }
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+// =====================
+// ĐỔI ẢNH LỚN
+// =====================
+
+
+function changeImage(src){
+
+
+    let img =
+        document.getElementById('main-product-image');
+
+
+    if(img){
+
+        img.src = src;
+
+    }
+
+
+}
+
+
+
+
+
+
+
+
+// =====================
+// SLIDE 4 ẢNH
+// =====================
+
+
+let thumbIndex = 0;
+
+
+
+function nextThumbnail(){
+
+
+    let list =
+        document.getElementById('thumbnailList');
+
+
+    if(!list) return;
+
+
+
+    let total =
+        list.querySelectorAll('.thumbnail-item').length;
+
+
+
+    let max =
+        Math.max(total - 4,0);
+
+
+
+    if(thumbIndex < max){
+
+        thumbIndex++;
+
+    }
+
+
+
+    moveThumbnail();
+
+
+}
+
+
+
+
+
+
+
+function prevThumbnail(){
+
+
+    if(thumbIndex > 0){
+
+        thumbIndex--;
+
+    }
+
+
+    moveThumbnail();
+
+
+}
+
+
+
+
+
+
+
+function moveThumbnail(){
+
+
+    let list =
+        document.getElementById('thumbnailList');
+
+
+    if(!list) return;
+
+
+
+    list.style.transform =
+        `translateX(-${thumbIndex * 85}px)`;
+
+
+}
+
+
+
 </script>
 @endpush
