@@ -42,6 +42,30 @@
         /* Buttons */
         .btn-orange { background-color: var(--primary-color); color: #fff; border-radius: 20px; padding: 8px 20px; font-weight: bold; border: none; transition: 0.3s; }
         .btn-orange:hover { background-color: #a64200; color: #fff; }
+        .btn-wishlist-v2.position-absolute {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border: none !important;
+        padding: 0 !important;
+        background-color: rgba(255, 255, 255, 0.95) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
+        transition: all 0.2s ease-in-out !important;
+        z-index: 15 !important; /* Đảm bảo luôn đè lên ảnh */
+    }
+    
+    /* Hiệu ứng khi di chuột vào (phóng to nhẹ + viền bóng mượt hơn) */
+    .btn-wishlist-v2.position-absolute:hover {
+        background-color: #ffffff !important;
+        transform: scale(1.15) !important;
+        box-shadow: 0 4px 12px rgba(211, 84, 0, 0.25) !important;
+    }
+    
+    /* Fix kích thước icon tim và vi chỉnh độ lệch trọng tâm */
+    .btn-wishlist-v2.position-absolute i {
+        font-size: 16px !important;
+        transform: translateY(1px); /* Hạ tim xuống 1 xíu cho nằm đúng tâm vòng tròn */
+    }
     </style>
 </head>
 <script>

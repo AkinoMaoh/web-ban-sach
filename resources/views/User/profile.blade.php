@@ -2,10 +2,9 @@
 
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-<div class="container py-5" >
+<div class="container py-5">
     <div class="row justify-content-center">
         
         <div class="col-md-4 col-lg-3 mb-4">
@@ -115,12 +114,24 @@
                             </div>
                         </div>
 
-                        <div class="form-group mb-4">
+                        <div class="form-group mb-3">
                             <label class="font-weight-bold text-dark small">Địa chỉ nhận hàng mặc định</label>
                             <div class="d-flex align-items-start">
                                 <span class="bg-light px-3 border border-right-0 d-flex align-items-center justify-content-center border-gray" style="border-radius: 8px 0 0 8px; height: 86px; width: 44px; border: 1px solid #ced4da;"><i class="fas fa-map-marker-alt text-muted"></i></span>
                                 <textarea name="address" class="form-control border-left-0" rows="3" style="border-radius: 0 8px 8px 0; resize: none; border-left: none;" placeholder="Nhập địa chỉ nhận hàng cụ thể (Số nhà, đường, phường/xã, quận/huyện...)">{{ old('address', Auth::user()->address ?? '') }}</textarea>
                             </div>
+                        </div>
+
+                        <!-- CÀI ĐẶT GIAO DIỆN (SÁNG / TỐI - NÚT SWITCH TRẮNG ĐEN NHỎ GỌN) -->
+                        <div class="form-group mb-4 p-3 bg-light rounded d-flex align-items-center justify-content-between" style="border: 1px solid #e9ecef;">
+                            <div>
+                                <label class="font-weight-bold text-dark small mb-0"><i class="fas fa-moon mr-1"></i> Chế độ tối (Dark Mode)</label>
+                                <small class="text-muted d-block" style="font-size: 11px;">Bật giao diện tối cho toàn bộ trang web</small>
+                            </div>
+                            <label class="theme-switch mb-0">
+                                <input type="checkbox" id="profileThemeSwitch">
+                                <span class="theme-slider"></span>
+                            </label>
                         </div>
                         
                         <div class="text-right">
@@ -184,6 +195,49 @@
 </div>
 
 <style>
+    /* CSS CHO SWITCH TRẮNG ĐEN TRÒN NHỎ GỌN */
+    .theme-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+    .theme-switch input { 
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .theme-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #ffffff;
+        transition: .25s ease;
+        border-radius: 24px;
+        border: 2px solid #000000;
+    }
+    .theme-slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 2px;
+        bottom: 2px;
+        background-color: #000000;
+        transition: .25s ease;
+        border-radius: 50%;
+    }
+    input:checked + .theme-slider {
+        background-color: #000000;
+        border-color: #000000;
+    }
+    input:checked + .theme-slider:before {
+        transform: translateX(20px);
+        background-color: #ffffff;
+    }
+
     #v-pills-tab .nav-link.active { background-color: #f1f8e9 !important; color: #2f4c39 !important; }
     #v-pills-tab .nav-link:hover:not(.active):not(.text-danger) { background-color: #f8f9fa; color: #000; }
     .btn-save:hover { background-color: #1f332a !important; }
@@ -192,7 +246,31 @@
 </style>
 
 <script>
-    // JS xử lý ẩn/hiện mật khẩu
+    document.addEventListener('DOMContentLoaded', function () {
+        const root = document.documentElement;
+        const themeSwitch = document.getElementById('profileThemeSwitch');
+        
+        if (localStorage.getItem("theme") === "dark") {
+            root.classList.add("dark-mode");
+            if(themeSwitch) themeSwitch.checked = true;
+        } else {
+            root.classList.remove("dark-mode");
+            if(themeSwitch) themeSwitch.checked = false;
+        }
+
+        if(themeSwitch) {
+            themeSwitch.addEventListener('change', function() {
+                if (this.checked) {
+                    root.classList.add("dark-mode");
+                    localStorage.setItem("theme", "dark");
+                } else {
+                    root.classList.remove("dark-mode");
+                    localStorage.setItem("theme", "light");
+                }
+            });
+        }
+    });
+
     document.querySelectorAll('.btn-eye').forEach(btn => {
         btn.addEventListener('click', function () {
             const input = document.querySelector(this.getAttribute('data-target'));
@@ -210,14 +288,12 @@
         });
     });
 
-    // JS kích hoạt Tab Bootstrap
     $(document).ready(function() {
         $('#v-pills-tab a[data-toggle="pill"]').on('click', function (e) {
             e.preventDefault();
             $(this).tab('show');
         });
 
-        // XỬ LÝ GỬI MÃ OTP QUA AJAX
         $('#btn-send-otp').click(function() {
             let email = $('#user_email').val();
             let btn = $(this);
@@ -233,18 +309,15 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Hiện ô nhập OTP và mở khóa nút Cập nhật mật khẩu
                         $('#otp-group').slideDown();
                         $('#btn-submit-password').prop('disabled', false);
                         
-                        // Hiện thông báo thành công dạng alert
                         $('#alert-container').html(`
                             <div class="alert alert-info border-0 shadow-sm mb-4" style="border-radius: 12px;">
                                 <i class="fas fa-info-circle mr-2"></i> Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư!
                             </div>
                         `);
 
-                        // Bộ đếm ngược 60 giây để gửi lại
                         let timeLeft = 60;
                         let timer = setInterval(function() {
                             if (timeLeft <= 0) {
@@ -268,4 +341,57 @@
         });
     });
 </script>
+<style>
+    /* Các style cũ sẵn có */
+    #v-pills-tab .nav-link.active { background-color: #f1f8e9 !important; color: #2f4c39 !important; }
+    #v-pills-tab .nav-link:hover:not(.active):not(.text-danger) { background-color: #f8f9fa; color: #000; }
+    .btn-save:hover { background-color: #1f332a !important; }
+    .form-control:focus { border-color: #2f4c39 !important; box-shadow: 0 0 0 0.2rem rgba(127, 173, 57, 0.25) !important; }
+    .input-group-text { border-color: #ced4da; background-color: #f8f9fa; }
+
+    /* SWITCH PHONG CÁCH IPHONE (BLACK & WHITE) */
+    .theme-switch {
+        position: relative;
+        display: inline-block;
+        width: 46px;
+        height: 26px;
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+    .theme-switch input { 
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .theme-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #ffffff; /* Bên trong trắng khi Tắt */
+        transition: .25s ease;
+        border-radius: 26px;
+        border: 2px solid #000000; /* Viền ngoài đen khi Tắt */
+    }
+    .theme-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 2px;
+        bottom: 2px;
+        background-color: #000000; /* Hạt tròn đen khi Tắt */
+        transition: .25s ease;
+        border-radius: 50%;
+    }
+    
+    /* Trạng thái Bật (ON) */
+    input:checked + .theme-slider {
+        background-color: #000000; /* Bên trong đen khi Bật */
+        border-color: #ffffff;     /* Viền ngoài trắng khi Bật */
+    }
+    input:checked + .theme-slider:before {
+        transform: translateX(20px);
+        background-color: #ffffff; /* Hạt tròn trắng khi Bật */
+    }
+</style>
 @endsection

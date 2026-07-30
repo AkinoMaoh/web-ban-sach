@@ -275,7 +275,8 @@
                                         </span>
                                     @endif
 
-                                    <button class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute" data-id="{{ $product->id }}" style="top:10px;right:10px;width:34px;height:34px;">
+                                    <!-- Đổi thành btn-wishlist-v2 -->
+                                    <button class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist-v2 position-absolute" data-id="{{ $product->id }}" style="top:10px;right:10px;width:34px;height:34px;">
                                         <i class="{{ in_array($product->id,$wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" style="color:#D35400"></i>
                                     </button>
 
@@ -339,7 +340,8 @@
                                     </span>
                                 @endif
 
-                                <button class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist position-absolute" data-id="{{ $product->id }}" style="top:10px;right:10px;width:34px;height:34px;">
+                                <!-- Đổi thành btn-wishlist-v2 -->
+                                <button class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist-v2 position-absolute" data-id="{{ $product->id }}" style="top:10px;right:10px;width:34px;height:34px;">
                                     <i class="{{ in_array($product->id,$wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" style="color:#D35400"></i>
                                 </button>
 
@@ -396,7 +398,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
-$(document).ready(function(){
+document.addEventListener('DOMContentLoaded', function () {
+    // Cấu hình Toastr
     toastr.options = { 
         "closeButton": true, 
         "progressBar": true, 
@@ -404,51 +407,80 @@ $(document).ready(function(){
         "timeOut": "2500" 
     };
 
-    $('.btn-wishlist').click(function(e) {
-        e.preventDefault(); 
-        
-        @if(!Auth::check())
-            Swal.fire({
-                icon: 'warning',
-                title: 'Chưa đăng nhập',
-                text: 'Bạn cần đăng nhập để thêm sách vào danh sách yêu thích!',
-                showCancelButton: true,
-                confirmButtonText: 'Đăng nhập ngay',
-                cancelButtonText: 'Để sau',
-                confirmButtonColor: '#D35400',
-                cancelButtonColor: '#2C3E50'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "{{ route('login') }}";
+    // Gọi theo class mới btn-wishlist-v2
+    const wishlistButtons = document.querySelectorAll('.btn-wishlist-v2');
+
+    wishlistButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault(); 
+            e.stopPropagation();
+
+            // 1. Cảnh báo Đăng nhập bằng SweetAlert2
+            @if(!Auth::check())
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa đăng nhập',
+                    text: 'Bạn cần đăng nhập để thêm sách vào danh sách yêu thích!',
+                    showCancelButton: true,
+                    confirmButtonText: 'Đăng nhập ngay',
+                    cancelButtonText: 'Để sau',
+                    confirmButtonColor: '#D35400',
+                    cancelButtonColor: '#2C3E50'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{{ route('login') }}";
+                    }
+                });
+                return;
+            @endif
+
+            let btn = this;
+            let productId = btn.getAttribute('data-id');
+
+            // 2. Chặn click đúp
+            if (btn.classList.contains('is-loading')) return;
+            btn.classList.add('is-loading');
+            btn.style.opacity = '0.5';
+
+            // Tìm toàn bộ các nút của CÙNG 1 SẢN PHẨM trên giao diện
+            let allBtnsForThisProduct = document.querySelectorAll(`.btn-wishlist-v2[data-id="${productId}"]`);
+
+            // 3. Xử lý qua AJAX
+            axios.post('{{ route('user.wishlist.toggle') }}', {
+                product_id: productId,
+                _token: '{{ csrf_token() }}'
+            })
+            .then(function (response) {
+                if(response.data.status === 'added') {
+                    allBtnsForThisProduct.forEach(b => {
+                        let icon = b.querySelector('i');
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                    });
+                    toastr.success(response.data.message);
+                } else {
+                    allBtnsForThisProduct.forEach(b => {
+                        let icon = b.querySelector('i');
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                    });
+                    toastr.info(response.data.message);
                 }
+            })
+            .catch(function (error) {
+                console.error(error);
+                toastr.error("Có lỗi xảy ra, vui lòng thử lại!");
+            })
+            .finally(function() {
+                // 4. Mở khóa nút
+                btn.classList.remove('is-loading');
+                btn.style.opacity = '1';
             });
-            return;
-        @endif
-
-        let btn = $(this);
-        let productId = btn.data('id');
-        let icon = btn.find('i');
-
-        axios.post('{{ route('user.wishlist.toggle') }}', {
-            product_id: productId,
-            _token: '{{ csrf_token() }}'
-        })
-        .then(function (response) {
-            if(response.data.status === 'added') {
-                icon.removeClass('far').addClass('fas'); 
-                toastr.success(response.data.message);
-            } else {
-                icon.removeClass('fas').addClass('far');
-                toastr.info(response.data.message);
-            }
-        })
-        .catch(function (error) {
-            console.error(error);
-            toastr.error("Có lỗi xảy ra, vui lòng thử lại!");
         });
     });
 });
 </script>
+
 <script>
 $(document).ready(function () {
     $('#heroCarousel').carousel({
