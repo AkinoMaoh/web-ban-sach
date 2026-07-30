@@ -155,24 +155,51 @@
                     </div>
                     <div class="card-body text-center">
                         <div class="mb-3">
-                            @if($product->image)
+
+                            @if($product->images->count())
+
                                 <img id="preview"
-                                     src="{{ asset('uploads/products/' . $product->image) }}"
-                                     class="img-fluid rounded shadow-sm border"
-                                     style="max-height: 200px; width: 100%; object-fit: cover;"
-                                     alt="Product Preview">
+                                    src="{{ asset('uploads/products/'.$product->images->first()->image) }}"
+                                    class="img-fluid rounded shadow-sm border"
+                                    style="max-height:220px;width:100%;object-fit:cover;">
+
                             @else
+
                                 <img id="preview"
-                                     src="https://placehold.co/350x200?text=No+Image"
-                                     class="img-fluid rounded shadow-sm border"
-                                     style="max-height: 200px; width: 100%; object-fit: cover;"
-                                     alt="Product Preview">
+                                    src="https://placehold.co/350x200?text=No+Image"
+                                    class="img-fluid rounded shadow-sm border"
+                                    style="max-height:220px;width:100%;object-fit:cover;">
+
                             @endif
+
                         </div>
 
+                 <div class="row">
+
+   <div id="preview-list" class="preview-list">
+
+    @foreach($product->images as $image)
+        <img
+            src="{{ asset('uploads/products/'.$image->image) }}"
+            class="thumb-image"
+            alt=""
+        >
+    @endforeach
+
+</div>
+
+<div id="new-preview" class="preview-list"></div>
+
+</div>
                         <div class="form-group text-left mb-0">
-                            <input type="file" class="form-control-file" id="image" name="image" accept="image/*">
-                            <small class="text-muted d-block mt-2">Chọn ảnh mới nếu muốn thay đổi</small>
+                            <input
+                                type="file"
+                                class="form-control"
+                                id="images"
+                                name="images[]"
+                                accept="image/*"
+                                multiple>
+                            <small class="text-muted d-block mt-2">Chọn ảnh mới nếu muốn thêm</small>
                         </div>
                     </div>
                 </div>
@@ -261,16 +288,87 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Xem trước ảnh mới khi chọn
-    const imageInput = document.getElementById('image');
-    if(imageInput) {
-        imageInput.addEventListener('change', function(e){
-            if(e.target.files.length){
-                document.getElementById('preview').src = URL.createObjectURL(e.target.files[0]);
+
+const imageInput = document.getElementById('images');
+const preview = document.getElementById('preview');
+const container = document.getElementById('new-preview');
+
+if (imageInput) {
+
+    imageInput.addEventListener('change', function (e) {
+
+        container.innerHTML = '';
+
+        Array.from(e.target.files).forEach((file, index) => {
+
+            const url = URL.createObjectURL(file);
+
+            if (index === 0) {
+                preview.src = url;
             }
+
+           const img = document.createElement('img');
+
+img.src = url;
+img.className = 'thumb-image new-thumb';
+
+img.onclick = function () {
+    preview.src = this.src;
+};
+
+container.appendChild(img);
+
         });
-    }
+
+        document.querySelectorAll('.new-thumb').forEach(img => {
+
+            img.onclick = function () {
+
+                preview.src = this.src;
+
+            };
+
+        });
+
+    });
+
+}
+
+// Click ảnh cũ
+document.querySelectorAll('.thumb-image').forEach(img => {
+
+    img.onclick = function () {
+
+        preview.src = this.src;
+
+    };
+
+});
+
 });
 </script>
+<style>
+.preview-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:15px;
+}
+
+.thumb-image{
+    width:70px;
+    height:70px;
+    object-fit:cover;
+    border:2px solid #ddd;
+    border-radius:6px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.thumb-image:hover{
+    border-color:#007bff;
+}
+</style>
 @endpush
 
 @endsection

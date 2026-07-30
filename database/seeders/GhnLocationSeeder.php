@@ -10,8 +10,8 @@ class GhnLocationSeeder extends Seeder
 {
     public function run()
     {
-        set_time_limit(0); 
-        
+        set_time_limit(0);
+
         $token = env('GHN_API_TOKEN');
         if (!$token || $token == 'your_ghn_token_here') {
             $this->command->error('LỖI: Chưa có Token hoặc Token chưa được nhận.');
@@ -45,7 +45,7 @@ class GhnLocationSeeder extends Seeder
         $responseDist = Http::withoutVerifying()
             ->withHeaders($headers)
             ->get('https://online-gateway.ghn.vn/shiip/public-api/master-data/district');
-            
+
         $districts = $responseDist->json('data');
 
         if (empty($districts)) {
@@ -74,29 +74,53 @@ class GhnLocationSeeder extends Seeder
 
         // 3. Phường / Xã
         $this->command->info('3/3 - Đang đồng bộ Phường/Xã (Vui lòng đợi khoảng 2-5 phút)...');
-        // Vì ta chỉ query dựa trên ID quận/huyện sẵn có trong DB, nên bước này tự động an toàn 100%
-        $districtIds = DB::table('districts')->pluck('id');
-        
-        foreach ($districtIds as $districtId) {
-            $responseWard = Http::withoutVerifying()
-                ->withHeaders($headers)
-                ->get("https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id={$districtId}");
-            
-            $wards = $responseWard->json('data');
 
-            if (!empty($wards)) {
-                $insertData = [];
-                foreach ($wards as $w) {
-                    $insertData[] = [
-                        'code' => (string) $w['WardCode'],
+        $districtIds = DB::table('districts')->pluck('id');
+
+        $total = $districtIds->count();
+        $current = 0;
+
+        foreach ($districtIds as $districtId) {
+            $current++;
+
+            try {
+                $this->command->line("Đang xử lý quận {$current}/{$total} (ID: {$districtId})");
+
+                $responseWard = Http::withoutVerifying()
+                    ->retry(3, 2000) // thử lại 3 lần, mỗi lần cách 2 giây
+                    ->timeout(30)    // chờ tối đa 30 giây
+                    ->connectTimeout(10)
+                    ->withHeaders($headers)
+                    ->get('https://online-gateway.ghn.vn/shiip/public-api/master-data/ward', [
                         'district_id' => $districtId,
-                        'name' => $w['WardName'],
-                    ];
+                    ]);
+
+                if (!$responseWard->successful()) {
+                    $this->command->warn("Bỏ qua quận ID {$districtId} vì API trả lỗi.");
+                    continue;
                 }
-                DB::table('wards')->insertOrIgnore($insertData);
+
+                $wards = $responseWard->json('data');
+
+                if (!empty($wards)) {
+                    $insertData = [];
+
+                    foreach ($wards as $w) {
+                        $insertData[] = [
+                            'code' => (string) $w['WardCode'],
+                            'district_id' => $districtId,
+                            'name' => $w['WardName'],
+                        ];
+                    }
+
+                    DB::table('wards')->insertOrIgnore($insertData);
+                }
+            } catch (\Throwable $e) {
+                $this->command->warn("Timeout ở quận ID {$districtId}, bỏ qua và tiếp tục...");
+                continue;
             }
         }
 
-        $this->command->info('HOÀN TẤT! Dữ liệu địa phương đã được lưu vào Database.');
+        $this->command->info('Đồng bộ dữ liệu GHN hoàn tất!');
     }
 }

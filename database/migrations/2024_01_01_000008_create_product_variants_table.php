@@ -17,7 +17,7 @@ return new class extends Migration
             $table->decimal('price', 15, 2);
 
             // Giá sau giảm
-            $table->decimal('sale_price', 15, 2)->default(0);
+            $table->decimal('sale_price', 10, 2)->nullable();
 
             // % giảm (tự tính)
             $table->integer('discount_percent')->default(0);

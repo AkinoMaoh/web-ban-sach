@@ -125,14 +125,38 @@
                     <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-image mr-2"></i> Ảnh sản phẩm</h6>
                 </div>
                 <div class="card-body text-center">
-                    @if($product->image)
-                        <img src="{{ asset('uploads/products/' . $product->image) }}" 
-                             alt="{{ $product->name }}" 
-                             class="img-fluid rounded shadow-sm border" 
-                             style="max-height: 220px; width: 100%; object-fit: cover;">
-                    @else
-                        <span class="text-muted small font-italic py-4 d-block">Không có ảnh</span>
-                    @endif
+                   @if($product->images->count())
+
+    {{-- Ảnh lớn --}}
+    <img
+        id="main-image"
+        src="{{ asset('uploads/products/' . $product->images->first()->image) }}"
+        class="img-fluid rounded shadow-sm border mb-3"
+        style="width:100%;height:250px;object-fit:cover;">
+
+    {{-- Thumbnail --}}
+    <div class="row">
+
+        @foreach($product->images as $image)
+
+            <div class="col-3 mb-2">
+
+                <img
+                    src="{{ asset('uploads/products/' . $image->image) }}"
+                    class="img-thumbnail thumb-image"
+                    style="height:70px;width:100%;object-fit:cover;cursor:pointer;">
+
+            </div>
+
+        @endforeach
+
+    </div>
+
+@else
+
+    <span class="text-muted">Không có ảnh</span>
+
+@endif
                 </div>
             </div>
 
@@ -168,3 +192,28 @@
 </div>
 
 @endsection
+@push('scripts')
+<script>
+
+document.querySelectorAll('.thumb-image').forEach(img=>{
+
+    img.addEventListener('click',function(){
+
+        document.getElementById('main-image').src=this.src;
+
+    });
+
+});
+
+</script>
+@endpush
+<style>
+    .thumb-image{
+    transition:.2s;
+}
+
+.thumb-image:hover{
+    transform:scale(1.05);
+    border:2px solid #007bff;
+}
+</style>

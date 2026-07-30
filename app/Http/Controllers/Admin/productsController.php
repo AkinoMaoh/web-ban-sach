@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\products;
 use App\Models\categories;
 use App\Models\authors;
+use App\Models\ProductImage;
 use App\Models\publishers;
 use App\Models\productVariants;
 
@@ -48,7 +49,8 @@ class productsController extends Controller
             'publisher_id' => 'required|exists:publishers,id',
             'author_id' => 'required|exists:authors,id',
             'description' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'variants' => 'required|array|min:1',
             'variants.*.edition' => 'required|string|max:100',
             'variants.*.price' => 'required|numeric|min:0',
@@ -67,20 +69,36 @@ class productsController extends Controller
         $product->author_id = $request->author_id;
         $product->description = $request->description;
         $product->price = 0;
-
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = md5_file($image->getRealPath()) . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('uploads/products'), $imageName);
-            $product->image = $imageName;
-        }
-
         $product->save();
+        if ($request->hasFile('images')) {
 
+            $thumbnail = null;
+
+            foreach ($request->file('images') as $index => $image) {
+
+                $imageName = uniqid() . '_' . time() . '.' . $image->getClientOriginalExtension();
+
+                $image->move(public_path('uploads/products'), $imageName);
+
+                // Lưu ảnh đầu tiên làm ảnh đại diện
+                if ($index === 0) {
+                    $thumbnail = $imageName;
+                }
+
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image' => $imageName,
+                    'is_primary' => $index === 0,
+                    'sort_order' => $index,
+                ]);
+            }
+
+            // Cập nhật ảnh đại diện cho sản phẩm
+            $product->image = $thumbnail;
+        }
         // ======================
         // 2. CREATE VARIANTS
         // ======================
-        $standardPrice = 0;
 
         $standardPrice = 0;
 
@@ -129,7 +147,7 @@ class productsController extends Controller
 
     public function edit($id)
     {
-        $product = Products::findOrFail($id);
+        $product = Products::with('images')->findOrFail($id);
 
         $categories = Categories::all();
         $authors = Authors::all();
@@ -153,7 +171,8 @@ class productsController extends Controller
             'publisher_id' => 'required|exists:publishers,id',
             'author_id' => 'required|exists:authors,id',
             'description' => 'required|string',
-            'image' => 'nullable|image',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'variants' => 'required|array|min:1',
             'variants.*.edition' => 'required|string|max:100',
             'variants.*.price' => 'required|numeric|min:0',
@@ -176,11 +195,30 @@ class productsController extends Controller
         $product->author_id = $request->author_id;
         $product->description = $request->description;
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = md5_file($image->getRealPath()) . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('uploads/products'), $imageName);
-            $product->image = $imageName;
+        if ($request->hasFile('images')) {
+
+            // Lấy sort_order lớn nhất hiện có
+            $sortOrder = ProductImage::where('product_id', $product->id)->max('sort_order');
+            $sortOrder = is_null($sortOrder) ? 0 : $sortOrder + 1;
+
+            foreach ($request->file('images') as $image) {
+
+                $imageName = uniqid() . '_' . time() . '.' . $image->getClientOriginalExtension();
+
+                $image->move(public_path('uploads/products'), $imageName);
+
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image' => $imageName,
+                    'is_primary' => false,
+                    'sort_order' => $sortOrder++,
+                ]);
+
+                // Nếu sản phẩm chưa có ảnh đại diện thì lấy ảnh đầu tiên
+                if (empty($product->image)) {
+                    $product->image = $imageName;
+                }
+            }
         }
 
         $product->save();
@@ -267,6 +305,7 @@ class productsController extends Controller
             'product',
             'productVariants',
             'totalStock'
+
         ));
     }
 }
