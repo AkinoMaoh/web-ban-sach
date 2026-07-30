@@ -196,12 +196,15 @@
 
 
         <input
-            type="file"
-            id="images"
-            name="images[]"
-            class="form-control"
-            accept="image/*"
-            multiple>
+    type="file"
+    id="images"
+    name="images[]"
+    class="form-control"
+    accept="image/*"
+    multiple>
+<small class="text-muted">
+    Tối đa 7 ảnh sản phẩm
+</small>
 
     </div>
 </div>
@@ -404,7 +407,24 @@ if(imageList){
         }
 
     });
+const imageInput = document.getElementById('images');
 
+if(imageInput){
+
+    imageInput.addEventListener('change', function(){
+
+        if(this.files.length > 7){
+
+            alert('Chỉ được phép thêm tối đa 7 ảnh!');
+
+            this.value = '';
+
+            return;
+        }
+
+    });
+
+}
 }
 
 </script>
