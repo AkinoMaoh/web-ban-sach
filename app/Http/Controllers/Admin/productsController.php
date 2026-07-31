@@ -17,9 +17,21 @@ class productsController extends Controller
     {
         $categories = categories::all();
 
-        $query = products::with('publishers', 'author', 'category', 'firstVariant', 'variants');
+        $query = products::with(
+            'publishers',
+            'author',
+            'category',
+            'firstVariant',
+            'variants'
+        );
 
-        if ($request->category_id) {
+        // Tìm theo tên sản phẩm
+        if ($request->filled('keyword')) {
+            $query->where('name', 'like', $request->keyword . '%');
+        }
+
+        // Lọc theo danh mục
+        if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
         }
 
@@ -400,5 +412,16 @@ class productsController extends Controller
         return response()->json([
             'success' => true
         ]);
+    }
+    // Tìm kiếm sản phẩm ajax
+    public function search(Request $request)
+    {
+        $products = products::where('name', 'like', $request->keyword . '%')
+            ->select('name')
+            ->distinct()
+            ->limit(5)
+            ->get();
+
+        return response()->json($products);
     }
 }

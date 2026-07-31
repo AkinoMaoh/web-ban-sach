@@ -126,6 +126,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/manage-admins/{id}/approve', [AdminAuthController::class, 'approveAdmin'])->name('admin.approve');
     Route::delete('/manage-admins/{id}/reject', [AdminAuthController::class, 'rejectAdmin'])->name('admin.reject');
 
+    // Tìm kiếm sản phẩm
+    Route::get('/products/search', [productsController::class, 'search'])->name('admin.products.search');
     // Quản lý sản phẩm
     Route::get('/products', [productsController::class, 'index'])->name('admin.products');
     Route::get('/products/create', [productsController::class, 'create'])->name('admin.productAdd');
@@ -151,9 +153,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     )
         ->name('admin.products.image.sort');
 
+    // Tìm kiếm nhà xuất bản
+    Route::get('/publishers/search', [publisherController::class, 'search'])->name('admin.publishers.search');
     // Quản lý nhà xuất bản
     Route::resource('publishers', publisherController::class)->names('admin.publishers');
 
+    // Tìm kiếm tác giả
+    Route::get('/authors/search', [authorsController::class, 'search'])->name('admin.authors.search');
     // Quản lý tác giả
     Route::get('/authors', [authorsController::class, 'index'])->name('admin.authors');
     Route::get('/authors/create', [authorsController::class, 'authorCreate'])->name('admin.authorAdd');
@@ -177,6 +183,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/orders/{id}', [ordersController::class, 'destroy'])->name('admin.orders.destroy');
     Route::post('/orders/{id}/toggleStatus', [ordersController::class, 'toggleStatus'])->name('admin.orders.toggleStatus');
 
+    // Tìm kiếm danh mục
+    Route::get('/admin/categories/search', [CategoriesController::class, 'search'])->name('admin.categories.search');
     // Quản lý danh mục
     Route::get('/categories', [categoriesController::class, 'index'])->name('admin.categories');
     Route::get('/categories/create', [categoriesController::class, 'create'])->name('admin.categoryAdd');
