@@ -98,7 +98,7 @@
                  
                     <!-- Thông tin Sách -->
                     <div class="col-lg-7 pl-lg-5 mt-4 mt-lg-0">
-                        <h1 class="product-title serif-font font-weight-bold mb-2" style="line-height: 1.4; font-size: 26px;">
+                        <h1 class="product-title serif-font font-weight-bold mb-2 product-title-custom" style="line-height: 1.4; font-size: 26px;">
                             {{ $product->name }}
                         </h1>
                         
@@ -529,6 +529,16 @@
     .product-card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
     .product-card-hover .card-title { transition: color 0.2s; }
     .product-card-hover:hover .card-title { color: var(--primary-color) !important; }
+    .product-title-custom {
+        color: #1a1a1a !important;
+    }
+
+    /* Chế độ tối: Chữ tự động chuyển sang màu trắng */
+    html.dark-mode .product-title-custom,
+    body.dark-mode .product-title-custom,
+    .dark-mode .product-title-custom {
+        color: #ffffff !important;
+    }
 </style>
 
 <script>
