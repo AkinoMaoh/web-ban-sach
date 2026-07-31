@@ -12,21 +12,21 @@
     <div class="card shadow mb-4 border-0 rounded-lg">
 
         <!-- Header chứa Form Tìm kiếm & Lọc -->
-        <div class="card-header py-3 bg-white d-flex flex-column flex-md-row justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary mb-3 mb-md-0">
+        <div class="card-header py-3 d-flex align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
                 <i class="fas fa-shopping-cart mr-2"></i> Danh sách đơn hàng
             </h6>
 
-            <form method="GET" action="{{ route('admin.orders') }}" class="form-inline w-100 w-md-auto justify-content-end">
+            <form method="GET"action="{{ route('admin.orders') }}" class="form-inline">
                 <!-- Ô tìm kiếm SĐT -->
                 <div class="position-relative search-box mr-2 mb-2 mb-md-0">
                     <input type="text"
-                        id="search-phone"
-                        name="phone"
+                        id="admin-search"
+                        name="keyword"
                         class="form-control form-control-sm"
                         placeholder="Nhập số điện thoại..."
                         autocomplete="off"
-                        value="{{ request('phone') }}">
+                        value="{{ request('keyword') }}">
                     <div id="search-order-result"></div>
                 </div>
 
@@ -176,7 +176,8 @@
 <!-- JS phần tìm kiếm đơn hàng AJAX và Click chuyển trang -->
 @push('scripts')
 <script>
-const searchOrderUrl = "{{ route('admin.orders.search') }}";
+const searchUrl = "{{ route('admin.orders.search') }}";
+const searchField = "shipping_phone";
 
 document.addEventListener("DOMContentLoaded", function() {
     // Cho phép click vào toàn bộ dòng tr để chuyển sang trang chi tiết
@@ -193,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 
-<script src="{{ asset('js/orders-search.js') }}"></script>
+<script src="{{ asset('js/admin-search.js') }}"></script>
 @endpush
 
 @endsection

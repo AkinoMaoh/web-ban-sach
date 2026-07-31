@@ -17,8 +17,8 @@ class ordersController extends Controller
         $query->where('status', $request->status);
     }
 
-    if ($request->filled('phone')) {
-        $query->where('shipping_phone', 'like', $request->phone . '%');
+    if ($request->filled('keyword')) {
+        $query->where('shipping_phone', 'like', $request->keyword . '%');
     }
 
     $orders = $query->orderBy('created_at', 'desc')->paginate(15);
@@ -113,10 +113,10 @@ class ordersController extends Controller
     // Tìm kiếm đơn hàng sđt bằng AJAX
     public function search(Request $request)
     {
-        $orders = Order::select('shipping_phone')
-            ->where('shipping_phone', 'like', $request->phone . '%')
+        $orders = Order::where('shipping_phone', 'like', $request->keyword . '%')
+            ->select('shipping_phone')
             ->distinct()
-            ->orderBy('shipping_phone')
+            ->limit(5)
             ->get();
 
         return response()->json($orders);

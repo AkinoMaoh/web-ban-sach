@@ -6,18 +6,6 @@
         <i class="fa fa-bars"></i>
     </button>
 
-    <!-- Topbar Search -->
-    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-        <div class="input-group">
-            <input type="text" class="form-control bg-light border-0 small" placeholder="Tìm kiếm tài liệu, đơn hàng..." aria-label="Search" style="border-radius: 6px 0 0 6px;">
-            <div class="input-group-append">
-                <button class="btn btn-primary" type="button" style="border-radius: 0 6px 6px 0;">
-                    <i class="fas fa-search fa-sm"></i>
-                </button>
-            </div>
-        </div>
-    </form>
-
     <!-- Topbar Navbar -->
     <ul class="navbar-nav ml-auto align-items-center">
 

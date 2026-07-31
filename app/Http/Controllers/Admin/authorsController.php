@@ -9,9 +9,16 @@ use Illuminate\Http\Request;
 
 class authorsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $authors = authors::withCount('products')->paginate(8);
+        $query = authors::query();
+
+        if ($request->filled('keyword')) {
+            $query->where('name', 'like', $request->keyword . '%');
+        }
+
+        $authors = $query->paginate(8);
+
         return view('admin.author', compact('authors'));
     }
     public function authorCreate()
@@ -108,5 +115,14 @@ class authorsController extends Controller
     {
         $author = authors::findOrFail($id);
         return view('admin.authorShow', compact('author'));
+    }
+    // Tìm kiếm tác giả ajax
+    public function search(Request $request)
+    {
+        $authors = authors::where('name', 'like', $request->keyword . '%')
+            ->limit(5)
+            ->get();
+
+        return response()->json($authors);
     }
 }

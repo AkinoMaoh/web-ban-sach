@@ -21,14 +21,46 @@
 
             <!-- Form lọc theo danh mục đặt ngay trên header cho gọn gàng -->
             <form method="GET" action="{{ route('admin.products') }}" class="form-inline">
-                <select name="category_id" class="form-control form-control-sm border-secondary shadow-sm" onchange="this.form.submit()">
+
+                <div class="position-relative search-box mr-2">
+
+                    <input
+                        type="text"
+                        id="admin-search"
+                        name="keyword"
+                        class="form-control"
+                        placeholder="Nhập tên sản phẩm..."
+                        autocomplete="off"
+                        value="{{ request('keyword') }}">
+
+                    <div id="search-order-result"></div>
+
+                </div>
+
+                <select
+                    name="category_id"
+                    class="form-control mr-2">
+
                     <option value="">-- Tất cả danh mục --</option>
+
                     @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>
+
+                        <option
+                            value="{{ $cat->id }}"
+                            {{ request('category_id') == $cat->id ? 'selected' : '' }}>
+
                             {{ $cat->name }}
+
                         </option>
+
                     @endforeach
+
                 </select>
+
+                <button class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+
             </form>
         </div>
 
@@ -181,6 +213,9 @@
 <!-- JS xử lý sự kiện click vào dòng để vào trang Sửa -->
 @push('scripts')
 <script>
+const searchUrl = "{{ route('admin.products.search') }}";
+const searchField = "name";
+
 document.addEventListener("DOMContentLoaded", function() {
     const rows = document.querySelectorAll(".clickable-row");
     rows.forEach(row => {
@@ -194,6 +229,8 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
+
+<script src="{{ asset('js/admin-search.js') }}"></script>
 @endpush
 
 @endsection
