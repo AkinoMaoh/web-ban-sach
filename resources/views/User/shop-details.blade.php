@@ -1,6 +1,17 @@
 @extends('layout.user')
 
 @section('content')
+@php
+    // Kiểm tra đăng nhập và lấy danh sách ID sản phẩm đã yêu thích
+    $wishlistIds = [];
+    if(Auth::check()) {
+        $wishlistIds = \Illuminate\Support\Facades\DB::table('wishlists')
+            ->where('user_id', Auth::id())
+            ->pluck('product_id')
+            ->toArray();
+    }
+@endphp
+
 <!-- Breadcrumb -->
 <div class="bg-white py-3 mb-4 shadow-sm border-bottom">
     <div class="container">
@@ -189,17 +200,24 @@
                             </div>
                         </div>
 
-                        <!-- Chọn Số Lượng -->
+                        <!-- Chọn Số Lượng & Yêu Thích -->
                         <div class="mb-4">
                             <h6 class="font-weight-bold mb-3 text-dark" style="font-size: 15px;">Số lượng:</h6>
-                            <div class="input-group" style="width: 130px;">
-                                <div class="input-group-prepend">
-                                    <button class="btn btn-outline-secondary font-weight-bold" style="border-color: #ddd;" type="button" onclick="let q=document.getElementById('o-so-luong'); if(q.value>1)q.value--; q.dispatchEvent(new Event('input'))">-</button>
+                            <div class="d-flex align-items-center">
+                                <div class="input-group mr-3" style="width: 130px;">
+                                    <div class="input-group-prepend">
+                                        <button class="btn btn-outline-secondary font-weight-bold" style="border-color: #ddd;" type="button" onclick="let q=document.getElementById('o-so-luong'); if(q.value>1)q.value--; q.dispatchEvent(new Event('input'))">-</button>
+                                    </div>
+                                    <input type="number" name="quantity" id="o-so-luong" class="form-control text-center font-weight-bold bg-white" style="border-color: #ddd;" value="1" min="1" readonly>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary font-weight-bold" style="border-color: #ddd;" type="button" onclick="let q=document.getElementById('o-so-luong'); q.value++; q.dispatchEvent(new Event('input'))">+</button>
+                                    </div>
                                 </div>
-                                <input type="number" name="quantity" id="o-so-luong" class="form-control text-center font-weight-bold bg-white" style="border-color: #ddd;" value="1" min="1" readonly>
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary font-weight-bold" style="border-color: #ddd;" type="button" onclick="let q=document.getElementById('o-so-luong'); q.value++; q.dispatchEvent(new Event('input'))">+</button>
-                                </div>
+                                
+                                <!-- Nút Wishlist (Đã chuyển class thành btn-wishlist-v2) -->
+                                <button type="button" class="btn btn-light shadow-sm btn-wishlist-v2 border d-flex align-items-center justify-content-center" data-id="{{ $product->id }}" style="width: 42px; height: 42px; border-radius: 6px;" title="Thêm vào yêu thích">
+                                    <i class="{{ in_array($product->id, $wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart text-danger" style="font-size: 18px;"></i>
+                                </button>
                             </div>
                         </div>
 
@@ -210,9 +228,6 @@
                             </button>
                             <button type="submit" name="action_type" value="buy_now" class="btn px-5 py-3 font-weight-bold shadow-sm mr-3 text-white" style="background-color: #ee4d2d; border: none;">
                                 Mua ngay
-                            </button>
-                            <button type="button" class="btn btn-light shadow-sm btn-wishlist border d-flex align-items-center justify-content-center" data-id="{{ $product->id }}" style="width: 50px; height: 50px;" title="Thêm vào yêu thích">
-                                <i class="far fa-heart text-danger" style="font-size: 20px;"></i>
                             </button>
                         </div>   
                     </div>
@@ -382,6 +397,11 @@
                             <div class="card h-100 border-0 shadow-sm product-card-hover rounded-lg overflow-hidden">
                                 <a href="{{ url('shop-details/' . $relProduct->id) }}" class="text-decoration-none">
                                     <div class="position-relative text-center p-2 bg-white">
+                                        <!-- Wishlist Mới (Sách liên quan) -->
+                                        <button class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist-v2 position-absolute" data-id="{{ $relProduct->id }}" style="top:10px;right:10px;width:34px;height:34px;border:none;z-index:10;display:flex;align-items:center;justify-content:center;">
+                                            <i class="{{ in_array($relProduct->id, $wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" style="color:#D35400"></i>
+                                        </button>
+
                                         <img src="{{ asset('uploads/products/' . $relProduct->image) }}" 
                                              class="card-img-top" 
                                              alt="{{ $relProduct->name }}" 
@@ -427,6 +447,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
@@ -681,5 +702,89 @@ function moveThumbnail(){
     if(!list) return;
     list.style.transform = `translateX(-${thumbIndex * 85}px)`;
 }
+
+// =====================
+// LOGIC WISHLIST V2 
+// =====================
+document.addEventListener('DOMContentLoaded', function () {
+    // Cấu hình Toastr
+    toastr.options = { 
+        "closeButton": true, 
+        "progressBar": true, 
+        "positionClass": "toast-bottom-right", 
+        "timeOut": "2500" 
+    };
+
+    const wishlistButtons = document.querySelectorAll('.btn-wishlist-v2');
+
+    wishlistButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault(); 
+            e.stopPropagation();
+
+            // 1. Cảnh báo Đăng nhập bằng SweetAlert2
+            @if(!Auth::check())
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa đăng nhập',
+                    text: 'Bạn cần đăng nhập để thêm sách vào danh sách yêu thích!',
+                    showCancelButton: true,
+                    confirmButtonText: 'Đăng nhập ngay',
+                    cancelButtonText: 'Để sau',
+                    confirmButtonColor: '#D35400',
+                    cancelButtonColor: '#2C3E50'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{{ route('login') }}";
+                    }
+                });
+                return;
+            @endif
+
+            let btn = this;
+            let productId = btn.getAttribute('data-id');
+
+            // 2. Chặn click đúp
+            if (btn.classList.contains('is-loading')) return;
+            btn.classList.add('is-loading');
+            btn.style.opacity = '0.5';
+
+            // Tìm toàn bộ các nút của CÙNG 1 SẢN PHẨM trên giao diện (Cho trường hợp click ở Sản phẩm liên quan)
+            let allBtnsForThisProduct = document.querySelectorAll(`.btn-wishlist-v2[data-id="${productId}"]`);
+
+            // 3. Xử lý qua AJAX
+            axios.post('{{ route('user.wishlist.toggle') }}', {
+                product_id: productId,
+                _token: '{{ csrf_token() }}'
+            })
+            .then(function (response) {
+                if(response.data.status === 'added') {
+                    allBtnsForThisProduct.forEach(b => {
+                        let icon = b.querySelector('i');
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                    });
+                    toastr.success(response.data.message);
+                } else {
+                    allBtnsForThisProduct.forEach(b => {
+                        let icon = b.querySelector('i');
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                    });
+                    toastr.info(response.data.message);
+                }
+            })
+            .catch(function (error) {
+                console.error(error);
+                toastr.error("Có lỗi xảy ra, vui lòng thử lại!");
+            })
+            .finally(function() {
+                // 4. Mở khóa nút
+                btn.classList.remove('is-loading');
+                btn.style.opacity = '1';
+            });
+        });
+    });
+});
 </script>
 @endpush
