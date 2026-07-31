@@ -13,7 +13,7 @@ class shopDetailsController extends Controller
     public function index($id)
     {
         // 1. Lấy dữ liệu sản phẩm cùng các quan hệ cần thiết
-        $product = products::with(['variants', 'author', 'publishers', 'category', 'reviews.user'])->findOrFail($id);
+        $product = products::with(['images','variants', 'author', 'publishers', 'category', 'reviews.user'])->findOrFail($id);
 
         // 2. Lấy sách cùng tác giả (liên quan)
         $relatedProducts = products::with('firstVariant')
