@@ -65,6 +65,9 @@ Route::middleware(['user_only'])->group(function () {
     Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
 
+    // THÊM DÒNG NÀY ĐỂ CHECK VOUCHER QUA AJAX
+    Route::post('/checkout/apply-voucher', [PaymentController::class, 'applyVoucher'])->name('checkout.apply_voucher');
+
     Route::get('/news', [UserNewsController::class, 'index'])->name('user.news');
     Route::get('/news/{id}', [UserNewsController::class, 'show'])->name('user.news.show');
 });
@@ -171,6 +174,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     // Quản lý tin tức
     Route::resource('news', AdminNewsController::class)->names('admin.news');
+
+    // Quản lý Mã giảm giá (Voucher)
+    Route::resource('vouchers', \App\Http\Controllers\Admin\VoucherController::class)->names('admin.vouchers');
 
     //Quản lí bình luận
     Route::get('/reviews', [App\Http\Controllers\Admin\ReviewManagerController::class, 'index'])->name('admin.reviews.index');

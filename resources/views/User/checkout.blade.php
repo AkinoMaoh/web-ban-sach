@@ -149,14 +149,46 @@
                             @endif
                         </div>
 
-                        <div class="d-flex justify-content-between mb-3 text-muted">
-                            <span>Tạm tính</span>
-                            <span id="subtotal_text" data-value="{{ $totalAmount ?? 0 }}">{{ number_format($totalAmount ?? 0) }} đ</span>
+                         <!-- KHU VỰC NHẬP MÃ GIẢM GIÁ (Đã cập nhật nút Chọn mã) -->
+                        <div class="voucher-section mb-3 pt-3 border-top">
+                            <div class="input-group">
+                                <input type="text" id="voucher_code" class="form-control custom-input" placeholder="Nhập hoặc chọn mã..." style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                <div class="input-group-append">
+                                    <!-- Nút bật Modal Chọn Mã -->
+                                    <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#voucherModal" style="border-radius: 0;">
+                                        <i class="fas fa-list mr-1"></i> Chọn mã
+                                    </button>
+                                    <button type="button" id="btn-apply-voucher" class="btn btn-dark" style="border-top-right-radius: 8px; border-bottom-right-radius: 8px;">Áp dụng</button>
+                                </div>
+                            </div>
+                            <small id="voucher-message" class="mt-1 d-block font-weight-bold"></small>
                         </div>
-                        <div class="d-flex justify-content-between mb-3 text-muted">
-                            <span>Phí vận chuyển</span>
-                            <span id="shipping_fee_text">Vui lòng chọn địa chỉ</span>
-                        </div>
+
+                        <!-- KHU VỰC HIỂN THỊ TIỀN TỆ -->
+                                <div class="d-flex justify-content-between mb-3 text-muted">
+                                    <span>Tạm tính</span>
+                                    <span id="subtotal_text" data-value="{{ $totalAmount ?? 0 }}">{{ number_format($totalAmount ?? 0) }} đ</span>
+                                </div>
+
+                                <!-- Dòng hiển thị số tiền được Giảm giá (Mặc định ẩn) -->
+                                <div class="d-flex justify-content-between mb-3 text-success" id="discount-row" style="display: none;">
+                                    <span class="font-weight-bold">Giảm giá (Voucher)</span>
+                                    <span id="discount_amount_text" class="font-weight-bold">-0 đ</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-3 text-muted">
+                                    <span>Phí vận chuyển</span>
+                                    <span id="shipping_fee_text">Vui lòng chọn địa chỉ</span>
+                                </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4 pt-3 border-top">
+            <span class="font-weight-bold text-dark" style="font-size: 18px;">TỔNG CỘNG:</span>
+            <span class="font-weight-bold" id="total_amount_text" style="color: #e74c3c; font-size: 24px;">{{ number_format($totalAmount ?? 0) }} đ</span>
+        </div>
+
+        <!-- CÁC THẺ INPUT ẨN GỬI VỀ CONTROLLER -->
+        <input type="hidden" name="shipping_fee" id="hidden_shipping_fee" value="0">
+        <input type="hidden" name="applied_voucher" id="applied_voucher_input" value="">
 
                         <div class="d-flex justify-content-between align-items-center mb-4 pt-3 border-top">
                             <span class="font-weight-bold text-dark" style="font-size: 18px;">TỔNG CỘNG:</span>
@@ -175,7 +207,56 @@
         </form>
     </div>
 </section>
-
+<!-- Modal Danh Sách Voucher -->
+<div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title font-weight-bold" id="voucherModalLabel"><i class="fas fa-ticket-alt text-orange mr-2"></i>Chọn Mã Giảm Giá</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body bg-light pt-2">
+                @if(isset($vouchers) && $vouchers->count() > 0)
+                    @foreach($vouchers as $vc)
+                        <div class="card shadow-sm mb-3 border-0 rounded-lg">
+                            <div class="card-body p-3 d-flex align-items-center">
+                                <div class="bg-primary text-white rounded p-2 text-center mr-3" style="min-width: 80px;">
+                                    <h6 class="font-weight-bold mb-0" style="font-size: 14px;">{{ $vc->code }}</h6>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="font-weight-bold mb-1 text-dark" style="font-size: 15px;">
+                                        @if($vc->type == 'percent')
+                                            Giảm {{ $vc->discount_value }}% 
+                                            <span class="text-muted" style="font-size: 12px;">(Tối đa {{ number_format($vc->max_discount_value) }}đ)</span>
+                                        @else
+                                            Giảm {{ number_format($vc->discount_value) }}đ
+                                        @endif
+                                    </h6>
+                                    <p class="text-muted mb-0" style="font-size: 12px;">Đơn tối thiểu: {{ number_format($vc->min_order_value) }}đ</p>
+                                    <small class="text-danger">
+                                        HSD: {{ $vc->end_date ? \Carbon\Carbon::parse($vc->end_date)->format('d/m/Y') : 'Vô thời hạn' }}
+                                    </small>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary btn-select-voucher font-weight-bold" data-code="{{ $vc->code }}">
+                                        Chọn
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-box-open fa-3x mb-3 text-light"></i>
+                        <p>Hiện tại không có mã giảm giá nào phù hợp.</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -204,7 +285,19 @@
 $(document).ready(function() {
     const host = "https://provinces.open-api.vn/api/";
     
-    // Gọi API lấy Tỉnh/Thành
+    // Biến toàn cục để lưu trữ các con số hiện tại
+    let subTotal = parseInt($('#subtotal_text').attr('data-value')) || 0;
+    let currentShippingFee = 0;
+    let currentDiscount = 0;
+
+    // HÀM TÍNH LẠI TỔNG TIỀN
+    function calculateTotal() {
+        let finalTotal = subTotal + currentShippingFee - currentDiscount;
+        if (finalTotal < 0) finalTotal = 0; // Chống âm tiền
+        $('#total_amount_text').text(new Intl.NumberFormat('vi-VN').format(finalTotal) + ' đ');
+    }
+
+    // GỌI API LẤY TỈNH THÀNH
     axios.get(host + '?depth=1').then((response) => {
         renderData(response.data, "province", "Chọn Tỉnh/Thành");
     });
@@ -219,46 +312,33 @@ $(document).ready(function() {
         $("#" + selectId).html(row);
     }
 
-    // 1. Khi đổi Tỉnh -> Load Huyện và Tính phí ship
+    // 1. KHI ĐỔI TỈNH -> TÍNH PHÍ SHIP VÀ LOAD HUYỆN
     $("#province").on("change", function() {
         let code = $(this).val();
-        let shippingFee = 0;
-        
-        // Lấy tổng tiền hàng từ thuộc tính data-value đã gài ở HTML
-        let subTotal = parseInt($('#subtotal_text').attr('data-value')) || 0;
 
         if(code) {
-            // Logic tính tiền: Code '01' (Hà Nội), '79' (TP.HCM) phí 30k, còn lại 50k
-            if(code === '01' || code === '79') {
-                shippingFee = 30000;
-            } else {
-                shippingFee = 50000;
-            }
-
-            // Cập nhật text hiển thị trên giao diện
-            $('#shipping_fee_text').text(new Intl.NumberFormat('vi-VN').format(shippingFee) + ' đ');
-            $('#total_amount_text').text(new Intl.NumberFormat('vi-VN').format(subTotal + shippingFee) + ' đ');
+            currentShippingFee = (code === '01' || code === '79') ? 30000 : 50000;
             
-            // Cập nhật value cho thẻ input ẩn để submit form
-            $('#hidden_shipping_fee').val(shippingFee);
+            $('#shipping_fee_text').text(new Intl.NumberFormat('vi-VN').format(currentShippingFee) + ' đ');
+            $('#hidden_shipping_fee').val(currentShippingFee);
+            calculateTotal();
 
-            // Gọi API lấy Huyện
             axios.get(host + "p/" + code + "?depth=2").then((response) => {
                 renderData(response.data.districts, "district", "Chọn Quận/Huyện");
-                $("#ward").html('<option value="">Chọn Phường/Xã</option>'); // Xóa phường xã cũ
+                $("#ward").html('<option value="">Chọn Phường/Xã</option>');
             });
         } else {
-            // Nếu người dùng reset tỉnh/thành
+            currentShippingFee = 0;
             $('#shipping_fee_text').text('Vui lòng chọn địa chỉ');
-            $('#total_amount_text').text(new Intl.NumberFormat('vi-VN').format(subTotal) + ' đ');
             $('#hidden_shipping_fee').val(0);
+            calculateTotal();
 
             $("#district").html('<option value="">Chọn Quận/Huyện</option>');
             $("#ward").html('<option value="">Chọn Phường/Xã</option>');
         }
     });
 
-    // 2. [ĐÂY LÀ ĐOẠN CODE BỊ THIẾU NÀY] Khi đổi Huyện -> Load Xã
+    // 2. KHI ĐỔI HUYỆN -> LOAD XÃ
     $("#district").on("change", function() {
         let code = $(this).val();
         if(code) {
@@ -270,20 +350,74 @@ $(document).ready(function() {
         }
     });
 
-    // 3. Khi Submit form -> Nối chuỗi full địa chỉ gửi cho Laravel Controller
+    // ==========================================
+    // SỰ KIỆN KHI BẤM NÚT "CHỌN" VOUCHER TRONG MODAL
+    // ==========================================
+    $(document).on('click', '.btn-select-voucher', function() {
+        // 1. Lấy mã giảm giá từ data-code của nút vừa bấm
+        let selectedCode = $(this).attr('data-code');
+        
+        // 2. Tự động điền mã đó vào ô input
+        $('#voucher_code').val(selectedCode);
+        
+        // 3. Đóng cái bảng Modal đi
+        $('#voucherModal').modal('hide');
+        
+        // 4. Lập tức tự động kích hoạt nút "Áp dụng"
+        $('#btn-apply-voucher').click();
+    });
+
+    // 3. SỰ KIỆN NÚT ÁP DỤNG VOUCHER
+    $('#btn-apply-voucher').click(function() {
+        let code = $('#voucher_code').val().trim();
+        let messageEl = $('#voucher-message');
+
+        if(!code) {
+            messageEl.text('Vui lòng nhập mã giảm giá!').removeClass('text-success').addClass('text-danger');
+            return;
+        }
+
+        // Gọi API qua controller
+        axios.post('{{ route("checkout.apply_voucher") }}', {
+            voucher_code: code,
+            total_order: subTotal
+        })
+        .then(response => {
+            if(response.data.success) {
+                // Hợp lệ
+                messageEl.text(response.data.message).removeClass('text-danger').addClass('text-success');
+                
+                currentDiscount = response.data.discount_amount;
+                $('#discount-row').show();
+                $('#discount_amount_text').text('-' + new Intl.NumberFormat('vi-VN').format(currentDiscount) + ' đ');
+                
+                $('#applied_voucher_input').val(response.data.voucher_code);
+                calculateTotal();
+            } else {
+                // Không hợp lệ
+                messageEl.text(response.data.message).removeClass('text-success').addClass('text-danger');
+                
+                currentDiscount = 0;
+                $('#discount-row').hide();
+                $('#applied_voucher_input').val('');
+                calculateTotal();
+            }
+        })
+        .catch(error => {
+            messageEl.text('Lỗi kết nối máy chủ!').removeClass('text-success').addClass('text-danger');
+        });
+    });
+
+    // 4. SUBMIT FORM
     $('#checkoutForm').on('submit', function(e) {
         let provinceName = $("#province option:selected").attr('data-name');
         let districtName = $("#district option:selected").attr('data-name');
         let wardName = $("#ward option:selected").attr('data-name');
         let street = $('#street').val();
 
-        let fullAddress = "";
         if (provinceName && districtName && wardName && street) {
-            fullAddress = street + ", " + wardName + ", " + districtName + ", " + provinceName;
+            $('#full_address').val(street + ", " + wardName + ", " + districtName + ", " + provinceName);
         }
-        
-        // Gán vào input ẩn
-        $('#full_address').val(fullAddress);
     });
 });
 </script>
