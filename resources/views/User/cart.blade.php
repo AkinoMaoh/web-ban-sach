@@ -30,72 +30,124 @@
         <div class="row">
             <div class="col-lg-8">
                 @foreach($cartItems as $item)
-                    @php 
-                        $isOutOfStock = ($item->variant->stock <= 0 || $item->quantity > $item->variant->stock);
-                        
-                        // KIỂM TRA GIÁ GIẢM: Nếu có sale_price hợp lệ thì lấy sale_price, ngược lại lấy price gốc
-                        $variant = $item->variant;
-                        $unitPrice = ($variant->sale_price > 0 && $variant->sale_price < $variant->price) 
-                            ? $variant->sale_price 
-                            : $variant->price;
-
-                        $subTotal = $unitPrice * $item->quantity;
-                    @endphp
-                    
-                    <div class="card mb-3 shadow-sm border-0 p-3 {{ $isOutOfStock ? 'border border-danger' : '' }}" style="border-radius: 12px;">
-                        <div class="row align-items-center">
-                            <!-- Checkbox gửi $item->id -->
-                            <div class="col-1 text-center">
-                                <input type="checkbox" class="cart-checkbox" value="{{ $item->id }}" 
-                                       data-subtotal="{{ $subTotal }}"
-                                       {{ $isOutOfStock ? 'disabled' : 'checked' }} 
-                                       onchange="updateTotal()">
-                            </div>
-                            
-                            <div class="col-2 text-center">
-                                <img src="{{ asset('uploads/products/' . ($item->variant->product->image ?? 'default.jpg')) }}" class="img-fluid rounded" style="max-height: 80px;">
-                            </div>
-                            
-                            <div class="col-3">
-                                <h6 class="font-weight-bold mb-1">{{ $item->variant->product->name }}</h6>
-                                <small class="text-muted">Phân loại: {{ $item->variant->edition }}</small>
-                            </div>
-                            
-                            <div class="col-2 text-center">
-                                @if($variant->sale_price > 0 && $variant->sale_price < $variant->price)
-                                    <small class="text-muted d-block"><del>{{ number_format($variant->price) }} đ</del></small>
-                                    <small class="text-danger font-weight-bold d-block">{{ number_format($unitPrice) }} đ x {{ $item->quantity }}</small>
-                                @else
-                                    <small class="text-muted d-block">{{ number_format($unitPrice) }} đ x {{ $item->quantity }}</small>
-                                @endif
-                                <strong class="text-dark">{{ number_format($subTotal) }} đ</strong>
-                            </div>
-                            
-                            <!-- Phần Chọn biến thể & Nhập số lượng -->
-                            <div class="col-3">
-                                <select class="form-control form-control-sm auto-update" data-old-id="{{ $item->product_variant_id }}">
-                                    @foreach($item->variant->product->variants as $v)
-                                        <option value="{{ $v->id }}" {{ $v->id == $item->product_variant_id ? 'selected' : '' }} {{ $v->stock <= 0 ? 'disabled' : '' }}>
-                                            {{ $v->edition }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                    <!-- KIỂM TRA SẢN PHẨM HOẶC BIẾN THỂ CÓ BỊ XÓA KHÔNG -->
+                    @if(!$item->variant || !$item->variant->product)
+                        <!-- BOX SẢN PHẨM BỊ LỖI / XÓA -->
+                        <div class="card mb-3 shadow-sm border-0 p-3" style="border-radius: 12px; background-color: #fcfcfc; border: 1px dashed #e0e0e0 !important;">
+                            <div class="row align-items-center">
                                 
-                                <!-- Ô nhập số lượng -->
-                                <input type="number" value="{{ $item->quantity }}" min="1" max="{{ $item->variant->stock }}"
-                                       oninput="this.value = Math.max(1, Math.min(this.value, {{ $item->variant->stock }}))"
-                                       class="form-control form-control-sm auto-update mt-2" 
-                                       data-old-id="{{ $item->product_variant_id }}">
-                            </div>
+                                <!-- Checkbox (Mờ) -->
+                                <div class="col-1 text-center" style="opacity: 0.5;">
+                                    <input type="checkbox" class="cart-checkbox" disabled>
+                                </div>
+                                
+                                <!-- Ảnh thay thế (Dùng icon vì ảnh thật đã mất) (Mờ) -->
+                                <div class="col-2 text-center" style="opacity: 0.5;">
+                                    <div class="bg-light d-flex align-items-center justify-content-center rounded mx-auto" style="height: 80px; width: 80px; border: 1px solid #ccc;">
+                                        <i class="fas fa-image text-muted fa-2x"></i>
+                                    </div>
+                                </div>
+                                
+                                <!-- Tên & Thông tin (Mờ) -->
+                                <div class="col-3" style="opacity: 0.5;">
+                                    <h6 class="font-weight-bold mb-1 text-muted"><del>Sản phẩm không tồn tại</del></h6>
+                                    <small class="text-danger font-weight-bold">Sản phẩm đã bị xóa hoặc ngừng bán</small>
+                                </div>
+                                
+                                <!-- Giá (Mờ) -->
+                                <div class="col-2 text-center" style="opacity: 0.5;">
+                                    <strong class="text-muted">- đ</strong>
+                                </div>
+                                
+                                <!-- Chọn biến thể & Nhập số lượng (Mờ) -->
+                                <div class="col-3" style="opacity: 0.5;">
+                                    <select class="form-control form-control-sm" disabled>
+                                        <option>Không khả dụng</option>
+                                    </select>
+                                    <input type="number" value="{{ $item->quantity }}" class="form-control form-control-sm mt-2" disabled>
+                                </div>
 
-                            <div class="col-1 text-center">
-                                <form action="{{ route('cart.remove', $item->product_variant_id) }}" method="POST">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="btn btn-link text-danger p-0" title="Xóa sản phẩm"><i class="fas fa-trash"></i></button>
-                                </form>
+                                <!-- Nút Xóa (KHÔNG MỜ - ĐỎ RỰC RỠ) -->
+                                <div class="col-1 text-center">
+                                    <form action="{{ route('cart.remove', $item->product_variant_id) }}" method="POST">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn btn-link text-danger p-0" title="Xóa sản phẩm">
+                                            <i class="fas fa-trash fa-lg"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                                
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <!-- SẢN PHẨM BÌNH THƯỜNG -->
+                        @php 
+                            $isOutOfStock = ($item->variant->stock <= 0 || $item->quantity > $item->variant->stock);
+                            
+                            // KIỂM TRA GIÁ GIẢM: Nếu có sale_price hợp lệ thì lấy sale_price, ngược lại lấy price gốc
+                            $variant = $item->variant;
+                            $unitPrice = ($variant->sale_price > 0 && $variant->sale_price < $variant->price) 
+                                ? $variant->sale_price 
+                                : $variant->price;
+
+                            $subTotal = $unitPrice * $item->quantity;
+                        @endphp
+                        
+                        <div class="card mb-3 shadow-sm border-0 p-3 {{ $isOutOfStock ? 'border border-danger' : '' }}" style="border-radius: 12px;">
+                            <div class="row align-items-center">
+                                <!-- Checkbox gửi $item->id -->
+                                <div class="col-1 text-center">
+                                    <input type="checkbox" class="cart-checkbox" value="{{ $item->id }}" 
+                                           data-subtotal="{{ $subTotal }}"
+                                           {{ $isOutOfStock ? 'disabled' : 'checked' }} 
+                                           onchange="updateTotal()">
+                                </div>
+                                
+                                <div class="col-2 text-center">
+                                    <img src="{{ asset('uploads/products/' . ($item->variant->product->image ?? 'default.jpg')) }}" class="img-fluid rounded" style="max-height: 80px;">
+                                </div>
+                                
+                                <div class="col-3">
+                                    <h6 class="font-weight-bold mb-1">{{ $item->variant->product->name }}</h6>
+                                    <small class="text-muted">Phân loại: {{ $item->variant->edition }}</small>
+                                </div>
+                                
+                                <div class="col-2 text-center">
+                                    @if($variant->sale_price > 0 && $variant->sale_price < $variant->price)
+                                        <small class="text-muted d-block"><del>{{ number_format($variant->price) }} đ</del></small>
+                                        <small class="text-danger font-weight-bold d-block">{{ number_format($unitPrice) }} đ x {{ $item->quantity }}</small>
+                                    @else
+                                        <small class="text-muted d-block">{{ number_format($unitPrice) }} đ x {{ $item->quantity }}</small>
+                                    @endif
+                                    <strong class="text-dark">{{ number_format($subTotal) }} đ</strong>
+                                </div>
+                                
+                                <!-- Phần Chọn biến thể & Nhập số lượng -->
+                                <div class="col-3">
+                                    <select class="form-control form-control-sm auto-update" data-old-id="{{ $item->product_variant_id }}">
+                                        @foreach($item->variant->product->variants as $v)
+                                            <option value="{{ $v->id }}" {{ $v->id == $item->product_variant_id ? 'selected' : '' }} {{ $v->stock <= 0 ? 'disabled' : '' }}>
+                                                {{ $v->edition }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    
+                                    <!-- Ô nhập số lượng -->
+                                    <input type="number" value="{{ $item->quantity }}" min="1" max="{{ $item->variant->stock }}"
+                                           oninput="this.value = Math.max(1, Math.min(this.value, {{ $item->variant->stock }}))"
+                                           class="form-control form-control-sm auto-update mt-2" 
+                                           data-old-id="{{ $item->product_variant_id }}">
+                                </div>
+
+                                <div class="col-1 text-center">
+                                    <form action="{{ route('cart.remove', $item->product_variant_id) }}" method="POST">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn btn-link text-danger p-0" title="Xóa sản phẩm"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 @endforeach
             </div>
 
@@ -128,8 +180,10 @@
         let total = 0;
         let selectedIds = [];
         document.querySelectorAll('.cart-checkbox:checked').forEach(cb => {
-            total += parseFloat(cb.dataset.subtotal);
-            selectedIds.push(cb.value);
+            if (!cb.disabled) {
+                total += parseFloat(cb.dataset.subtotal);
+                selectedIds.push(cb.value);
+            }
         });
         document.getElementById('grand-total').innerText = total.toLocaleString('vi-VN') + ' đ';
         document.getElementById('selected_ids').value = selectedIds.join(',');

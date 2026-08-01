@@ -14,7 +14,7 @@ class CartController extends Controller
     public function index()
     {
         // Đồng bộ cấu trúc giữa Database và Session
-        $rawItems = Auth::check() 
+        $cartItems = Auth::check() 
             ? Cart::where('user_id', Auth::id())->with('variant.product')->get()
             : collect(session('cart', []))->map(function($item) {
                 $item = (array) $item; 
@@ -28,12 +28,14 @@ class CartController extends Controller
                 ];
             });
 
-        // BỘ LỌC ĐÃ FIX LỖI: Kiểm tra đúng cột product_variant_id
-        $cartItems = $rawItems->filter(function($item) {
-            return !empty($item->product_variant_id) && !empty($item->variant) && !empty($item->variant->product);
-        });
+        // ĐÃ XÓA BỘ LỌC $rawItems->filter ĐỂ TRUYỀN CẢ CÁC SẢN PHẨM RÁC RA VIEW
 
         foreach ($cartItems as $item) {
+            // NẾU LÀ SẢN PHẨM RÁC (KHÔNG CÒN TRONG DB): Bỏ qua tính toán giá/stock để tránh lỗi PHP 500
+            if (!$item->variant || !$item->variant->product) {
+                continue; 
+            }
+
             $item->is_out_of_stock = ($item->variant->stock <= 0 || $item->quantity > $item->variant->stock);
             
             // KIỂM TRA GIÁ GIẢM: Nếu có sale_price và sale_price > 0 thì lấy sale_price, ngược lại lấy price gốc
