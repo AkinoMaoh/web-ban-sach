@@ -17,8 +17,8 @@ class ordersController extends Controller
         $query->where('status', $request->status);
     }
 
-    if ($request->filled('phone')) {
-        $query->where('shipping_phone', 'like', $request->phone . '%');
+    if ($request->filled('keyword')) {
+        $query->where('shipping_phone', 'like', $request->keyword . '%');
     }
 
     $orders = $query->orderBy('created_at', 'desc')->paginate(15);
@@ -52,17 +52,30 @@ class ordersController extends Controller
         $order = Order::findOrFail($id);
 
         $statusOrder = ['pending', 'confirmed', 'shipping', 'completed'];
+        
         $currentIndex = array_search($order->status, $statusOrder);
         $newIndex = array_search($request->status, $statusOrder);
 
-        if ($request->status !== 'cancelled' && $currentIndex !== false && $newIndex < $currentIndex) {
-            return back()->with('error', 'Không thể chuyển về trạng thái trước đó.');
+        // BLOCK 1: Kiểm tra riêng điều kiện Hủy - Không cho hủy nếu đang giao hoặc hoàn thành
+        if ($request->status === 'cancelled' && in_array($order->status, ['shipping', 'completed'])) {
+            return back()->with('error', 'Không thể hủy đơn hàng khi đang giao hoặc đã hoàn thành.');
+        }
+
+        // BLOCK 2: Kiểm tra logic nhảy cóc & cập nhật lùi (Bỏ qua nếu chọn 'cancelled')
+        if ($request->status !== 'cancelled' && $currentIndex !== false && $newIndex !== false) {
+            
+            if ($newIndex < $currentIndex) {
+                return back()->with('error', 'Không thể chuyển về trạng thái trước đó.');
+            }
+            
+            if ($newIndex - $currentIndex > 1) {
+                return back()->with('error', 'Không thể nhảy cóc trạng thái. Vui lòng cập nhật lần lượt.');
+            }
         }
 
         $order->status = $request->status;
         $order->save();
 
-        // Mảng mapping tiếng Việt tại đây luôn
         $statusLabels = [
             'pending'   => 'Chờ xác nhận',
             'confirmed' => 'Đã xác nhận',
@@ -100,10 +113,10 @@ class ordersController extends Controller
     // Tìm kiếm đơn hàng sđt bằng AJAX
     public function search(Request $request)
     {
-        $orders = Order::select('shipping_phone')
-            ->where('shipping_phone', 'like', $request->phone . '%')
+        $orders = Order::where('shipping_phone', 'like', $request->keyword . '%')
+            ->select('shipping_phone')
             ->distinct()
-            ->orderBy('shipping_phone')
+            ->limit(5)
             ->get();
 
         return response()->json($orders);

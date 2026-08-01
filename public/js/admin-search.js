@@ -1,22 +1,22 @@
 $(document).ready(function () {
 
-    $('#search-phone').keyup(function () {
+    $('#admin-search').keyup(function () {
 
-        let phone = $(this).val();
+        let keyword = $(this).val();
 
-        if(phone.trim().length < 1){
+        if(keyword.trim().length < 1){
             $('#search-order-result').hide();
             return;
         }
 
         $.ajax({
 
-            url: searchOrderUrl,
+            url: searchUrl,
 
             type: "GET",
 
             data: {
-                phone: phone
+                keyword: keyword
             },
 
             success: function(data){
@@ -25,11 +25,11 @@ $(document).ready(function () {
 
                 if(data.length > 0){
 
-                    data.forEach(function(order){
+                    data.forEach(function(item){
 
                         html += `
                             <a href="#" class="search-order-item">
-                                ${order.shipping_phone}
+                                ${item[searchField]}
                             </a>
                         `;
 
@@ -41,7 +41,7 @@ $(document).ready(function () {
 
                     $('#search-order-result').html(`
                         <div class="search-empty">
-                            Không tìm thấy số điện thoại
+                            Không tìm thấy
                         </div>
                     `).show();
 
@@ -65,15 +65,15 @@ $(document).ready(function () {
 
     $(document).on("click", ".search-order-item", function(e){
 
-    e.preventDefault();
+        e.preventDefault();
 
-    let phone = $(this).text().trim();
+        let keyword = $(this).text().trim();
 
-    $("#search-phone").val(phone);
+        $("#admin-search").val(keyword);
 
-    $("#search-order-result").fadeOut(100);
+        $("#search-order-result").fadeOut(100);
 
-    $("#search-phone").closest("form").submit();
+        $("#admin-search").closest("form").submit();
 
     });
 

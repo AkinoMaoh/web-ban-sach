@@ -1,84 +1,107 @@
 @extends('admin.layout')
 
 @section('admin_content')
-<div class="container-fluid py-4">
-    <div class="card border-0 shadow-sm" style="border-radius: 12px; background-color: #232323;">
-        <div class="card-header custom-card-header py-3 d-flex align-items-center justify-content-between">
-            <h5 class="font-weight-bold text-dark mb-0">
-                <i class="fas fa-users mr-2 text-primary"></i> Quản Lý Người Dùng
-            </h5>
-            <span class="badge badge-primary px-3 py-2" style="border-radius: 20px;">
-                Tổng số: {{ $users->total() }} khách hàng
-            </span>
+
+<div class="container-fluid">
+
+    <!-- Tiêu đề trang -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-users mr-2"></i> Quản lý người dùng
+        </h1>
+        <span class="badge badge-primary px-3 py-2 font-weight-bold" style="font-size: 0.9rem; border-radius: 20px;">
+            Tổng số: {{ $users->total() }} khách hàng
+        </span>
+    </div>
+
+    <div class="card shadow mb-4 border-0 rounded-lg">
+        
+        <div class="card-header py-3 bg-white d-flex align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-list mr-2"></i> Dữ liệu khách hàng đăng ký
+            </h6>
         </div>
         
-        <div class="card-body">
+        <div class="card-body px-0 pb-0">
+            
             {{-- Khối hiển thị thông báo phản hồi --}}
             @if(session('success'))
-                <div class="alert alert-success border-0 mb-3 text-white" style="border-radius: 8px; background-color: #1cc88a;">{{ session('success') }}</div>
+                <div class="alert alert-success alert-dismissible fade show mx-4" role="alert">
+                    <i class="fas fa-check-circle mr-1"></i> {{ session('success') }}
+                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                </div>
             @endif
+
             @if(session('error'))
-                <div class="alert alert-danger border-0 mb-3 text-white" style="border-radius: 8px; background-color: #e74a3b;">{{ session('error') }}</div>
+                <div class="alert alert-danger alert-dismissible fade show mx-4" role="alert">
+                    <i class="fas fa-exclamation-triangle mr-1"></i> {{ session('error') }}
+                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                </div>
             @endif
 
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="text-secondary">
+                <table class="table table-hover align-middle mb-0" width="100%" cellspacing="0">
+                    <thead class="bg-light text-uppercase font-weight-bold text-dark" style="font-size: 0.82rem;">
                         <tr>
-                            <th class="border-0" style="width: 5%;">#</th>
-                            <th class="border-0">Tài khoản</th>
-                            <th class="border-0">Email</th>
-                            <th class="border-0">Số điện thoại</th>
-                            <th class="border-0">Ngày đăng ký</th>
-                            <th class="border-0 text-center" style="width: 15%;">Hành động</th>
+                            <th class="py-3 pl-4" width="6%">#</th>
+                            <th class="py-3" width="28%">Tài khoản</th>
+                            <th class="py-3" width="28%">Email</th>
+                            <th class="py-3" width="15%">Số điện thoại</th>
+                            <th class="py-3" width="15%">Ngày đăng ký</th>
+                            <th class="py-3 text-center pr-4" width="8%">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($users as $key => $user)
                             <tr>
-                                <td>{{ $users->firstItem() + $key }}</td>
+                                <td class="pl-4 font-weight-bold text-primary">{{ $users->firstItem() + $key }}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         {{-- Tạo ảnh đại diện nhanh theo tên chữ cái đầu của User --}}
-                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=random&color=fff&size=40" class="rounded-circle mr-2" style="width: 35px; height: 35px; object-fit: cover;">
-                                        <span class="font-weight-bold">{{ $user->name }}</span>
+                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=random&color=fff&size=40" 
+                                             class="rounded-circle mr-2 shadow-sm border" 
+                                             style="width: 36px; height: 36px; object-fit: cover;">
+                                        <span class="font-weight-bold text-dark">{{ $user->name }}</span>
                                     </div>
                                 </td>
-                                <td>{{ $user->email }}</td>
-                                <td>{{ $user->phone ?? 'Chưa cập nhật' }}</td>
-                                <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
-                                <td class="text-center">
-                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài khoản khách hàng này? Hành động này không thể hoàn tác!')">
+                                <td><span class="text-muted">{{ $user->email }}</span></td>
+                                <td>
+                                    @if($user->phone)
+                                        <span class="font-weight-bold text-dark">{{ $user->phone }}</span>
+                                    @else
+                                        <span class="text-muted small font-italic">Chưa cập nhật</span>
+                                    @endif
+                                </td>
+                                <td><span class="text-muted small">{{ $user->created_at->format('d/m/Y H:i') }}</span></td>
+                                <td class="text-center pr-4">
+                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài khoản khách hàng này? Hành động này không thể hoàn tác!')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 6px; padding: 4px 12px;">
-                                            <i class="fas fa-trash-alt mr-1"></i> Xóa tài khoản
+                                        <button type="submit" class="btn btn-sm btn-danger text-white shadow-sm" title="Xóa tài khoản">
+                                            <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </form>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-4">Hệ thống hiện tại chưa có dữ liệu người dùng thường nào đăng ký.</td>
+                                <td colspan="6" class="text-center text-muted py-5">
+                                    <i class="fas fa-users-slash fa-2x text-gray-300 mb-2"></i>
+                                    <p class="mb-0">Hệ thống hiện tại chưa có dữ liệu người dùng thường nào đăng ký.</p>
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
 
-            {{-- Đẩy liên kết chuyển trang hiển thị đẹp mắt --}}
-            <div class="d-flex justify-content-end mt-3 pagination">
-                {{ $users->links() }}
+            {{-- Phân trang Bootstrap 5 chuẩn giao diện --}}
+            <div class="d-flex justify-content-center mt-4 pb-3">
+                {{ $users->appends(request()->query())->links('pagination::bootstrap-5') }}
             </div>
+
         </div>
     </div>
 </div>
 
-<style>
-    .table td, .table th { vertical-align: middle; }
-    /* Fix css màu hover dòng bảng khi ở chế độ Dark Mode */
-    html.dark-mode .table-hover tbody tr:hover { 
-        background-color: #2c2c2c !important; 
-    }
-</style>
 @endsection

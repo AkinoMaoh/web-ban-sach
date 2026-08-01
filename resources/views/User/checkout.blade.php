@@ -140,6 +140,11 @@
                                         <div class="pr-3">
                                             <h6 class="mb-1 text-dark" style="font-size: 15px; line-height: 1.4;">{{ $details['name'] ?? 'Sách ID '.$id }}</h6>
                                             <span class="text-muted small">Số lượng: <strong class="text-dark">{{ $details['quantity'] }}</strong></span>
+                                            
+                                            <!-- Hiển thị gạch ngang giá gốc nếu có giảm giá -->
+                                            @if(isset($details['original_price']) && $details['original_price'] > $details['price'])
+                                                <span class="text-muted small ml-2"><del>{{ number_format($details['original_price']) }} đ</del></span>
+                                            @endif
                                         </div>
                                         <span class="font-weight-bold" style="color: var(--primary-color);">{{ number_format($details['price'] * $details['quantity']) }} đ</span>
                                     </div>
@@ -280,94 +285,122 @@
 </style>
 
 <!-- Sử dụng axios để gọi API -->
+<!-- Sử dụng axios để gọi API -->
+<!-- Sử dụng axios để gọi API -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script>
 $(document).ready(function() {
-    const host = "https://provinces.open-api.vn/api/";
-    
-    // Biến toàn cục để lưu trữ các con số hiện tại
     let subTotal = parseInt($('#subtotal_text').attr('data-value')) || 0;
     let currentShippingFee = 0;
     let currentDiscount = 0;
 
-    // HÀM TÍNH LẠI TỔNG TIỀN
     function calculateTotal() {
         let finalTotal = subTotal + currentShippingFee - currentDiscount;
-        if (finalTotal < 0) finalTotal = 0; // Chống âm tiền
+        if (finalTotal < 0) finalTotal = 0; 
         $('#total_amount_text').text(new Intl.NumberFormat('vi-VN').format(finalTotal) + ' đ');
     }
 
-    // GỌI API LẤY TỈNH THÀNH
-    axios.get(host + '?depth=1').then((response) => {
-        renderData(response.data, "province", "Chọn Tỉnh/Thành");
+    // 1. GỌI API NỘI BỘ LẤY TỈNH/THÀNH
+    axios.get('/api/locations/provinces')
+        .then((response) => {
+            let html = '<option value="">Chọn Tỉnh/Thành</option>';
+            // Tuỳ thuộc vào API nhóm trả về, thường nằm trong response.data hoặc response.data.data
+            let provinces = response.data.data || response.data; 
+            provinces.forEach(element => {
+                html += `<option data-name="${element.name}" value="${element.id}">${element.name}</option>`;
+            });
+            $("#province").html(html);
+        }).catch(err => console.log('Lỗi tải Tỉnh/Thành:', err));
+
+    // 2. GỌI API NỘI BỘ LẤY QUẬN/HUYỆN
+    $("#province").on("change", function() {
+        let provinceId = $(this).val();
+        resetShippingFee(); 
+
+        $("#district").html('<option value="">Chọn Quận/Huyện</option>');
+        $("#ward").html('<option value="">Chọn Phường/Xã</option>');
+
+        if(provinceId) {
+            axios.get(`/api/locations/districts/${provinceId}`)
+                .then((response) => {
+                    let html = '<option value="">Chọn Quận/Huyện</option>';
+                    let districts = response.data.data || response.data;
+                    districts.forEach(element => {
+                        html += `<option data-name="${element.name}" value="${element.id}">${element.name}</option>`;
+                    });
+                    $("#district").html(html);
+                });
+        }
     });
 
-    function renderData(array, selectId, defaultText) {
-        let row = `<option value="">${defaultText}</option>`;
-        if (array && array.length > 0) {
-            array.forEach(element => {
-                row += `<option data-name="${element.name}" value="${element.code}">${element.name}</option>`;
+    // 3. GỌI API NỘI BỘ LẤY PHƯỜNG/XÃ
+    $("#district").on("change", function() {
+        let districtId = $(this).val();
+        resetShippingFee(); 
+
+        $("#ward").html('<option value="">Chọn Phường/Xã</option>');
+
+        if(districtId) {
+            axios.get(`/api/locations/wards/${districtId}`)
+                .then((response) => {
+                    let html = '<option value="">Chọn Phường/Xã</option>';
+                    let wards = response.data.data || response.data;
+                    wards.forEach(element => {
+                        html += `<option data-name="${element.name}" value="${element.code}">${element.name}</option>`;
+                    });
+                    $("#ward").html(html);
+                });
+        }
+    });
+
+    // 4. GỌI BACKEND TÍNH PHÍ SHIP GHN
+    $("#ward").on("change", function() {
+        let wardCode = $(this).val();
+        let districtId = $("#district").val();
+
+        if (wardCode && districtId) {
+            $('#shipping_fee_text').html('<i class="fas fa-spinner fa-spin"></i> Đang tính phí...');
+            
+            axios.post('{{ route('payment.calculate_fee') }}', {
+                district_id: districtId,
+                ward_code: wardCode,
+                _token: '{{ csrf_token() }}'
+            }).then((response) => {
+                if(response.data.success) {
+                    updateShippingFee(response.data.fee);
+                } else {
+                    updateShippingFee(response.data.fee || 30000); 
+                }
+            }).catch(err => {
+                updateShippingFee(30000); 
             });
         }
-        $("#" + selectId).html(row);
+    });
+
+    function updateShippingFee(fee) {
+        currentShippingFee = fee;
+        $('#shipping_fee_text').text(new Intl.NumberFormat('vi-VN').format(fee) + ' đ');
+        $('#hidden_shipping_fee').val(fee);
+        calculateTotal();
     }
 
-    // 1. KHI ĐỔI TỈNH -> TÍNH PHÍ SHIP VÀ LOAD HUYỆN
-    $("#province").on("change", function() {
-        let code = $(this).val();
-
-        if(code) {
-            currentShippingFee = (code === '01' || code === '79') ? 30000 : 50000;
-            
-            $('#shipping_fee_text').text(new Intl.NumberFormat('vi-VN').format(currentShippingFee) + ' đ');
-            $('#hidden_shipping_fee').val(currentShippingFee);
-            calculateTotal();
-
-            axios.get(host + "p/" + code + "?depth=2").then((response) => {
-                renderData(response.data.districts, "district", "Chọn Quận/Huyện");
-                $("#ward").html('<option value="">Chọn Phường/Xã</option>');
-            });
-        } else {
-            currentShippingFee = 0;
-            $('#shipping_fee_text').text('Vui lòng chọn địa chỉ');
-            $('#hidden_shipping_fee').val(0);
-            calculateTotal();
-
-            $("#district").html('<option value="">Chọn Quận/Huyện</option>');
-            $("#ward").html('<option value="">Chọn Phường/Xã</option>');
-        }
-    });
-
-    // 2. KHI ĐỔI HUYỆN -> LOAD XÃ
-    $("#district").on("change", function() {
-        let code = $(this).val();
-        if(code) {
-            axios.get(host + "d/" + code + "?depth=2").then((response) => {
-                renderData(response.data.wards, "ward", "Chọn Phường/Xã");
-            });
-        } else {
-            $("#ward").html('<option value="">Chọn Phường/Xã</option>');
-        }
-    });
+    function resetShippingFee() {
+        currentShippingFee = 0;
+        $('#shipping_fee_text').text('Vui lòng chọn địa chỉ');
+        $('#hidden_shipping_fee').val(0);
+        calculateTotal();
+    }
 
     // ==========================================
-    // SỰ KIỆN KHI BẤM NÚT "CHỌN" VOUCHER TRONG MODAL
+    // LOGIC VOUCHER 
     // ==========================================
     $(document).on('click', '.btn-select-voucher', function() {
-        // 1. Lấy mã giảm giá từ data-code của nút vừa bấm
         let selectedCode = $(this).attr('data-code');
-        
-        // 2. Tự động điền mã đó vào ô input
         $('#voucher_code').val(selectedCode);
-        
-        // 3. Đóng cái bảng Modal đi
         $('#voucherModal').modal('hide');
-        
-        // 4. Lập tức tự động kích hoạt nút "Áp dụng"
         $('#btn-apply-voucher').click();
     });
 
-    // 3. SỰ KIỆN NÚT ÁP DỤNG VOUCHER
     $('#btn-apply-voucher').click(function() {
         let code = $('#voucher_code').val().trim();
         let messageEl = $('#voucher-message');
@@ -377,26 +410,20 @@ $(document).ready(function() {
             return;
         }
 
-        // Gọi API qua controller
         axios.post('{{ route("checkout.apply_voucher") }}', {
             voucher_code: code,
             total_order: subTotal
         })
         .then(response => {
             if(response.data.success) {
-                // Hợp lệ
                 messageEl.text(response.data.message).removeClass('text-danger').addClass('text-success');
-                
                 currentDiscount = response.data.discount_amount;
                 $('#discount-row').show();
                 $('#discount_amount_text').text('-' + new Intl.NumberFormat('vi-VN').format(currentDiscount) + ' đ');
-                
                 $('#applied_voucher_input').val(response.data.voucher_code);
                 calculateTotal();
             } else {
-                // Không hợp lệ
                 messageEl.text(response.data.message).removeClass('text-success').addClass('text-danger');
-                
                 currentDiscount = 0;
                 $('#discount-row').hide();
                 $('#applied_voucher_input').val('');
@@ -408,7 +435,9 @@ $(document).ready(function() {
         });
     });
 
-    // 4. SUBMIT FORM
+    // ==========================================
+    // TẠO CHUỖI ĐỊA CHỈ KHI SUBMIT
+    // ==========================================
     $('#checkoutForm').on('submit', function(e) {
         let provinceName = $("#province option:selected").attr('data-name');
         let districtName = $("#district option:selected").attr('data-name');

@@ -9,10 +9,16 @@ use Illuminate\Support\Str;
 
 class categoriesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = categories::withCount('products')->paginate(8);
-        $categories->loadCount('products');
+        $query = categories::withCount('products');
+
+        if ($request->filled('keyword')) {
+            $query->where('name', 'like', $request->keyword . '%');
+        }
+
+        $categories = $query->paginate(8);
+
         return view('admin.categories', compact('categories'));
     }
     public function create()
@@ -114,5 +120,14 @@ class categoriesController extends Controller
         $category->save();
 
         return redirect()->route('admin.categories')->with('success', 'Trạng thái danh mục đã được cập nhật thành công!');
+    }
+    // Tìm kiếm danh mục ajax
+    public function search(Request $request)
+    {
+        $categories = categories::where('name', 'like', $request->keyword . '%')
+            ->limit(5)
+            ->get();
+
+        return response()->json($categories);
     }
 }

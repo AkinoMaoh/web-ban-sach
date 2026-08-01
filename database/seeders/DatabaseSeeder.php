@@ -310,5 +310,8 @@ class DatabaseSeeder extends Seeder
         }
 
         DB::table('product_variants')->insert($data);
+        $this->call([
+            GhnLocationSeeder::class,
+        ]);
     }
 }

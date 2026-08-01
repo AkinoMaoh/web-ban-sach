@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\productsController;
 use App\Http\Controllers\Admin\categoriesController;
@@ -64,6 +65,7 @@ Route::middleware(['user_only'])->group(function () {
     Route::get('/checkout', [PaymentController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
+    Route::post('/payment/calculate-fee', [\App\Http\Controllers\User\PaymentController::class, 'calculateShippingFee'])->name('payment.calculate_fee');
 
     // THÊM DÒNG NÀY ĐỂ CHECK VOUCHER QUA AJAX
     Route::post('/checkout/apply-voucher', [PaymentController::class, 'applyVoucher'])->name('checkout.apply_voucher');
@@ -127,6 +129,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/manage-admins/{id}/approve', [AdminAuthController::class, 'approveAdmin'])->name('admin.approve');
     Route::delete('/manage-admins/{id}/reject', [AdminAuthController::class, 'rejectAdmin'])->name('admin.reject');
 
+    // Tìm kiếm sản phẩm
+    Route::get('/products/search', [productsController::class, 'search'])->name('admin.products.search');
     // Quản lý sản phẩm
     Route::get('/products', [productsController::class, 'index'])->name('admin.products');
     Route::get('/products/create', [productsController::class, 'create'])->name('admin.productAdd');
@@ -136,10 +140,29 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/products/{id}/toggleStatus', [productsController::class, 'toggleStatus'])->name('admin.products.toggleStatus');
     Route::get('/products/{id}', [productsController::class, 'show'])->name('admin.products.show');
     Route::get('/products/{id}/destroy', [productsController::class, 'destroy'])->name('admin.products.destroy');
+    // Ảnh biến thể sản phẩm
+    Route::get(
+        '/product-image/{id}/primary',
+        [ProductsController::class, 'setPrimary']
+    )
+        ->name('admin.products.image.primary');
+    Route::delete(
+        '/product-image/{id}',
+        [ProductsController::class, 'deleteImage']
+    )->name('admin.products.image.delete');
+    Route::post(
+        '/products/image/sort',
+        [ProductsController::class, 'sortImages']
+    )
+        ->name('admin.products.image.sort');
 
+    // Tìm kiếm nhà xuất bản
+    Route::get('/publishers/search', [publisherController::class, 'search'])->name('admin.publishers.search');
     // Quản lý nhà xuất bản
     Route::resource('publishers', publisherController::class)->names('admin.publishers');
 
+    // Tìm kiếm tác giả
+    Route::get('/authors/search', [authorsController::class, 'search'])->name('admin.authors.search');
     // Quản lý tác giả
     Route::get('/authors', [authorsController::class, 'index'])->name('admin.authors');
     Route::get('/authors/create', [authorsController::class, 'authorCreate'])->name('admin.authorAdd');
@@ -163,6 +186,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/orders/{id}', [ordersController::class, 'destroy'])->name('admin.orders.destroy');
     Route::post('/orders/{id}/toggleStatus', [ordersController::class, 'toggleStatus'])->name('admin.orders.toggleStatus');
 
+    // Tìm kiếm danh mục
+    Route::get('/admin/categories/search', [CategoriesController::class, 'search'])->name('admin.categories.search');
     // Quản lý danh mục
     Route::get('/categories', [categoriesController::class, 'index'])->name('admin.categories');
     Route::get('/categories/create', [categoriesController::class, 'create'])->name('admin.categoryAdd');
@@ -268,3 +293,16 @@ require __DIR__ . '/auth.php';
 //Xem tất cả sách của tác giả
 Route::get('/author/{id}', [ShopController::class, 'author'])
     ->name('user.author');
+
+// --- API NỘI BỘ LẤY ĐỊA CHỈ (Tỉnh / Huyện / Xã) ---
+Route::get('/api/locations/provinces', function () {
+    return response()->json(DB::table('provinces')->orderBy('name', 'asc')->get());
+});
+
+Route::get('/api/locations/districts/{province_id}', function ($province_id) {
+    return response()->json(DB::table('districts')->where('province_id', $province_id)->orderBy('name', 'asc')->get());
+});
+
+Route::get('/api/locations/wards/{district_id}', function ($district_id) {
+    return response()->json(DB::table('wards')->where('district_id', $district_id)->orderBy('name', 'asc')->get());
+});

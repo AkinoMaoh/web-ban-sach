@@ -54,4 +54,8 @@ class products extends Model
         return $this->hasOne(productVariants::class, 'product_id')
             ->oldest('id');
     }
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class, 'product_id');
+    }
 }

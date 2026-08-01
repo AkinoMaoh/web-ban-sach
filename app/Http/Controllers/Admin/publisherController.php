@@ -11,9 +11,15 @@ class publisherController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $publishers = publishers::withCount('products')->paginate(8);
+        $query = publishers::query();
+
+        if ($request->filled('keyword')) {
+            $query->where('name', 'like', $request->keyword . '%');
+        }
+
+        $publishers = $query->paginate(8);
 
         return view('admin.publisher', compact('publishers'));
     }
@@ -96,5 +102,14 @@ class publisherController extends Controller
         return redirect()
             ->route('admin.publishers.index')
             ->with('success', 'Nhà xuất bản đã được xóa thành công.');
+    }
+    // Tìm kiếm nxb ajax
+    public function search(Request $request)
+    {
+        $publishers = publishers::where('name', 'like', $request->keyword . '%')
+            ->limit(5)
+            ->get();
+
+        return response()->json($publishers);
     }
 }
