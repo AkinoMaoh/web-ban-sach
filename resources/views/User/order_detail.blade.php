@@ -3,28 +3,19 @@
 
 <style>
     /* --- CSS RIÊNG CHO TRANG CHI TIẾT ĐƠN HÀNG --- */
-    .serif-font {
-        font-family: 'Playfair Display', Georgia, serif;
-    }
-    .order-detail-section .table td, 
-    .order-detail-section .table th {
-        vertical-align: middle;
-    }
-    .badge {
-        font-weight: 600;
-        letter-spacing: 0.3px;
-    }
-    .btn-outline-primary {
-        color: var(--primary-color, #1a73e8);
-        border-color: var(--primary-color, #1a73e8);
-    }
-    .btn-outline-primary:hover {
-        background-color: var(--primary-color, #1a73e8);
-        color: #fff;
-    }
+    .serif-font { font-family: 'Playfair Display', Georgia, serif; }
+    .order-detail-section .table td, .order-detail-section .table th { vertical-align: middle; }
+    .badge { font-weight: 600; letter-spacing: 0.3px; }
+    .btn-outline-primary { color: var(--primary-color, #1a73e8); border-color: var(--primary-color, #1a73e8); }
+    .btn-outline-primary:hover { background-color: var(--primary-color, #1a73e8); color: #fff; }
+    
+    /* CSS hiệu ứng chọn sao */
+    .star-rating { display: flex; flex-direction: row-reverse; justify-content: center; }
+    .star-rating input { display: none; }
+    .star-rating label { color: #ddd; font-size: 2rem; padding: 0 0.2rem; cursor: pointer; transition: color 0.2s; }
+    .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #ffc107; }
 </style>
 
-<!-- Breadcrumb -->
 <div class="bg-white py-3 mb-4 shadow-sm border-bottom">
     <div class="container">
         <nav aria-label="breadcrumb">
@@ -48,19 +39,19 @@
                 @if($order->status == 'pending')
                     <span class="badge badge-warning px-4 py-2 text-dark shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-clock mr-1"></i> Chờ xác nhận</span>
                 @elseif($order->status == 'confirmed')
-                    <span class="badge badge-primary px-4 py-2 text-white shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-truck mr-1"></i> Đang giao</span>
+                    <span class="badge badge-primary px-4 py-2 text-white shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-check-circle mr-1"></i> Đã xác nhận</span>
                 @elseif($order->status == 'shipping')
-                    <span class="badge badge-info px-4 py-2 shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-check-circle mr-1"></i> Đang giao</span>
+                    <span class="badge badge-info px-4 py-2 shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-truck mr-1"></i> Đang giao</span>
                 @elseif($order->status == 'completed')
-                    <span class="badge badge-success px-4 py-2 shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-check-circle mr-1"></i> Thành công</span>
+                    <span class="badge badge-success px-4 py-2 shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-check mr-1"></i> Thành công</span>
                 @elseif($order->status == 'cancelled')
-                    <span class="badge badge-danger px-4 py-2 shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-times-circle mr-1"></i> Đã hủy</span>
+                    <span class="badge badge-danger px-4 py-2 shadow-sm" style="font-size: 14px; border-radius: 8px;"><i class="fas fa-times"></i> Đã hủy</span>
                 @endif
             </div>
         </div>
 
         <div class="row">
-            <!-- Cột Trái: Thông tin giao hàng & Thanh toán -->
+            <!-- Cột Trái: Thông tin giao hàng -->
             <div class="col-lg-4 mb-4">
                 <div class="bg-white p-4 rounded shadow-sm border h-100">
                     <h5 class="font-weight-bold border-bottom pb-3 mb-3 text-dark">Thông tin người nhận</h5>
@@ -119,24 +110,86 @@
                             <tbody>
                                 @foreach($orderDetails as $item)
                                     <tr class="border-bottom">
-                                        <!-- Cột Tên + Ảnh + Nút Đánh giá to bản ở dưới -->
                                         <td class="py-3 pl-4">
                                             <div class="d-flex align-items-start">
-                                                <img src="{{ asset('uploads/products/' . $item->product_image) }}" class="rounded shadow-sm border" style="width: 65px; height: 90px; object-fit: cover;" alt="Book">
+                                                <!-- Kiểm tra xem SP còn ảnh không, nếu mất SP thì dùng ảnh placeholder -->
+                                                @php
+                                                    $imagePath = ($item->productVariant && $item->productVariant->product) 
+                                                        ? asset('uploads/products/' . $item->productVariant->product->image) 
+                                                        : asset('images/default-product.png');
+                                                @endphp
+                                                <img src="{{ $imagePath }}" class="rounded shadow-sm border" style="width: 65px; height: 90px; object-fit: cover;" alt="Book">
+                                                
                                                 <div class="ml-3 flex-grow-1">
+                                                    <!-- Lấy tên và phiên bản trực tiếp từ order_details (không bị mất khi Admin xóa sản phẩm) -->
                                                     <span class="d-block font-weight-bold text-dark" style="font-size: 16px;">{{ $item->product_name }}</span>
-                                                    <small class="text-muted d-block mb-3">Phiên bản: <strong class="text-dark">{{ $item->edition ?? 'Tiêu chuẩn' }}</strong></small>
+                                                    <small class="text-muted d-block mb-3">Phiên bản: <strong class="text-dark">{{ $item->variant_name ?? 'Tiêu chuẩn' }}</strong></small>
                                                     
-                                                    <!-- Nút Đánh giá sản phẩm to bản, nằm ở dưới -->
+                                                    <!-- XỬ LÝ NÚT ĐÁNH GIÁ (Chỉ hiện khi đơn đã hoàn thành) -->
                                                     @if($order->status == 'completed')
-                                                        <div class="mt-2">
-                                                            <a href="{{ route('user.productDetails', $item->product_id) }}#review-section" 
-                                                               class="btn btn-outline-primary font-weight-bold px-3 py-2 shadow-sm d-inline-flex align-items-center" 
-                                                               style="border-radius: 8px; font-size: 13px; border-width: 2px;">
-                                                                <i class="fas fa-star text-warning mr-2" style="font-size: 15px;"></i> Viết đánh giá sản phẩm
-                                                            </a>
-                                                        </div>
+                                                        <!-- NẾU SẢN PHẨM GỐC VẪN CÒN TỒN TẠI TRONG DB -->
+                                                        @if($item->productVariant && $item->productVariant->product)
+                                                            <div class="mt-2">
+                                                                <button type="button" class="btn btn-outline-primary font-weight-bold px-3 py-2 shadow-sm d-inline-flex align-items-center" 
+                                                                        data-toggle="modal" data-target="#reviewModal-{{ $item->id }}"
+                                                                        style="border-radius: 8px; font-size: 13px; border-width: 2px;">
+                                                                    <i class="fas fa-star text-warning mr-2" style="font-size: 15px;"></i> Viết đánh giá sản phẩm
+                                                                </button>
+                                                            </div>
+
+                                                            <!-- Modal Đánh giá -->
+                                                            <div class="modal fade" id="reviewModal-{{ $item->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                                    <div class="modal-content border-0 shadow">
+                                                                        <form action="{{ route('review.store') }}" method="POST">
+                                                                            @csrf
+                                                                            <input type="hidden" name="product_id" value="{{ $item->productVariant->product->id }}">
+                                                                            <input type="hidden" name="order_detail_id" value="{{ $item->id }}">
+
+                                                                            <div class="modal-header bg-light border-0">
+                                                                                <h5 class="modal-title font-weight-bold">Đánh giá: {{ $item->product_name }}</h5>
+                                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                                    <span aria-hidden="true">&times;</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            
+                                                                            <div class="modal-body p-4 text-left">
+                                                                                <p class="text-muted small mb-3">Phiên bản: <strong>{{ $item->variant_name ?? 'Tiêu chuẩn' }}</strong></p>
+                                                                                <h6 class="font-weight-bold mb-3 text-center">Vui lòng chọn mức độ hài lòng</h6>
+                                                                                
+                                                                                <div class="star-rating mb-4 justify-content-center">
+                                                                                    <input type="radio" id="star5_{{ $item->id }}" name="rating" value="5" required>
+                                                                                    <label for="star5_{{ $item->id }}" title="5 sao"><i class="fas fa-star"></i></label>
+                                                                                    <input type="radio" id="star4_{{ $item->id }}" name="rating" value="4">
+                                                                                    <label for="star4_{{ $item->id }}" title="4 sao"><i class="fas fa-star"></i></label>
+                                                                                    <input type="radio" id="star3_{{ $item->id }}" name="rating" value="3">
+                                                                                    <label for="star3_{{ $item->id }}" title="3 sao"><i class="fas fa-star"></i></label>
+                                                                                    <input type="radio" id="star2_{{ $item->id }}" name="rating" value="2">
+                                                                                    <label for="star2_{{ $item->id }}" title="2 sao"><i class="fas fa-star"></i></label>
+                                                                                    <input type="radio" id="star1_{{ $item->id }}" name="rating" value="1">
+                                                                                    <label for="star1_{{ $item->id }}" title="1 sao"><i class="fas fa-star"></i></label>
+                                                                                </div>
+                                                                                
+                                                                                <textarea class="form-control shadow-sm" name="comment" rows="3" placeholder="Nhận xét của bạn về chất lượng sách, đóng gói, giao hàng..." required style="resize: none;"></textarea>
+                                                                            </div>
+                                                                            <div class="modal-footer border-0 bg-light">
+                                                                                <button type="button" class="btn btn-secondary rounded-pill px-4" data-dismiss="modal">Hủy</button>
+                                                                                <button type="submit" class="btn btn-primary rounded-pill px-4">Gửi nhận xét</button>
+                                                                            </div>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        <!-- NẾU SẢN PHẨM ĐÃ BỊ ADMIN XÓA -->
+                                                        @else
+                                                            <div class="mt-2">
+                                                                <span class="badge badge-secondary py-2 px-3 shadow-sm" style="font-size: 13px; border-radius: 8px;">
+                                                                    <i class="fas fa-ban mr-1"></i> Sản phẩm đã ngừng kinh doanh
+                                                                </span>
+                                                            </div>
+                                                        @endif
                                                     @endif
+
                                                 </div>
                                             </div>
                                         </td>
@@ -186,8 +239,8 @@
                 <i class="fas fa-arrow-left mr-2"></i> Quay lại lịch sử
             </a>
 
-            <!-- Nút Hủy (Chỉ hiện nếu là pending hoặc confirmed) -->
-            @if(in_array($order->status, ['pending', 'confirmed']))
+            <!-- Nút Hủy (Chỉ hiện nếu là pending) -->
+            @if(in_array($order->status, ['pending']))
                 <form action="{{ route('user.history.cancel', $order->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?');">
                     @csrf
                     <button type="submit" class="btn btn-danger rounded-pill px-4 py-2 font-weight-bold">

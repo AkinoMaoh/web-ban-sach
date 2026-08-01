@@ -334,6 +334,7 @@ class PaymentController extends Controller
                 ->lockForUpdate()
                 ->first();
 
+            // Vẫn giữ lại đoạn check này để chống việc khách đặt mua sản phẩm đã hết hàng trong kho
             if (!$variant || $variant->stock < $item['quantity']) {
                 throw new \Exception('Sản phẩm có ID ' . $item['product_variant_id'] . ' đã hết hàng hoặc không đủ số lượng. Vui lòng kiểm tra lại giỏ hàng!');
             }
@@ -352,10 +353,8 @@ class PaymentController extends Controller
                 'created_at'         => now(),
                 'updated_at'         => now(),
             ]);
-
-            DB::table('product_variants')
-                ->where('id', $item['product_variant_id'])
-                ->decrement('stock', $item['quantity']);
+            
+            // (Đã xóa đoạn DB::table('product_variants')->decrement('stock') ở đây)
         }
     }
 
@@ -434,13 +433,9 @@ class PaymentController extends Controller
                     'status' => 'cancelled'
                 ]);
 
-                $cancelledItems = DB::table('order_details')->where('order_id', $orderId)->get();
-                foreach ($cancelledItems as $item) {
-                    DB::table('product_variants')
-                        ->where('id', $item->product_variant_id)
-                        ->increment('stock', $item->quantity);
-                }
-                return redirect()->route('checkout.index')->with('error', 'Giao dịch thất bại hoặc bạn đã hủy thanh toán. Hàng hóa đã được hoàn lại kho.');
+                // (Đã xóa vòng lặp increment('stock') ở đây)
+                
+                return redirect()->route('checkout.index')->with('error', 'Giao dịch thất bại hoặc bạn đã hủy thanh toán.');
             }
         } else {
             return "CẢNH BÁO LỖI BẢO MẬT: Chữ ký không hợp lệ!";
