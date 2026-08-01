@@ -112,10 +112,10 @@
                                     <tr class="border-bottom">
                                         <td class="py-3 pl-4">
                                             <div class="d-flex align-items-start">
-                                                <!-- Kiểm tra xem SP còn ảnh không, nếu mất SP thì dùng ảnh placeholder -->
+                                                <!-- Lấy trực tiếp ảnh từ bảng order_details -->
                                                 @php
-                                                    $imagePath = ($item->productVariant && $item->productVariant->product) 
-                                                        ? asset('uploads/products/' . $item->productVariant->product->image) 
+                                                    $imagePath = $item->image 
+                                                        ? asset('uploads/products/' . $item->image) 
                                                         : asset('images/default-product.png');
                                                 @endphp
                                                 <img src="{{ $imagePath }}" class="rounded shadow-sm border" style="width: 65px; height: 90px; object-fit: cover;" alt="Book">
