@@ -10,11 +10,16 @@ use App\Models\Notification;
 class ReviewManagerController extends Controller
 {
     // Hiển thị danh sách đánh giá
-    public function index()
+    public function index(Request $request)
     {
-        // Lấy danh sách đánh giá mới nhất, kèm theo thông tin user và product
-        $reviews = Review::with(['user', 'product'])->latest()->paginate(10);
-        
+        $query = Review::with(['user', 'product']);
+
+        if ($request->filled('keyword')) {
+            $query->where('user_name', 'like', $request->keyword . '%');
+        }
+
+        $reviews = $query->latest()->paginate(10);
+
         return view('admin.reviews', compact('reviews'));
     }
 
@@ -57,5 +62,14 @@ class ReviewManagerController extends Controller
         $review->delete();
 
         return back()->with('success', 'Đã xóa đánh giá thành công!');
+    }
+    // Tìm kiếm bình luận ajax
+    public function search(Request $request)
+    {
+        $reviews = Review::where('user_name', 'like', $request->keyword . '%')
+            ->limit(5)
+            ->get();
+
+        return response()->json($reviews);
     }
 }

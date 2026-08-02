@@ -14,10 +14,35 @@
 
     <div class="card shadow mb-4 border-0 rounded-lg">
 
-        <div class="card-header py-3 bg-white">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+
             <h6 class="m-0 font-weight-bold text-primary">
                 <i class="fas fa-newspaper mr-2"></i> Dữ liệu tin tức
             </h6>
+
+            <form method="GET" action="{{ route('admin.news.index') }}" class="form-inline">
+
+                <div class="position-relative search-box">
+
+                    <input
+                        type="text"
+                        id="admin-search"
+                        name="keyword"
+                        class="form-control"
+                        placeholder="Nhập tiêu đề tin tức..."
+                        autocomplete="off"
+                        value="{{ request('keyword') }}">
+
+                    <div id="search-order-result"></div>
+
+                </div>
+
+                <button class="btn btn-primary ml-2">
+                    <i class="fas fa-search"></i>
+                </button>
+
+            </form>
+
         </div>
 
         <div class="card-body px-0 pb-0">
@@ -142,6 +167,9 @@
 <!-- JS xử lý sự kiện click vào dòng -->
 @push('scripts')
 <script>
+const searchUrl = "{{ route('admin.news.search') }}";
+const searchField = "title";
+
 document.addEventListener("DOMContentLoaded", function() {
     const rows = document.querySelectorAll(".clickable-row");
     rows.forEach(row => {
@@ -154,6 +182,8 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
+
+<script src="{{ asset('js/admin-search.js') }}"></script>
 @endpush
 
 @endsection
