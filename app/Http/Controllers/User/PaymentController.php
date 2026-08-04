@@ -397,20 +397,18 @@ class PaymentController extends Controller
 
             $variantModel = \App\Models\ProductVariants::with('product')->findOrFail($item['product_variant_id']);
 
-            // ĐÃ FIX: Đưa giá chuẩn ($item['price']) vào chi tiết hoá đơn thay vì lấy lại $variantModel->price bị sai sót
             DB::table('order_details')->insert([
                 'order_id'           => $orderId,
                 'product_variant_id' => $variantModel->id,
                 'product_name'       => $variantModel->product->name,
                 'variant_name'       => $variantModel->edition,
-                'price'              => $item['price'], // Sử dụng giá đã qua check logic giảm giá
+                'price'              => $item['price'], 
                 'quantity'           => $item['quantity'],
-                'subtotal'           => $item['price'] * $item['quantity'], // Tính subtotal dựa trên giá khuyến mãi (nếu có)
+                'subtotal'           => $item['price'] * $item['quantity'], 
+                'image'              => $variantModel->product->image, // <--- THÊM DÒNG NÀY Ở ĐÂY
                 'created_at'         => now(),
                 'updated_at'         => now(),
             ]);
-            
-            // (Đã xóa đoạn DB::table('product_variants')->decrement('stock') ở đây)
         }
     }
 
@@ -488,8 +486,6 @@ class PaymentController extends Controller
                 DB::table('orders')->where('id', $orderId)->update([
                     'status' => 'cancelled'
                 ]);
-
-                // (Đã xóa vòng lặp increment('stock') ở đây)
                 
                 return redirect()->route('checkout.index')->with('error', 'Giao dịch thất bại hoặc bạn đã hủy thanh toán.');
             }

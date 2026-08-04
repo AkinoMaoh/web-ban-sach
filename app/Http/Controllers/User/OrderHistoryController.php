@@ -18,7 +18,7 @@ class OrderHistoryController extends Controller
                     ->orderBy('id', 'desc')
                     ->paginate(10);
 
-        // Gán biến chi_tiet để tương thích với giao diện lịch sử cũ của bạn (nếu có dùng vòng lặp)
+                    
         foreach ($orders as $order) {
             $order->chi_tiet = $order->orderDetails;
         }
@@ -39,7 +39,8 @@ class OrderHistoryController extends Controller
         }
 
         // 2. Lấy chi tiết đơn hàng (Dùng Model OrderDetail)
-        // Load kèm productVariant.product để lấy ẢNH và check xem sản phẩm CÒN TỒN TẠI KHÔNG phục vụ nút Đánh giá
+        // Vẫn load kèm productVariant.product để check xem sản phẩm CÒN KINH DOANH KHÔNG (phục vụ nút Đánh giá)
+        // Cột `image` mặc định đã được lấy ra cùng bảng order_details
         $orderDetails = OrderDetail::with('productVariant.product')
                             ->where('order_id', $id)
                             ->get();
