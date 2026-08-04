@@ -67,6 +67,9 @@ Route::middleware(['user_only'])->group(function () {
     Route::get('/checkout/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
     Route::post('/payment/calculate-fee', [\App\Http\Controllers\User\PaymentController::class, 'calculateShippingFee'])->name('payment.calculate_fee');
 
+    // THÊM DÒNG NÀY ĐỂ CHECK VOUCHER QUA AJAX
+    Route::post('/checkout/apply-voucher', [PaymentController::class, 'applyVoucher'])->name('checkout.apply_voucher');
+
     Route::get('/news', [UserNewsController::class, 'index'])->name('user.news');
     Route::get('/news/{id}', [UserNewsController::class, 'show'])->name('user.news.show');
 });
@@ -201,6 +204,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     // Tìm kiếm bình luận
     Route::get('/reviews/search', [App\Http\Controllers\Admin\ReviewManagerController::class, 'search'])->name('admin.reviews.search');
+    // Quản lý Mã giảm giá (Voucher)
+    Route::resource('vouchers', \App\Http\Controllers\Admin\VoucherController::class)->names('admin.vouchers');
+
     //Quản lí bình luận
     Route::get('/reviews', [App\Http\Controllers\Admin\ReviewManagerController::class, 'index'])->name('admin.reviews.index');
     Route::post('/reviews/{id}/reply', [App\Http\Controllers\Admin\ReviewManagerController::class, 'reply'])->name('admin.reviews.reply');

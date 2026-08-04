@@ -18,6 +18,7 @@ class OrderDetail extends Model
         'price',
         'quantity',
         'subtotal',
+        'image',
     ];
 
     /**

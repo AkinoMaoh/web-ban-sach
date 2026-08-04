@@ -61,7 +61,8 @@
                                     <td class="align-middle text-left">
                                         @if(isset($order->chi_tiet) && count($order->chi_tiet) > 0)
                                             <div class="d-flex align-items-center">
-                                                <img src="{{ asset('uploads/products/' . $order->chi_tiet[0]->product_image) }}" class="rounded shadow-sm mr-2" style="width: 40px; height: 60px; object-fit: cover;" alt="Book">
+                                                <!-- Sử dụng ảnh từ bảng order_details -->
+                                                <img src="{{ $order->chi_tiet[0]->image ? asset('uploads/products/' . $order->chi_tiet[0]->image) : asset('images/default-product.png') }}" class="rounded shadow-sm mr-2" style="width: 40px; height: 60px; object-fit: cover;" alt="Book">
                                                 <div>
                                                     <span class="d-block text-dark font-weight-bold" style="font-size: 14px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">
                                                         {{ $order->chi_tiet[0]->product_name }}
@@ -116,4 +117,4 @@
         @endif
     </div>
 </section>
-@endsection 
+@endsection

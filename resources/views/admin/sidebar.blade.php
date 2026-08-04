@@ -35,6 +35,13 @@
             <span>Quản lý Danh mục</span>
         </a>
     </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('admin.vouchers.index') }}">
+            <i class="fas fa-ticket-alt"></i> <!-- Bạn có thể đổi icon tùy ý -->
+            <span>Quản lý Voucher</span>
+        </a>
+    </li>
     
     <li class="nav-item {{ request()->routeIs('admin.publishers*') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('admin.publishers.index') }}">

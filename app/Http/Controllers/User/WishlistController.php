@@ -12,17 +12,28 @@ class WishlistController extends Controller
     // 1. Hiển thị trang Sách yêu thích
     public function index()
     {
+        // DÙNG leftJoin để nếu bảng products bị xóa, dữ liệu wishlist vẫn được giữ lại hiển thị
         $wishlists = DB::table('wishlists')
-            ->join('products', 'wishlists.product_id', '=', 'products.id')
+            ->leftJoin('products', 'wishlists.product_id', '=', 'products.id')
             ->where('wishlists.user_id', Auth::id())
-            ->select('wishlists.id as wishlist_id', 'products.id as product_id', 'products.name', 'products.image')
+            ->select(
+                'wishlists.id as wishlist_id', 
+                'wishlists.product_id as original_product_id', // Bắt buộc phải có để lấy được ID kể cả khi sp đã xóa
+                'products.id as product_id', 
+                'products.name', 
+                'products.image'
+            )
             ->orderBy('wishlists.id', 'desc')
             ->paginate(12);
 
         // Lấy giá hiển thị (Lấy giá của phiên bản đầu tiên làm đại diện)
         foreach ($wishlists as $item) {
-            $variant = DB::table('product_variants')->where('product_id', $item->product_id)->first();
-            $item->price = $variant ? $variant->price : 0;
+            if ($item->product_id) {
+                $variant = DB::table('product_variants')->where('product_id', $item->product_id)->first();
+                $item->price = $variant ? $variant->price : 0;
+            } else {
+                $item->price = 0; // Sản phẩm đã bị xóa
+            }
         }
 
         return view('User.wishlist', compact('wishlists'));
@@ -56,7 +67,7 @@ class WishlistController extends Controller
         }
     }
 
-    // 3. Xóa khỏi danh sách (Dùng ở trang Quản lý yêu thích)
+    // 3. Xóa khỏi danh sách (Trường hợp gọi load lại trang bằng route GET)
     public function remove($id)
     {
         DB::table('wishlists')->where('id', $id)->where('user_id', Auth::id())->delete();
