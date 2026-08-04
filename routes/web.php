@@ -216,6 +216,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     //quản lý user
     Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users.index');
     Route::delete('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy');
+    Route::get('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'show'])->name('admin.users.show');
 
     //Quản lý banner
     Route::get('/banners', [BannerController::class, 'index'])->name('admin.banners.index');

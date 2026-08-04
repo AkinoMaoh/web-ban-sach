@@ -225,7 +225,7 @@ $('#heroCarousel').carousel({
                                         @else
                                             <h4 class="mb-3" style="color:#D35400;font-weight:700;">{{ number_format($pro->price,0,',','.') }} ₫</h4>
                                         @endif
-                                        <span class="btn btn-outline-dark btn-sm rounded-pill px-4">Đọc ngay</span>
+                                        <span class="btn btn-outline-dark btn-sm rounded-pill px-4">Mua ngay</span>
                                     </div>
                                 </a>
                             </div>
