@@ -14,9 +14,16 @@ class AdminNewsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $news = News::paginate(5);
+        $query = News::query();
+
+        if ($request->filled('keyword')) {
+            $query->where('title', 'like', $request->keyword . '%');
+        }
+
+        $news = $query->paginate(5);
+
         return view('admin.news', compact('news'));
     }
 
@@ -161,5 +168,14 @@ class AdminNewsController extends Controller
         return redirect()
             ->route('admin.news.index')
             ->with('success', 'Xóa tin tức thành công');
+    }
+    // Tìm kiếm tin tức ajax
+    public function search(Request $request)
+    {
+        $news = News::where('title', 'like', $request->keyword . '%')
+            ->limit(5)
+            ->get();
+
+        return response()->json($news);
     }
 }

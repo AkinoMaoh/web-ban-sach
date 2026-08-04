@@ -197,9 +197,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/categories/{id}/toggleStatus', [categoriesController::class, 'toggleStatus'])->name('admin.categories.toggleStatus');
     Route::get('/categories/{id}/destroy', [categoriesController::class, 'destroy'])->name('admin.categories.destroy');
 
+    // Tìm kiếm tin tức
+    Route::get('/news/search', [AdminNewsController::class, 'search'])->name('admin.news.search');
     // Quản lý tin tức
     Route::resource('news', AdminNewsController::class)->names('admin.news');
 
+    // Tìm kiếm bình luận
+    Route::get('/reviews/search', [App\Http\Controllers\Admin\ReviewManagerController::class, 'search'])->name('admin.reviews.search');
     // Quản lý Mã giảm giá (Voucher)
     Route::resource('vouchers', \App\Http\Controllers\Admin\VoucherController::class)->names('admin.vouchers');
 
