@@ -75,8 +75,11 @@ class PaymentController extends Controller
                         $vid = $variant->id;
                         $quantity = isset($sessionCart[$vid]['quantity']) ? $sessionCart[$vid]['quantity'] : 1;
 
-                        // ĐÃ FIX: Kiểm tra giá giảm
-                        $unitPrice = ($variant->sale_price > 0 && $variant->sale_price < $variant->price) ? $variant->sale_price : $variant->price;
+                        // Kiểm tra xem cột sale_price có tồn tại không, nếu không có thì gán bằng 0
+                        $salePrice = isset($variant->sale_price) ? $variant->sale_price : 0;
+
+                        // Tính giá cuối cùng
+                        $unitPrice = ($salePrice > 0 && $salePrice < $variant->price) ? $salePrice : $variant->price;
 
                         $totalAmount += $unitPrice * $quantity;
                         $cart[$vid] = [
@@ -90,8 +93,11 @@ class PaymentController extends Controller
                 }
             }
         }
+        $vouchers = \App\Models\Voucher::where(function($query) {
+        $query->whereNull('end_date')->orWhere('end_date', '>=', now());
+        })->get();
 
-        return view('User.checkout', compact('cart', 'totalAmount'));
+        return view('User.checkout', compact('cart', 'totalAmount', 'vouchers'));
     }
 
     public function calculateShippingFee(Request $request)
@@ -131,12 +137,16 @@ class PaymentController extends Controller
 
     public function process(Request $request)
     {
+
+        // 1. CHUẨN HÓA SỐ ĐIỆN THOẠI & EMAIL KÈM TIỀN SHIP VÀ VOUCHER
+
         $validated = $request->validate([
             'shipping_name' => 'required|string|max:255',
             'shipping_phone' => ['required', 'regex:/^0[0-9]{9}$/'],
             'billing_email' => 'required|email|max:255',
             'full_address' => 'required|string',
             'shipping_fee' => 'required|numeric|min:0',
+            'applied_voucher' => 'nullable|string', // Thêm dòng này để nhận mã giảm giá
         ], [
             'shipping_name.required' => 'Vui lòng nhập họ và tên người nhận.',
             'shipping_phone.required' => 'Vui lòng nhập số điện thoại.',
@@ -152,6 +162,7 @@ class PaymentController extends Controller
         $billing_email = $validated['billing_email'];
         $full_address = $validated['full_address'];
         $notes = $request->input('order_notes');
+        $voucherCode = $request->input('applied_voucher'); // Lấy mã voucher từ input ẩn
 
         $totalAmount = 0;
         $realCart = [];
@@ -215,6 +226,41 @@ class PaymentController extends Controller
             }
         }
 
+
+        // --- BẢO MẬT: KIỂM TRA VÀ TÍNH LẠI VOUCHER Ở BACKEND ---
+        $discountAmount = 0;
+        $voucherId = null;
+
+        if (!empty($voucherCode)) {
+            // Tìm voucher trong database
+            $voucher = \App\Models\Voucher::where('code', $voucherCode)->where('is_active', true)->first();
+
+            // Kiểm tra xem voucher có hợp lệ và tổng tiền hàng có đạt mức tối thiểu không
+            if ($voucher && $totalAmount >= $voucher->min_order_value) {
+                $voucherId = $voucher->id; // Lấy ID để lưu vào cột voucher_id
+
+                // Tính số tiền được giảm
+                if ($voucher->type == 'percent') {
+                    $discountAmount = ($totalAmount * $voucher->discount_value) / 100;
+                    if ($voucher->max_discount_value && $discountAmount > $voucher->max_discount_value) {
+                        $discountAmount = $voucher->max_discount_value;
+                    }
+                } else {
+                    $discountAmount = $voucher->discount_value;
+                }
+
+                // Không cho phép giảm quá tổng tiền hàng
+                if ($discountAmount > $totalAmount) {
+                    $discountAmount = $totalAmount;
+                }
+            }
+        }
+
+        // Trừ tiền giảm giá ra khỏi tổng tiền hàng
+        $totalAmount -= $discountAmount;
+        if ($totalAmount < 0) $totalAmount = 0;
+
+        // --- CỘNG TIỀN SHIP BÊN JS ĐẨY SANG VÀO TỔNG ĐƠN ---
         $shipping_fee = $validated['shipping_fee'];
         $totalAmount += $shipping_fee; 
 
@@ -231,9 +277,17 @@ class PaymentController extends Controller
                 'shipping_address' => $full_address,
                 'notes' => $notes,
                 'payment_method' => $payment_method,
+                'voucher_id' => $voucherId, // <--- LƯU ID VOUCHER VÀO ĐÂY (Khớp với cột trong DB của bạn)
                 'created_at' => now('Asia/Ho_Chi_Minh'),
             ]);
 
+
+            // --- NẾU DÙNG VOUCHER THÀNH CÔNG, TĂNG SỐ LƯỢT DÙNG LÊN 1 ---
+            if ($voucherId) {
+                \App\Models\Voucher::where('id', $voucherId)->increment('used_count');
+            }
+
+            // --- GỌI HÀM XỬ LÝ KHO ---
             $this->handleOrderAndStock($realCart, $orderId);
 
             DB::commit();
@@ -264,17 +318,19 @@ class PaymentController extends Controller
                         'user_id'    => $admin->id,
                         'message'    => "Có đơn hàng mới (COD): #{$orderId} từ khách {$shipping_name}",
                         'is_read'    => false,
-                        'target_url' => url('/admin/orders/' . $orderId . '/edit')
+                        'target_url' => url('/admin/orders/' . $orderId . '/edit') // Đã chốt dùng link có chữ /edit
                     ]);
                 }
 
                 return view('User.thankyou', ['orderId' => $orderId, 'message' => 'Đặt hàng thành công!']);
             } 
             elseif ($payment_method == 'vnpay') {
-                $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"; 
+
+                // --- LOGIC TẠO LINK VNPAY ---
+                $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"; // Đã xóa dòng lặp thừa
                 $vnp_Returnurl = url('/vnpay-return'); 
                 $vnp_TmnCode = env('VNP_TMN_CODE'); 
-                $vnp_HashSecret = env('VNP_HASH_SECRET'); 
+                $vnp_HashSecret = env('VNP_HASH_SECRET');
 
                 $vnp_TxnRef = $orderId; 
                 $vnp_OrderInfo = "Thanh toán đơn hàng #" . $orderId;
@@ -445,5 +501,60 @@ class PaymentController extends Controller
         } else {
             return "CẢNH BÁO LỖI BẢO MẬT: Chữ ký không hợp lệ!";
         }
+    }
+    public function applyVoucher(\Illuminate\Http\Request $request)
+    {
+        $code = $request->voucher_code;
+        $totalOrder = $request->total_order; // Tổng tiền đơn hàng gửi lên từ giao diện
+
+        // 1. Tìm voucher trong DB
+        $voucher = \App\Models\Voucher::where('code', $code)->where('is_active', true)->first();
+
+        if (!$voucher) {
+            return response()->json(['success' => false, 'message' => 'Mã giảm giá không tồn tại hoặc đã bị khóa!']);
+        }
+
+        // 2. Kiểm tra thời gian
+        $now = now();
+        if ($voucher->start_date && $now->lt($voucher->start_date)) {
+            return response()->json(['success' => false, 'message' => 'Mã giảm giá chưa đến thời gian sử dụng!']);
+        }
+        if ($voucher->end_date && $now->gt($voucher->end_date)) {
+            return response()->json(['success' => false, 'message' => 'Mã giảm giá đã hết hạn!']);
+        }
+
+        // 3. Kiểm tra số lượng giới hạn
+        if ($voucher->usage_limit && $voucher->used_count >= $voucher->usage_limit) {
+            return response()->json(['success' => false, 'message' => 'Mã giảm giá đã hết lượt sử dụng!']);
+        }
+
+        // 4. Kiểm tra điều kiện đơn tối thiểu
+        if ($totalOrder < $voucher->min_order_value) {
+            return response()->json(['success' => false, 'message' => 'Đơn hàng chưa đạt mức tối thiểu ' . number_format($voucher->min_order_value) . 'đ để áp dụng mã này!']);
+        }
+
+        // 5. Tính số tiền được giảm
+        $discountAmount = 0;
+        if ($voucher->type == 'percent') {
+            $discountAmount = ($totalOrder * $voucher->discount_value) / 100;
+            // Kiểm tra giới hạn giảm tối đa (nếu có)
+            if ($voucher->max_discount_value && $discountAmount > $voucher->max_discount_value) {
+                $discountAmount = $voucher->max_discount_value;
+            }
+        } else {
+            $discountAmount = $voucher->discount_value;
+        }
+
+        // Chống giảm âm tiền (VD: đơn 50k mà mã giảm hẳn 100k)
+        if ($discountAmount > $totalOrder) {
+            $discountAmount = $totalOrder;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Áp dụng mã giảm giá thành công!',
+            'discount_amount' => $discountAmount,
+            'voucher_code' => $voucher->code
+        ]);
     }
 }
