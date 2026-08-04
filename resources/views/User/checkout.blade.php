@@ -210,13 +210,8 @@
         </div>
 
         <!-- CÁC THẺ INPUT ẨN GỬI VỀ CONTROLLER -->
-        <input type="hidden" name="shipping_fee" id="hidden_shipping_fee" value="0">
-        <input type="hidden" name="applied_voucher" id="applied_voucher_input" value="">
 
-                        <div class="d-flex justify-content-between align-items-center mb-4 pt-3 border-top">
-                            <span class="font-weight-bold text-dark" style="font-size: 18px;">TỔNG CỘNG:</span>
-                            <span class="font-weight-bold" id="total_amount_text" style="color: #e74c3c; font-size: 24px;">{{ number_format($totalAmount ?? 0) }} đ</span>
-                        </div>
+        <input type="hidden" name="applied_voucher" id="applied_voucher_input" value="">
 
                         <!-- Thêm dòng này để gửi phí ship về Controller -->
                         <input type="hidden" name="shipping_fee" id="hidden_shipping_fee" value="0">
@@ -615,11 +610,6 @@ $(document).ready(function() {
                             <span id="shipping_fee_text">Vui lòng chọn địa chỉ</span>
                         </div>
 
-                        <div class="d-flex justify-content-between align-items-center mb-4 pt-3 border-top">
-                            <span class="font-weight-bold text-dark" style="font-size: 18px;">TỔNG CỘNG:</span>
-                            <span class="font-weight-bold" id="total_amount_text" style="color: #e74c3c; font-size: 24px;">{{ number_format($totalAmount ?? 0) }} đ</span>
-                        </div>
-
                         <!-- Thêm dòng này để gửi phí ship về Controller -->
                         <input type="hidden" name="shipping_fee" id="hidden_shipping_fee" value="0">
 
@@ -770,6 +760,72 @@ $(document).ready(function() {
         }
         
         $('#full_address').val(fullAddress);
+    });
+    // ==========================================
+    // 6. Xử lý nút "Chọn" và "Áp dụng" mã giảm giá
+    // ==========================================
+    
+    // 6.1. Khi bấm nút "Chọn" trong danh sách
+    $(document).on('click', '.btn-select-voucher', function(e) {
+        e.preventDefault();
+        
+        // Lấy mã code từ thuộc tính data-code
+        let selectedCode = $(this).attr('data-code'); 
+        
+        if (selectedCode) {
+            $('#voucher_code').val(selectedCode); // Đẩy mã ra ô input ngoài màn hình
+            $('#voucherModal').modal('hide');     // Đóng popup lại
+            $('#btn-apply-voucher').click();      // Tự động bấm luôn nút "Áp dụng" cho mượt
+        }
+    });
+
+    // 6.2. Xử lý khi bấm nút "Áp dụng" (Tính lại tiền)
+    $('#btn-apply-voucher').click(function() {
+        let code = $('#voucher_code').val().trim();
+        let messageEl = $('#voucher-message');
+        let subTotal = parseInt($('#subtotal_text').attr('data-value')) || 0;
+
+        if(!code) {
+            messageEl.text('Vui lòng nhập mã giảm giá!').removeClass('text-success').addClass('text-danger');
+            return;
+        }
+
+        // Gọi API sang Laravel để check mã và tính tiền giảm
+        axios.post('{{ route("checkout.apply_voucher") }}', {
+            voucher_code: code,
+            total_order: subTotal,
+            _token: '{{ csrf_token() }}'
+        })
+        .then(response => {
+            if(response.data.success) {
+                // Nếu thành công: Báo xanh, trừ tiền, hiện dòng giảm giá
+                messageEl.text(response.data.message).removeClass('text-danger').addClass('text-success');
+                let currentDiscount = response.data.discount_amount;
+                
+                $('#discount-row').show();
+                $('#discount_amount_text').text('-' + new Intl.NumberFormat('vi-VN').format(currentDiscount) + ' đ');
+                $('#applied_voucher_input').val(response.data.voucher_code);
+                
+                // Tính lại tổng tiền cuối cùng
+                let currentShippingFee = parseInt($('#hidden_shipping_fee').val()) || 0;
+                let finalTotal = subTotal + currentShippingFee - currentDiscount;
+                if (finalTotal < 0) finalTotal = 0; 
+                
+                $('#total_amount_text').text(new Intl.NumberFormat('vi-VN').format(finalTotal) + ' đ');
+            } else {
+                // Nếu thất bại: Báo đỏ, ẩn dòng giảm giá
+                messageEl.text(response.data.message).removeClass('text-success').addClass('text-danger');
+                $('#discount-row').hide();
+                $('#applied_voucher_input').val('');
+                
+                // Trả lại tổng tiền cũ
+                let currentShippingFee = parseInt($('#hidden_shipping_fee').val()) || 0;
+                $('#total_amount_text').text(new Intl.NumberFormat('vi-VN').format(subTotal + currentShippingFee) + ' đ');
+            }
+        })
+        .catch(error => {
+            messageEl.text('Lỗi kết nối máy chủ!').removeClass('text-success').addClass('text-danger');
+        });
     });
 });
 </script>
