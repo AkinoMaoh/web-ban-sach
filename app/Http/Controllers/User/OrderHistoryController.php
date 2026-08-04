@@ -5,26 +5,22 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\OrderDetail;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class OrderHistoryController extends Controller
 {
     public function index()
     {
-        // 1. Lấy danh sách đơn hàng của User đang đăng nhập
-        $orders = Order::where('user_id', Auth::id())
+        // 1. Lấy danh sách đơn hàng của User đang đăng nhập, load kèm chi tiết
+        $orders = Order::with('orderDetails')
+                    ->where('user_id', Auth::id())
                     ->orderBy('id', 'desc')
                     ->paginate(10);
 
-        // 2. Lấy chi tiết sản phẩm cho từng đơn hàng (Dùng DB::table giống phong cách của bạn)
+        // Gán biến chi_tiet để tương thích với giao diện lịch sử cũ của bạn (nếu có dùng vòng lặp)
         foreach ($orders as $order) {
-            $order->chi_tiet = DB::table('order_details')
-                ->join('product_variants', 'order_details.product_variant_id', '=', 'product_variants.id')
-                ->join('products', 'product_variants.product_id', '=', 'products.id')
-                ->where('order_details.order_id', $order->id)
-                ->select('order_details.*', 'products.name as product_name', 'products.image as product_image')
-                ->get();
+            $order->chi_tiet = $order->orderDetails;
         }
 
         return view('User.history', compact('orders'));
@@ -32,43 +28,37 @@ class OrderHistoryController extends Controller
 
     public function show($id)
     {
-        // 1. Lấy thông tin đơn hàng (phải đảm bảo đơn này của đúng User đang đăng nhập)
-        $order = DB::table('orders')
-            ->where('id', $id)
-            ->where('user_id', Auth::id())
-            ->first();
+        // 1. Lấy thông tin đơn hàng
+        $order = Order::where('id', $id)
+                    ->where('user_id', Auth::id())
+                    ->first();
 
-        // Nếu cố tình nhập ID bậy bạ trên thanh URL
+        // Kiểm tra bảo mật URL
         if (!$order) {
             return redirect()->route('user.history')->with('error', 'Đơn hàng không tồn tại hoặc không thuộc quyền sở hữu của bạn!');
         }
 
-        // 2. Lấy danh sách sản phẩm trong đơn hàng đó (Đã bổ sung product_id vào select)
-        $orderDetails = DB::table('order_details')
-            ->join('product_variants', 'order_details.product_variant_id', '=', 'product_variants.id')
-            ->join('products', 'product_variants.product_id', '=', 'products.id')
-            ->where('order_details.order_id', $id)
-            ->select(
-                'order_details.*', 
-                'products.name as product_name', 
-                'products.image as product_image', 
-                'product_variants.edition', 
-                'product_variants.product_id' // <--- THÊM DÒNG NÀY VÀO
-            )
-            ->get();
+        // 2. Lấy chi tiết đơn hàng (Dùng Model OrderDetail)
+        // Load kèm productVariant.product để lấy ẢNH và check xem sản phẩm CÒN TỒN TẠI KHÔNG phục vụ nút Đánh giá
+        $orderDetails = OrderDetail::with('productVariant.product')
+                            ->where('order_id', $id)
+                            ->get();
 
         return view('User.order_detail', compact('order', 'orderDetails'));
     }
 
     public function cancel($id)
     {
-        $order = DB::table('orders')->where('id', $id)->where('user_id', Auth::id())->first();
+        // Dùng Eloquent Model 
+        $order = Order::where('id', $id)->where('user_id', Auth::id())->first();
 
-        if (!$order || !in_array($order->status, ['pending', 'confirmed'])) {
+        if (!$order || !in_array($order->status, ['pending'])) {
             return back()->with('error', 'Đơn hàng này không thể hủy!');
         }
 
-        DB::table('orders')->where('id', $id)->update(['status' => 'cancelled']);
+        $order->status = 'cancelled';
+        $order->save();
+        
         return back()->with('success', 'Đơn hàng đã được hủy!');
     }
 }

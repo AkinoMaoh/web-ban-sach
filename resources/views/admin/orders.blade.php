@@ -17,7 +17,7 @@
                 <i class="fas fa-shopping-cart mr-2"></i> Danh sách đơn hàng
             </h6>
 
-            <form method="GET"action="{{ route('admin.orders') }}" class="form-inline">
+            <form method="GET" action="{{ route('admin.orders') }}" class="form-inline">
                 <!-- Ô tìm kiếm SĐT -->
                 <div class="position-relative search-box mr-2 mb-2 mb-md-0">
                     <input type="text"
@@ -137,18 +137,7 @@
                                         <i class="fas fa-edit"></i>
                                     </a>
 
-                                    <!-- Nút Xóa -->
-                                    <form action="{{ route('admin.orders.destroy', $order->id) }}"
-                                        method="POST"
-                                        class="d-inline delete-form">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Bạn có chắc chắn muốn xóa đơn hàng #{{ $order->id }}?')" title="Xóa">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    <!-- Đã gỡ bỏ Nút Xóa ở đây để khớp với Controller -->
                                 </div>
                             </td>
 

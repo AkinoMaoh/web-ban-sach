@@ -68,20 +68,12 @@
                                         <tr>
                                             <td class="pl-3 text-muted">{{ $index + 1 }}</td>
                                             <td>
-                                                @if($detail->productVariant && $detail->productVariant->product)
-                                                    <strong class="text-dark">{{ $detail->productVariant->product->name }}</strong>
-                                                    <br>
-                                                    <small class="text-muted">
-                                                        Phiên bản: {{ $detail->productVariant->edition }}
-                                                        @if($detail->productVariant->sku)
-                                                            — SKU: {{ $detail->productVariant->sku }}
-                                                        @endif
-                                                    </small>
-                                                @else
-                                                    <span class="text-muted font-italic">
-                                                        Sản phẩm đã bị xóa (Mã biến thể: #{{ $detail->product_variant_id }})
-                                                    </span>
-                                                @endif
+                                                <!-- ĐÃ CẬP NHẬT: Lấy trực tiếp từ OrderDetail -->
+                                                <strong class="text-dark">{{ $detail->product_name ?? 'Sản phẩm không xác định' }}</strong>
+                                                <br>
+                                                <small class="text-muted">
+                                                    Phiên bản: {{ $detail->variant_name ?? 'Mặc định' }}
+                                                </small>
                                             </td>
                                             <td class="text-right text-muted">{{ number_format($detail->price, 0, ',', '.') }} đ</td>
                                             <td class="text-center font-weight-bold">{{ $detail->quantity }}</td>
@@ -167,11 +159,11 @@
                             </div>
                             <div class="d-flex justify-content-between mb-2 text-muted">
                                 <span>Tiền sản phẩm:</span>
-                                <span>{{ number_format($order->total_amount - $order->shipping_fee, 0, ',', '.') }} đ</span>
+                                <span>{{ number_format($order->total_amount - ($order->shipping_fee ?? 0), 0, ',', '.') }} đ</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2 text-muted">
                                 <span>Phí vận chuyển:</span>
-                                <span>{{ number_format($order->shipping_fee, 0, ',', '.') }} đ</span>
+                                <span>{{ number_format($order->shipping_fee ?? 0, 0, ',', '.') }} đ</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
                                 <span class="font-weight-bold text-dark">TỔNG CỘNG:</span>
@@ -221,7 +213,6 @@
                                     Hoàn thành{{ $currentIndex !== false && ($currentIndex > $completedIdx || $completedIdx - $currentIndex > 1) ? ' (khóa)' : '' }}
                                 </option>
                                 
-                                <!-- ĐÃ CẬP NHẬT: Không cho phép hủy nếu đơn đang giao hoặc đã hoàn thành -->
                                 <option value="cancelled" 
                                     {{ $order->status == 'cancelled' ? 'selected' : '' }}
                                     {{ in_array($order->status, ['shipping', 'completed']) ? 'disabled' : '' }}>
@@ -257,5 +248,4 @@
     </form>
 
 </div>
-
 @endsection
