@@ -44,11 +44,12 @@
                     <thead class="bg-light text-uppercase font-weight-bold text-dark" style="font-size: 0.82rem;">
                         <tr>
                             <th class="py-3 pl-4" width="6%">#</th>
-                            <th class="py-3" width="28%">Tài khoản</th>
-                            <th class="py-3" width="28%">Email</th>
+                            <th class="py-3" width="23%">Tài khoản</th>
+                            <th class="py-3" width="23%">Email</th>
                             <th class="py-3" width="15%">Số điện thoại</th>
+                            <th class="py-3" width="12%">Vai trò</th>
                             <th class="py-3" width="15%">Ngày đăng ký</th>
-                            <th class="py-3 text-center pr-4" width="8%">Hành động</th>
+                            <th class="py-3" width="13%">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -72,6 +73,15 @@
                                         <span class="text-muted small font-italic">Chưa cập nhật</span>
                                     @endif
                                 </td>
+                       
+  <td>
+    @if($user->role == 1)
+        <span class="badge badge-danger">Admin</span>
+    @else
+        <span class="badge badge-success">Khách hàng</span>
+    @endif
+</td>
+
                                 <td><span class="text-muted small">{{ $user->created_at->format('d/m/Y H:i') }}</span></td>
                                 <td class="text-center pr-4">
                                     <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài khoản khách hàng này? Hành động này không thể hoàn tác!')">
@@ -81,6 +91,11 @@
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </form>
+                                     <a href="{{ route('admin.users.show', $user->id) }}" 
+                                           class="btn btn-sm btn-info text-white mr-1" 
+                                           title="Chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                 </td>
                             </tr>
                         @empty
