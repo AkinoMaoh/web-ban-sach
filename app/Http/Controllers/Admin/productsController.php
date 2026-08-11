@@ -435,7 +435,7 @@ class productsController extends Controller
     // Tìm kiếm sản phẩm ajax
     public function search(Request $request)
     {
-        $products = products::where('name', 'like', $request->keyword . '%')
+        $products = products::where('name', 'like', '%' . $request->keyword . '%')
             ->select('name')
             ->distinct()
             ->limit(5)

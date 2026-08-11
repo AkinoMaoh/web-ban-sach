@@ -120,45 +120,61 @@
         <div class="col-lg-4">
             
             <!-- Thẻ Ảnh -->
-            <div class="card shadow mb-4 border-0 rounded-lg">
-                <div class="card-header py-3 bg-white">
-                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-image mr-2"></i> Ảnh sản phẩm</h6>
-                </div>
-                <div class="card-body text-center">
-                   @if($product->images->count())
 
-    {{-- Ảnh lớn --}}
-    <img
-        id="main-image"
-        src="{{ asset('uploads/products/' . $product->images->first()->image) }}"
-        class="img-fluid rounded shadow-sm border mb-3"
-        style="width:100%;height:250px;object-fit:cover;">
-
-    {{-- Thumbnail --}}
-    <div class="row">
-
-        @foreach($product->images as $image)
-
-            <div class="col-3 mb-2">
-
-                <img
-                    src="{{ asset('uploads/products/' . $image->image) }}"
-                    class="img-thumbnail thumb-image"
-                    style="height:70px;width:100%;object-fit:cover;cursor:pointer;">
-
-            </div>
-
-        @endforeach
-
+<div class="card shadow mb-4 border-0 rounded-lg">
+    <div class="card-header py-3 bg-white">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-image mr-2"></i> Ảnh sản phẩm
+        </h6>
     </div>
 
-@else
+```
+<div class="card-body text-center">
 
-    <span class="text-muted">Không có ảnh</span>
+    @php
+        $sortedImages = $product->images
+            ->sortBy('sort_order')
+            ->values();
+    @endphp
 
-@endif
+    @if($sortedImages->count())
+
+        {{-- Ảnh lớn --}}
+        <img
+            id="main-image"
+            src="{{ asset('uploads/products/' . $sortedImages->first()->image) }}"
+            class="img-fluid rounded shadow-sm border mb-3"
+            style="width:100%;height:250px;object-fit:cover;">
+
+        {{-- Thumbnail --}}
+        <div class="row">
+
+            @foreach($sortedImages as $image)
+
+                <div class="col-3 mb-2">
+
+                    <img
+                        src="{{ asset('uploads/products/' . $image->image) }}"
+                        class="img-thumbnail thumb-image"
+                        style="height:70px;width:100%;object-fit:cover;cursor:pointer;">
+
                 </div>
-            </div>
+
+            @endforeach
+
+        </div>
+
+    @else
+
+        <span class="text-muted">Không có ảnh</span>
+
+    @endif
+
+</div>
+```
+
+</div>
+
 
             <!-- Thẻ Tổng số lượng & Thao tác -->
             <div class="card shadow mb-4 border-0 rounded-lg sticky-top" style="top: 20px;">

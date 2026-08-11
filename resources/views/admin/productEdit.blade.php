@@ -162,25 +162,40 @@
                         <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-image mr-2"></i> Ảnh sản phẩm</h6>
                     </div>
                     <div class="card-body text-center">
-                        <div class="mb-3">
+<div class="mb-3">
 
-                            @if($product->images->count())
 
-                                <img id="preview"
-                                    src="{{ asset('uploads/products/'.$product->images->first()->image) }}"
-                                    class="img-fluid rounded shadow-sm border"
-                                    style="max-height:220px;width:100%;object-fit:cover;">
+@php
+    $primaryImage = $product->images->firstWhere('is_primary', 1);
+@endphp
 
-                            @else
+@if($primaryImage)
 
-                                <img id="preview"
-                                    src="https://placehold.co/350x200?text=No+Image"
-                                    class="img-fluid rounded shadow-sm border"
-                                    style="max-height:220px;width:100%;object-fit:cover;">
+    <img id="preview"
+         src="{{ asset('uploads/products/' . $primaryImage->image) }}"
+         class="img-fluid rounded shadow-sm border"
+         style="max-height:220px;width:100%;object-fit:cover;">
 
-                            @endif
+@elseif($product->images->count())
 
-                        </div>
+    {{-- Trường hợp chưa có ảnh đại diện --}}
+    <img id="preview"
+         src="{{ asset('uploads/products/' . $product->images->sortBy('sort_order')->first()->image) }}"
+         class="img-fluid rounded shadow-sm border"
+         style="max-height:220px;width:100%;object-fit:cover;">
+
+@else
+
+    <img id="preview"
+         src="https://placehold.co/350x200?text=No+Image"
+         class="img-fluid rounded shadow-sm border"
+         style="max-height:220px;width:100%;object-fit:cover;">
+
+@endif
+
+
+</div>
+
 
 <div id="image-list" class="d-flex flex-wrap">
 
