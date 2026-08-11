@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('shipping_address')->nullable();
             $table->text('notes')->nullable();
             $table->string('payment_method')->nullable();
+            $table->string('cancel_reason')->nullable();
         });
     }
 

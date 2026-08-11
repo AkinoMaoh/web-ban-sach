@@ -186,6 +186,7 @@ class productsController extends Controller
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'variants' => 'required|array|min:1',
+            'variants.*.id' => 'nullable|integer|exists:product_variants,id',
             'variants.*.edition' => 'required|string|max:100',
             'variants.*.price' => 'required|numeric|min:0',
             'variants.*.sale_price' => 'nullable|numeric|min:0',
@@ -252,14 +253,10 @@ class productsController extends Controller
 
         $product->save();
 
-        // Xóa toàn bộ biến thể cũ
-        ProductVariants::where('product_id', $id)->delete();
-
         $standardPrice = 0;
+        $submittedVariantIds = [];
 
-        // Thêm lại các biến thể từ form
-        // Thêm lại các biến thể từ form
-        foreach ($request->variants as $index => $data) {
+        foreach ($request->variants as $data) {
 
             $price = $data['price'];
 
@@ -267,7 +264,6 @@ class productsController extends Controller
             $salePrice = !empty($data['sale_price'])
                 ? $data['sale_price']
                 : $price;
-
 
             // Không cho sale_price lớn hơn hoặc bằng giá gốc
             if ($salePrice >= $price) {
@@ -277,16 +273,34 @@ class productsController extends Controller
                 $discount = round((($price - $salePrice) / $price) * 100);
             }
 
-
-            ProductVariants::create([
+            $variantData = [
                 'product_id'        => $id,
                 'edition'           => $data['edition'],
                 'price'             => $price,
                 'sale_price'        => $salePrice,
                 'discount_percent'  => $discount,
                 'stock'             => $data['stock'],
-            ]);
+            ];
 
+            if (!empty($data['id'])) {
+                // Variant đã tồn tại -> cập nhật, giữ nguyên ID
+                $variant = ProductVariants::where('id', $data['id'])
+                    ->where('product_id', $id)
+                    ->first();
+
+                if ($variant) {
+                    $variant->update($variantData);
+                    $submittedVariantIds[] = $variant->id;
+                } else {
+                    // ID gửi lên không khớp sản phẩm này -> tạo mới cho an toàn
+                    $newVariant = ProductVariants::create($variantData);
+                    $submittedVariantIds[] = $newVariant->id;
+                }
+            } else {
+                // Variant mới -> tạo mới bình thường
+                $newVariant = ProductVariants::create($variantData);
+                $submittedVariantIds[] = $newVariant->id;
+            }
 
             // Lấy đúng giá phiên bản Standard
             if ($data['edition'] == 'Standard') {
@@ -294,6 +308,11 @@ class productsController extends Controller
             }
         }
 
+        // Xóa những variant cũ KHÔNG còn xuất hiện trong form nữa
+        // (tức admin chủ động xóa phiên bản đó khỏi sản phẩm)
+        ProductVariants::where('product_id', $id)
+            ->whereNotIn('id', $submittedVariantIds)
+            ->delete();
 
         $product->price = $standardPrice;
         $product->save();

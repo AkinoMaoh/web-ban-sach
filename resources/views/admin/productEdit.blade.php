@@ -127,6 +127,7 @@
                                     @foreach($productVariants as $index => $variant)
                                     <tr>
                                         <td>
+                                            <input type="hidden" name="variants[{{ $index }}][id]" value="{{ $variant->id }}">
                                             <input type="text" class="form-control" name="variants[{{ $index }}][edition]" value="{{ $variant->edition }}" placeholder="Tên phiên bản" required>
                                         </td>
                                         <td>
