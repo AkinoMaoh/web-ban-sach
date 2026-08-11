@@ -22,7 +22,8 @@ class Order extends Model
         'shipping_phone',     
         'shipping_address',   
         'notes',              
-        'payment_method',     
+        'payment_method', 
+        'cancel_reason',    
     ];
 
     /**
