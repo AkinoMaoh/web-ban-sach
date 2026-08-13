@@ -202,8 +202,37 @@ class DatabaseSeeder extends Seeder
             ['id' => 119, 'category_id' => 8, 'author_id' => 6, 'publisher_id' => 6, 'name' => 'Bốn Thỏa Ước', 'description' => 'Chỉ dẫn thực tế để đạt đến tự do cá nhân từ trí tuệ cổ xưa của người Toltec.', 'price' => 72000.00, 'image' => 'bon_thoa_uoc.jpg', 'status' => 1],
             ['id' => 120, 'category_id' => 8, 'author_id' => 7, 'publisher_id' => 2, 'name' => 'Dám Bị Ghét', 'description' => 'Triết lý tâm lý học Adler giúp bạn tự do và hạnh phúc trong các mối quan hệ.', 'price' => 96000.00,  'image' => 'dam_bi_ghet.jpg', 'status' => 1],
         ]);
+        // Tạo các biến thể mặc định
+        DB::table('variants')->insert([
+            [
+                'name' => 'Standard',
+                'status' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Special',
+                'status' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Special Signed',
+                'status' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        // Lấy ID của các biến thể
+        $variants = DB::table('variants')
+            ->pluck('id', 'name');
 
         $products = DB::table('products')->get();
+
+        $variants = DB::table('variants')
+            ->whereIn('name', ['Standard', 'Special', 'Special Signed'])
+            ->pluck('id', 'name');
 
         $data = [];
 
@@ -211,25 +240,28 @@ class DatabaseSeeder extends Seeder
 
             $standardStock = rand(50, 200);
 
+            // Standard
             $data[] = [
                 'product_id' => $product->id,
-                'edition' => 'Standard',
+                'variant_id' => $variants['Standard'],
                 'sku' => null,
                 'price' => $product->price,
                 'stock' => $standardStock,
             ];
 
+            // Special
             $data[] = [
                 'product_id' => $product->id,
-                'edition' => 'Special',
+                'variant_id' => $variants['Special'],
                 'sku' => null,
                 'price' => $product->price + 40000,
                 'stock' => floor($standardStock * 0.4),
             ];
 
+            // Special Signed
             $data[] = [
                 'product_id' => $product->id,
-                'edition' => 'Special Signed',
+                'variant_id' => $variants['Special Signed'],
                 'sku' => null,
                 'price' => $product->price + 90000,
                 'stock' => floor($standardStock * 0.1),
@@ -237,6 +269,7 @@ class DatabaseSeeder extends Seeder
         }
 
         DB::table('product_variants')->insert($data);
+
         $this->call([
             GhnLocationSeeder::class,
         ]);

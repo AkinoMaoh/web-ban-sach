@@ -174,43 +174,90 @@ KHUNG ẢNH PHÓNG TO
 
                         <!-- Box Chọn Phiên Bản -->
                         <div class="mt-4 pt-3 border-top">
-                            <h5 class="serif-font font-weight-bold mb-3">Chọn phiên bản:</h5>
-                            <div class="d-flex flex-wrap gap-2 mb-4">
-                                @php $hasChecked = false; @endphp
-                                @foreach($product->variants as $bienThe)
-                                    @if($bienThe->price > 0)
-                                        <label class="chon-phien-ban mb-2 mr-2">
-                                            <input type="radio"
-                                                name="product_variant_id"
-                                                value="{{ $bienThe->id }}"
-                                                data-price="{{ $bienThe->price }}"
-                                                data-sale-price="{{ $bienThe->sale_price ?? 0 }}"
-                                                data-discount="{{ $bienThe->discount_percent }}"
-                                                data-stock="{{ $bienThe->stock }}"
-                                                {{ $bienThe->stock <= 0 ? 'disabled' : '' }}
-                                                @if(!$hasChecked && $bienThe->stock > 0)
-                                                    checked
-                                                    @php $hasChecked = true; @endphp
-                                                @endif
-                                                required>
-                                            <span class="hop-phien-ban">
-                                                <strong class="d-block mb-1 text-dark">{{ $bienThe->edition }}</strong>
-                                                <small class="d-block mb-1">
-                                                    @if($bienThe->sale_price > 0 && $bienThe->sale_price < $bienThe->price)
-                                                        <span class="text-danger font-weight-bold">{{ number_format($bienThe->sale_price) }} VNĐ</span>
-                                                    @else
-                                                        <span class="text-muted">{{ number_format($bienThe->price) }} VNĐ</span>
-                                                    @endif
-                                                </small>
-                                                <small class="{{ $bienThe->stock > 0 ? 'text-success' : 'text-danger' }} font-weight-bold">
-                                                    {{ $bienThe->stock > 0 ? 'Còn ' . $bienThe->stock : 'Hết hàng' }}
-                                                </small>
-                                            </span>
-                                        </label>
-                                    @endif
-                                @endforeach
-                            </div>
-                        </div>
+    <h5 class="serif-font font-weight-bold mb-3">Chọn phiên bản:</h5>
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+
+        @php
+            $hasChecked = false;
+        @endphp
+
+        @foreach($product->variants as $bienThe)
+
+            @if($bienThe->price > 0)
+
+                <label class="chon-phien-ban mb-2 mr-2">
+
+                    <input type="radio"
+                        name="product_variant_id"
+                        value="{{ $bienThe->id }}"
+
+                        data-price="{{ $bienThe->price }}"
+                        data-sale-price="{{ $bienThe->sale_price ?? 0 }}"
+                        data-discount="{{ $bienThe->discount_percent }}"
+                        data-stock="{{ $bienThe->stock }}"
+
+                        {{ $bienThe->stock <= 0 ? 'disabled' : '' }}
+
+                        @if(!$hasChecked && $bienThe->stock > 0)
+                            checked
+                            @php
+                                $hasChecked = true;
+                            @endphp
+                        @endif
+
+                        required
+                    >
+
+                    <span class="hop-phien-ban">
+
+                        {{-- Tên biến thể --}}
+                        <strong class="d-block mb-1 text-dark">
+                            {{ $bienThe->variant->name }}
+                        </strong>
+
+                        {{-- Giá --}}
+                        <small class="d-block mb-1">
+
+                            @if(
+                                $bienThe->sale_price > 0 &&
+                                $bienThe->sale_price < $bienThe->price
+                            )
+
+                                <span class="text-danger font-weight-bold">
+                                    {{ number_format($bienThe->sale_price) }} VNĐ
+                                </span>
+
+                            @else
+
+                                <span class="text-muted">
+                                    {{ number_format($bienThe->price) }} VNĐ
+                                </span>
+
+                            @endif
+
+                        </small>
+
+                        {{-- Tồn kho --}}
+                        <small class="{{ $bienThe->stock > 0 ? 'text-success' : 'text-danger' }} font-weight-bold">
+
+                            {{ $bienThe->stock > 0
+                                ? 'Còn ' . $bienThe->stock
+                                : 'Hết hàng'
+                            }}
+
+                        </small>
+
+                    </span>
+
+                </label>
+
+            @endif
+
+        @endforeach
+
+    </div>
+</div>
 
                         <!-- Chọn Số Lượng -->
                         <div class="mb-4">

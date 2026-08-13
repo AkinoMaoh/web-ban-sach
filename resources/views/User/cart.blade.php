@@ -122,29 +122,57 @@
                                     <strong class="text-dark">{{ number_format($subTotal) }} đ</strong>
                                 </div>
                                 
-                                <!-- Phần Chọn biến thể & Nhập số lượng -->
-                                <div class="col-3">
-                                    <select class="form-control form-control-sm auto-update" data-old-id="{{ $item->product_variant_id }}">
-                                        @foreach($item->variant->product->variants as $v)
-                                            <option value="{{ $v->id }}" {{ $v->id == $item->product_variant_id ? 'selected' : '' }} {{ $v->stock <= 0 ? 'disabled' : '' }}>
-                                                {{ $v->edition }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    
-                                    <!-- Ô nhập số lượng -->
-                                    <input type="number" value="{{ $item->quantity }}" min="1" max="{{ $item->variant->stock }}"
-                                           oninput="this.value = Math.max(1, Math.min(this.value, {{ $item->variant->stock }}))"
-                                           class="form-control form-control-sm auto-update mt-2" 
-                                           data-old-id="{{ $item->product_variant_id }}">
-                                </div>
+                               <!-- Phần Chọn biến thể & Nhập số lượng -->
+<div class="col-3">
 
-                                <div class="col-1 text-center">
-                                    <form action="{{ route('cart.remove', $item->product_variant_id) }}" method="POST">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-link text-danger p-0" title="Xóa sản phẩm"><i class="fas fa-trash"></i></button>
-                                    </form>
-                                </div>
+    <select class="form-control form-control-sm auto-update"
+            data-old-id="{{ $item->product_variant_id }}">
+
+        @foreach($item->variant->product->variants as $v)
+
+            <option
+                value="{{ $v->id }}"
+                {{ $v->id == $item->product_variant_id ? 'selected' : '' }}
+                {{ $v->stock <= 0 ? 'disabled' : '' }}
+            >
+                {{ $v->variant->name }}
+            </option>
+
+        @endforeach
+
+    </select>
+
+    <!-- Ô nhập số lượng -->
+    <input
+        type="number"
+        value="{{ $item->quantity }}"
+        min="1"
+        max="{{ $item->variant->stock }}"
+        oninput="this.value = Math.max(1, Math.min(this.value, {{ $item->variant->stock }}))"
+        class="form-control form-control-sm auto-update mt-2"
+        data-old-id="{{ $item->product_variant_id }}"
+    >
+
+</div>
+
+<div class="col-1 text-center">
+
+    <form action="{{ route('cart.remove', $item->product_variant_id) }}" method="POST">
+
+        @csrf
+        @method('DELETE')
+
+        <button
+            type="submit"
+            class="btn btn-link text-danger p-0"
+            title="Xóa sản phẩm"
+        >
+            <i class="fas fa-trash"></i>
+        </button>
+
+    </form>
+
+</div>
                             </div>
                         </div>
                     @endif
