@@ -258,7 +258,35 @@ KHUNG ẢNH PHÓNG TO
 
     </div>
 </div>
-
+                        <!-- KHU VỰC VOUCHER HIỂN THỊ TRƯỚC KHI MUA -->
+                        @if(isset($vouchers) && $vouchers->count() > 0)
+                        <div class="mt-4 pt-3 border-top mb-4">
+                            <h5 class="serif-font font-weight-bold mb-3"><i class="fas fa-tags text-orange mr-2"></i>Mã giảm giá dành cho bạn:</h5>
+                            <div class="d-flex overflow-auto pb-2 custom-scrollbar" style="gap: 12px;">
+                                @foreach($vouchers as $vc)
+                                <div class="voucher-ticket d-flex align-items-center flex-shrink-0" style="width: 260px; border: 1px solid #ff7a59; border-radius: 6px; background: #fff5f2;">
+                                    <div class="p-2 text-center" style="border-right: 1px dashed #ff7a59; background: #ff7a59; color: white; border-radius: 5px 0 0 5px; min-width: 70px;">
+                                        <h6 class="font-weight-bold mb-0" style="font-size: 13px;">{{ $vc->code }}</h6>
+                                    </div>
+                                    <div class="p-2 flex-grow-1">
+                                        <h6 class="font-weight-bold mb-1 text-dark" style="font-size: 13px;">
+                                            @if($vc->type == 'percent')
+                                                Giảm {{ $vc->discount_value }}% 
+                                            @else
+                                                Giảm {{ number_format($vc->discount_value) }}đ
+                                            @endif
+                                        </h6>
+                                        <p class="text-muted mb-1" style="font-size: 11px;">Đơn tối thiểu: {{ number_format($vc->min_order_value) }}đ</p>
+                                        <button type="button" class="btn btn-sm btn-outline-danger w-100 font-weight-bold" style="font-size: 11px; padding: 2px;" onclick="copyVoucherCode('{{ $vc->code }}')">
+                                            Copy Mã
+                                        </button>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+                        <!-- END KHU VỰC VOUCHER -->
                         <!-- Chọn Số Lượng -->
                         <div class="mb-4">
                             <h5 class="serif-font font-weight-bold mb-3">Số lượng :</h5>
@@ -627,10 +655,39 @@ TRONG POPUP
     .star-rating input { display: none; }
     .star-rating label { color: #ddd; font-size: 1.5rem; padding: 0 0.1rem; cursor: pointer; transition: color 0.2s; }
     .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #ffc107; }
+/* CSS cho thanh trượt Voucher */
+    .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+        border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #ffbcab; 
+        border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #ff7a59; 
+    }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // Hàm Copy Voucher
+    window.copyVoucherCode = function(code) {
+        navigator.clipboard.writeText(code).then(function() {
+            // Hiển thị thông báo (Bạn đã có sẵn thư viện toastr trong code)
+            toastr.options = {
+                "positionClass": "toast-bottom-right",
+                "timeOut": "2000"
+            };
+            toastr.success('Đã copy mã: ' + code + ' <br> Hãy dán mã này ở trang Thanh toán nhé!');
+        }).catch(function(err) {
+            console.error('Lỗi khi copy: ', err);
+            toastr.error('Lỗi trình duyệt, không thể copy!');
+        });
+    };
     let thumbIndex = 0;
     let zoomThumbIndex = 0;
 

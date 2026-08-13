@@ -26,13 +26,14 @@ class VoucherController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'code' => 'required|unique:vouchers,code|max:50',
-            'type' => 'required|in:fixed,percent',
-            'discount_value' => 'required|numeric|min:0',
-            'min_order_value' => 'nullable|numeric|min:0',
-            'usage_limit' => 'nullable|integer|min:1',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            // ... các trường khác
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ], [
+            'start_date.required' => 'Vui lòng chọn ngày bắt đầu.',
+            'start_date.date' => 'Ngày bắt đầu không đúng định dạng.',
+            'end_date.required' => 'Vui lòng chọn ngày kết thúc.',
+            'end_date.after_or_equal' => 'Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.',
         ]);
 
         Voucher::create($request->all());

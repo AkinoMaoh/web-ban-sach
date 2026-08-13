@@ -37,13 +37,25 @@ class shopDetailsController extends Controller
         $totalReviews = $stats['total'];
         $ratingPercentages = $stats['percentages'];
 
+        // ================= THÊM MỚI Ở ĐÂY =================
+        // Lấy danh sách Voucher còn hiệu lực để hiện ngoài sản phẩm
+        $vouchers = \App\Models\Voucher::where('is_active', true)
+            ->where(function($query) {
+                $query->whereNull('end_date')->orWhere('end_date', '>=', now());
+            })
+            ->where(function($query) {
+                $query->whereNull('start_date')->orWhere('start_date', '<=', now());
+            })
+            ->get();
+        // ==================================================
         // 4. Trả về view
         return view('User.shop-details', compact(
             'product',
             'relatedProducts',
             'avgRating',
             'totalReviews',
-            'ratingPercentages'
+            'ratingPercentages',
+            'vouchers'
         ));
     }
 }
