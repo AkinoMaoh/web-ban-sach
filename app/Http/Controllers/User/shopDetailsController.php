@@ -12,10 +12,17 @@ class shopDetailsController extends Controller
 {
     public function index($id)
     {
-        // 1. Lấy dữ liệu sản phẩm cùng các quan hệ cần thiết
-        $product = products::with(['images','variants', 'author', 'publishers', 'category', 'reviews.user'])->findOrFail($id);
+        // 1. Lấy sản phẩm cùng các quan hệ cần thiết
+        $product = products::with([
+            'images',
+            'variants.variant',
+            'author',
+            'publishers',
+            'category',
+            'reviews.user'
+        ])->findOrFail($id);
 
-        // 2. Lấy sách cùng tác giả (liên quan)
+        // 2. Lấy sách cùng tác giả
         $relatedProducts = products::with('firstVariant')
             ->where('author_id', $product->author_id)
             ->where('id', '!=', $product->id)
@@ -23,8 +30,9 @@ class shopDetailsController extends Controller
             ->take(6)
             ->get();
 
-        // 3. Tính toán stats (đảm bảo hàm này đã có trong Model Review)
+        // 3. Thống kê đánh giá
         $stats = Review::getProductRatingStats($id);
+
         $avgRating = $stats['avg'];
         $totalReviews = $stats['total'];
         $ratingPercentages = $stats['percentages'];

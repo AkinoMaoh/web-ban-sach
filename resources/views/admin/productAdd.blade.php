@@ -140,35 +140,91 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>
-                                            <input type="text" class="form-control" name="variants[0][edition]" placeholder="Ví dụ: Bản thường" value="{{ old('variants.0.edition') }}">
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control price" name="variants[0][price]" min="0" step="1" value="{{ old('variants.0.price', 0) }}" onkeydown="return event.key.match(/[0-9]|Backspace|Delete|Tab|ArrowLeft|ArrowRight/) != null" oninput="this.value=this.value.replace(/\D/g,'')" required>
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control sale_price" name="variants[0][sale_price]" value="{{ old('variants.0.sale_price', 0) }}" min="0">
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control discount_percent bg-light" value="0" readonly>
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control" name="variants[0][stock]" min="0" step="1" value="{{ old('variants.0.stock', 0) }}" onkeydown="return event.key.match(/[0-9]|Backspace|Delete|Tab|ArrowLeft|ArrowRight/) != null" oninput="this.value=this.value.replace(/\D/g,'')" required>
-                                        </td>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-sm btn-danger removeRow" title="Xóa dòng"><i class="fas fa-times"></i></button>
-                                        </td>
-                                    </tr>
-                                </tbody>
+    <tr>
+        <td>
+            <select
+                class="form-control variant-select"
+                name="variants[0][variant_id]"
+                required
+            >
+                <option value="">-- Chọn phiên bản --</option>
+
+                @foreach($variants as $v)
+                    <option
+                        value="{{ $v->id }}"
+                        {{ old('variants.0.variant_id') == $v->id ? 'selected' : '' }}
+                    >
+                        {{ $v->name }}
+                    </option>
+                @endforeach
+
+            </select>
+        </td>
+
+        <td>
+            <input
+                type="number"
+                class="form-control price"
+                name="variants[0][price]"
+                min="0"
+                step="1"
+                value="{{ old('variants.0.price', 0) }}"
+                onkeydown="return event.key.match(/[0-9]|Backspace|Delete|Tab|ArrowLeft|ArrowRight/) != null"
+                oninput="this.value=this.value.replace(/\D/g,'')"
+                required
+            >
+        </td>
+
+        <td>
+            <input
+                type="number"
+                class="form-control sale_price"
+                name="variants[0][sale_price]"
+                value="{{ old('variants.0.sale_price', 0) }}"
+                min="0"
+            >
+        </td>
+
+        <td>
+            <input
+                type="number"
+                class="form-control discount_percent bg-light"
+                value="0"
+                readonly
+            >
+        </td>
+
+        <td>
+            <input
+                type="number"
+                class="form-control"
+                name="variants[0][stock]"
+                min="0"
+                step="1"
+                value="{{ old('variants.0.stock', 0) }}"
+                onkeydown="return event.key.match(/[0-9]|Backspace|Delete|Tab|ArrowLeft|ArrowRight/) != null"
+                oninput="this.value=this.value.replace(/\D/g,'')"
+                required
+            >
+        </td>
+
+        <td class="text-center">
+            <button
+                type="button"
+                class="btn btn-sm btn-danger removeRow"
+                title="Xóa dòng"
+            >
+                <i class="fas fa-times"></i>
+            </button>
+        </td>
+    </tr>
+</tbody>
                             </table>
                         </div>
 
                     </div>
                 </div>
-
             </div>
-
             <!-- CỘT PHẢI: Hình ảnh và Nút thao tác -->
             <div class="col-lg-4">
                 

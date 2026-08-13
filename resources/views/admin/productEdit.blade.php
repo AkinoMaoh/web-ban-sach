@@ -102,55 +102,136 @@
                     </div>
                 </div>
 
-                <!-- Thẻ quản lý Biến thể -->
-                <div class="card shadow mb-4 border-0 rounded-lg">
-                    <div class="card-header py-3 bg-white d-flex align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-layer-group mr-2"></i> Danh sách phiên bản & Giá</h6>
-                        <button type="button" class="btn btn-sm btn-success shadow-sm font-weight-bold" id="addVariant">
-                            <i class="fas fa-plus mr-1"></i> Thêm phiên bản
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle" id="variantTable">
-                                <thead class="bg-light text-uppercase font-weight-bold text-dark" style="font-size: 0.8rem;">
-                                    <tr>
-                                        <th width="30%">Phiên bản</th>
-                                        <th width="22%">Giá gốc</th>
-                                        <th width="22%">Giá giảm</th>
-                                        <th width="18%">Số lượng</th>
-                                        <th width="8%" class="text-center">Xóa</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($productVariants as $index => $variant)
-                                    <tr>
-                                        <td>
-                                            <input type="hidden" name="variants[{{ $index }}][id]" value="{{ $variant->id }}">
-                                            <input type="text" class="form-control" name="variants[{{ $index }}][edition]" value="{{ $variant->edition }}" placeholder="Tên phiên bản" required>
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control" name="variants[{{ $index }}][price]" value="{{ $variant->price }}" min="0" required>
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control" name="variants[{{ $index }}][sale_price]" value="{{ old("variants.$index.sale_price", $variant->sale_price) }}" min="0" placeholder="Để trống nếu không giảm">
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control" name="variants[{{ $index }}][stock]" value="{{ $variant->stock }}" min="0" required>
-                                        </td>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-sm btn-danger removeRow" title="Xóa dòng"><i class="fas fa-times"></i></button>
-                                        </td>
-                                    </tr>
+              <!-- Thẻ quản lý Biến thể -->
+<div class="card shadow mb-4 border-0 rounded-lg">
+    <div class="card-header py-3 bg-white d-flex align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-layer-group mr-2"></i>
+            Danh sách phiên bản & Giá
+        </h6>
+
+        <button type="button"
+                class="btn btn-sm btn-success shadow-sm font-weight-bold"
+                id="addVariant">
+            <i class="fas fa-plus mr-1"></i>
+            Thêm phiên bản
+        </button>
+    </div>
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle" id="variantTable">
+
+                <thead class="bg-light text-uppercase font-weight-bold text-dark"
+                       style="font-size: 0.8rem;">
+                   <tr>
+                        <th width="26%">Phiên bản</th>
+                        <th width="20%">Giá gốc</th>
+                        <th width="20%">Giá giảm</th>
+                        <th width="14%">% Giảm</th>
+                        <th width="14%">Số lượng</th>
+                        <th width="6%" class="text-center">Xóa</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach($productVariants as $index => $variant)
+
+                        <tr>
+
+                            {{-- ID product_variant --}}
+                            <td>
+
+                                <input type="hidden"
+                                       name="variants[{{ $index }}][id]"
+                                       value="{{ $variant->id }}">
+
+                                {{-- ID variant --}}
+                             <select class="form-control variant-select"
+                                name="variants[{{ $index }}][variant_id]"
+                                required>
+
+                                    @foreach($variants as $v)
+
+                                        <option value="{{ $v->id }}"
+                                            {{ $v->id == $variant->variant_id ? 'selected' : '' }}>
+                                            {{ $v->name }}
+                                        </option>
+
                                     @endforeach
-                                </tbody>
-                            </table>
-                        </div>
 
-                    </div>
-                </div>
+                                </select>
 
+                            </td>
+
+                            {{-- Giá gốc --}}
+                            <td>
+
+                                <input type="number"
+                                       class="form-control"
+                                       name="variants[{{ $index }}][price]"
+                                       value="{{ $variant->price }}"
+                                       min="0"
+                                       required>
+
+                            </td>
+
+                            {{-- Giá giảm --}}
+                            <td>
+
+                                <input type="number"
+                                       class="form-control"
+                                       name="variants[{{ $index }}][sale_price]"
+                                       value="{{ old("variants.$index.sale_price", $variant->sale_price) }}"
+                                       min="0"
+                                       placeholder="Để trống nếu không giảm">
+
+                            </td>
+                            {{-- % Giảm --}}
+                            <td>
+    <input
+        type="number"
+        class="form-control discount_percent bg-light"
+        value="{{ $variant->discount_percent }}"
+        readonly
+    >
+</td>
+                            {{-- Số lượng --}}
+                            <td>
+
+                                <input type="number"
+                                       class="form-control"
+                                       name="variants[{{ $index }}][stock]"
+                                       value="{{ $variant->stock }}"
+                                       min="0"
+                                       required>
+
+                            </td>
+
+                            {{-- Xóa --}}
+                            <td class="text-center">
+
+                                <button type="button"
+                                        class="btn btn-sm btn-danger removeRow"
+                                        title="Xóa dòng">
+                                    <i class="fas fa-times"></i>
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    @endforeach
+
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
             </div>
 
             <!-- CỘT PHẢI: Hình ảnh, Thống kê kho & Nút lưu -->
@@ -282,50 +363,227 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
     let index = {{ $productVariants->count() }};
 
-    // Thêm biến thể
+    // Danh sách biến thể từ bảng variants
+    const variants = @json($variants);
+
+    // ==============================
+    // THÊM BIẾN THỂ
+    // ==============================
+
     document.getElementById('addVariant').addEventListener('click', function () {
-        let html = `
-        <tr>
-            <td>
-                <input type="text" class="form-control" name="variants[${index}][edition]" placeholder="Tên phiên bản" required>
-            </td>
-            <td>
-                <input type="number" class="form-control" name="variants[${index}][price]" value="0" min="0" required>
-            </td>
-            <td>
-                <input type="number" class="form-control" name="variants[${index}][sale_price]" value="" min="0" placeholder="Để trống nếu không giảm">
-            </td>
-            <td>
-                <input type="number" class="form-control" name="variants[${index}][stock]" value="0" min="0" required>
-            </td>
-            <td class="text-center">
-                <button type="button" class="btn btn-sm btn-danger removeRow" title="Xóa dòng"><i class="fas fa-times"></i></button>
-            </td>
-        </tr>
-        `;
-
-        document.querySelector('#variantTable tbody').insertAdjacentHTML('beforeend', html);
-        index++;
-    });
-
-    // Xóa biến thể
-    document.addEventListener('click', function (e) {
-        if (!e.target.closest('.removeRow')) return;
 
         const tbody = document.querySelector('#variantTable tbody');
+
+        // Lấy những variant_id đã được chọn
+        const selectedVariantIds = Array.from(
+            tbody.querySelectorAll('.variant-select')
+        )
+        .map(select => select.value)
+        .filter(value => value !== '');
+
+        // Các biến thể chưa được chọn
+        const availableVariants = variants.filter(variant => {
+            return !selectedVariantIds.includes(String(variant.id));
+        });
+
+        // Nếu đã chọn hết
+        if (availableVariants.length === 0) {
+            alert('Tất cả các phiên bản đã được thêm.');
+            return;
+        }
+
+        // Tạo option
+        let options = `
+            <option value="">-- Chọn phiên bản --</option>
+        `;
+
+        availableVariants.forEach(variant => {
+            options += `
+                <option value="${variant.id}">
+                    ${variant.name}
+                </option>
+            `;
+        });
+
+        const html = `
+            <tr>
+
+                <td>
+
+                    <select
+                        class="form-control variant-select"
+                        name="variants[${index}][variant_id]"
+                        required
+                    >
+                        ${options}
+                    </select>
+
+                </td>
+
+                <td>
+
+                    <input
+                        type="number"
+                        class="form-control price"
+                        name="variants[${index}][price]"
+                        value="0"
+                        min="0"
+                        step="1"
+                        required
+                    >
+
+                </td>
+
+                <td>
+
+                    <input
+                        type="number"
+                        class="form-control sale_price"
+                        name="variants[${index}][sale_price]"
+                        value=""
+                        min="0"
+                        placeholder="Để trống nếu không giảm"
+                    >
+
+                </td>
+
+                <td>
+
+                    <input
+                        type="number"
+                        class="form-control discount_percent bg-light"
+                        value="0"
+                        readonly
+                    >
+
+                </td>
+
+                <td>
+
+                    <input
+                        type="number"
+                        class="form-control"
+                        name="variants[${index}][stock]"
+                        value="0"
+                        min="0"
+                        step="1"
+                        required
+                    >
+
+                </td>
+
+                <td class="text-center">
+
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-danger removeRow"
+                        title="Xóa dòng"
+                    >
+                        <i class="fas fa-times"></i>
+                    </button>
+
+                </td>
+
+            </tr>
+        `;
+
+        tbody.insertAdjacentHTML('beforeend', html);
+
+        index++;
+
+        updateVariantOptions();
+
+    });
+
+
+    // ==============================
+    // KHÔNG CHO CHỌN TRÙNG BIẾN THỂ
+    // ==============================
+
+    document.addEventListener('change', function (e) {
+
+        if (!e.target.classList.contains('variant-select')) {
+            return;
+        }
+
+        updateVariantOptions();
+
+    });
+
+
+    function updateVariantOptions() {
+
+        const selects = document.querySelectorAll('.variant-select');
+
+        // Tất cả ID đang được chọn
+        const selectedIds = Array.from(selects)
+            .map(select => select.value)
+            .filter(value => value !== '');
+
+        selects.forEach(currentSelect => {
+
+            const currentValue = currentSelect.value;
+
+            Array.from(currentSelect.options).forEach(option => {
+
+                if (option.value === '') {
+                    return;
+                }
+
+                // Nếu option đang được chọn ở chính select này
+                if (option.value === currentValue) {
+                    option.disabled = false;
+                    return;
+                }
+
+                // Nếu đã được chọn ở select khác
+                option.disabled = selectedIds.includes(option.value);
+
+            });
+
+        });
+
+    }
+
+
+    // ==============================
+    // XÓA BIẾN THỂ
+    // ==============================
+
+    document.addEventListener('click', function (e) {
+
+        const button = e.target.closest('.removeRow');
+
+        if (!button) {
+            return;
+        }
+
+        const tbody = document.querySelector('#variantTable tbody');
+
         const rows = tbody.querySelectorAll('tr');
 
         if (rows.length <= 1) {
+
             alert('Sản phẩm phải có ít nhất một phiên bản.');
+
             return;
         }
 
         if (confirm('Bạn có chắc muốn xóa phiên bản này?')) {
-            e.target.closest('tr').remove();
+
+            button.closest('tr').remove();
+
+            updateVariantOptions();
+
         }
+
     });
+
+
+});
 
     // Xem trước ảnh mới khi chọn
 

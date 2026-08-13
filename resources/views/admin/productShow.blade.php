@@ -64,58 +64,115 @@
             </div>
 
             <!-- Thẻ Danh sách biến thể -->
-            <div class="card shadow mb-4 border-0 rounded-lg">
-                <div class="card-header py-3 bg-white">
-                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-layer-group mr-2"></i> Danh sách phiên bản & Giá</h6>
-                </div>
-                <div class="card-body">
-                    
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle mb-0">
-                            <thead class="bg-light text-uppercase font-weight-bold text-dark" style="font-size: 0.8rem;">
-                                <tr>
-                                    <th width="28%">Tên biến thể</th>
-                                    <th width="22%">Giá gốc</th>
-                                    <th width="22%">Giá giảm</th>
-                                    <th width="14%">% Giảm</th>
-                                    <th width="14%" class="text-center">Số lượng</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($productVariants as $variant)
-                                <tr>
-                                    <td class="font-weight-bold text-dark">{{ $variant->edition }}</td>
-                                    <td>{{ number_format($variant->price, 0, ',', '.') }} đ</td>
-                                    <td>
-                                        @if($variant->sale_price > 0)
-                                            <span class="text-danger font-weight-bold">{{ number_format($variant->sale_price, 0, ',', '.') }} đ</span>
-                                        @else
-                                            <span class="text-muted small">Không giảm</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if(isset($variant->discount_percent) && $variant->discount_percent > 0)
-                                            <span class="badge badge-danger px-2 py-1">-{{ $variant->discount_percent }}%</span>
-                                        @else
-                                            <span class="badge badge-secondary px-2 py-1">0%</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center font-weight-bold">{{ $variant->stock }}</td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted py-3">Không có phiên bản nào.</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+<div class="card shadow mb-4 border-0 rounded-lg">
+    <div class="card-header py-3 bg-white">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-layer-group mr-2"></i>
+            Danh sách phiên bản & Giá
+        </h6>
+    </div>
 
-                </div>
-            </div>
+    <div class="card-body">
 
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle mb-0">
+
+                <thead class="bg-light text-uppercase font-weight-bold text-dark"
+                       style="font-size: 0.8rem;">
+
+                    <tr>
+                        <th width="28%">Tên biến thể</th>
+                        <th width="22%">Giá gốc</th>
+                        <th width="22%">Giá giảm</th>
+                        <th width="14%">% Giảm</th>
+                        <th width="14%" class="text-center">Số lượng</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @forelse($productVariants as $variant)
+
+                        <tr>
+
+                            {{-- Tên biến thể --}}
+                            <td class="font-weight-bold text-dark">
+                                {{ $variant->variant->name }}
+                            </td>
+
+                            {{-- Giá gốc --}}
+                            <td>
+                                {{ number_format($variant->price, 0, ',', '.') }} đ
+                            </td>
+
+                            {{-- Giá giảm --}}
+                            <td>
+
+                                @if($variant->sale_price > 0)
+
+                                    <span class="text-danger font-weight-bold">
+                                        {{ number_format($variant->sale_price, 0, ',', '.') }} đ
+                                    </span>
+
+                                @else
+
+                                    <span class="text-muted small">
+                                        Không giảm
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+                            {{-- % giảm --}}
+                            <td>
+
+                                @if(
+                                    isset($variant->discount_percent) &&
+                                    $variant->discount_percent > 0
+                                )
+
+                                    <span class="badge badge-danger px-2 py-1">
+                                        -{{ $variant->discount_percent }}%
+                                    </span>
+
+                                @else
+
+                                    <span class="badge badge-secondary px-2 py-1">
+                                        0%
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+                            {{-- Số lượng --}}
+                            <td class="text-center font-weight-bold">
+                                {{ $variant->stock }}
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+                            <td colspan="5"
+                                class="text-center text-muted py-3">
+                                Không có phiên bản nào.
+                            </td>
+                        </tr>
+
+                    @endforelse
+
+                </tbody>
+
+            </table>
         </div>
 
+    </div>
+</div>
+        </div>
         <!-- CỘT PHẢI: Hình ảnh, Kho hàng & Thao tác -->
         <div class="col-lg-4">
             
@@ -128,7 +185,6 @@
         </h6>
     </div>
 
-```
 <div class="card-body text-center">
 
     @php
@@ -171,7 +227,7 @@
     @endif
 
 </div>
-```
+
 
 </div>
 

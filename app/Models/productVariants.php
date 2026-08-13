@@ -10,7 +10,7 @@ class productVariants extends Model
 
     protected $fillable = [
         'product_id',
-        'edition',
+        'variant_id',
         'sku',
         'price',
         'sale_price',
@@ -18,10 +18,19 @@ class productVariants extends Model
         'stock',
     ];
 
+    // product_variants thuộc về một sản phẩm
     public function product()
     {
         return $this->belongsTo(products::class, 'product_id');
     }
+
+    // product_variants thuộc về một loại biến thể
+    public function variant()
+    {
+        return $this->belongsTo(Variant::class, 'variant_id');
+    }
+
+    // Tự tính % giảm
     public function getDiscountPercentAttribute()
     {
         if (
@@ -32,6 +41,8 @@ class productVariants extends Model
             return 0;
         }
 
-        return round((($this->price - $this->sale_price) / $this->price) * 100);
+        return round(
+            (($this->price - $this->sale_price) / $this->price) * 100
+        );
     }
 }
