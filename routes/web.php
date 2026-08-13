@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\AdminNewsController;
 use App\Http\Controllers\User\ReviewController;
 use App\Http\Controllers\Admin\ReviewManagerController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\variantController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\User\UserNewsController;
 use App\Http\Controllers\User\SearchController;
@@ -155,6 +156,27 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         [ProductsController::class, 'sortImages']
     )
         ->name('admin.products.image.sort');
+
+    //Biến thể sản phẩm
+    // Biến thể sản phẩm
+
+
+
+    // Danh sách
+    Route::get('/variants', [variantController::class, 'index'])
+        ->name('admin.variants');
+
+    // Thêm
+    Route::post('/variants', [variantController::class, 'store'])
+        ->name('admin.variants.store');
+
+    // Sửa
+    Route::put('/variants/{id}', [variantController::class, 'update'])
+        ->name('admin.variants.update');
+
+    // Xóa
+    Route::delete('/variants/{id}', [variantController::class, 'destroy'])
+        ->name('admin.variants.destroy');
 
     // Tìm kiếm nhà xuất bản
     Route::get('/publishers/search', [publisherController::class, 'search'])->name('admin.publishers.search');
