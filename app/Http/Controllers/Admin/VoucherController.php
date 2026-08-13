@@ -13,7 +13,7 @@ class VoucherController extends Controller
     {
         // Lấy danh sách mới nhất, phân trang 10 dòng
         $vouchers = Voucher::orderBy('id', 'desc')->paginate(10);
-        return view('admin.vouchers', compact('vouchers'));
+        return view('admin.voucher', compact('vouchers'));
     }
 
     // Hiển thị form thêm mới
