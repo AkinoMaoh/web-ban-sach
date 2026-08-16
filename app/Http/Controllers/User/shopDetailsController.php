@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\products;
 use App\Models\Review;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class shopDetailsController extends Controller
 {
@@ -37,25 +38,34 @@ class shopDetailsController extends Controller
         $totalReviews = $stats['total'];
         $ratingPercentages = $stats['percentages'];
 
-        // ================= THÊM MỚI Ở ĐÂY =================
-        // Lấy danh sách Voucher còn hiệu lực để hiện ngoài sản phẩm
+        // 4. Lấy danh sách Voucher còn hiệu lực
         $vouchers = \App\Models\Voucher::where('is_active', true)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->whereNull('end_date')->orWhere('end_date', '>=', now());
             })
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->whereNull('start_date')->orWhere('start_date', '<=', now());
             })
             ->get();
-        // ==================================================
-        // 4. Trả về view
+
+        // 5. LẤY DANH SÁCH ID SẢN PHẨM ĐÃ THÊM VÀO WISHLIST
+        $wishlistIds = [];
+        if (Auth::check()) {
+            $wishlistIds = DB::table('wishlists')
+                ->where('user_id', Auth::id())
+                ->pluck('product_id')
+                ->toArray();
+        }
+
+        // 6. Trả về view kèm wishlistIds
         return view('User.shop-details', compact(
             'product',
             'relatedProducts',
             'avgRating',
             'totalReviews',
             'ratingPercentages',
-            'vouchers'
+            'vouchers',
+            'wishlistIds' // <--- Đã thêm biến này
         ));
     }
 }

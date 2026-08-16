@@ -165,6 +165,46 @@
             font-size: 16px !important;
             transform: translateY(1px);
         }
+        /* Nút Back to Top */
+#backToTopBtn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 999;
+    width: 45px;
+    height: 45px;
+    border: none;
+    outline: none;
+    background-color: var(--primary-color, #D35400); /* Dùng màu cam mặc định hoặc variable dự án */
+    color: #ffffff;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    
+    /* Hiệu ứng ẩn/hiện mượt mà */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+    
+    /* Căn giữa icon */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+/* Hiệu ứng hover */
+#backToTopBtn:hover {
+    background-color: #e67e22;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Class hiển thị nút */
+#backToTopBtn.show {
+    opacity: 1;
+    visibility: visible;
+}
     </style>
 
     <!-- Chống flash Dark/Light -->
@@ -372,7 +412,35 @@
 
 
     @stack('scripts')
+<!-- Nút Back to Top -->
+<button id="backToTopBtn" title="Lên đầu trang">
+    <i class="fas fa-arrow-up"></i>
+</button>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const backToTopBtn = document.getElementById("backToTopBtn");
 
+    if (backToTopBtn) {
+        // Lắng nghe sự kiện cuộn trang
+        window.addEventListener("scroll", function () {
+            // Khi cuộn xuống quá 300px thì hiện nút
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add("show");
+            } else {
+                backToTopBtn.classList.remove("show");
+            }
+        });
+
+        // Xử lý khi click vào nút
+        backToTopBtn.addEventListener("click", function () {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth" // Cuộn mượt mà lên đầu
+            });
+        });
+    }
+});
+</script>
 </body>
 
 </html>
