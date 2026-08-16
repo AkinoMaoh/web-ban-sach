@@ -28,8 +28,8 @@ class ShopController extends Controller
         $nhaXuatBan   = publishers::all();
         $banners      = $this->getShopBanners();
 
-        // Kiểm tra xem có bất kỳ tham số tìm kiếm HOẶC bộ lọc nào không
-        $hasFilters = $request->anyFilled(['keyword', 'author', 'publisher', 'price_min', 'price_max', 'sort']);
+        // 1. Đã thêm 'category_id' vào mảng kiểm tra bộ lọc
+        $hasFilters = $request->anyFilled(['keyword', 'category_id', 'author', 'publisher', 'price_min', 'price_max', 'sort']);
 
         if ($hasFilters) {
             $truyVan = products::with(['author', 'firstVariant', 'category'])->where('status', 1);
@@ -45,6 +45,11 @@ class ShopController extends Controller
                               $q->where(DB::raw('LOWER(name)'), 'LIKE', '%' . $keyword . '%');
                           });
                 });
+            }
+
+            // 2. Xử lý Lọc theo Danh mục
+            if ($request->filled('category_id')) {
+                $truyVan->where('category_id', $request->category_id);
             }
 
             if ($request->filled('author')) {
@@ -126,7 +131,6 @@ class ShopController extends Controller
         ));
     }
     
-    // Đã thêm Request $request để bắt bộ lọc
     public function author(Request $request, $id)
     {
         $author = authors::findOrFail($id);
