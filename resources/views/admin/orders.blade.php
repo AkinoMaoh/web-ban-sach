@@ -17,32 +17,78 @@
                 <i class="fas fa-shopping-cart mr-2"></i> Danh sách đơn hàng
             </h6>
 
-            <form method="GET" action="{{ route('admin.orders') }}" class="form-inline">
+            <form method="GET"
+                action="{{ route('admin.orders') }}"
+                style="display: flex; align-items: center; gap: 10px;">
+
                 <!-- Ô tìm kiếm SĐT -->
-                <div class="position-relative search-box mr-2 mb-2 mb-md-0">
-                    <input type="text"
+                <div class="position-relative">
+
+                    <input
+                        type="text"
                         id="admin-search"
                         name="keyword"
-                        class="form-control form-control-sm"
+                        class="form-control"
+                        style="width: 240px; height: 42px;"
                         placeholder="Nhập số điện thoại..."
                         autocomplete="off"
                         value="{{ request('keyword') }}">
+
                     <div id="search-order-result"></div>
+
                 </div>
 
+
                 <!-- Lọc trạng thái -->
-                <select name="status" class="form-control form-control-sm mr-2 mb-2 mb-md-0">
+                <select name="status"
+                        class="form-control"
+                        style="width: 225px; height: 42px;">
+
                     <option value="">-- Tất cả trạng thái --</option>
-                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Chờ xử lý</option>
-                    <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Đã xác nhận</option>
-                    <option value="shipping" {{ request('status') == 'shipping' ? 'selected' : '' }}>Đang giao</option>
-                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Hoàn thành</option>
-                    <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Đã hủy</option>
+
+                    <option value="pending"
+                        {{ request('status') == 'pending' ? 'selected' : '' }}>
+                        Chờ xử lý
+                    </option>
+
+                    <option value="confirmed"
+                        {{ request('status') == 'confirmed' ? 'selected' : '' }}>
+                        Đã xác nhận
+                    </option>
+
+                    <option value="shipping"
+                        {{ request('status') == 'shipping' ? 'selected' : '' }}>
+                        Đang giao
+                    </option>
+
+                    <option value="completed"
+                        {{ request('status') == 'completed' ? 'selected' : '' }}>
+                        Hoàn thành
+                    </option>
+
+                    <option value="cancelled"
+                        {{ request('status') == 'cancelled' ? 'selected' : '' }}>
+                        Đã hủy
+                    </option>
+
                 </select>
 
-                <button type="submit" class="btn btn-primary btn-sm mb-2 mb-md-0 px-3">
-                    <i class="fas fa-search mr-1"></i> Lọc
+
+                <!-- Nút lọc -->
+                <button type="submit"
+                        class="btn btn-primary"
+                        style="
+                            height: 42px;
+                            min-width: 86px;
+                            flex-shrink: 0;
+                            margin: 0;
+                        ">
+
+                    <i class="fas fa-search mr-1"></i>
+                    Lọc
+
                 </button>
+
             </form>
         </div>
 
