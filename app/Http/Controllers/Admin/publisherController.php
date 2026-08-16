@@ -106,7 +106,7 @@ class publisherController extends Controller
     // Tìm kiếm nxb ajax
     public function search(Request $request)
     {
-        $publishers = publishers::where('name', 'like', $request->keyword . '%')
+        $publishers = publishers::where('name', 'like', '%' . $request->keyword . '%')
             ->limit(5)
             ->get();
 

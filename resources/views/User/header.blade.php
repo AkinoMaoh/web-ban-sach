@@ -24,29 +24,51 @@
         </nav>
 
         <!-- Search & Actions -->
-        <div class="d-flex align-items-center" style="gap: 12px;">
-            
-            <!-- Ô TÌM KIẾM AJAX -->
-            <div class="search-wrapper position-relative d-none d-lg-block" id="headerSearchWrapper" style="width: 230px;">
-                <form action="{{ route('user.shop') }}" method="GET" id="searchForm">
-                    <div class="custom-search-bar position-relative d-flex align-items-center">
-                        <input type="text" id="searchInput" name="keyword" value="{{ request('keyword') }}" placeholder="Tìm tên sách..." class="form-control shadow-none" autocomplete="off">
-                        <button class="btn text-white d-flex align-items-center justify-content-center glow-pill-btn" type="submit" aria-label="Tìm kiếm" style="width: 34px; height: 34px; border-radius: 50%;">
-                            <i class="fas fa-search" style="font-size: 11px;"></i>
-                        </button>
-                    </div>
-                </form>
+        <div class="search-wrapper position-relative d-none d-lg-block"
+            id="headerSearchWrapper"
+            style="width: 230px;">
 
-                <!-- Hộp Dropdown kết quả tìm kiếm -->
-                <div class="search-dropdown-menu shadow-lg mt-2" id="searchDropdown" style="width: 440px; right: 0; left: auto; max-height: 420px; overflow-y: auto;">
-                    <div class="text-white text-center py-3 px-3 font-weight-bold sticky-top search-dropdown-header d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #FF7A00, #D35400); font-size: 14px; letter-spacing: 0.3px; gap: 8px; border-top-left-radius: 23px; border-top-right-radius: 23px;">
-                        <i class="fas fa-compass"></i> Khám phá kho tàng tri thức
-                    </div>
-                    <div class="p-3" id="searchContentBox">
-                        <div class="text-center text-muted my-3"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải dữ liệu...</div>
-                    </div>
+            <form action="{{ route('user.shop') }}"
+                method="GET"
+                id="searchForm">
+
+                <div class="custom-search-bar position-relative d-flex align-items-center">
+
+                    <input type="text"
+                        id="searchInput"
+                        name="keyword"
+                        value="{{ request('keyword') }}"
+                        placeholder="Tìm tên sách..."
+                        class="form-control shadow-none"
+                        autocomplete="off">
+
+                    <button type="submit"
+                            class="btn text-white d-flex align-items-center justify-content-center glow-pill-btn"
+                            style="width:34px;height:34px;border-radius:50%;">
+
+                        <i class="fas fa-search"></i>
+
+                    </button>
+
                 </div>
+
+            </form>
+
+            <div id="searchDropdown"
+                class="search-dropdown-menu shadow-lg">
+
+                <div class="search-dropdown-header">
+                    <i class="fas fa-compass"></i>
+                    Khám phá kho tàng tri thức
+                </div>
+
+                <div id="searchContentBox"
+                    class="search-content-box">
+                </div>
+
             </div>
+
+        </div>
 
             <!-- LẤY SỐ LƯỢNG GIỎ HÀNG VÀ WISHLIST -->
             @php
@@ -167,9 +189,382 @@
     </div>
 </header>
 <style>
+    .modern-header {
+        background-color: #ffffff;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .main-menu .menu-item {
+        color: #555;
+        font-weight: 500;
+        font-size: 14.5px;
+        transition: all 0.2s ease;
+        text-decoration: none !important;
+    }
+    
+    .main-menu .menu-item:hover {
+        color: var(--primary-color, #D35400);
+        background-color: rgba(211, 84, 0, 0.05);
+    }
+    
+    .main-menu .menu-item.active {
+        color: var(--primary-color, #D35400);
+        background-color: rgba(211, 84, 0, 0.08);
+        font-weight: 600;
+    }
+
+    .glow-pill-btn {
+        background: linear-gradient(135deg, #FF7A00, #D35400) !important;
+        box-shadow: 0 0 12px 3px rgba(255, 122, 0, 0.35) !important;
+        transition: all 0.25s ease !important;
+        border: none !important;
+    }
+    .glow-pill-btn:hover {
+        box-shadow: 0 0 18px 5px rgba(255, 122, 0, 0.55) !important;
+        transform: translateY(-1px);
+    }
+
+    .custom-search-bar {
+        background-color: #f8f9fa;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 50rem;
+        padding: 3px 3px 3px 14px;
+        height: 40px;
+        transition: all 0.25s ease;
+        overflow: hidden;
+    }
+    .custom-search-bar:focus-within {
+        background-color: #ffffff;
+        border-color: rgba(211, 84, 0, 0.4);
+        box-shadow: 0 4px 12px rgba(211, 84, 0, 0.1);
+    }
+    .custom-search-bar input {
+        font-size: 14px;
+        color: #333;
+        height: 32px;
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+        border-radius: 50rem !important;
+    }
+    .custom-search-bar input::placeholder {
+        color: #999;
+    }
+
+    html.dark-mode .custom-search-bar,
+    body.dark-mode .custom-search-bar,
+    .dark-mode .custom-search-bar {
+        background-color: #212529 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+    html.dark-mode .custom-search-bar:focus-within,
+    body.dark-mode .custom-search-bar:focus-within,
+    .dark-mode .custom-search-bar:focus-within {
+        background-color: #2a2f35 !important;
+        border-color: rgba(255, 153, 0, 0.4) !important;
+        box-shadow: 0 4px 12px rgba(255, 153, 0, 0.15);
+    }
+    html.dark-mode .custom-search-bar input,
+    body.dark-mode .custom-search-bar input,
+    .dark-mode .custom-search-bar input {
+        color: #fff !important;
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    .dropdown-menu-right {
+        right: 0 !important;
+        left: auto !important;
+        transform: none !important;
+    }
+
+    .search-dropdown-menu {
+        position: absolute;
+        top: calc(100% + 10px);
+        background-color: #ffffff;
+        border-radius: 24px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
+        overflow: hidden;
+        display: none;
+        z-index: 1060;
+    }
+    .show > .search-dropdown-menu,
+    .dropdown.show .search-dropdown-menu,
+    .search-wrapper.show .search-dropdown-menu { 
+        display: block !important; 
+    }
+
+    .notification-item {
+        border-radius: 12px !important;
+        transition: background-color 0.2s ease;
+    }
+    .notification-item:hover {
+        background-color: rgba(211, 84, 0, 0.06) !important;
+    }
+    .unread-notification {
+        background-color: rgba(255, 122, 0, 0.04);
+    }
+    .delete-notif-btn {
+        opacity: 0.5;
+        transition: opacity 0.2s ease;
+    }
+    .notification-item:hover .delete-notif-btn {
+        opacity: 1;
+    }
+    .delete-notif-btn:hover {
+        color: #dc3545 !important;
+    }
+    .notification-footer {
+        background-color: #f8f9fa !important;
+        border-color: rgba(0,0,0,0.05) !important;
+    }
+    .notification-footer a:hover {
+        text-decoration: underline !important;
+    }
+    
+    .search-keyword-pill {
+        background-color: #f8f9fa;
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        transition: all 0.2s ease;
+    }
+    .search-keyword-pill:hover {
+        background-color: rgba(211, 84, 0, 0.06);
+        border-color: rgba(211, 84, 0, 0.2);
+        transform: translateY(-1px);
+    }
+
+    .category-card {
+        transition: all 0.2s ease;
+        border-radius: 10px;
+    }
+    .category-card:hover {
+        background-color: rgba(211, 84, 0, 0.05);
+        transform: translateY(-2px);
+    }
+
+    html.dark-mode .search-dropdown-menu,
+    body.dark-mode .search-dropdown-menu,
+    .dark-mode .search-dropdown-menu {
+        background-color: #1a1d20 !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4) !important;
+    }
+    html.dark-mode .notification-dropdown-header,
+    body.dark-mode .notification-dropdown-header,
+    .dark-mode .notification-dropdown-header {
+        border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    html.dark-mode .notification-item:hover,
+    body.dark-mode .notification-item:hover,
+    .dark-mode .notification-item:hover {
+        background-color: rgba(255, 153, 0, 0.1) !important;
+    }
+    html.dark-mode .unread-notification,
+    body.dark-mode .unread-notification,
+    .dark-mode .unread-notification {
+        background-color: rgba(255, 153, 0, 0.06) !important;
+    }
+    html.dark-mode .notification-footer,
+    body.dark-mode .notification-footer,
+    .dark-mode .notification-footer {
+        background-color: #212529 !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    html.dark-mode .search-keyword-pill,
+    body.dark-mode .search-keyword-pill,
+    .dark-mode .search-keyword-pill {
+        background-color: rgba(255, 255, 255, 0.04) !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    html.dark-mode .search-keyword-pill:hover,
+    body.dark-mode .search-keyword-pill:hover,
+    .dark-mode .search-keyword-pill:hover {
+        background-color: rgba(255, 153, 0, 0.15) !important;
+        border-color: rgba(255, 153, 0, 0.3) !important;
+    }
+    html.dark-mode .category-card:hover,
+    body.dark-mode .category-card:hover,
+    .dark-mode .category-card:hover {
+        background-color: rgba(255, 153, 0, 0.1) !important;
+    }
+
+    html.dark-mode .search-item-result,
+    body.dark-mode .search-item-result,
+    .dark-mode .search-item-result {
+        color: #e2e8f0 !important;
+        border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    html.dark-mode .search-item-result:hover,
+    body.dark-mode .search-item-result:hover,
+    .dark-mode .search-item-result:hover {
+        background-color: rgba(255, 153, 0, 0.1) !important;
+    }
+    html.dark-mode .search-item-result .text-dark,
+    body.dark-mode .search-item-result .text-dark,
+    .dark-mode .search-item-result .text-dark {
+        color: #f8f9fa !important;
+    }
+    html.dark-mode .dark-mode-item,
+    body.dark-mode .dark-mode-item,
+    .dark-mode .dark-mode-item {
+        background-color: transparent !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    html.dark-mode .dark-mode-link,
+    body.dark-mode .dark-mode-link,
+    .dark-mode .dark-mode-link {
+        color: #e2e8f0 !important;
+    }
+    html.dark-mode .dark-mode-footer,
+    body.dark-mode .dark-mode-footer,
+    .dark-mode .dark-mode-footer {
+        background-color: #212529 !important;
+        color: #ff9900 !important;
+    }
+    html.dark-mode .dark-mode-header-text,
+    body.dark-mode .dark-mode-header-text,
+    .dark-mode .dark-mode-header-text {
+        background-color: #212529 !important;
+        color: #e2e8f0 !important;
+    }
+
+    .header-icon-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 42px !important;
+        height: 42px !important;
+        border-radius: 50% !important;
+        background-color: #f1f2f6 !important;
+        color: #2C3E50 !important;
+        text-decoration: none !important;
+        transition: all 0.25s ease !important;
+        border: none !important;
+        cursor: pointer !important;
+        outline: none !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+    
+    html.dark-mode .header-icon-btn,
+    body.dark-mode .header-icon-btn,
+    .dark-mode .header-icon-btn {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        color: #e2e8f0 !important;
+    }
+
+    .header-icon-btn:hover {
+        background: linear-gradient(135deg, #FF7A00, #D35400) !important;
+        box-shadow: 0 0 14px 4px rgba(255, 122, 0, 0.45) !important;
+        color: #fff !important;
+        transform: translateY(-2px) !important;
+    }
+
+    .header-icon-btn:hover i {
+        color: #fff !important;
+    }
+
+    .header-icon-btn i {
+        font-size: 17px !important;
+        transition: color 0.2s ease;
+    }
+
+    .header-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        font-size: 10px;
+        font-weight: 700;
+        border: 2px solid #fff;
+        padding: 2px 5px;
+        line-height: 1;
+        z-index: 2;
+    }
+    html.dark-mode .header-badge,
+    body.dark-mode .header-badge,
+    .dark-mode .header-badge {
+        border-color: #161a1d !important;
+    }
+
+    .user-profile-btn {
+        display: inline-flex;
+        align-items: center;
+        max-width: 170px;
+        background-color: #f8f9fa;
+        border: 1px solid rgba(0,0,0,0.08);
+        transition: all 0.2s ease;
+    }
+    .user-profile-btn:hover {
+        border-color: var(--primary-color, #D35400);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    html.dark-mode .user-profile-btn,
+    body.dark-mode .user-profile-btn,
+    .dark-mode .user-profile-btn {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #e2e8f0 !important;
+    }
+
+    .user-name-container {
+        width: 100px;
+        overflow: hidden;
+        white-space: nowrap;
+        position: relative;
+        -webkit-mask-image: linear-gradient(to right, #000 70%, transparent 100%);
+        mask-image: linear-gradient(to right, #000 70%, transparent 100%);
+    }
+    
+    .user-name-text {
+        display: inline-block;
+        padding-right: 15px;
+        font-size: 14px;
+    }
+    
+    .needs-marquee {
+        animation: scrollTextMarquee 6s linear infinite alternate;
+    }
+    
+    @keyframes scrollTextMarquee {
+        0%, 20% { transform: translateX(0); }
+        80%, 100% { transform: translateX(calc(100px - 100%)); }
+    }
+
+    .search-wrapper { z-index: 1050; }
+    .search-dropdown-menu::-webkit-scrollbar { width: 6px; }
+    .search-dropdown-menu::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.15); border-radius: 10px; }
+
+    
+
+
+
+
+    /* CSS tìm kiếm dropdown */
+    /* =====================================================
+    SEARCH DROPDOWN
+    ===================================================== */
+
+    .search-dropdown-menu {
+        display: none;
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        width: 440px;
+        max-height: 420px;
+        overflow-y: auto;
+
+        background: #fff;
+        border-radius: 0 0 22px 22px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+
+        z-index: 9999;
 /* =========================================================
    1. USER PROFILE BUTTON
-========================================================= */
 .user-profile-btn {
     display: inline-flex;
     align-items: center;
@@ -224,7 +619,6 @@
 
 /* =========================================================
    2. HEADER & SEARCH BAR
-========================================================= */
 .modern-header {
     background-color: #FFFFFF;
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
@@ -321,7 +715,6 @@
 
 /* =========================================================
    3. MAIN MENU - LIGHT MODE
-========================================================= */
 .main-menu .menu-item {
     color: #2C3E50 !important;
     font-weight: 500;
@@ -362,7 +755,6 @@
 
 /* =========================================================
    4. DROPDOWNS & COMPONENTS
-========================================================= */
 .search-wrapper { z-index: 1050; }
 .dropdown-menu-right { right: 0 !important; left: auto !important; transform: none !important; }
 
@@ -431,7 +823,6 @@
 
 /* =========================================================
    DARK MODE - HEADER ĐEN TUYỀN & FIX KHUNG TÌM KIẾM
-========================================================= */
 
 /* 1. Header màu đen tuyền sang trọng */
 html.dark-mode .modern-header,
@@ -442,7 +833,6 @@ body.dark-mode .modern-header {
 
 /* =========================================================
    FIX TRIỆT ĐỂ LỖI LỒNG KHUNG TÌM KIẾM (DARK MODE)
-========================================================= */
 
 /* 1. Xóa toàn bộ viền và nền ở thẻ bao ngoài */
 .search-wrapper,
@@ -546,7 +936,6 @@ body.dark-mode .notification-footer {
 }
 /* =========================================================
    1. MÃ MÀU CAM ACTIVE CHUẨN (TỪ NÚT TRANG CHỦ)
-========================================================= */
 :root {
     --orange-active-bg: linear-gradient(135deg, #e65c00 0%, #f97316 100%);
     --orange-active-shadow: 0 4px 15px rgba(230, 92, 0, 0.45);
@@ -554,7 +943,6 @@ body.dark-mode .notification-footer {
 
 /* =========================================================
    2. ÁP DỤNG ĐỒNG BỘ CHO TẤT CẢ PHẦN TỬ ACTIVE (LIGHT & DARK)
-========================================================= */
 
 /* --- Main Menu Items (.active) --- */
 .main-menu .menu-item.active,
@@ -618,7 +1006,6 @@ html.dark-mode .nav-link.active {
 }
 /* =========================================================
    FIX 3 NÚT ICON HEADER (FAVORITE, CART, NOTIFICATION)
-========================================================= */
 
 /* Trạng thái bình thường (Light Mode) */
 .header-icon-btn {
@@ -687,7 +1074,6 @@ body.dark-mode .header-icon-btn {
 }
 /* =========================================================
    HOVER MENU ITEMS - CHỮ CHUYỂN THÀNH MÀU TRẮNG
-========================================================= */
 
 /* 1. Trạng thái Hover chung cho Main Menu (Light & Dark Mode) */
 .main-menu .menu-item:hover,
@@ -706,7 +1092,6 @@ body.dark-mode .main-menu .menu-item:hover i {
 }
 /* =========================================================
    FIX THANH TÌM KIẾM: LIGHT MODE (XÁM NHẠT) vs DARK MODE (ĐEN)
-========================================================= */
 
 /* 1. MẶC ĐỊNH / LIGHT MODE: Nền xám nhạt tinh tế */
 .custom-search-bar {
@@ -787,151 +1172,446 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    const searchInput = document.getElementById('searchInput');
-    const searchWrapper = document.getElementById('headerSearchWrapper');
-    const searchContentBox = document.getElementById('searchContentBox');
-    let typingTimer;
-    let cachedSuggestions = null;
 
-    if(searchInput && searchWrapper) {
-        searchInput.addEventListener('focus', function() {
-            searchWrapper.classList.add('show');
-            performSearch(this.value);
-        });
+    /* =====================================================
+    HEADER - KHÁM PHÁ KHO TÀNG TRI THỨC
+    ===================================================== */
 
-        document.addEventListener('click', function(event) {
-            if (!searchWrapper.contains(event.target)) {
-                searchWrapper.classList.remove('show');
-            }
-        });
+    .search-dropdown-header {
+        background: linear-gradient(135deg, #ff7a00, #d35400);
+        color: #fff;
 
-        searchInput.addEventListener('keyup', function() {
-            clearTimeout(typingTimer);
-            let keyword = this.value;
-            typingTimer = setTimeout(() => performSearch(keyword), 300);
-        });
+        padding: 12px 16px;
+
+        font-size: 14px;
+        font-weight: 700;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        border-radius: 22px 22px 0 0;
     }
 
-    function performSearch(keyword) {
-        if(keyword === '' && cachedSuggestions !== null) {
-            renderSuggestions(cachedSuggestions);
-            return;
-        }
-
-        let url = `{{ route('api.search') }}?keyword=${encodeURIComponent(keyword)}`;
-
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if(data.status === 'suggestions') {
-                    cachedSuggestions = data;
-                    renderSuggestions(data);
-                } else if(data.status === 'products') {
-                    renderProducts(data.data, keyword);
-                }
-            })
-            .catch(error => {
-                searchContentBox.innerHTML = `<div class="text-center text-danger my-3">Có lỗi xảy ra khi tìm kiếm.</div>`;
-            });
+    .search-dropdown-header i {
+        font-size: 13px;
     }
 
-    function renderSuggestions(data) {
-        let html = ``;
-        if(data.hot_keywords && data.hot_keywords.length > 0) {
-            html += `
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="font-weight-bold mb-0 text-dark dark-mode-link" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
-                        <i class="fas fa-chart-line mr-2" style="color: #D35400;"></i> Từ khóa hot
-                    </h6>
-                </div>
-                <div class="row mb-3">
-            `;
-            data.hot_keywords.forEach((kw, index) => {
-                html += `
-                    <div class="col-6 mb-2">
-                        <a href="/shop?keyword=${encodeURIComponent(kw)}" 
-                           class="d-flex align-items-center text-decoration-none text-dark p-2 rounded search-keyword-pill">
-                            <span class="badge badge-light mr-2 text-primary font-weight-bold" style="font-size: 11px; background: rgba(211,84,0,0.1); color: var(--primary-color, #D35400) !important;">#${index + 1}</span>
-                            <span class="text-truncate font-weight-500 dark-mode-link" style="font-size: 13px;">${kw}</span>
-                        </a>
-                    </div>
-                `;
-            });
-            html += `</div><hr class="my-2 border-light opacity-25">`;
-        }
 
-        if(data.categories && data.categories.length > 0) {
-            html += `
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="font-weight-bold mb-0 text-dark dark-mode-link" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
-                        <i class="fas fa-th-large mr-2" style="color: var(--primary-color, #D35400);"></i> Danh mục nổi bật
-                    </h6>
-                </div>
-                <div class="row text-center mt-2">
-            `;
-            data.categories.forEach(cat => {
-                html += `
-                    <div class="col-3 px-1">
-                        <a href="/shop/category/${cat.id}" class="text-decoration-none text-dark d-block category-card p-2">
-                            <img src="${cat.image}" class="rounded shadow-sm mb-1 object-fit-cover border" style="width: 48px; height: 64px;" alt="${cat.name}">
-                            <div class="font-weight-bold text-truncate-2 dark-mode-link" style="font-size: 11px; line-height: 1.3;">${cat.name}</div>
-                        </a>
-                    </div>
-                `;
-            });
-            html += `</div>`;
-        }
-        searchContentBox.innerHTML = html;
+    /* =====================================================
+    CONTENT
+    ===================================================== */
+
+    .search-content-box {
+        padding: 12px 14px 14px;
     }
 
-    function renderProducts(products, keyword) {
-        if(products.length === 0) {
-            searchContentBox.innerHTML = `<div class="text-center text-muted my-4"><i class="fas fa-search mb-2 fa-2x"></i><br>Không tìm thấy sách nào cho từ khóa "<b>${keyword}</b>"</div>`;
-            return;
+
+    /* =====================================================
+    TIÊU ĐỀ SECTION
+    ===================================================== */
+
+    .search-section-title {
+        display: flex;
+        align-items: center;
+
+        margin: 4px 0 8px;
+
+        font-size: 13px;
+        font-weight: 700;
+
+        color: #333;
+    }
+
+    .search-section-title i {
+        color: #d35400;
+        margin-right: 8px;
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+    TÌM KIẾM GẦN ĐÂY
+    ===================================================== */
+
+    .recent-search-list {
+        display: flex;
+        flex-wrap: wrap;
+
+        gap: 7px;
+
+        margin-bottom: 12px;
+    }
+
+    .recent-search-item {
+        display: flex;
+        align-items: center;
+
+        padding: 7px 10px;
+
+        background: #f5f5f5;
+        border-radius: 7px;
+
+        font-size: 12px;
+        color: #555;
+
+        cursor: pointer;
+
+        transition: 0.2s;
+    }
+
+    .recent-search-item i {
+        margin-right: 7px;
+        color: #888;
+        font-size: 11px;
+    }
+
+    .recent-search-item:hover {
+        background: #fff1e6;
+        color: #d35400;
+    }
+
+
+    /* =====================================================
+    TỪ KHÓA HOT
+    ===================================================== */
+
+    .hot-keyword-grid {
+        display: grid;
+
+        grid-template-columns: 1fr 1fr;
+
+        column-gap: 18px;
+        row-gap: 7px;
+
+        margin-bottom: 14px;
+    }
+
+    .hot-keyword-item {
+        display: flex;
+        align-items: center;
+
+        min-height: 34px;
+
+        padding: 6px 8px;
+
+        border-radius: 7px;
+
+        font-size: 13px;
+        color: #555;
+
+        cursor: pointer;
+
+        transition: 0.2s;
+    }
+
+    .hot-keyword-item:hover {
+        background: #fff5ed;
+        color: #d35400;
+    }
+
+
+    /* số #1 #2 #3 #4 */
+
+    .hot-number {
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        width: 25px;
+        height: 25px;
+
+        margin-right: 8px;
+
+        border-radius: 50%;
+
+        background: #fff1e6;
+        color: #d35400;
+
+        font-size: 11px;
+        font-weight: 700;
+
+        flex-shrink: 0;
+    }
+
+
+    /* =====================================================
+    DANH MỤC
+    ===================================================== */
+
+    .category-grid {
+        display: grid;
+
+        grid-template-columns: repeat(4, 1fr);
+
+        gap: 6px;
+
+        text-align: center;
+
+        margin-top: 2px;
+    }
+
+    .category-item {
+        display: flex;
+
+        flex-direction: column;
+        align-items: center;
+
+        text-decoration: none;
+
+        padding: 4px;
+
+        color: #333;
+
+        transition: 0.2s;
+    }
+
+    .category-item img {
+        width: 52px;
+        height: 68px;
+
+        object-fit: cover;
+
+        border-radius: 4px;
+
+        border: 1px solid #ddd;
+
+        margin-bottom: 5px;
+    }
+
+    .category-name {
+        width: 100%;
+
+        font-size: 11px;
+        font-weight: 600;
+
+        line-height: 1.25;
+
+        color: #444;
+    }
+
+    .category-item:hover .category-name {
+        color: #d35400;
+    }
+
+
+    /* =====================================================
+    MOBILE
+    ===================================================== */
+
+    @media (max-width: 576px) {
+
+        .search-dropdown-menu {
+            width: 350px;
+            max-width: calc(100vw - 20px);
         }
 
-        let html = `<div class="font-weight-bold mb-2 text-muted" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Sách tìm thấy</div>`;
-        products.forEach(product => {
-            let img = product.image ? `/uploads/products/${product.image}` : 'https://via.placeholder.com/60x80?text=No+Image';
-            let authorName = product.author ? product.author.name : 'Đang cập nhật';
-            let priceHtml = '';
-            let formatPrice = (p) => new Intl.NumberFormat('vi-VN').format(p) + 'đ';
+        .hot-keyword-grid {
+            column-gap: 5px;
+        }
 
-            if (product.first_variant) {
-                let variant = product.first_variant;
-                if (variant.sale_price && variant.sale_price > 0 && variant.sale_price < variant.price) {
-                    priceHtml = `
-                        <span class="font-weight-bold mr-2" style="font-size: 14px; color: var(--primary-color, #D35400);">${formatPrice(variant.sale_price)}</span>
-                        <del class="text-muted" style="font-size: 12px;">${formatPrice(variant.price)}</del>
-                    `;
-                } else {
-                    priceHtml = `<span class="font-weight-bold" style="font-size: 14px; color: var(--primary-color, #D35400);">${formatPrice(variant.price)}</span>`;
-                }
-            } else {
-                let fallbackPrice = product.price ? formatPrice(product.price) : 'Liên hệ';
-                priceHtml = `<span class="font-weight-bold" style="font-size: 14px; color: var(--primary-color, #D35400);">${fallbackPrice}</span>`;
-            }
-
-            html += `
-                <a href="/product/${product.id}" class="d-flex align-items-center p-2 mb-2 search-item-result border-bottom text-decoration-none text-dark rounded">
-                    <img src="${img}" style="width: 50px; height: 70px;" class="object-fit-cover rounded mr-3 shadow-sm border" alt="${product.name}">
-                    <div class="flex-grow-1 overflow-hidden">
-                        <h6 class="mb-1 text-truncate-2 font-weight-bold dark-mode-link" style="font-size: 14px; line-height: 1.4;">${product.name}</h6>
-                        <div class="text-muted mb-1" style="font-size: 12px;"><i class="fas fa-pen-nib mr-1"></i> ${authorName}</div>
-                        <div>${priceHtml}</div>
-                    </div>
-                </a>
-            `;
-        });
-        
-        html += `
-            <div class="text-center mt-3 pb-2">
-                <a href="/shop?keyword=${encodeURIComponent(keyword)}" onclick="document.getElementById('searchForm').submit(); return false;" class="text-decoration-none font-weight-bold hover-primary" style="font-size: 14px; color: var(--primary-color, #D35400);">
-                    Xem tất cả kết quả <i class="fas fa-angle-right ml-1"></i>
-                </a>
-            </div>
-        `;
-        searchContentBox.innerHTML = html;
+        .category-item img {
+            width: 45px;
+            height: 60px;
+        }
     }
-});
-</script>
+    /* =====================================================
+    KẾT QUẢ SẢN PHẨM KHI NHẬP TỪ KHÓA
+    ===================================================== */
+
+    .search-product-item {
+        display: flex;
+        align-items: center;
+
+        width: 100%;
+
+        padding: 8px;
+
+        margin-bottom: 6px;
+
+        text-decoration: none;
+
+        border-radius: 8px;
+
+        color: #333;
+
+        transition: 0.2s;
+
+        overflow: hidden;
+    }
+
+    .search-product-item:hover {
+        background: #fff5ed;
+        text-decoration: none;
+    }
+
+
+    /* Ảnh sách */
+
+    .search-product-img {
+        width: 48px !important;
+        height: 64px !important;
+
+        min-width: 48px;
+        min-height: 64px;
+
+        object-fit: cover;
+
+        border-radius: 4px;
+
+        border: 1px solid #ddd;
+
+        margin-right: 10px;
+    }
+
+
+    /* Khối thông tin */
+
+    .search-product-item > div {
+        flex: 1;
+
+        min-width: 0;
+    }
+
+
+    /* Tên sách */
+
+    .search-product-name {
+        font-size: 13px;
+
+        font-weight: 600;
+
+        color: #333;
+
+        line-height: 1.35;
+
+        margin-bottom: 4px;
+
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+
+        overflow: hidden;
+    }
+
+
+    /* Giá */
+
+    .search-product-price {
+        font-size: 12px;
+
+        font-weight: 600;
+
+        color: #d35400;
+    }
+
+
+    /* Không tìm thấy */
+
+    .search-empty {
+        text-align: center;
+
+        padding: 25px 10px;
+
+        color: #777;
+
+        font-size: 13px;
+    }
+    /* =====================================================
+    CÂN CHỈNH CỤM BÊN PHẢI HEADER
+    ===================================================== */
+
+    /* Ô tìm kiếm */
+    #headerSearchWrapper {
+        width: 260px !important;
+    }
+
+    #headerSearchWrapper .custom-search-bar {
+        height: 48px;
+    }
+
+    #headerSearchWrapper #searchInput {
+        height: 48px;
+        font-size: 14px;
+        padding-left: 18px;
+        padding-right: 50px;
+    }
+
+    /* Nút kính lúp */
+    #headerSearchWrapper .glow-pill-btn {
+        width: 38px !important;
+        height: 38px !important;
+        right: 5px;
+    }
+
+
+    /* =====================================================
+    YÊU THÍCH / GIỎ HÀNG / THÔNG BÁO
+    ===================================================== */
+
+    .header-icon-btn {
+        width: 48px;
+        height: 48px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 50%;
+
+        font-size: 16px;
+
+        flex-shrink: 0;
+
+        text-decoration: none;
+
+        transition: all 0.2s ease;
+    }
+
+    .header-icon-btn i {
+        font-size: 16px;
+    }
+
+    .header-icon-btn:hover {
+        transform: translateY(-1px);
+    }
+
+
+    /* =====================================================
+    NÚT ĐĂNG NHẬP
+    ===================================================== */
+
+    a.glow-pill-btn {
+        min-width: 120px;
+        height: 48px;
+
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+
+        padding: 0 24px !important;
+
+        border-radius: 50rem !important;
+
+        font-size: 14px !important;
+
+        white-space: nowrap;
+    }
+
+
+    /* =====================================================
+    CĂN GIỮA TOÀN BỘ CỤM ACTION
+    ===================================================== */
+
+    .header-icon-btn,
+    a.glow-pill-btn,
+    #headerSearchWrapper {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+</style>
+
+<script src="{{ asset('js/search.js') }}"></script>

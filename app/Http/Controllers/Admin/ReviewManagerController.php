@@ -66,7 +66,7 @@ class ReviewManagerController extends Controller
     // Tìm kiếm bình luận ajax
     public function search(Request $request)
     {
-        $reviews = Review::where('user_name', 'like', $request->keyword . '%')
+        $reviews = Review::where('user_name', 'like', '%' . $request->keyword . '%')
             ->limit(5)
             ->get();
 
