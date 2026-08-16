@@ -60,59 +60,65 @@
                 </ul>
             </div>
 
-            <!-- Box Lọc -->
-            @if(isset($danhMuc))
-                <div class="card border-0 shadow-sm rounded mb-4">
-                    <div class="card-header text-white font-weight-bold serif-font rounded-top" style="background-color: #2C3E50;">
-                        <i class="fas fa-filter mr-2"></i> LỌC SÁCH
-                    </div>
-                    <div class="card-body bg-light">
-                        <form action="{{ route('user.category', $danhMuc->id) }}" method="GET">
-                            
-                            <!-- Sắp xếp -->
-                            <h6 class="font-weight-bold text-uppercase text-muted mb-2" style="font-size: 13px;">Sắp xếp theo</h6>
-                            <select name="sort" class="form-control form-control-sm mb-3">
-                                <option value="">Mặc định</option>
-                                <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Mới nhất</option>
-                                <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Giá: Thấp đến cao</option>
-                                <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Giá: Cao xuống thấp</option>
-                            </select>
-
-                            <!-- Khoảng giá -->
-                            <h6 class="font-weight-bold text-uppercase text-muted mb-2 mt-3" style="font-size: 13px;">Khoảng giá (VNĐ)</h6>
-                            <div class="d-flex align-items-center mb-3 gap-2">
-                                <input type="number" name="price_min" value="{{ request('price_min') }}" class="form-control form-control-sm text-center" placeholder="Từ">
-                                <span class="text-muted mx-1">-</span>
-                                <input type="number" name="price_max" value="{{ request('price_max') }}" class="form-control form-control-sm text-center" placeholder="Đến">
-                            </div>
-
-                            <!-- Tác giả -->
-                            <h6 class="font-weight-bold text-uppercase text-muted mb-2 mt-3" style="font-size: 13px;">Tác giả</h6>
-                            <select name="author" class="form-control form-control-sm mb-3">
-                                <option value="">Tất cả</option>
-                                @foreach($tacGia as $tg)
-                                    <option value="{{ $tg->id }}" {{ request('author') == $tg->id ? 'selected' : '' }}>{{ $tg->name }}</option>
-                                @endforeach
-                            </select>
-
-                            <!-- NXB -->
-                            <h6 class="font-weight-bold text-uppercase text-muted mb-2 mt-3" style="font-size: 13px;">Nhà xuất bản</h6>
-                            <select name="publisher" class="form-control form-control-sm mb-4">
-                                <option value="">Tất cả</option>
-                                @foreach($nhaXuatBan as $nxb)
-                                    <option value="{{ $nxb->id }}" {{ request('publisher') == $nxb->id ? 'selected' : '' }}>{{ $nxb->name }}</option>
-                                @endforeach
-                            </select>
-
-                            <button type="submit" class="btn btn-block text-white font-weight-bold" style="background-color: var(--primary-color);">Áp dụng bộ lọc</button>
-                            
-                            @if(request()->anyFilled(['price_min', 'price_max', 'author', 'publisher', 'sort']))
-                                <a href="{{ route('user.category', $danhMuc->id) }}" class="btn btn-block btn-outline-secondary mt-2">Xóa bộ lọc</a>
-                            @endif
-                        </form>
-                    </div>
+        
+        <!-- Box Lọc -->
+            <div class="card border-0 shadow-sm rounded mb-4">
+                <div class="card-header text-white font-weight-bold serif-font rounded-top" style="background-color: #2C3E50;">
+                    <i class="fas fa-filter mr-2"></i> LỌC SÁCH
                 </div>
-            @endif
+                <div class="card-body bg-light">
+                    <!-- Đổi action thành url()->current() để áp dụng cho mọi trang đang đứng -->
+                    <form action="{{ url()->current() }}" method="GET">
+                        
+                        <!-- Giữ lại từ khóa tìm kiếm nếu có -->
+                        @if(request('keyword'))
+                            <input type="hidden" name="keyword" value="{{ request('keyword') }}">
+                        @endif
+                        
+                        <!-- Sắp xếp -->
+                        <h6 class="font-weight-bold text-uppercase text-muted mb-2" style="font-size: 13px;">Sắp xếp theo</h6>
+                        <select name="sort" class="form-control form-control-sm mb-3">
+                            <option value="">Mặc định</option>
+                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Mới nhất</option>
+                            <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Giá: Thấp đến cao</option>
+                            <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Giá: Cao xuống thấp</option>
+                        </select>
+
+                        <!-- Khoảng giá -->
+                        <h6 class="font-weight-bold text-uppercase text-muted mb-2 mt-3" style="font-size: 13px;">Khoảng giá (VNĐ)</h6>
+                        <div class="d-flex align-items-center mb-3 gap-2">
+                            <input type="number" name="price_min" value="{{ request('price_min') }}" class="form-control form-control-sm text-center" placeholder="Từ">
+                            <span class="text-muted mx-1">-</span>
+                            <input type="number" name="price_max" value="{{ request('price_max') }}" class="form-control form-control-sm text-center" placeholder="Đến">
+                        </div>
+
+                        <!-- Tác giả -->
+                        <h6 class="font-weight-bold text-uppercase text-muted mb-2 mt-3" style="font-size: 13px;">Tác giả</h6>
+                        <select name="author" class="form-control form-control-sm mb-3">
+                            <option value="">Tất cả</option>
+                            @foreach($tacGia as $tg)
+                                <option value="{{ $tg->id }}" {{ request('author') == $tg->id ? 'selected' : '' }}>{{ $tg->name }}</option>
+                            @endforeach
+                        </select>
+
+                        <!-- NXB -->
+                        <h6 class="font-weight-bold text-uppercase text-muted mb-2 mt-3" style="font-size: 13px;">Nhà xuất bản</h6>
+                        <select name="publisher" class="form-control form-control-sm mb-4">
+                            <option value="">Tất cả</option>
+                            @foreach($nhaXuatBan as $nxb)
+                                <option value="{{ $nxb->id }}" {{ request('publisher') == $nxb->id ? 'selected' : '' }}>{{ $nxb->name }}</option>
+                            @endforeach
+                        </select>
+
+                        <button type="submit" class="btn btn-block text-white font-weight-bold" style="background-color: var(--primary-color);">Áp dụng bộ lọc</button>
+                        
+                        @if(request()->anyFilled(['price_min', 'price_max', 'author', 'publisher', 'sort']))
+                            <!-- Xóa lọc vẫn giữ lại URL hiện tại và từ khóa keyword -->
+                            <a href="{{ url()->current() }}{{ request('keyword') ? '?keyword='.request('keyword') : '' }}" class="btn btn-block btn-outline-secondary mt-2">Xóa bộ lọc</a>
+                        @endif
+                    </form>
+                </div>
+            </div>    
         </aside>
 
         <!-- Cột phải: Vùng hiển thị sách -->
