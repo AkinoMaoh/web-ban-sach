@@ -98,23 +98,30 @@
 
             <!-- SEARCH -->
 
-            <div class="d-flex">
+            <form method="GET"
+                action="{{ route('admin.variants') }}"
+                class="form-inline">
 
-                <input type="text"
-                       id="variantSearch"
-                       class="form-control form-control-sm mr-2"
-                       style="width:220px;"
-                       placeholder="Nhập tên biến thể hoặc ID...">
+                <div class="position-relative search-box">
 
-                <button type="button"
-                        class="btn btn-primary btn-sm"
-                        onclick="searchVariant()">
+                    <input
+                        type="text"
+                        id="admin-search"
+                        name="keyword"
+                        class="form-control form-control-sm"
+                        placeholder="Nhập tên biến thể..."
+                        autocomplete="off"
+                        value="{{ request('keyword') }}">
 
+                    <div id="search-order-result"></div>
+
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-sm ml-2">
                     <i class="fas fa-search"></i>
-
                 </button>
 
-            </div>
+            </form>
 
         </div>
 
@@ -555,114 +562,6 @@ function openEditModal(id, name)
 
 /*
 |--------------------------------------------------------------------------
-| TÌM KIẾM
-|--------------------------------------------------------------------------
-*/
-
-function searchVariant()
-{
-    const input =
-        document.getElementById('variantSearch');
-
-
-    if (!input) {
-        return;
-    }
-
-
-    const keyword =
-        input.value
-            .toLowerCase()
-            .trim();
-
-
-    const rows =
-        document.querySelectorAll('.variant-row');
-
-
-    rows.forEach(function (row) {
-
-        const idCell =
-            row.querySelector('td:nth-child(1)');
-
-
-        const nameCell =
-            row.querySelector('td:nth-child(2)');
-
-
-        if (!idCell || !nameCell) {
-            return;
-        }
-
-
-        const id =
-            idCell.innerText
-                .toLowerCase()
-                .trim();
-
-
-        const name =
-            nameCell.innerText
-                .toLowerCase()
-                .trim();
-
-
-        if (
-            keyword === '' ||
-            id.includes(keyword) ||
-            name.includes(keyword)
-        ) {
-
-            row.style.display = '';
-
-        } else {
-
-            row.style.display = 'none';
-
-        }
-
-    });
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| ENTER TÌM KIẾM
-|--------------------------------------------------------------------------
-*/
-
-document.addEventListener(
-    'DOMContentLoaded',
-    function ()
-    {
-        const input =
-            document.getElementById('variantSearch');
-
-
-        if (!input) {
-            return;
-        }
-
-
-        input.addEventListener(
-            'keydown',
-            function (event)
-            {
-                if (event.key === 'Enter') {
-
-                    event.preventDefault();
-
-                    searchVariant();
-
-                }
-            }
-        );
-    }
-);
-
-
-/*
-|--------------------------------------------------------------------------
 | XÁC NHẬN XÓA
 |--------------------------------------------------------------------------
 */
@@ -676,5 +575,15 @@ function confirmDeleteVariant()
 }
 
 </script>
+@push('scripts')
+
+<script>
+const searchUrl = "{{ route('admin.variants.search') }}";
+const searchField = "name";
+</script>
+
+<script src="{{ asset('js/admin-search.js') }}"></script>
+
+@endpush
 
 @endsection

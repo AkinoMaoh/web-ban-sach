@@ -13,11 +13,16 @@ class variantController extends Controller
      * DANH SÁCH BIẾN THỂ
      * =========================
      */
-    public function index()
+    public function index(Request $request)
     {
-        $variants = DB::table('variants')
-            ->orderBy('id', 'desc')
-            ->get()
+        $query = DB::table('variants')
+            ->orderBy('id', 'desc');
+
+        if ($request->filled('keyword')) {
+            $query->where('name', 'like', $request->keyword . '%');
+        }
+
+        $variants = $query->get()
             ->map(function ($variant) {
                 return [
                     'id' => $variant->id,
@@ -168,5 +173,15 @@ class variantController extends Controller
         return redirect()
             ->route('admin.variants')
             ->with('success', 'Xóa biến thể thành công.');
+    }
+    // Tìm kiếm ajax cho biến thể
+    public function search(Request $request)
+    {
+        $variants = DB::table('variants')
+            ->where('name', 'like', $request->keyword . '%')
+            ->limit(5)
+            ->get();
+
+        return response()->json($variants);
     }
 }

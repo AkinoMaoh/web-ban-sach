@@ -157,11 +157,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     )
         ->name('admin.products.image.sort');
 
+
+
+    // Tìm kiếm biến thể
+    Route::get('/variants/search', [variantController::class, 'search'])->name('admin.variants.search');
     //Biến thể sản phẩm
-    // Biến thể sản phẩm
-
-
-
     // Danh sách
     Route::get('/variants', [variantController::class, 'index'])
         ->name('admin.variants');
