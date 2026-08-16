@@ -119,7 +119,7 @@ class authorsController extends Controller
     // Tìm kiếm tác giả ajax
     public function search(Request $request)
     {
-        $authors = authors::where('name', 'like', $request->keyword . '%')
+        $authors = authors::where('name', 'like', '%' . $request->keyword . '%')
             ->limit(5)
             ->get();
 

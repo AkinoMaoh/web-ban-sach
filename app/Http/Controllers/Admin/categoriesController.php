@@ -124,7 +124,7 @@ class categoriesController extends Controller
     // Tìm kiếm danh mục ajax
     public function search(Request $request)
     {
-        $categories = categories::where('name', 'like', $request->keyword . '%')
+        $categories = categories::where('name', 'like', '%' . $request->keyword . '%')
             ->limit(5)
             ->get();
 

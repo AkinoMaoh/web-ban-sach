@@ -24,29 +24,51 @@
         </nav>
 
         <!-- Search & Actions -->
-        <div class="d-flex align-items-center" style="gap: 12px;">
-            
-            <!-- Ô TÌM KIẾM AJAX -->
-            <div class="search-wrapper position-relative d-none d-lg-block" id="headerSearchWrapper" style="width: 230px;">
-                <form action="{{ route('user.shop') }}" method="GET" id="searchForm">
-                    <div class="custom-search-bar position-relative d-flex align-items-center">
-                        <input type="text" id="searchInput" name="keyword" value="{{ request('keyword') }}" placeholder="Tìm tên sách..." class="form-control shadow-none" autocomplete="off">
-                        <button class="btn text-white d-flex align-items-center justify-content-center glow-pill-btn" type="submit" aria-label="Tìm kiếm" style="width: 34px; height: 34px; border-radius: 50%;">
-                            <i class="fas fa-search" style="font-size: 11px;"></i>
-                        </button>
-                    </div>
-                </form>
+        <div class="search-wrapper position-relative d-none d-lg-block"
+            id="headerSearchWrapper"
+            style="width: 230px;">
 
-                <!-- Hộp Dropdown kết quả tìm kiếm -->
-                <div class="search-dropdown-menu shadow-lg mt-2" id="searchDropdown" style="width: 440px; right: 0; left: auto; max-height: 420px; overflow-y: auto;">
-                    <div class="text-white text-center py-3 px-3 font-weight-bold sticky-top search-dropdown-header d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #FF7A00, #D35400); font-size: 14px; letter-spacing: 0.3px; gap: 8px; border-top-left-radius: 23px; border-top-right-radius: 23px;">
-                        <i class="fas fa-compass"></i> Khám phá kho tàng tri thức
-                    </div>
-                    <div class="p-3" id="searchContentBox">
-                        <div class="text-center text-muted my-3"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải dữ liệu...</div>
-                    </div>
+            <form action="{{ route('user.shop') }}"
+                method="GET"
+                id="searchForm">
+
+                <div class="custom-search-bar position-relative d-flex align-items-center">
+
+                    <input type="text"
+                        id="searchInput"
+                        name="keyword"
+                        value="{{ request('keyword') }}"
+                        placeholder="Tìm tên sách..."
+                        class="form-control shadow-none"
+                        autocomplete="off">
+
+                    <button type="submit"
+                            class="btn text-white d-flex align-items-center justify-content-center glow-pill-btn"
+                            style="width:34px;height:34px;border-radius:50%;">
+
+                        <i class="fas fa-search"></i>
+
+                    </button>
+
                 </div>
+
+            </form>
+
+            <div id="searchDropdown"
+                class="search-dropdown-menu shadow-lg">
+
+                <div class="search-dropdown-header">
+                    <i class="fas fa-compass"></i>
+                    Khám phá kho tàng tri thức
+                </div>
+
+                <div id="searchContentBox"
+                    class="search-content-box">
+                </div>
+
             </div>
+
+        </div>
 
             <!-- LẤY SỐ LƯỢNG GIỎ HÀNG VÀ WISHLIST -->
             @php
@@ -505,167 +527,473 @@
     .search-wrapper { z-index: 1050; }
     .search-dropdown-menu::-webkit-scrollbar { width: 6px; }
     .search-dropdown-menu::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.15); border-radius: 10px; }
+
+    
+
+
+
+
+    /* CSS tìm kiếm dropdown */
+    /* =====================================================
+    SEARCH DROPDOWN
+    ===================================================== */
+
+    .search-dropdown-menu {
+        display: none;
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        width: 440px;
+        max-height: 420px;
+        overflow-y: auto;
+
+        background: #fff;
+        border-radius: 0 0 22px 22px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+
+        z-index: 9999;
+    }
+
+
+    /* =====================================================
+    HEADER - KHÁM PHÁ KHO TÀNG TRI THỨC
+    ===================================================== */
+
+    .search-dropdown-header {
+        background: linear-gradient(135deg, #ff7a00, #d35400);
+        color: #fff;
+
+        padding: 12px 16px;
+
+        font-size: 14px;
+        font-weight: 700;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        border-radius: 22px 22px 0 0;
+    }
+
+    .search-dropdown-header i {
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+    CONTENT
+    ===================================================== */
+
+    .search-content-box {
+        padding: 12px 14px 14px;
+    }
+
+
+    /* =====================================================
+    TIÊU ĐỀ SECTION
+    ===================================================== */
+
+    .search-section-title {
+        display: flex;
+        align-items: center;
+
+        margin: 4px 0 8px;
+
+        font-size: 13px;
+        font-weight: 700;
+
+        color: #333;
+    }
+
+    .search-section-title i {
+        color: #d35400;
+        margin-right: 8px;
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+    TÌM KIẾM GẦN ĐÂY
+    ===================================================== */
+
+    .recent-search-list {
+        display: flex;
+        flex-wrap: wrap;
+
+        gap: 7px;
+
+        margin-bottom: 12px;
+    }
+
+    .recent-search-item {
+        display: flex;
+        align-items: center;
+
+        padding: 7px 10px;
+
+        background: #f5f5f5;
+        border-radius: 7px;
+
+        font-size: 12px;
+        color: #555;
+
+        cursor: pointer;
+
+        transition: 0.2s;
+    }
+
+    .recent-search-item i {
+        margin-right: 7px;
+        color: #888;
+        font-size: 11px;
+    }
+
+    .recent-search-item:hover {
+        background: #fff1e6;
+        color: #d35400;
+    }
+
+
+    /* =====================================================
+    TỪ KHÓA HOT
+    ===================================================== */
+
+    .hot-keyword-grid {
+        display: grid;
+
+        grid-template-columns: 1fr 1fr;
+
+        column-gap: 18px;
+        row-gap: 7px;
+
+        margin-bottom: 14px;
+    }
+
+    .hot-keyword-item {
+        display: flex;
+        align-items: center;
+
+        min-height: 34px;
+
+        padding: 6px 8px;
+
+        border-radius: 7px;
+
+        font-size: 13px;
+        color: #555;
+
+        cursor: pointer;
+
+        transition: 0.2s;
+    }
+
+    .hot-keyword-item:hover {
+        background: #fff5ed;
+        color: #d35400;
+    }
+
+
+    /* số #1 #2 #3 #4 */
+
+    .hot-number {
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        width: 25px;
+        height: 25px;
+
+        margin-right: 8px;
+
+        border-radius: 50%;
+
+        background: #fff1e6;
+        color: #d35400;
+
+        font-size: 11px;
+        font-weight: 700;
+
+        flex-shrink: 0;
+    }
+
+
+    /* =====================================================
+    DANH MỤC
+    ===================================================== */
+
+    .category-grid {
+        display: grid;
+
+        grid-template-columns: repeat(4, 1fr);
+
+        gap: 6px;
+
+        text-align: center;
+
+        margin-top: 2px;
+    }
+
+    .category-item {
+        display: flex;
+
+        flex-direction: column;
+        align-items: center;
+
+        text-decoration: none;
+
+        padding: 4px;
+
+        color: #333;
+
+        transition: 0.2s;
+    }
+
+    .category-item img {
+        width: 52px;
+        height: 68px;
+
+        object-fit: cover;
+
+        border-radius: 4px;
+
+        border: 1px solid #ddd;
+
+        margin-bottom: 5px;
+    }
+
+    .category-name {
+        width: 100%;
+
+        font-size: 11px;
+        font-weight: 600;
+
+        line-height: 1.25;
+
+        color: #444;
+    }
+
+    .category-item:hover .category-name {
+        color: #d35400;
+    }
+
+
+    /* =====================================================
+    MOBILE
+    ===================================================== */
+
+    @media (max-width: 576px) {
+
+        .search-dropdown-menu {
+            width: 350px;
+            max-width: calc(100vw - 20px);
+        }
+
+        .hot-keyword-grid {
+            column-gap: 5px;
+        }
+
+        .category-item img {
+            width: 45px;
+            height: 60px;
+        }
+    }
+    /* =====================================================
+    KẾT QUẢ SẢN PHẨM KHI NHẬP TỪ KHÓA
+    ===================================================== */
+
+    .search-product-item {
+        display: flex;
+        align-items: center;
+
+        width: 100%;
+
+        padding: 8px;
+
+        margin-bottom: 6px;
+
+        text-decoration: none;
+
+        border-radius: 8px;
+
+        color: #333;
+
+        transition: 0.2s;
+
+        overflow: hidden;
+    }
+
+    .search-product-item:hover {
+        background: #fff5ed;
+        text-decoration: none;
+    }
+
+
+    /* Ảnh sách */
+
+    .search-product-img {
+        width: 48px !important;
+        height: 64px !important;
+
+        min-width: 48px;
+        min-height: 64px;
+
+        object-fit: cover;
+
+        border-radius: 4px;
+
+        border: 1px solid #ddd;
+
+        margin-right: 10px;
+    }
+
+
+    /* Khối thông tin */
+
+    .search-product-item > div {
+        flex: 1;
+
+        min-width: 0;
+    }
+
+
+    /* Tên sách */
+
+    .search-product-name {
+        font-size: 13px;
+
+        font-weight: 600;
+
+        color: #333;
+
+        line-height: 1.35;
+
+        margin-bottom: 4px;
+
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+
+        overflow: hidden;
+    }
+
+
+    /* Giá */
+
+    .search-product-price {
+        font-size: 12px;
+
+        font-weight: 600;
+
+        color: #d35400;
+    }
+
+
+    /* Không tìm thấy */
+
+    .search-empty {
+        text-align: center;
+
+        padding: 25px 10px;
+
+        color: #777;
+
+        font-size: 13px;
+    }
+    /* =====================================================
+    CÂN CHỈNH CỤM BÊN PHẢI HEADER
+    ===================================================== */
+
+    /* Ô tìm kiếm */
+    #headerSearchWrapper {
+        width: 260px !important;
+    }
+
+    #headerSearchWrapper .custom-search-bar {
+        height: 48px;
+    }
+
+    #headerSearchWrapper #searchInput {
+        height: 48px;
+        font-size: 14px;
+        padding-left: 18px;
+        padding-right: 50px;
+    }
+
+    /* Nút kính lúp */
+    #headerSearchWrapper .glow-pill-btn {
+        width: 38px !important;
+        height: 38px !important;
+        right: 5px;
+    }
+
+
+    /* =====================================================
+    YÊU THÍCH / GIỎ HÀNG / THÔNG BÁO
+    ===================================================== */
+
+    .header-icon-btn {
+        width: 48px;
+        height: 48px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 50%;
+
+        font-size: 16px;
+
+        flex-shrink: 0;
+
+        text-decoration: none;
+
+        transition: all 0.2s ease;
+    }
+
+    .header-icon-btn i {
+        font-size: 16px;
+    }
+
+    .header-icon-btn:hover {
+        transform: translateY(-1px);
+    }
+
+
+    /* =====================================================
+    NÚT ĐĂNG NHẬP
+    ===================================================== */
+
+    a.glow-pill-btn {
+        min-width: 120px;
+        height: 48px;
+
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+
+        padding: 0 24px !important;
+
+        border-radius: 50rem !important;
+
+        font-size: 14px !important;
+
+        white-space: nowrap;
+    }
+
+
+    /* =====================================================
+    CĂN GIỮA TOÀN BỘ CỤM ACTION
+    ===================================================== */
+
+    .header-icon-btn,
+    a.glow-pill-btn,
+    #headerSearchWrapper {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
 </style>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const userNameText = document.querySelector('.user-name-text');
-    const userNameContainer = document.querySelector('.user-name-container');
-    if (userNameText && userNameContainer) {
-        if (userNameText.scrollWidth > userNameContainer.clientWidth) {
-            userNameText.classList.add('needs-marquee');
-            userNameContainer.style.textAlign = 'left';
-        } else {
-            userNameContainer.style.textAlign = 'center';
-            userNameContainer.style.width = '100%';
-        }
-    }
-
-    const searchInput = document.getElementById('searchInput');
-    const searchWrapper = document.getElementById('headerSearchWrapper');
-    const searchContentBox = document.getElementById('searchContentBox');
-    let typingTimer;
-    let cachedSuggestions = null;
-
-    if(searchInput && searchWrapper) {
-        searchInput.addEventListener('focus', function() {
-            searchWrapper.classList.add('show');
-            performSearch(this.value);
-        });
-
-        document.addEventListener('click', function(event) {
-            if (!searchWrapper.contains(event.target)) {
-                searchWrapper.classList.remove('show');
-            }
-        });
-
-        searchInput.addEventListener('keyup', function() {
-            clearTimeout(typingTimer);
-            let keyword = this.value;
-            typingTimer = setTimeout(() => performSearch(keyword), 300);
-        });
-    }
-
-    function performSearch(keyword) {
-        if(keyword === '' && cachedSuggestions !== null) {
-            renderSuggestions(cachedSuggestions);
-            return;
-        }
-
-        let url = `{{ route('api.search') }}?keyword=${encodeURIComponent(keyword)}`;
-
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if(data.status === 'suggestions') {
-                    cachedSuggestions = data;
-                    renderSuggestions(data);
-                } else if(data.status === 'products') {
-                    renderProducts(data.data, keyword);
-                }
-            })
-            .catch(error => {
-                searchContentBox.innerHTML = `<div class="text-center text-danger my-3">Có lỗi xảy ra khi tìm kiếm.</div>`;
-            });
-    }
-
-    function renderSuggestions(data) {
-        let html = ``;
-        if(data.hot_keywords && data.hot_keywords.length > 0) {
-            html += `
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="font-weight-bold mb-0 text-dark dark-mode-link" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
-                        <i class="fas fa-chart-line mr-2" style="color: #D35400;"></i> Từ khóa hot
-                    </h6>
-                </div>
-                <div class="row mb-3">
-            `;
-            data.hot_keywords.forEach((kw, index) => {
-                html += `
-                    <div class="col-6 mb-2">
-                        <a href="/shop?keyword=${encodeURIComponent(kw)}" 
-                           class="d-flex align-items-center text-decoration-none text-dark p-2 rounded search-keyword-pill">
-                            <span class="badge badge-light mr-2 text-primary font-weight-bold" style="font-size: 11px; background: rgba(211,84,0,0.1); color: var(--primary-color, #D35400) !important;">#${index + 1}</span>
-                            <span class="text-truncate font-weight-500 dark-mode-link" style="font-size: 13px;">${kw}</span>
-                        </a>
-                    </div>
-                `;
-            });
-            html += `</div><hr class="my-2 border-light opacity-25">`;
-        }
-
-        if(data.categories && data.categories.length > 0) {
-            html += `
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="font-weight-bold mb-0 text-dark dark-mode-link" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
-                        <i class="fas fa-th-large mr-2" style="color: var(--primary-color, #D35400);"></i> Danh mục nổi bật
-                    </h6>
-                </div>
-                <div class="row text-center mt-2">
-            `;
-            data.categories.forEach(cat => {
-                html += `
-                    <div class="col-3 px-1">
-                        <a href="/shop/category/${cat.id}" class="text-decoration-none text-dark d-block category-card p-2">
-                            <img src="${cat.image}" class="rounded shadow-sm mb-1 object-fit-cover border" style="width: 48px; height: 64px;" alt="${cat.name}">
-                            <div class="font-weight-bold text-truncate-2 dark-mode-link" style="font-size: 11px; line-height: 1.3;">${cat.name}</div>
-                        </a>
-                    </div>
-                `;
-            });
-            html += `</div>`;
-        }
-        searchContentBox.innerHTML = html;
-    }
-
-    function renderProducts(products, keyword) {
-        if(products.length === 0) {
-            searchContentBox.innerHTML = `<div class="text-center text-muted my-4"><i class="fas fa-search mb-2 fa-2x"></i><br>Không tìm thấy sách nào cho từ khóa "<b>${keyword}</b>"</div>`;
-            return;
-        }
-
-        let html = `<div class="font-weight-bold mb-2 text-muted" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Sách tìm thấy</div>`;
-        products.forEach(product => {
-            let img = product.image ? `/uploads/products/${product.image}` : 'https://via.placeholder.com/60x80?text=No+Image';
-            let authorName = product.author ? product.author.name : 'Đang cập nhật';
-            let priceHtml = '';
-            let formatPrice = (p) => new Intl.NumberFormat('vi-VN').format(p) + 'đ';
-
-            if (product.first_variant) {
-                let variant = product.first_variant;
-                if (variant.sale_price && variant.sale_price > 0 && variant.sale_price < variant.price) {
-                    priceHtml = `
-                        <span class="font-weight-bold mr-2" style="font-size: 14px; color: var(--primary-color, #D35400);">${formatPrice(variant.sale_price)}</span>
-                        <del class="text-muted" style="font-size: 12px;">${formatPrice(variant.price)}</del>
-                    `;
-                } else {
-                    priceHtml = `<span class="font-weight-bold" style="font-size: 14px; color: var(--primary-color, #D35400);">${formatPrice(variant.price)}</span>`;
-                }
-            } else {
-                let fallbackPrice = product.price ? formatPrice(product.price) : 'Liên hệ';
-                priceHtml = `<span class="font-weight-bold" style="font-size: 14px; color: var(--primary-color, #D35400);">${fallbackPrice}</span>`;
-            }
-
-            html += `
-                <a href="/product/${product.id}" class="d-flex align-items-center p-2 mb-2 search-item-result border-bottom text-decoration-none text-dark rounded">
-                    <img src="${img}" style="width: 50px; height: 70px;" class="object-fit-cover rounded mr-3 shadow-sm border" alt="${product.name}">
-                    <div class="flex-grow-1 overflow-hidden">
-                        <h6 class="mb-1 text-truncate-2 font-weight-bold dark-mode-link" style="font-size: 14px; line-height: 1.4;">${product.name}</h6>
-                        <div class="text-muted mb-1" style="font-size: 12px;"><i class="fas fa-pen-nib mr-1"></i> ${authorName}</div>
-                        <div>${priceHtml}</div>
-                    </div>
-                </a>
-            `;
-        });
-        
-        html += `
-            <div class="text-center mt-3 pb-2">
-                <a href="/shop?keyword=${encodeURIComponent(keyword)}" onclick="document.getElementById('searchForm').submit(); return false;" class="text-decoration-none font-weight-bold hover-primary" style="font-size: 14px; color: var(--primary-color, #D35400);">
-                    Xem tất cả kết quả <i class="fas fa-angle-right ml-1"></i>
-                </a>
-            </div>
-        `;
-        searchContentBox.innerHTML = html;
-    }
-});
-</script>
+<script src="{{ asset('js/search.js') }}"></script>

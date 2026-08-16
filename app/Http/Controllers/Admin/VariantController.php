@@ -178,7 +178,7 @@ class variantController extends Controller
     public function search(Request $request)
     {
         $variants = DB::table('variants')
-            ->where('name', 'like', $request->keyword . '%')
+            ->where('name', 'like', '%' . $request->keyword . '%')
             ->limit(5)
             ->get();
 
