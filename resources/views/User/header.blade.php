@@ -657,7 +657,7 @@ html.dark-mode .nav-link.active {
 .header-icon-btn:hover {
     background: linear-gradient(135deg, #e65c00 0%, #f97316 100%) !important;
     color: #ffffff !important;
-    box-shadow: 0 4px 15px rgba(230, 92, 0, 0.35) !important;
+    box-shadow: 0 4px 15px rgba(230, 92, 0, 0.808) !important;
     transform: translateY(-2px) !important;
 }
 
@@ -677,7 +677,7 @@ body.dark-mode .header-icon-btn {
 .dropdown.show .header-icon-btn {
     background: linear-gradient(135deg, #e65c00 0%, #f97316 100%) !important;
     color: #ffffff !important;
-    box-shadow: 0 4px 15px rgba(230, 92, 0, 0.45) !important;
+    box-shadow: 0 4px 15px rgba(230, 92, 0, 0.808) !important;
 }
 
 .header-icon-btn.active i,
@@ -694,7 +694,7 @@ body.dark-mode .header-icon-btn {
 html.dark-mode .main-menu .menu-item:hover,
 body.dark-mode .main-menu .menu-item:hover {
     color: #ffffff !important; /* Đổi màu chữ sang trắng */
-    background-color: rgba(249, 115, 22, 0.25) !important; /* Nền mờ cam tối tinh tế */
+    background-color: rgba(223, 93, 0, 0.918) !important; /* Nền mờ cam tối tinh tế */
     transition: all 0.25s ease !important;
 }
 
@@ -703,6 +703,64 @@ body.dark-mode .main-menu .menu-item:hover {
 html.dark-mode .main-menu .menu-item:hover i,
 body.dark-mode .main-menu .menu-item:hover i {
     color: #ffffff !important;
+}
+/* =========================================================
+   FIX THANH TÌM KIẾM: LIGHT MODE (XÁM NHẠT) vs DARK MODE (ĐEN)
+========================================================= */
+
+/* 1. MẶC ĐỊNH / LIGHT MODE: Nền xám nhạt tinh tế */
+.custom-search-bar {
+    background-color: #f1f5f9 !important; /* Màu xám nhạt */
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: 50rem !important;
+    padding: 3px 3px 3px 15px !important;
+    height: 40px !important;
+    box-shadow: none !important;
+    transition: all 0.25s ease !important;
+}
+
+/* Hover/Focus ở Light Mode */
+.custom-search-bar:focus-within {
+    background-color: #ffffff !important;
+    border-color: #f97316 !important;
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.2) !important;
+}
+
+/* Input ở Light Mode: Chữ màu xám than tối */
+.custom-search-bar input#searchInput {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: #2c3e50 !important; /* Màu chữ tối dễ đọc */
+    font-size: 13.5px !important;
+    height: 100% !important;
+    padding: 0 !important;
+}
+
+.custom-search-bar input#searchInput::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+}
+
+
+/* 2. CHẾ ĐỘ DARK MODE: Chuyển sang màu xám đen */
+html.dark-mode .custom-search-bar,
+body.dark-mode .custom-search-bar {
+    background-color: #1a1a1a !important; /* Nền tối ở Dark mode */
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html.dark-mode .custom-search-bar:focus-within,
+body.dark-mode .custom-search-bar:focus-within {
+    background-color: #222222 !important;
+    border-color: #f97316 !important;
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.3) !important;
+}
+
+html.dark-mode .custom-search-bar input#searchInput,
+body.dark-mode .custom-search-bar input#searchInput {
+    color: #ffffff !important; /* Chữ trắng ở Dark mode */
 }
 </style>
 

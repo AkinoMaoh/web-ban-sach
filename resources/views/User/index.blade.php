@@ -70,9 +70,19 @@ $('#heroCarousel').carousel({
 <!-- 2. Danh mục sách -->
 <section class="container mb-5">
     <div class="d-flex flex-wrap justify-content-center gap-2">
-        <a href="{{ route('user.shop') }}" class="btn rounded-pill mx-1 mb-2 px-4 text-white" style="background: #2C3E50;">Tất cả sách</a>
+        <!-- Nút "Tất cả sách" giữ trạng thái active màu cam chuẩn -->
+        <a href="{{ route('user.shop') }}" 
+           class="btn rounded-pill mx-1 mb-2 px-4 text-white font-weight-bold shadow-sm" 
+           style="background: linear-gradient(135deg, #e65c00 0%, #f97316 100%);">
+            Tất cả sách
+        </a>
+
+        <!-- Danh sách danh mục -->
         @foreach ($categories as $category)
-            <a href="{{ route('user.category', $category->id) }}" class="btn btn-light rounded-pill mx-1 mb-2 px-4 border shadow-sm text-dark">{{ $category->name }}</a>
+            <a href="{{ route('user.category', $category->id) }}" 
+               class="btn rounded-pill mx-1 mb-2 px-4 shadow-sm category-pill-btn">
+                {{ $category->name }}
+            </a>
         @endforeach
     </div>
 </section>

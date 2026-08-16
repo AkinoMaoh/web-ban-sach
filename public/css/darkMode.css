@@ -893,3 +893,42 @@ html.dark-mode .modern-header .badge {
     background-color: #e83e5b !important;
     color: #ffffff !important;
 }
+/* =========================================================
+   STYLE & HOVER DANH MỤC SÁCH (CATEGORY PILLS)
+========================================================= */
+
+/* Mặc định ở Light Mode */
+.category-pill-btn {
+    background-color: #ffffff;
+    color: #2c3e50 !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    font-weight: 500;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Hover Light Mode: Nền đổi sang cam, chữ thành màu trắng */
+.category-pill-btn:hover {
+    background: linear-gradient(135deg, #e65c00 0%, #f97316 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 15px rgba(230, 92, 0, 0.35) !important;
+    transform: translateY(-2px);
+}
+
+/* Mặc định ở Dark Mode */
+html.dark-mode .category-pill-btn,
+body.dark-mode .category-pill-btn {
+    background-color: #1a1a1a !important;
+    color: #f1f5f9 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Hover Dark Mode: Giữ nền cam sáng nổi bật, chữ trắng */
+html.dark-mode .category-pill-btn:hover,
+body.dark-mode .category-pill-btn:hover {
+    background: linear-gradient(135deg, #e65c00 0%, #f97316 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 15px rgba(230, 92, 0, 0.808) !important;
+    transform: translateY(-2px);
+}
