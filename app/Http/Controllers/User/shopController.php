@@ -28,13 +28,15 @@ class ShopController extends Controller
         $nhaXuatBan   = publishers::all();
         $banners      = $this->getShopBanners();
 
-        // XỬ LÝ TỪ KHÓA TÌM KIẾM TRỌN GÓI TRONG CONTROLLER
-        if ($request->filled('keyword')) {
-            $keyword = mb_strtolower(trim($request->keyword), 'UTF-8');
-            
-            $truyVan = products::with(['author', 'firstVariant', 'category'])
-                ->where('status', 1)
-                ->where(function($query) use ($keyword) {
+        // 1. Đã thêm 'category_id' vào mảng kiểm tra bộ lọc
+        $hasFilters = $request->anyFilled(['keyword', 'category_id', 'author', 'publisher', 'price_min', 'price_max', 'sort']);
+
+        if ($hasFilters) {
+            $truyVan = products::with(['author', 'firstVariant', 'category'])->where('status', 1);
+
+            if ($request->filled('keyword')) {
+                $keyword = mb_strtolower(trim($request->keyword), 'UTF-8');
+                $truyVan->where(function($query) use ($keyword) {
                     $query->where(DB::raw('LOWER(name)'), 'LIKE', '%' . $keyword . '%')
                           ->orWhereHas('category', function($q) use ($keyword) {
                               $q->where(DB::raw('LOWER(name)'), 'LIKE', '%' . $keyword . '%');
@@ -43,6 +45,12 @@ class ShopController extends Controller
                               $q->where(DB::raw('LOWER(name)'), 'LIKE', '%' . $keyword . '%');
                           });
                 });
+            }
+
+            // 2. Xử lý Lọc theo Danh mục
+            if ($request->filled('category_id')) {
+                $truyVan->where('category_id', $request->category_id);
+            }
 
             if ($request->filled('author')) {
                 $truyVan->where('author_id', $request->author);
@@ -67,16 +75,11 @@ class ShopController extends Controller
             $danhSachSanPham = $truyVan->paginate(12)->appends($request->query());
 
             return view('User.shop', compact(
-                'tatCaDanhMuc',
-                'tacGia',
-                'nhaXuatBan',
-                'banners',
-                'danhSachSanPham',
-                'keyword'
-            ));
+                'tatCaDanhMuc', 'tacGia', 'nhaXuatBan', 'banners', 'danhSachSanPham'
+            ))->with('keyword', $request->keyword); 
         }
 
-        // MẶC ĐỊNH: Hiển thị sản phẩm theo từng danh mục
+        // MẶC ĐỊNH: Nếu không có bộ lọc nào, hiển thị sách theo từng nhóm danh mục
         $sanPhamTheoDanhMuc = $tatCaDanhMuc->map(function ($dm) {
             $dm->sanPham = products::where('status', 1)
                 ->where('category_id', $dm->id)
@@ -87,11 +90,7 @@ class ShopController extends Controller
         })->filter(fn($dm) => $dm->sanPham->isNotEmpty());
         
         return view('User.shop', compact(
-            'tatCaDanhMuc',
-            'sanPhamTheoDanhMuc',
-            'tacGia',
-            'nhaXuatBan',
-            'banners'
+            'tatCaDanhMuc', 'sanPhamTheoDanhMuc', 'tacGia', 'nhaXuatBan', 'banners'
         ));
     }
 
@@ -128,34 +127,41 @@ class ShopController extends Controller
         $banners = $this->getShopBanners();
         
         return view('User.shop', compact(
-            'tatCaDanhMuc',
-            'tacGia',
-            'nhaXuatBan',
-            'danhMuc',
-            'danhSachSanPham',
-            'banners'
+            'tatCaDanhMuc', 'tacGia', 'nhaXuatBan', 'danhMuc', 'danhSachSanPham', 'banners'
         ));
     }
     
-    public function author($id)
+    public function author(Request $request, $id)
     {
         $author = authors::findOrFail($id);
         $tatCaDanhMuc = categories::where('status', 1)->get();
         $tacGia = authors::all();
         $nhaXuatBan = publishers::all();
 
-        $danhSachSanPham = products::where('author_id', $id)
-            ->where('status', 1)
-            ->paginate(12);
+        $truyVan = products::where('author_id', $id)->where('status', 1);
+
+        if ($request->filled('publisher')) {
+            $truyVan->where('publisher_id', $request->publisher);
+        }
+        if ($request->filled('price_min')) {
+            $truyVan->where('price', '>=', $request->price_min);
+        }
+        if ($request->filled('price_max')) {
+            $truyVan->where('price', '<=', $request->price_max);
+        }
+
+        switch ($request->get('sort')) {
+            case 'price_asc': $truyVan->orderBy('price', 'asc'); break;
+            case 'price_desc': $truyVan->orderBy('price', 'desc'); break;
+            case 'newest': $truyVan->latest(); break;
+            default: $truyVan->orderBy('id', 'desc'); break;
+        }
+
+        $danhSachSanPham = $truyVan->paginate(12)->appends($request->query());
         $banners = $this->getShopBanners();
         
         return view('User.shop', compact(
-            'tatCaDanhMuc',
-            'tacGia',
-            'nhaXuatBan',
-            'author',
-            'danhSachSanPham',
-            'banners'
+            'tatCaDanhMuc', 'tacGia', 'nhaXuatBan', 'author', 'danhSachSanPham', 'banners'
         ));
     }
 }

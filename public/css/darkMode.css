@@ -1,0 +1,934 @@
+/* =========================================================
+   DARK MODE - SACHHAY
+   File: public/css/darkMode.css
+   Kích hoạt bằng class: html.dark-mode
+========================================================= */
+
+/* =========================================================
+   1. BIẾN MÀU
+========================================================= */
+
+html.dark-mode {
+    --dark-bg: #121212;
+    --dark-bg-2: #181818;
+    --dark-bg-3: #1e1e1e;
+
+    --dark-card: #1e1e1e;
+    --dark-card-hover: #252525;
+
+    --dark-border: #333333;
+    --dark-border-light: #3d3d3d;
+
+    --dark-text: #f1f1f1;
+    --dark-text-2: #d6d6d6;
+    --dark-muted: #a0a0a0;
+
+    --dark-input: #202020;
+
+    --dark-shadow: rgba(0, 0, 0, 0.45);
+}
+
+/* =========================================================
+   2. HTML + BODY
+========================================================= */
+
+html.dark-mode {
+    background-color: var(--dark-bg) !important;
+    color: var(--dark-text) !important;
+}
+
+html.dark-mode body {
+    background-color: var(--dark-bg) !important;
+    color: var(--dark-text) !important;
+}
+
+/* =========================================================
+   3. MAIN
+========================================================= */
+
+html.dark-mode main {
+    background-color: var(--dark-bg) !important;
+    color: var(--dark-text) !important;
+}
+
+/* =========================================================
+   4. HEADER
+========================================================= */
+
+html.dark-mode .modern-header {
+    background-color: var(--dark-bg-3) !important;
+    color: var(--dark-text) !important;
+    border-color: var(--dark-border) !important;
+    box-shadow: 0 2px 10px var(--dark-shadow) !important;
+}
+
+html.dark-mode .modern-header a {
+    color: var(--dark-text) !important;
+}
+
+html.dark-mode .modern-header a:hover {
+    color: var(--primary-color) !important;
+}
+
+/* =========================================================
+   5. NAVIGATION
+========================================================= */
+
+html.dark-mode .nav-link {
+    color: var(--dark-text) !important;
+}
+
+html.dark-mode .nav-link:hover {
+    color: var(--primary-color) !important;
+}
+
+/* =========================================================
+   6. FOOTER
+========================================================= */
+
+html.dark-mode .modern-footer {
+    background-color: var(--dark-bg-3) !important;
+    color: var(--dark-text) !important;
+    border-top: 1px solid var(--dark-border) !important;
+}
+
+html.dark-mode .modern-footer a {
+    color: var(--dark-text-2) !important;
+}
+
+html.dark-mode .modern-footer a:hover {
+    color: var(--primary-color) !important;
+}
+
+/* =========================================================
+   7. CARD SÁCH
+========================================================= */
+
+html.dark-mode .book-card {
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text) !important;
+    border-color: var(--dark-border) !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25) !important;
+}
+
+html.dark-mode .book-card:hover {
+    background-color: var(--dark-card-hover) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45) !important;
+}
+
+html.dark-mode .book-card a {
+    color: var(--dark-text) !important;
+}
+
+/* =========================================================
+   8. TÊN SÁCH
+========================================================= */
+
+html.dark-mode .book-title {
+    color: var(--dark-text) !important;
+}
+
+html.dark-mode .book-title a {
+    color: var(--dark-text) !important;
+}
+
+/* =========================================================
+   9. GIÁ SÁCH
+========================================================= */
+
+html.dark-mode .book-price {
+    color: var(--primary-color) !important;
+}
+
+/* =========================================================
+   10. HÌNH ẢNH
+========================================================= */
+
+html.dark-mode .book-cover {
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* =========================================================
+   11. BUTTON
+========================================================= */
+
+html.dark-mode button {
+    color: var(--dark-text);
+}
+
+html.dark-mode .btn-secondary {
+    background-color: #333 !important;
+    border-color: #444 !important;
+    color: #fff !important;
+}
+
+html.dark-mode .btn-light {
+    background-color: #2a2a2a !important;
+    border-color: #444 !important;
+    color: #fff !important;
+}
+
+html.dark-mode .btn-dark {
+    background-color: #000 !important;
+    color: #fff !important;
+}
+
+/* =========================================================
+   12. BOOTSTRAP BACKGROUND
+========================================================= */
+
+html.dark-mode .bg-white {
+    background-color: var(--dark-bg-3) !important;
+}
+
+html.dark-mode .bg-light {
+    background-color: var(--dark-bg-2) !important;
+}
+
+html.dark-mode .bg-dark {
+    background-color: #000 !important;
+}
+
+/* =========================================================
+   13. BOOTSTRAP TEXT
+========================================================= */
+
+html.dark-mode .text-dark {
+    color: var(--dark-text) !important;
+}
+
+html.dark-mode .text-body {
+    color: var(--dark-text) !important;
+}
+
+html.dark-mode .text-muted {
+    color: var(--dark-muted) !important;
+}
+
+html.dark-mode .text-secondary {
+    color: var(--dark-text-2) !important;
+}
+
+html.dark-mode h1,
+html.dark-mode h2,
+html.dark-mode h3,
+html.dark-mode h4,
+html.dark-mode h5,
+html.dark-mode h6 {
+    color: var(--dark-text) !important;
+}
+
+html.dark-mode p {
+    color: var(--dark-text-2);
+}
+
+/* =========================================================
+   14. LINK
+========================================================= */
+
+html.dark-mode a {
+    color: #e0e0e0;
+}
+
+html.dark-mode a:hover {
+    color: var(--primary-color);
+}
+
+/* =========================================================
+   15. FORM
+========================================================= */
+
+html.dark-mode input,
+html.dark-mode textarea,
+html.dark-mode select {
+    background-color: var(--dark-input) !important;
+    color: var(--dark-text) !important;
+    border-color: var(--dark-border-light) !important;
+}
+
+html.dark-mode input:focus,
+html.dark-mode textarea:focus,
+html.dark-mode select:focus {
+    background-color: #252525 !important;
+    color: #fff !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(211, 84, 0, 0.2) !important;
+}
+
+html.dark-mode input::placeholder,
+html.dark-mode textarea::placeholder {
+    color: #888 !important;
+}
+
+html.dark-mode select option {
+    background-color: #1e1e1e !important;
+    color: #fff !important;
+}
+
+/* =========================================================
+   16. FORM CHECK
+========================================================= */
+
+html.dark-mode .form-check-label {
+    color: var(--dark-text-2) !important;
+}
+
+html.dark-mode .custom-control-label {
+    color: var(--dark-text-2) !important;
+}
+
+/* =========================================================
+   17. TABLE
+========================================================= */
+
+html.dark-mode table {
+    color: var(--dark-text) !important;
+}
+
+html.dark-mode .table {
+    color: var(--dark-text) !important;
+    background-color: var(--dark-bg-3) !important;
+}
+
+html.dark-mode .table th,
+html.dark-mode .table td {
+    border-color: var(--dark-border) !important;
+}
+
+html.dark-mode .table thead th {
+    background-color: #252525 !important;
+    color: #fff !important;
+}
+
+html.dark-mode .table-hover tbody tr:hover {
+    background-color: #252525 !important;
+}
+
+/* =========================================================
+   18. BORDER
+========================================================= */
+
+html.dark-mode .border {
+    border-color: var(--dark-border) !important;
+}
+
+html.dark-mode .border-top {
+    border-top-color: var(--dark-border) !important;
+}
+
+html.dark-mode .border-bottom {
+    border-bottom-color: var(--dark-border) !important;
+}
+
+html.dark-mode .border-left {
+    border-left-color: var(--dark-border) !important;
+}
+
+html.dark-mode .border-right {
+    border-right-color: var(--dark-border) !important;
+}
+
+/* =========================================================
+   19. MODAL
+========================================================= */
+
+html.dark-mode .modal-content {
+    background-color: var(--dark-bg-3) !important;
+    color: var(--dark-text) !important;
+    border-color: var(--dark-border) !important;
+}
+
+html.dark-mode .modal-header,
+html.dark-mode .modal-footer {
+    border-color: var(--dark-border) !important;
+}
+
+html.dark-mode .modal-title {
+    color: #fff !important;
+}
+
+html.dark-mode .close {
+    color: #fff !important;
+}
+
+/* =========================================================
+   20. DROPDOWN
+========================================================= */
+
+html.dark-mode .dropdown-menu {
+    background-color: var(--dark-bg-3) !important;
+    border-color: var(--dark-border) !important;
+    box-shadow: 0 5px 20px var(--dark-shadow) !important;
+}
+
+html.dark-mode .dropdown-item {
+    color: var(--dark-text) !important;
+}
+
+html.dark-mode .dropdown-item:hover {
+    background-color: #2a2a2a !important;
+    color: #fff !important;
+}
+
+/* =========================================================
+   21. ALERT
+========================================================= */
+
+html.dark-mode .alert {
+    background-color: var(--dark-bg-3) !important;
+    color: var(--dark-text) !important;
+    border-color: var(--dark-border) !important;
+}
+
+/* =========================================================
+   22. PAGINATION
+========================================================= */
+
+html.dark-mode .pagination .page-link {
+    background-color: var(--dark-bg-3) !important;
+    color: var(--dark-text) !important;
+    border-color: var(--dark-border) !important;
+}
+
+html.dark-mode .pagination .page-link:hover {
+    background-color: #2a2a2a !important;
+}
+
+html.dark-mode .pagination .page-item.active .page-link {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #fff !important;
+}
+
+/* =========================================================
+   23. WISHLIST
+========================================================= */
+
+html.dark-mode .btn-wishlist-v2.position-absolute {
+    background-color: #2a2a2a !important;
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark-mode .btn-wishlist-v2.position-absolute:hover {
+    background-color: #333 !important;
+}
+
+/* =========================================================
+   24. SEARCH
+========================================================= */
+
+html.dark-mode .search-box,
+html.dark-mode .search-container,
+html.dark-mode .search-result,
+html.dark-mode .search-suggestions {
+    background-color: var(--dark-bg-3) !important;
+    color: var(--dark-text) !important;
+    border-color: var(--dark-border) !important;
+}
+
+html.dark-mode .search-result a,
+html.dark-mode .search-suggestions a {
+    color: var(--dark-text) !important;
+}
+
+html.dark-mode .search-result a:hover,
+html.dark-mode .search-suggestions a:hover {
+    background-color: #2a2a2a !important;
+}
+
+/* =========================================================
+   25. CART
+========================================================= */
+
+html.dark-mode .cart-item,
+html.dark-mode .cart-card,
+html.dark-mode .cart-container {
+    background-color: var(--dark-bg-3) !important;
+    color: var(--dark-text) !important;
+    border-color: var(--dark-border) !important;
+}
+
+/* =========================================================
+   26. PRODUCT DETAIL
+========================================================= */
+
+html.dark-mode .product-detail,
+html.dark-mode .product-info,
+html.dark-mode .product-description {
+    color: var(--dark-text) !important;
+}
+
+html.dark-mode .product-detail .card,
+html.dark-mode .product-info .card {
+    background-color: var(--dark-bg-3) !important;
+    border-color: var(--dark-border) !important;
+}
+
+/* =========================================================
+   27. REVIEW
+========================================================= */
+
+html.dark-mode .review,
+html.dark-mode .review-item,
+html.dark-mode .review-card {
+    background-color: var(--dark-bg-3) !important;
+    color: var(--dark-text) !important;
+    border-color: var(--dark-border) !important;
+}
+
+/* =========================================================
+   28. PROFILE
+========================================================= */
+
+html.dark-mode .profile-card,
+html.dark-mode .profile-container,
+html.dark-mode .profile-box {
+    background-color: var(--dark-bg-3) !important;
+    color: var(--dark-text) !important;
+    border-color: var(--dark-border) !important;
+}
+
+/* =========================================================
+   29. SHADOW
+========================================================= */
+
+html.dark-mode .shadow,
+html.dark-mode .shadow-sm,
+html.dark-mode .shadow-lg {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* =========================================================
+   30. HR
+========================================================= */
+
+html.dark-mode hr {
+    border-color: var(--dark-border) !important;
+}
+
+/* =========================================================
+   31. LIST GROUP
+========================================================= */
+
+html.dark-mode .list-group-item {
+    background-color: var(--dark-bg-3) !important;
+    color: var(--dark-text) !important;
+    border-color: var(--dark-border) !important;
+}
+
+html.dark-mode .list-group-item:hover {
+    background-color: #252525 !important;
+}
+
+/* =========================================================
+   32. BREADCRUMB
+========================================================= */
+
+html.dark-mode .breadcrumb {
+    background-color: var(--dark-bg-3) !important;
+}
+
+html.dark-mode .breadcrumb-item {
+    color: var(--dark-muted) !important;
+}
+
+html.dark-mode .breadcrumb-item.active {
+    color: var(--dark-text) !important;
+}
+
+/* =========================================================
+   33. CARD BOOTSTRAP
+========================================================= */
+
+html.dark-mode .card {
+    background-color: var(--dark-bg-3) !important;
+    color: var(--dark-text) !important;
+    border-color: var(--dark-border) !important;
+}
+
+html.dark-mode .card-header,
+html.dark-mode .card-footer {
+    background-color: #252525 !important;
+    border-color: var(--dark-border) !important;
+}
+
+/* =========================================================
+   34. DISABLED
+========================================================= */
+
+html.dark-mode .disabled,
+html.dark-mode :disabled {
+    color: #777 !important;
+}
+
+/* =========================================================
+   35. SCROLLBAR
+========================================================= */
+
+html.dark-mode ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+html.dark-mode ::-webkit-scrollbar-track {
+    background: #151515;
+}
+
+html.dark-mode ::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 10px;
+}
+
+html.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* =========================================================
+   36. ICON
+========================================================= */
+
+html.dark-mode i {
+    color: inherit;
+}
+
+/* =========================================================
+   37. BOOTSTRAP NAVBAR
+========================================================= */
+
+html.dark-mode .navbar {
+    background-color: var(--dark-bg-3) !important;
+}
+
+html.dark-mode .navbar-light .navbar-nav .nav-link {
+    color: var(--dark-text) !important;
+}
+
+html.dark-mode .navbar-toggler {
+    background-color: #2a2a2a !important;
+    border-color: var(--dark-border) !important;
+}
+
+/* =========================================================
+   38. CONTAINER CÓ MÀU TRẮNG TRỰC TIẾP
+========================================================= */
+
+html.dark-mode .container-white,
+html.dark-mode .content-white,
+html.dark-mode .white-box {
+    background-color: var(--dark-bg-3) !important;
+    color: var(--dark-text) !important;
+}
+
+/* =========================================================
+   39. ĐẢM BẢO TEXT KHÔNG BỊ TRẮNG NỀN
+========================================================= */
+
+html.dark-mode [style*="background: #fff"],
+html.dark-mode [style*="background:#fff"],
+html.dark-mode [style*="background-color: #fff"],
+html.dark-mode [style*="background-color:#fff"],
+html.dark-mode [style*="background: white"],
+html.dark-mode [style*="background-color: white"] {
+    background-color: var(--dark-bg-3) !important;
+}
+
+/* =========================================================
+   40. TRANSITION
+========================================================= */
+
+html.dark-mode,
+html.dark-mode body,
+html.dark-mode .modern-header,
+html.dark-mode .modern-footer,
+html.dark-mode .book-card,
+html.dark-mode .card,
+html.dark-mode input,
+html.dark-mode textarea,
+html.dark-mode select {
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease;
+}
+/* =========================================================
+   HEADER DARK MODE - NÚT GIỐNG GIAO DIỆN MẪU
+========================================================= */
+
+/* Các nút tròn trên header */
+html.dark-mode .modern-header button,
+html.dark-mode .modern-header .header-btn {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+/* Hover */
+html.dark-mode .modern-header button:hover,
+html.dark-mode .modern-header .header-btn:hover {
+    background-color: #383838 !important;
+    color: #ffffff !important;
+}
+
+/* Icon */
+html.dark-mode .modern-header button i,
+html.dark-mode .modern-header .header-btn i {
+    color: #ffffff !important;
+}
+
+/* =========================================================
+   NÚT TÌM KIẾM - MÀU CAM
+========================================================= */
+
+html.dark-mode .modern-header .search-btn,
+html.dark-mode .modern-header button[type="submit"] {
+    background-color: #d35400 !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+html.dark-mode .modern-header .search-btn:hover,
+html.dark-mode .modern-header button[type="submit"]:hover {
+    background-color: #e66b17 !important;
+}
+
+html.dark-mode .modern-header .search-btn i,
+html.dark-mode .modern-header button[type="submit"] i {
+    color: #ffffff !important;
+}
+
+/* =========================================================
+   Ô TÌM KIẾM
+========================================================= */
+
+html.dark-mode .modern-header input[type="search"],
+html.dark-mode .modern-header input[name="search"],
+html.dark-mode .modern-header .search-input {
+    background-color: #242424 !important;
+    color: #ffffff !important;
+    border-color: #3d3d3d !important;
+}
+
+html.dark-mode .modern-header input::placeholder {
+    color: #888888 !important;
+}
+
+/* =========================================================
+   USER BUTTON
+========================================================= */
+
+html.dark-mode .modern-header .user-btn,
+html.dark-mode .modern-header .account-btn {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+    border-color: #444444 !important;
+}
+
+html.dark-mode .modern-header .user-btn:hover,
+html.dark-mode .modern-header .account-btn:hover {
+    background-color: #383838 !important;
+}
+
+/* =========================================================
+   WISHLIST / CART / NOTIFICATION
+========================================================= */
+
+html.dark-mode .modern-header .wishlist-btn,
+html.dark-mode .modern-header .cart-btn,
+html.dark-mode .modern-header .notification-btn {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+}
+
+html.dark-mode .modern-header .wishlist-btn:hover,
+html.dark-mode .modern-header .cart-btn:hover,
+html.dark-mode .modern-header .notification-btn:hover {
+    background-color: #383838 !important;
+}
+
+/* =========================================================
+   THEME BUTTON
+========================================================= */
+
+html.dark-mode .modern-header #theme-toggle {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+html.dark-mode .modern-header #theme-toggle:hover {
+    background-color: #383838 !important;
+}
+
+html.dark-mode .modern-header #theme-toggle i {
+    color: #ffffff !important;
+}
+
+/* =========================================================
+   BADGE
+========================================================= */
+
+html.dark-mode .modern-header .badge {
+    background-color: #e83e5b !important;
+    color: #ffffff !important;
+} /* =========================================================
+   HEADER DARK MODE - NÚT GIỐNG GIAO DIỆN MẪU
+========================================================= */
+
+/* Các nút tròn trên header */
+html.dark-mode .modern-header button,
+html.dark-mode .modern-header .header-btn {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+/* Hover */
+html.dark-mode .modern-header button:hover,
+html.dark-mode .modern-header .header-btn:hover {
+    background-color: #383838 !important;
+    color: #ffffff !important;
+}
+
+/* Icon */
+html.dark-mode .modern-header button i,
+html.dark-mode .modern-header .header-btn i {
+    color: #ffffff !important;
+}
+
+/* =========================================================
+   NÚT TÌM KIẾM - MÀU CAM
+========================================================= */
+
+html.dark-mode .modern-header .search-btn,
+html.dark-mode .modern-header button[type="submit"] {
+    background-color: #d35400 !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+html.dark-mode .modern-header .search-btn:hover,
+html.dark-mode .modern-header button[type="submit"]:hover {
+    background-color: #e66b17 !important;
+}
+
+html.dark-mode .modern-header .search-btn i,
+html.dark-mode .modern-header button[type="submit"] i {
+    color: #ffffff !important;
+}
+
+/* =========================================================
+   Ô TÌM KIẾM
+========================================================= */
+
+html.dark-mode .modern-header input[type="search"],
+html.dark-mode .modern-header input[name="search"],
+html.dark-mode .modern-header .search-input {
+    background-color: #242424 !important;
+    color: #ffffff !important;
+    border-color: #3d3d3d !important;
+}
+
+html.dark-mode .modern-header input::placeholder {
+    color: #888888 !important;
+}
+
+/* =========================================================
+   USER BUTTON
+========================================================= */
+
+html.dark-mode .modern-header .user-btn,
+html.dark-mode .modern-header .account-btn {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+    border-color: #444444 !important;
+}
+
+html.dark-mode .modern-header .user-btn:hover,
+html.dark-mode .modern-header .account-btn:hover {
+    background-color: #383838 !important;
+}
+
+/* =========================================================
+   WISHLIST / CART / NOTIFICATION
+========================================================= */
+
+html.dark-mode .modern-header .wishlist-btn,
+html.dark-mode .modern-header .cart-btn,
+html.dark-mode .modern-header .notification-btn {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+}
+
+html.dark-mode .modern-header .wishlist-btn:hover,
+html.dark-mode .modern-header .cart-btn:hover,
+html.dark-mode .modern-header .notification-btn:hover {
+    background-color: #383838 !important;
+}
+
+/* =========================================================
+   THEME BUTTON
+========================================================= */
+
+html.dark-mode .modern-header #theme-toggle {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+html.dark-mode .modern-header #theme-toggle:hover {
+    background-color: #383838 !important;
+}
+
+html.dark-mode .modern-header #theme-toggle i {
+    color: #ffffff !important;
+}
+
+/* =========================================================
+   BADGE
+========================================================= */
+
+html.dark-mode .modern-header .badge {
+    background-color: #e83e5b !important;
+    color: #ffffff !important;
+}
+/* =========================================================
+   STYLE & HOVER DANH MỤC SÁCH (CATEGORY PILLS)
+========================================================= */
+
+/* Mặc định ở Light Mode */
+.category-pill-btn {
+    background-color: #ffffff;
+    color: #2c3e50 !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    font-weight: 500;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Hover Light Mode: Nền đổi sang cam, chữ thành màu trắng */
+.category-pill-btn:hover {
+    background: linear-gradient(135deg, #e65c00 0%, #f97316 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 15px rgba(230, 92, 0, 0.35) !important;
+    transform: translateY(-2px);
+}
+
+/* Mặc định ở Dark Mode */
+html.dark-mode .category-pill-btn,
+body.dark-mode .category-pill-btn {
+    background-color: #1a1a1a !important;
+    color: #f1f5f9 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Hover Dark Mode: Giữ nền cam sáng nổi bật, chữ trắng */
+html.dark-mode .category-pill-btn:hover,
+body.dark-mode .category-pill-btn:hover {
+    background: linear-gradient(135deg, #e65c00 0%, #f97316 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 15px rgba(230, 92, 0, 0.808) !important;
+    transform: translateY(-2px);
+}

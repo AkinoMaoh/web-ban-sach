@@ -1,198 +1,378 @@
 <!DOCTYPE html>
 <html lang="vi">
-    
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>SachHay - Tiệm sách trực tuyến</title>
 
-    <!-- Font chữ sang trọng -->
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Dùng trực tiếp Bootstrap và FontAwesome trên mạng để chống lỗi mất CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/bookstore.css') }}">
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700&display=swap"
+          rel="stylesheet">
 
-    <!-- CSS TRỰC TIẾP (Không sợ lỗi đường dẫn file) -->
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <!-- CSS giao diện sáng -->
+    <link rel="stylesheet"
+          href="{{ asset('css/bookstore.css') }}">
+
+    <!-- CSS Dark Mode -->
+    <link rel="stylesheet"
+          href="{{ asset('css/darkMode.css') }}">
+
+    <!-- CSS riêng của layout -->
     <style>
         :root {
-            --primary-color: #D35400; /* Cam cháy */
+            --primary-color: #D35400;
             --text-main: #2C3E50;
         }
-        body { font-family: 'Nunito Sans', sans-serif; background-color: #FAFAFA; color: var(--text-main); }
-        .serif-font { font-family: 'Lora', serif; font-weight: 700; }
-        
-        /* Header & Footer */
-        .modern-header { background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 15px 0; position: sticky; top: 0; z-index: 1000; }
-        .modern-footer { background: #fff; border-top: 1px solid #eee; padding-top: 40px; margin-top: 40px; }
-        
-        /* Nav Links */
-        .nav-link { color: var(--text-main); font-weight: 600; text-transform: uppercase; font-size: 14px; }
-        .nav-link:hover { color: var(--primary-color); text-decoration: none; }
-        
-        /* Khung chứa sách */
-        .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .book-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 15px; transition: 0.3s; text-align: center; display: block; text-decoration: none !important; color: var(--text-main); height: 100%;}
-        .book-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); color: var(--text-main); }
-        .book-cover { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 4px; margin-bottom: 15px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); }
-        .book-title { font-size: 15px; font-weight: 700; height: 42px; overflow: hidden; margin-bottom: 8px; }
-        .book-price { color: var(--primary-color); font-weight: 700; font-size: 16px; margin: 0; }
-        
-        /* Buttons */
-        .btn-orange { background-color: var(--primary-color); color: #fff; border-radius: 20px; padding: 8px 20px; font-weight: bold; border: none; transition: 0.3s; }
-        .btn-orange:hover { background-color: #a64200; color: #fff; }
+
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background-color: #FAFAFA;
+            color: var(--text-main);
+        }
+
+        .serif-font {
+            font-family: 'Lora', serif;
+            font-weight: 700;
+        }
+
+        /* Header */
+        .modern-header {
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* Footer */
+        .modern-footer {
+            background: #fff;
+            border-top: 1px solid #eee;
+            padding-top: 40px;
+            margin-top: 40px;
+        }
+
+        /* Navigation */
+        .nav-link {
+            color: var(--text-main);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        /* Book grid */
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .book-card {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            transition: 0.3s;
+            text-align: center;
+            display: block;
+            text-decoration: none !important;
+            color: var(--text-main);
+            height: 100%;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            color: var(--text-main);
+        }
+
+        .book-cover {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .book-title {
+            font-size: 15px;
+            font-weight: 700;
+            height: 42px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .book-price {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* Button */
+        .btn-orange {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-weight: bold;
+            border: none;
+            transition: 0.3s;
+        }
+
+        .btn-orange:hover {
+            background-color: #a64200;
+            color: #fff;
+        }
+
+        /* Wishlist */
         .btn-wishlist-v2.position-absolute {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        border: none !important;
-        padding: 0 !important;
-        background-color: rgba(255, 255, 255, 0.95) !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
-        transition: all 0.2s ease-in-out !important;
-        z-index: 15 !important; /* Đảm bảo luôn đè lên ảnh */
-    }
-    
-    /* Hiệu ứng khi di chuột vào (phóng to nhẹ + viền bóng mượt hơn) */
-    .btn-wishlist-v2.position-absolute:hover {
-        background-color: #ffffff !important;
-        transform: scale(1.15) !important;
-        box-shadow: 0 4px 12px rgba(211, 84, 0, 0.25) !important;
-    }
-    
-    /* Fix kích thước icon tim và vi chỉnh độ lệch trọng tâm */
-    .btn-wishlist-v2.position-absolute i {
-        font-size: 16px !important;
-        transform: translateY(1px); /* Hạ tim xuống 1 xíu cho nằm đúng tâm vòng tròn */
-    }
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border: none !important;
+            padding: 0 !important;
+            background-color: rgba(255,255,255,0.95) !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
+            transition: all 0.2s ease-in-out !important;
+            z-index: 15 !important;
+        }
+
+        .btn-wishlist-v2.position-absolute:hover {
+            background-color: #fff !important;
+            transform: scale(1.15) !important;
+            box-shadow: 0 4px 12px rgba(211,84,0,0.25) !important;
+        }
+
+        .btn-wishlist-v2.position-absolute i {
+            font-size: 16px !important;
+            transform: translateY(1px);
+        }
     </style>
-</head>
-<script>
-(function () {
-    const theme = localStorage.getItem("theme");
 
-    if (theme === "dark") {
-        document.documentElement.classList.add("dark-mode");
-    }
-})();
-</script>
+    <!-- Chống flash Dark/Light -->
+    <script>
+        (function () {
 
-<style>
-html {
-    background: #FAFAFA;
-}
+            const isLoggedIn = @json(auth()->check());
 
-html.dark-mode {
-    background: #121212;
-    color: #fff;
-}
+            if (!isLoggedIn) {
 
-body {
-    background: inherit;
-}
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script>
-$(document).ready(function() {
-    $('.btn-wishlist').click(function(e) {
-        e.preventDefault();
-        
-        let btn = $(this);
-        let productId = btn.data('id');
-        let icon = btn.find('i');
+                // Chưa đăng nhập → luôn Light
+                document.documentElement.classList.remove('dark-mode');
 
-        // Gửi AJAX
-        axios.post('{{ route('user.wishlist.toggle') }}', {
-            product_id: productId,
-            _token: '{{ csrf_token() }}'
-        })
-        .then(function (response) {
-            // Thay đổi hiệu ứng trái tim
-            if(response.data.status === 'added') {
-                icon.removeClass('far').addClass('fas'); // Đổi thành tim đặc
-                // Báo Toastr hoặc Alert cho sang trọng (nếu bạn có dùng)
-                alert(response.data.message); 
+                localStorage.setItem('theme', 'light');
+
+                return;
+            }
+
+            // Đã đăng nhập
+            const theme = localStorage.getItem('theme');
+
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark-mode');
             } else {
-                icon.removeClass('fas').addClass('far'); // Đổi thành tim rỗng
-                alert(response.data.message);
+                document.documentElement.classList.remove('dark-mode');
             }
-        })
-        .catch(function (error) {
-            if(error.response.status === 401) {
-                alert("Vui lòng đăng nhập để thêm vào danh sách yêu thích!");
-                window.location.href = '/login';
-            }
-        });
-    });
-});
-</script>
+
+        })();
+    </script>
+
+</head>
+
+
 <body>
 
-    <!-- Gọi file Header -->
+    <!-- Header -->
     @include('User.header')
 
-    <!-- Phần lõi thay đổi theo từng trang -->
+
+    <!-- Nội dung -->
     <main style="min-height: 70vh;">
         @yield('content')
     </main>
 
-    <!-- Gọi file Footer -->
+
+    <!-- Footer -->
     @include('User.footer')
 
-    <!-- Load jQuery trước -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Axios -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+
+    <!-- jQuery - CHỈ LOAD 1 LẦN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Biến route -->
+
+    <!-- Wishlist -->
     <script>
-    const searchUrl = "{{ route('api.search') }}";
+        $(document).ready(function () {
+
+            $('.btn-wishlist').click(function (e) {
+
+                e.preventDefault();
+
+                let btn = $(this);
+                let productId = btn.data('id');
+                let icon = btn.find('i');
+
+                axios.post('{{ route('user.wishlist.toggle') }}', {
+
+                    product_id: productId,
+                    _token: '{{ csrf_token() }}'
+
+                })
+                .then(function (response) {
+
+                    if (response.data.status === 'added') {
+
+                        icon.removeClass('far').addClass('fas');
+
+                        alert(response.data.message);
+
+                    } else {
+
+                        icon.removeClass('fas').addClass('far');
+
+                        alert(response.data.message);
+
+                    }
+
+                })
+                .catch(function (error) {
+
+                    if (error.response && error.response.status === 401) {
+
+                        alert(
+                            "Vui lòng đăng nhập để thêm vào danh sách yêu thích!"
+                        );
+
+                        window.location.href = '/login';
+                    }
+
+                });
+
+            });
+
+        });
     </script>
 
-    <!-- Cuối cùng mới load search.js -->
+
+    <!-- Search -->
+    <script>
+        const searchUrl = "{{ route('api.search') }}";
+    </script>
+
     <script src="{{ asset('js/search.js') }}"></script>
 
+
+    <!-- Dark Mode -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const btn = document.getElementById("theme-toggle");
+            const root = document.documentElement;
+
+            const isLoggedIn = @json(auth()->check());
+
+
+            /* =========================================
+               CHƯA ĐĂNG NHẬP
+            ========================================= */
+
+            if (!isLoggedIn) {
+
+                root.classList.remove("dark-mode");
+
+                localStorage.setItem("theme", "light");
+
+                if (btn) {
+                    btn.innerHTML =
+                        '<i class="bi bi-moon-fill"></i>';
+                }
+
+                return;
+            }
+
+
+            /* =========================================
+               ĐÃ ĐĂNG NHẬP
+            ========================================= */
+
+            if (!btn) {
+                return;
+            }
+
+            const saved =
+                localStorage.getItem("theme");
+
+
+            if (saved === "dark") {
+
+                root.classList.add("dark-mode");
+
+                btn.innerHTML =
+                    '<i class="bi bi-sun-fill"></i>';
+
+            } else {
+
+                root.classList.remove("dark-mode");
+
+                btn.innerHTML =
+                    '<i class="bi bi-moon-fill"></i>';
+            }
+
+
+            /* =========================================
+               NÚT CHUYỂN DARK / LIGHT
+            ========================================= */
+
+            btn.addEventListener("click", function () {
+
+                const isDark =
+                    root.classList.toggle("dark-mode");
+
+
+                localStorage.setItem(
+                    "theme",
+                    isDark ? "dark" : "light"
+                );
+
+
+                btn.innerHTML = isDark
+
+                    ? '<i class="bi bi-sun-fill"></i>'
+
+                    : '<i class="bi bi-moon-fill"></i>';
+
+            });
+
+        });
+    </script>
+
+
     @stack('scripts')
+
 </body>
+
 </html>
-
-
-
-
-
-
-
-
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-
-    const btn = document.getElementById("theme-toggle");
-    const root = document.documentElement;
-
-    if (!btn) return;
-
-    const saved = localStorage.getItem("theme");
-
-    if (saved === "dark") {
-        root.classList.add("dark-mode");
-        btn.innerHTML = '<i class="bi bi-sun-fill"></i>';
-    } else {
-        btn.innerHTML = '<i class="bi bi-moon-fill"></i>';
-    }
-
-    btn.addEventListener("click", function () {
-        const isDark = root.classList.toggle("dark-mode");
-
-        localStorage.setItem("theme", isDark ? "dark" : "light");
-
-        btn.innerHTML = isDark
-            ? '<i class="bi bi-sun-fill"></i>'
-            : '<i class="bi bi-moon-fill"></i>';
-    });
-
-});
-</script>
