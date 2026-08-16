@@ -762,6 +762,475 @@ html.dark-mode .custom-search-bar input#searchInput,
 body.dark-mode .custom-search-bar input#searchInput {
     color: #ffffff !important; /* Chữ trắng ở Dark mode */
 }
+
+/* =========================================================
+   SEARCH DROPDOWN
+   ========================================================= */
+
+.search-wrapper {
+    position: relative;
+}
+
+/* Dropdown chính */
+.search-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+
+    width: 440px;
+    max-height: 430px;
+
+    background: #fff;
+    border-radius: 22px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    z-index: 9999;
+
+    border: 1px solid rgba(0, 0, 0, 0.08);
+
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.15);
+
+    scrollbar-width: thin;
+}
+
+/* Thanh cuộn */
+.search-dropdown-menu::-webkit-scrollbar {
+    width: 5px;
+}
+
+.search-dropdown-menu::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 10px;
+}
+
+.search-dropdown-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+
+/* =========================================================
+   HEADER "KHÁM PHÁ KHO TÀNG TRI THỨC"
+   ========================================================= */
+
+.search-dropdown-header {
+    background: linear-gradient(
+        135deg,
+        #ff7a00,
+        #e85d00
+    );
+
+    color: #fff;
+
+    height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    border-radius: 22px 22px 0 0;
+
+    letter-spacing: 0.2px;
+}
+
+.search-dropdown-header i {
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   CONTENT
+   ========================================================= */
+
+.search-content-box {
+    padding: 14px 14px 18px;
+}
+
+
+/* =========================================================
+   TIÊU ĐỀ CÁC SECTION
+   ========================================================= */
+
+.search-section-title {
+    display: flex;
+    align-items: center;
+
+    margin: 2px 0 10px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    color: #444;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.3px;
+}
+
+.search-section-title i {
+    color: #e85d00;
+
+    width: 18px;
+
+    margin-right: 4px;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   TÌM KIẾM GẦN ĐÂY
+   ========================================================= */
+
+.recent-search-list {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+}
+
+.recent-search-item {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 8px 11px;
+
+    background: #f5f5f5;
+
+    border-radius: 8px;
+
+    color: #555;
+
+    font-size: 12px;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.recent-search-item i {
+    margin-right: 7px;
+
+    color: #888;
+
+    font-size: 11px;
+}
+
+.recent-search-item:hover {
+    background: rgba(255, 122, 0, 0.1);
+
+    color: #e85d00;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   TỪ KHÓA HOT
+   ========================================================= */
+
+.hot-keyword-grid {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 8px 28px;
+
+    margin-bottom: 20px;
+}
+
+.hot-keyword-item {
+    display: flex;
+    align-items: center;
+
+    min-height: 38px;
+
+    padding: 7px 9px;
+
+    background: #f8f9fa;
+
+    border: 1px solid #e8e8e8;
+
+    border-radius: 5px;
+
+    color: #555;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.hot-keyword-item:hover {
+    background: #fff5ed;
+
+    border-color: #ffb27a;
+
+    color: #e85d00;
+
+    transform: translateY(-1px);
+}
+
+
+/* Số #1 #2 #3 #4 */
+
+.hot-number {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 24px;
+    height: 24px;
+
+    margin-right: 8px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: #fff0e5;
+
+    color: #e85d00;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   DANH MỤC NỔI BẬT
+   ========================================================= */
+
+.category-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 8px;
+
+    text-align: center;
+
+    margin-top: 5px;
+}
+
+.category-item {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: flex-start;
+
+    padding: 5px 2px;
+
+    text-decoration: none !important;
+
+    color: #444 !important;
+
+    border-radius: 8px;
+
+    transition: all 0.2s ease;
+}
+
+.category-item:hover {
+    transform: translateY(-2px);
+
+    background: #fff8f3;
+}
+
+
+/* Ảnh danh mục */
+
+.category-item img {
+    width: 48px;
+    height: 64px;
+
+    object-fit: cover;
+
+    border-radius: 4px;
+
+    border: 1px solid #ddd;
+
+    margin-bottom: 5px;
+
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+
+/* Tên danh mục */
+
+.category-name {
+    width: 100%;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    line-height: 1.25;
+
+    color: #555;
+
+    display: -webkit-box;
+
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   KẾT QUẢ TÌM KIẾM SÁCH
+   ========================================================= */
+
+.search-product-item {
+    display: flex;
+
+    align-items: center;
+
+    padding: 9px;
+
+    margin-bottom: 7px;
+
+    text-decoration: none !important;
+
+    color: #333 !important;
+
+    border-radius: 8px;
+
+    border-bottom: 1px solid #eee;
+
+    transition: all 0.2s ease;
+}
+
+.search-product-item:hover {
+    background: #fff7f1;
+
+    transform: translateX(2px);
+}
+
+
+/* Ảnh sách */
+
+.search-product-img {
+    width: 50px;
+    height: 68px;
+
+    object-fit: cover;
+
+    border-radius: 4px;
+
+    border: 1px solid #ddd;
+
+    margin-right: 11px;
+
+    flex-shrink: 0;
+}
+
+
+/* Tên sách */
+
+.search-product-name {
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: #333;
+
+    line-height: 1.35;
+
+    margin-bottom: 5px;
+}
+
+
+/* Giá */
+
+.search-product-price {
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: #e85d00;
+}
+
+
+/* =========================================================
+   KHÔNG TÌM THẤY
+   ========================================================= */
+
+.search-empty {
+    text-align: center;
+
+    padding: 35px 15px;
+
+    color: #777;
+
+    font-size: 13px;
+}
+
+.search-empty::before {
+    content: "\f002";
+
+    font-family: "Font Awesome 5 Free";
+
+    font-weight: 900;
+
+    display: block;
+
+    margin-bottom: 10px;
+
+    font-size: 28px;
+
+    color: #ddd;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 991px) {
+
+    .search-dropdown-menu {
+        width: 400px;
+    }
+
+}
+
+@media (max-width: 576px) {
+
+    .search-dropdown-menu {
+        width: calc(100vw - 30px);
+
+        right: -10px;
+
+        max-height: 400px;
+    }
+
+    .hot-keyword-grid {
+        gap: 7px;
+    }
+
+    .category-grid {
+        gap: 5px;
+    }
+
+}
 </style>
 
 <script>

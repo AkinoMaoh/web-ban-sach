@@ -81,47 +81,52 @@
          CARD
     ====================================================== -->
 
-    <div class="card shadow mb-4">
+    <div class="card shadow mb-4 border-0 rounded-lg">
 
         <!-- HEADER -->
 
-        <div class="card-header py-3 d-flex align-items-center justify-content-between">
-
+        <div class="card-header py-3 bg-white d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary">
-
                 <i class="fas fa-cubes mr-2"></i>
-
                 Dữ liệu biến thể
-
             </h6>
 
-
             <!-- SEARCH -->
-
             <form method="GET"
-                action="{{ route('admin.variants') }}"
-                class="form-inline">
+            action="{{ route('admin.variants') }}"
+            class="form-inline"
+            style="display: flex; align-items: center; gap: 10px;">
 
-                <div class="position-relative search-box">
+            <div class="position-relative">
 
-                    <input
-                        type="text"
-                        id="admin-search"
-                        name="keyword"
-                        class="form-control form-control-sm"
-                        placeholder="Nhập tên biến thể..."
-                        autocomplete="off"
-                        value="{{ request('keyword') }}">
+                <input
+                    type="text"
+                    id="admin-search"
+                    name="keyword"
+                    class="form-control"
+                    style="width: 240px; height: 42px; padding-right: 12px;"
+                    placeholder="Nhập tên biến thể..."
+                    autocomplete="off"
+                    value="{{ request('keyword') }}">
 
-                    <div id="search-order-result"></div>
+                <div id="search-order-result"></div>
 
-                </div>
+            </div>
 
-                <button type="submit" class="btn btn-primary btn-sm ml-2">
-                    <i class="fas fa-search"></i>
-                </button>
+            <button type="submit"
+                    class="btn btn-primary"
+                    style="
+                        height: 42px;
+                        width: 46px;
+                        flex-shrink: 0;
+                        margin: 0;
+                    ">
 
-            </form>
+                <i class="fas fa-search"></i>
+
+            </button>
+
+        </form>
 
         </div>
 

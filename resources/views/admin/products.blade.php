@@ -57,7 +57,7 @@
 
                 </select>
 
-                <button class="btn btn-primary">
+                <button type="submit" class="btn btn-primary btn-sm ml-2">
                     <i class="fas fa-search"></i>
                 </button>
 
