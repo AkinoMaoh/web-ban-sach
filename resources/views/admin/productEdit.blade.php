@@ -361,6 +361,7 @@
 
 <!-- JavaScript xử lý thêm/xóa biến thể động và xem trước ảnh -->
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -723,7 +724,7 @@ document.querySelectorAll('.btn-delete-image').forEach(btn => {
     });
 
 });
-});
+
 </script>
 <style>
 .preview-list{

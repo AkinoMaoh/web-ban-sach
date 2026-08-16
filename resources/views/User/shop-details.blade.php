@@ -644,7 +644,33 @@ TRONG POPUP
     line-height: 1;
     cursor: pointer;
 }
-
+/* Khung chứa ảnh lớn trong Popup */
+.zoom-main {
+    position: relative;
+    width: 600px;        /* Bạn có thể điều chỉnh chiều rộng khung popup */
+    height: 600px;       /* Bạn có thể điều chỉnh chiều cao khung popup */
+    overflow: hidden;    /* Cắt phần ảnh thừa khi phóng to */
+    border-radius: 8px;
+    background: #fff;
+}
+.image-zoom-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    pointer-events: none; /* Thêm dòng này để ngắt vòng lặp hover */
+}
+/* Ảnh phóng to bên trong Popup */
+#zoomMainImage {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.05s ease-out; /* Tạo cảm giác mượt mà khi di chuột */
+    pointer-events: none;                /* Tránh can thiệp sự kiện chuột */
+}
 .zoom-thumb-btn:hover {
     background: rgba(0, 0, 0, .9);
 }
@@ -673,6 +699,87 @@ TRONG POPUP
 </style>
 
 <script>
+    const mainImage = document.getElementById('main-product-image');
+const overlay = document.getElementById('imageZoomOverlay');
+const zoomImage = document.getElementById('zoomMainImage');
+const ZOOM_LEVEL = 2.5; // Độ phóng to
+
+if (mainImage && overlay && zoomImage) {
+    mainImage.addEventListener('mouseenter', function () {
+        overlay.style.display = 'flex';
+    });
+
+    mainImage.addEventListener('mousemove', function (e) {
+        const rect = mainImage.getBoundingClientRect();
+        
+        // Tính vị trí tương đối của chuột trên ảnh (%)
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+        zoomImage.style.transformOrigin = `${x}% ${y}%`;
+        zoomImage.style.transform = `scale(${ZOOM_LEVEL})`;
+    });
+
+    mainImage.addEventListener('mouseleave', function () {
+        overlay.style.display = 'none';
+        zoomImage.style.transform = 'scale(1)';
+    });
+}
+    document.addEventListener('DOMContentLoaded', function () {
+    // ... Giữ nguyên toàn bộ code cũ của bạn ...
+
+    const mainImage = document.getElementById('main-product-image');
+    const overlay = document.getElementById('imageZoomOverlay');
+    const zoomImage = document.getElementById('zoomMainImage');
+
+    // Mức độ phóng to (2 = 200%, 2.5 = 250%)
+    const ZOOM_LEVEL = 2.5; 
+
+    // =========================================
+    // XỬ LÝ PHÓNG TO THEO TỌA ĐỘ CHUỘT
+    // =========================================
+    if (mainImage) {
+        // 1. Khi di chuột trên ảnh chính -> Mở popup và tính toán vị trí
+        mainImage.addEventListener('mousemove', function (e) {
+            if (!overlay || !zoomImage) return;
+
+            // Hiển thị popup nếu chưa mở
+            if (overlay.style.display !== 'flex') {
+                openZoom(this.src);
+            }
+
+            // Lấy kích thước và vị trí của ảnh chính trên màn hình
+            const rect = mainImage.getBoundingClientRect();
+
+            // Tính vị trí tương đối của con trỏ chuột trên ảnh (tính theo %)
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+            // Đặt gốc tọa độ phóng to theo vị trí con trỏ chuột
+            zoomImage.style.transformOrigin = `${x}% ${y}%`;
+            zoomImage.style.transform = `scale(${ZOOM_LEVEL})`;
+        });
+
+        // 2. Khi rê chuột ra khỏi ảnh chính -> Rời đi thì đóng popup
+        mainImage.addEventListener('mouseleave', function () {
+            closeZoom();
+        });
+    }
+
+    // Cập nhật lại hàm closeZoom để reset transform
+    const originalCloseZoom = window.closeZoom;
+    window.closeZoom = function () {
+        if (zoomImage) {
+            zoomImage.style.transform = 'scale(1)';
+            zoomImage.style.transformOrigin = 'center center';
+        }
+        if (typeof originalCloseZoom === 'function') {
+            originalCloseZoom();
+        } else if (overlay) {
+            overlay.style.display = 'none';
+        }
+    };
+});
 document.addEventListener('DOMContentLoaded', function () {
     // Hàm Copy Voucher
     window.copyVoucherCode = function(code) {
