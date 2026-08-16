@@ -97,7 +97,18 @@ class PaymentController extends Controller
         $query->whereNull('end_date')->orWhere('end_date', '>=', now());
         })->get();
 
-        return view('User.checkout', compact('cart', 'totalAmount', 'vouchers'));
+        $provinces = DB::table('provinces')->orderBy('name', 'asc')->get();
+
+        // 2. LẤY ĐỊA CHỈ MẶC ĐỊNH TRONG SỔ ĐỊA CHỈ (Nếu đã đăng nhập)
+        $defaultAddress = null;
+        if (Auth::check()) {
+            $defaultAddress = DB::table('user_addresses')
+                ->where('user_id', Auth::id())
+                ->where('is_default', 1)
+                ->first();
+        }
+
+        return view('User.checkout', compact('cart', 'totalAmount', 'vouchers', 'provinces', 'defaultAddress'));
     }
 
     public function calculateShippingFee(Request $request)
@@ -401,7 +412,7 @@ class PaymentController extends Controller
                 'order_id'           => $orderId,
                 'product_variant_id' => $variantModel->id,
                 'product_name'       => $variantModel->product->name,
-                'variant_name'       => $variantModel->edition,
+                'variant_name'       => $variantModel->variant->name,
                 'price'              => $item['price'], 
                 'quantity'           => $item['quantity'],
                 'subtotal'           => $item['price'] * $item['quantity'], 

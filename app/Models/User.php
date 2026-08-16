@@ -54,4 +54,16 @@ class User extends Authenticatable
             ->whereDoesntHave('review')
             ->get();
     }
+
+    public function addresses()
+    {
+        // Một user có nhiều địa chỉ
+        return $this->hasMany(UserAddress::class, 'user_id');
+    }
+
+    public function defaultAddress()
+    {
+        // Lấy địa chỉ mặc định của user
+        return $this->hasOne(UserAddress::class, 'user_id')->where('is_default', true);
+}
 }

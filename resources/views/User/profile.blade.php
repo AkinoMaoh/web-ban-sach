@@ -7,6 +7,7 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         
+        <!-- CỘT TRÁI: SIDEBAR -->
         <div class="col-md-4 col-lg-3 mb-4">
             <div class="card border-0 shadow-sm text-center p-4" style="border-radius: 16px; background: #fff;">
                 <div class="mb-3 position-relative d-inline-block mx-auto">
@@ -41,6 +42,7 @@
             </div>
         </div>
 
+        <!-- CỘT PHẢI: NỘI DUNG -->
         <div class="col-md-8 col-lg-8">
             <div id="alert-container"></div>
             
@@ -52,31 +54,38 @@
 
             @if($errors->any())
                 <div class="alert alert-danger border-0 shadow-sm mb-4" style="border-radius: 12px;">
-                    <i class="fas fa-exclamation-circle mr-2"></i> {{ $errors->first() }}
+                    <i class="fas fa-exclamation-circle mr-2"></i> <strong>Vui lòng kiểm tra lại:</strong>
+                    <ul class="mb-0 mt-1 pl-3">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
             @endif
 
             <div class="tab-content card border-0 shadow-sm p-4" style="border-radius: 16px; background: #fff;">
                 
+                <!-- TAB 1: THÔNG TIN CÁ NHÂN -->
                 <div class="tab-pane fade show active" id="pane-info" role="tabpanel">
                     <div class="border-b pb-2 mb-4">
                         <h5 class="font-weight-bold text-dark mb-1">Hồ Sơ Của Tôi</h5>
                         <p class="text-muted small">Quản lý và cập nhật thông tin tài khoản để nhận sách chính xác.</p>
                     </div>
                     
-                    <form action="{{ route('profile.update') }}" method="POST">
+                    <form action="{{ route('profile.update') }}" method="POST" id="profileForm">
                         @csrf
                         @method('PATCH')
                         
                         <div class="row">
                             <div class="col-md-6 form-group mb-3">
-                                <label class="font-weight-bold text-dark small">Họ và Tên</label>
+                                <label class="font-weight-bold text-dark small">Họ và Tên <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text bg-light border-right-0" style="border-radius: 8px 0 0 8px;"><i class="fas fa-user text-muted"></i></span>
                                     </div>
-                                    <input type="text" name="name" class="form-control border-left-0" value="{{ old('name', Auth::user()->name) }}" required style="border-radius: 0 8px 8px 0; padding: 10px;" placeholder="Nhập họ và tên...">
+                                    <input type="text" name="name" class="form-control border-left-0 @error('name') is-invalid @enderror" value="{{ old('name', Auth::user()->name) }}" required style="border-radius: 0 8px 8px 0; padding: 10px;" placeholder="Nhập họ và tên...">
                                 </div>
+                                @error('name') <small class="text-danger font-weight-bold">{{ $message }}</small> @enderror
                             </div>
                             
                             <div class="col-md-6 form-group mb-3">
@@ -90,39 +99,80 @@
                             </div>
 
                             <div class="col-md-6 form-group mb-3">
-                                <label class="font-weight-bold text-dark small">Số điện thoại nhận hàng</label>
+                                <label class="font-weight-bold text-dark small">Số điện thoại nhận hàng <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text bg-light border-right-0" style="border-radius: 8px 0 0 8px;"><i class="fas fa-phone-alt text-muted"></i></span>
                                     </div>
-                                    <input type="tel" name="phone" class="form-control border-left-0" value="{{ old('phone', Auth::user()->phone ?? '') }}" style="border-radius: 0 8px 8px 0; padding: 10px;" placeholder="Nhập số điện thoại...">
+                                    <input type="tel" name="phone" class="form-control border-left-0 @error('phone') is-invalid @enderror" value="{{ old('phone', Auth::user()->phone ?? ($defaultAddress->receiver_phone ?? '')) }}" style="border-radius: 0 8px 8px 0; padding: 10px;" placeholder="Ví dụ: 0912345678">
                                 </div>
+                                @error('phone') <small class="text-danger font-weight-bold">{{ $message }}</small> @enderror
                             </div>
 
                             <div class="col-md-6 form-group mb-3">
                                 <label class="font-weight-bold text-dark small d-block">Giới tính</label>
                                 <div class="d-flex align-items-center" style="height: 45px;">
                                     <div class="custom-control custom-radio custom-control-inline mr-4">
-                                        <input type="radio" id="genderMale" name="gender" value="male" class="custom-control-input" {{ (Auth::user()->gender ?? '') === 'male' ? 'checked' : '' }}>
+                                        <input type="radio" id="genderMale" name="gender" value="male" class="custom-control-input" {{ old('gender', Auth::user()->gender ?? '') === 'male' ? 'checked' : '' }}>
                                         <label class="custom-control-label text-secondary font-weight-normal" for="genderMale">Nam</label>
                                     </div>
                                     <div class="custom-control custom-radio custom-control-inline">
-                                        <input type="radio" id="genderFemale" name="gender" value="female" class="custom-control-input" {{ (Auth::user()->gender ?? '') === 'female' ? 'checked' : '' }}>
+                                        <input type="radio" id="genderFemale" name="gender" value="female" class="custom-control-input" {{ old('gender', Auth::user()->gender ?? '') === 'female' ? 'checked' : '' }}>
                                         <label class="custom-control-label text-secondary font-weight-normal" for="genderFemale">Nữ</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label class="font-weight-bold text-dark small">Địa chỉ nhận hàng mặc định</label>
-                            <div class="d-flex align-items-start">
-                                <span class="bg-light px-3 border border-right-0 d-flex align-items-center justify-content-center border-gray" style="border-radius: 8px 0 0 8px; height: 86px; width: 44px; border: 1px solid #ced4da;"><i class="fas fa-map-marker-alt text-muted"></i></span>
-                                <textarea name="address" class="form-control border-left-0" rows="3" style="border-radius: 0 8px 8px 0; resize: none; border-left: none;" placeholder="Nhập địa chỉ nhận hàng cụ thể (Số nhà, đường, phường/xã, quận/huyện...)">{{ old('address', Auth::user()->address ?? '') }}</textarea>
+                        <!-- KHỐI ĐỊA CHỈ VỚI SELECT BOX -->
+                        <div class="card bg-light border-0 mb-4 p-3" style="border-radius: 12px;">
+                            <label class="font-weight-bold text-dark small mb-3 border-bottom pb-2">
+                                <i class="fas fa-map-marked-alt text-success mr-1"></i> Địa chỉ nhận hàng mặc định
+                            </label>
+                            
+                            <div class="row">
+                                <!-- Tỉnh/Thành -->
+                                <div class="col-md-4 form-group mb-3">
+                                    <label class="text-muted small">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                                    <select name="province_id" id="province" class="form-control form-control-sm @error('province_id') is-invalid @enderror" style="border-radius: 6px;">
+                                        <option value="">Chọn Tỉnh/Thành phố</option>
+                                        @foreach($provinces as $province)
+                                            <option value="{{ $province->id }}" {{ old('province_id', $defaultAddress->province_id ?? '') == $province->id ? 'selected' : '' }}>
+                                                {{ $province->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('province_id') <small class="text-danger font-weight-bold">{{ $message }}</small> @enderror
+                                </div>
+
+                                <!-- Quận/Huyện -->
+                                <div class="col-md-4 form-group mb-3">
+                                    <label class="text-muted small">Quận/Huyện <span class="text-danger">*</span></label>
+                                    <select name="district_id" id="district" class="form-control form-control-sm @error('district_id') is-invalid @enderror" style="border-radius: 6px;">
+                                        <option value="">Chọn Quận/Huyện</option>
+                                    </select>
+                                    @error('district_id') <small class="text-danger font-weight-bold">{{ $message }}</small> @enderror
+                                </div>
+
+                                <!-- Phường/Xã -->
+                                <div class="col-md-4 form-group mb-3">
+                                    <label class="text-muted small">Phường/Xã <span class="text-danger">*</span></label>
+                                    <select name="ward_code" id="ward" class="form-control form-control-sm @error('ward_code') is-invalid @enderror" style="border-radius: 6px;">
+                                        <option value="">Chọn Phường/Xã</option>
+                                    </select>
+                                    @error('ward_code') <small class="text-danger font-weight-bold">{{ $message }}</small> @enderror
+                                </div>
+                            </div>
+
+                            <!-- Số nhà, ngõ ngách -->
+                            <div class="form-group mb-0">
+                                <label class="text-muted small">Địa chỉ cụ thể (Số nhà, tên đường, ngõ/ngách...) <span class="text-danger">*</span></label>
+                                <textarea name="specific_address" class="form-control @error('specific_address') is-invalid @enderror" rows="2" style="border-radius: 6px; resize: none;" placeholder="Ví dụ: Số 12, ngõ 1, đường Lê Lợi...">{{ old('specific_address', $defaultAddress->specific_address ?? '') }}</textarea>
+                                @error('specific_address') <small class="text-danger font-weight-bold">{{ $message }}</small> @enderror
                             </div>
                         </div>
 
-                        <!-- CÀI ĐẶT GIAO DIỆN (SÁNG / TỐI - NÚT SWITCH TRẮNG ĐEN NHỎ GỌN) -->
+                        <!-- CÀI ĐẶT GIAO DIỆN (SÁNG / TỐI) -->
                         <div class="form-group mb-4 p-3 bg-light rounded d-flex align-items-center justify-content-between" style="border: 1px solid #e9ecef;">
                             <div>
                                 <label class="font-weight-bold text-dark small mb-0"><i class="fas fa-moon mr-1"></i> Chế độ tối (Dark Mode)</label>
@@ -142,6 +192,7 @@
                     </form>
                 </div>
 
+                <!-- TAB 2: ĐỔI MẬT KHẨU -->
                 <div class="tab-pane fade" id="pane-pass" role="tabpanel">
                     <div class="border-b pb-2 mb-4">
                         <h5 class="font-weight-bold text-dark mb-1">Thiết Lập Mật Khẩu</h5>
@@ -195,57 +246,23 @@
 </div>
 
 <style>
-    /* CSS CHO SWITCH TRẮNG ĐEN TRÒN NHỎ GỌN */
-    .theme-switch {
-        position: relative;
-        display: inline-block;
-        width: 44px;
-        height: 24px;
-        margin-bottom: 0;
-        flex-shrink: 0;
-    }
-    .theme-switch input { 
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-    .theme-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background-color: #ffffff;
-        transition: .25s ease;
-        border-radius: 24px;
-        border: 2px solid #000000;
-    }
-    .theme-slider:before {
-        position: absolute;
-        content: "";
-        height: 16px;
-        width: 16px;
-        left: 2px;
-        bottom: 2px;
-        background-color: #000000;
-        transition: .25s ease;
-        border-radius: 50%;
-    }
-    input:checked + .theme-slider {
-        background-color: #000000;
-        border-color: #000000;
-    }
-    input:checked + .theme-slider:before {
-        transform: translateX(20px);
-        background-color: #ffffff;
-    }
-
     #v-pills-tab .nav-link.active { background-color: #f1f8e9 !important; color: #2f4c39 !important; }
     #v-pills-tab .nav-link:hover:not(.active):not(.text-danger) { background-color: #f8f9fa; color: #000; }
     .btn-save:hover { background-color: #1f332a !important; }
     .form-control:focus { border-color: #2f4c39 !important; box-shadow: 0 0 0 0.2rem rgba(127, 173, 57, 0.25) !important; }
     .input-group-text { border-color: #ced4da; background-color: #f8f9fa; }
+
+    /* SWITCH PHONG CÁCH IPHONE */
+    .theme-switch { position: relative; display: inline-block; width: 46px; height: 26px; margin-bottom: 0; flex-shrink: 0; }
+    .theme-switch input { opacity: 0; width: 0; height: 0; }
+    .theme-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ffffff; transition: .25s ease; border-radius: 26px; border: 2px solid #000000; }
+    .theme-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: #000000; transition: .25s ease; border-radius: 50%; }
+    input:checked + .theme-slider { background-color: #000000; border-color: #ffffff; }
+    input:checked + .theme-slider:before { transform: translateX(20px); background-color: #ffffff; }
 </style>
 
 <script>
+    // XỬ LÝ THEME DARK MODE
     document.addEventListener('DOMContentLoaded', function () {
         const root = document.documentElement;
         const themeSwitch = document.getElementById('profileThemeSwitch');
@@ -271,6 +288,7 @@
         }
     });
 
+    // ẨN / HIỆN MẬT KHẨU
     document.querySelectorAll('.btn-eye').forEach(btn => {
         btn.addEventListener('click', function () {
             const input = document.querySelector(this.getAttribute('data-target'));
@@ -289,109 +307,92 @@
     });
 
     $(document).ready(function() {
+        // CHUYỂN TAB BOOTSTRAP
         $('#v-pills-tab a[data-toggle="pill"]').on('click', function (e) {
             e.preventDefault();
             $(this).tab('show');
         });
 
-        $('#btn-send-otp').click(function() {
-            let email = $('#user_email').val();
-            let btn = $(this);
+        // ==========================================
+        // XỬ LÝ AJAX LẤY ĐỊA CHỈ & GIỮ DỮ LIỆU ĐÃ LƯU
+        // ==========================================
+        let savedDistrict = "{{ old('district_id', $defaultAddress->district_id ?? '') }}";
+        let savedWard = "{{ old('ward_code', $defaultAddress->ward_code ?? '') }}";
 
-            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Đang gửi...');
-
-            $.ajax({
-                url: "{{ route('password.verify.send') }}", 
-                type: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    email: email
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#otp-group').slideDown();
-                        $('#btn-submit-password').prop('disabled', false);
+        function loadDistricts(province_id, selected_district = null) {
+            if (province_id) {
+                $('#district').html('<option value="">Đang tải...</option>');
+                
+                $.ajax({
+                    url: '/api/locations/districts/' + province_id,
+                    type: 'GET',
+                    success: function(data) {
+                        let html = '<option value="">Chọn Quận/Huyện</option>';
+                        $.each(data, function(index, item) {
+                            let selected = (item.id == selected_district) ? 'selected' : '';
+                            html += `<option value="${item.id}" ${selected}>${item.name}</option>`;
+                        });
+                        $('#district').html(html);
                         
-                        $('#alert-container').html(`
-                            <div class="alert alert-info border-0 shadow-sm mb-4" style="border-radius: 12px;">
-                                <i class="fas fa-info-circle mr-2"></i> Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư!
-                            </div>
-                        `);
-
-                        let timeLeft = 60;
-                        let timer = setInterval(function() {
-                            if (timeLeft <= 0) {
-                                clearInterval(timer);
-                                btn.prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i> GỬI LẠI MÃ');
-                            } else {
-                                btn.html(`<i class="fas fa-clock mr-2"></i> Gửi lại sau (${timeLeft}s)`);
-                                timeLeft--;
-                            }
-                        }, 1000);
-                    } else {
-                        alert(response.msg);
-                        btn.prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i> GỬI MÃ XÁC NHẬN');
+                        // Nếu có quận cũ/đang chọn thì tự động tải tiếp phường/xã
+                        if (selected_district) {
+                            loadWards(selected_district, savedWard);
+                        } else {
+                            $('#ward').html('<option value="">Chọn Phường/Xã</option>');
+                        }
+                    },
+                    error: function() {
+                        $('#district').html('<option value="">Lỗi kết nối</option>');
                     }
-                },
-                error: function(xhr) {
-                    btn.prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i> GỬI MÃ XÁC NHẬN');
-                    alert('Có lỗi xảy ra khi gửi mã OTP. Vui lòng thử lại!');
-                }
-            });
+                });
+            } else {
+                $('#district').html('<option value="">Chọn Quận/Huyện</option>');
+                $('#ward').html('<option value="">Chọn Phường/Xã</option>');
+            }
+        }
+
+        function loadWards(district_id, selected_ward = null) {
+            if (district_id) {
+                $('#ward').html('<option value="">Đang tải...</option>');
+                
+                $.ajax({
+                    url: '/api/locations/wards/' + district_id,
+                    type: 'GET',
+                    success: function(data) {
+                        let html = '<option value="">Chọn Phường/Xã</option>';
+                        $.each(data, function(index, item) {
+                            let selected = (item.code == selected_ward) ? 'selected' : '';
+                            html += `<option value="${item.code}" ${selected}>${item.name}</option>`;
+                        });
+                        $('#ward').html(html);
+                    },
+                    error: function() {
+                        $('#ward').html('<option value="">Lỗi kết nối</option>');
+                    }
+                });
+            } else {
+                $('#ward').html('<option value="">Chọn Phường/Xã</option>');
+            }
+        }
+
+        // Sự kiện khi người dùng đổi Tỉnh/Thành
+        $('#province').change(function() {
+            savedDistrict = null; // Xóa cache quận cũ
+            savedWard = null;     // Xóa cache xã cũ
+            loadDistricts($(this).val());
         });
+
+        // Sự kiện khi người dùng đổi Quận/Huyện
+        $('#district').change(function() {
+            savedWard = null;     // Xóa cache xã cũ
+            loadWards($(this).val());
+        });
+
+        // TỰ ĐỘNG CHẠY KHI VÀO TRANG: Nạp dữ liệu cũ đã lưu từ DB
+        let initialProvince = $('#province').val();
+        if (initialProvince) {
+            loadDistricts(initialProvince, savedDistrict);
+        }
     });
 </script>
-<style>
-    /* Các style cũ sẵn có */
-    #v-pills-tab .nav-link.active { background-color: #f1f8e9 !important; color: #2f4c39 !important; }
-    #v-pills-tab .nav-link:hover:not(.active):not(.text-danger) { background-color: #f8f9fa; color: #000; }
-    .btn-save:hover { background-color: #1f332a !important; }
-    .form-control:focus { border-color: #2f4c39 !important; box-shadow: 0 0 0 0.2rem rgba(127, 173, 57, 0.25) !important; }
-    .input-group-text { border-color: #ced4da; background-color: #f8f9fa; }
-
-    /* SWITCH PHONG CÁCH IPHONE (BLACK & WHITE) */
-    .theme-switch {
-        position: relative;
-        display: inline-block;
-        width: 46px;
-        height: 26px;
-        margin-bottom: 0;
-        flex-shrink: 0;
-    }
-    .theme-switch input { 
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-    .theme-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background-color: #ffffff; /* Bên trong trắng khi Tắt */
-        transition: .25s ease;
-        border-radius: 26px;
-        border: 2px solid #000000; /* Viền ngoài đen khi Tắt */
-    }
-    .theme-slider:before {
-        position: absolute;
-        content: "";
-        height: 18px;
-        width: 18px;
-        left: 2px;
-        bottom: 2px;
-        background-color: #000000; /* Hạt tròn đen khi Tắt */
-        transition: .25s ease;
-        border-radius: 50%;
-    }
-    
-    /* Trạng thái Bật (ON) */
-    input:checked + .theme-slider {
-        background-color: #000000; /* Bên trong đen khi Bật */
-        border-color: #ffffff;     /* Viền ngoài trắng khi Bật */
-    }
-    input:checked + .theme-slider:before {
-        transform: translateX(20px);
-        background-color: #ffffff; /* Hạt tròn trắng khi Bật */
-    }
-</style>
 @endsection
