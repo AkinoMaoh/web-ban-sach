@@ -1,6 +1,6 @@
 @extends('layout.user')
-@include('User.header')
 
+@section('content')
 <style>
     /* --- CSS RIÊNG CHO TRANG CHI TIẾT ĐƠN HÀNG --- */
     .serif-font { font-family: 'Playfair Display', Georgia, serif; }
@@ -252,4 +252,4 @@
     </div>
 </section>
 
-@include('User.footer')
+@endsection
