@@ -36,6 +36,52 @@
     .custom-list-item { border-left: none; border-right: none; padding: 15px 20px; transition: 0.2s; }
     .custom-list-item:hover { background-color: #f8f9fa; }
     .custom-list-item:first-child { border-top: none; }
+
+    /* --- CSS RIÊNG CHO BỘ LỌC NGÀY --- */
+    .date-filter-wrapper {
+        background-color: #f8f9fc;
+        border-radius: 8px;
+        padding: 4px 15px;
+        border: 1px solid #e3e6f0;
+        display: inline-flex;
+        align-items: center;
+    }
+    .date-filter-wrapper input[type="date"] {
+        background: transparent;
+        border: none;
+        color: #5a5c69;
+        font-size: 14px;
+        font-weight: 600;
+        outline: none;
+        box-shadow: none;
+        cursor: pointer;
+        padding: 4px 0;
+    }
+    .date-filter-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        opacity: 0.5;
+        transition: 0.2s;
+    }
+    .date-filter-wrapper input[type="date"]::-webkit-calendar-picker-indicator:hover {
+        opacity: 1;
+        color: var(--admin-primary);
+    }
+    .date-filter-wrapper .separator {
+        color: #b7b9cc;
+        margin: 0 12px;
+        font-size: 12px;
+    }
+    .btn-filter {
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 6px 16px;
+        transition: all 0.2s;
+    }
+    .btn-filter:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
 </style>
 
 <div class="container-fluid">
@@ -47,7 +93,7 @@
 
     <!-- 1. THẺ THỐNG KÊ DOANH THU & USER -->
     <div class="row">
-        <!-- Doanh thu hôm nay (Click chuyển sang đơn hàng hôm nay) -->
+        <!-- Doanh thu hôm nay -->
         <div class="col-xl-3 col-md-6 mb-4">
             <a href="{{ route('admin.orders', ['date' => 'today']) }}" class="text-decoration-none">
                 <div class="card stat-card border-left-blue shadow-sm h-100 py-2">
@@ -87,7 +133,7 @@
             </div>
         </div>
 
-        <!-- Khách mới (Click chuyển sang danh sách người dùng) -->
+        <!-- Khách mới -->
         <div class="col-xl-3 col-md-6 mb-4">
             <a href="{{ route('admin.users.index') }}" class="text-decoration-none">
                 <div class="card stat-card border-left-green shadow-sm h-100 py-2">
@@ -106,7 +152,7 @@
             </a>
         </div>
 
-        <!-- Phản hồi / Đánh giá (Click chuyển sang trang Quản lý đánh giá) -->
+        <!-- Phản hồi / Đánh giá -->
         <div class="col-xl-3 col-md-6 mb-4">
             <a href="{{ route('admin.reviews.index') }}" class="text-decoration-none">
                 <div class="card stat-card border-left-purple shadow-sm h-100 py-2">
@@ -156,10 +202,35 @@
 
     <!-- 3. BIỂU ĐỒ (CHARTS) -->
     <div class="row">
+        <!-- Biểu đồ doanh thu (Có Form lọc ngày thiết kế mới) -->
         <div class="col-xl-8 col-lg-7">
             <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
-                <div class="custom-card-header d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-chart-area mr-2 text-primary"></i>Doanh Thu Năm {{ date('Y') }}</h6>
+                <div class="custom-card-header d-flex flex-column flex-xl-row align-items-xl-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-dark mb-3 mb-xl-0">
+                        <i class="fas fa-chart-area mr-2 text-primary"></i>Biểu Đồ Doanh Thu
+                    </h6>
+                    
+                    <!-- FORM CHỌN NGÀY HIỆN ĐẠI HƠN -->
+                    <form action="{{ url()->current() }}" method="GET" class="d-flex flex-wrap align-items-center">
+                        <div class="date-filter-wrapper shadow-sm mr-3 mb-2 mb-sm-0">
+                            <i class="far fa-calendar-alt text-primary mr-2" style="font-size: 16px;"></i>
+                            <input type="date" name="start_date" value="{{ request('start_date') }}" title="Ngày bắt đầu">
+                            <span class="separator"><i class="fas fa-arrow-right"></i></span>
+                            <input type="date" name="end_date" value="{{ request('end_date') }}" title="Ngày kết thúc">
+                        </div>
+                        
+                        <div class="d-flex mb-2 mb-sm-0">
+                            <button type="submit" class="btn btn-primary btn-filter shadow-sm mr-2">
+                                <i class="fas fa-filter mr-1"></i> Lọc
+                            </button>
+                            
+                            @if(request('start_date') || request('end_date'))
+                                <a href="{{ url()->current() }}" class="btn btn-light border btn-filter shadow-sm text-danger">
+                                    <i class="fas fa-times mr-1"></i> Xóa
+                                </a>
+                            @endif
+                        </div>
+                    </form>
                 </div>
                 <div class="card-body">
                     <div class="chart-area" style="height: 320px;"><canvas id="myAreaChart"></canvas></div>
@@ -167,6 +238,7 @@
             </div>
         </div>
         
+        <!-- Biểu đồ tỷ trọng danh mục -->
         <div class="col-xl-4 col-lg-5">
             <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
                 <div class="custom-card-header d-flex flex-row align-items-center justify-content-between">
@@ -178,7 +250,7 @@
                             <canvas id="myPieChart"></canvas>
                         </div>
                         <div class="mt-3 text-center small text-muted">
-                            Biểu đồ phân bổ doanh thu theo từng Thể loại sách
+                            Biểu đồ phân bổ số lượng bán theo danh mục
                         </div>
                     @else
                         <div class="d-flex flex-column align-items-center justify-content-center text-center" style="height: 280px;">
@@ -265,11 +337,16 @@
 <!-- SCRIPT XỬ LÝ BIỂU ĐỒ -->
 @push('scripts')
 <script>
+    // Dữ liệu mảng doanh thu và nhãn hiển thị (ngày hoặc tháng) lấy từ Controller
     var doanhThuData = @json($bieuDoDoanhThu);
+    var doanhThuLabels = @json($bieuDoDoanhThuLabels);
+    
+    // Dữ liệu danh mục
     var danhMucLabels = @json(array_keys($bieuDoDanhMuc));
     var danhMucData = @json(array_values($bieuDoDanhMuc));
 
     document.addEventListener("DOMContentLoaded", function() {
+        // Hàm format tiền tệ (thêm dấu chấm phân cách hàng nghìn)
         function number_format(number, decimals, dec_point, thousands_sep) {
             number = (number + '').replace(',', '').replace(' ', '');
             var n = !isFinite(+number) ? 0 : +number,
@@ -298,7 +375,7 @@
             new Chart(ctxArea, {
                 type: 'line',
                 data: {
-                    labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+                    labels: doanhThuLabels, // Gọi mảng nhãn động từ Controller
                     datasets: [{
                         label: "Doanh thu",
                         lineTension: 0.4,
@@ -319,7 +396,7 @@
                     maintainAspectRatio: false,
                     layout: { padding: { left: 10, right: 25, top: 25, bottom: 0 } },
                     scales: {
-                        xAxes: [{ time: { unit: 'date' }, gridLines: { display: false, drawBorder: false }, ticks: { maxTicksLimit: 12 } }],
+                        xAxes: [{ time: { unit: 'date' }, gridLines: { display: false, drawBorder: false }, ticks: { maxTicksLimit: 15 } }],
                         yAxes: [{
                             ticks: {
                                 maxTicksLimit: 5, padding: 10,
@@ -351,8 +428,8 @@
                     labels: danhMucLabels,
                     datasets: [{
                         data: danhMucData,
-                        backgroundColor: ['#1A73E8', '#4285F4', '#9AA0A6', '#34A853', '#FBBC05', '#EA4335'],
-                        hoverBackgroundColor: ['#1557B0', '#3367D6', '#80868B', '#248A3D', '#F4B400', '#D93025'],
+                        backgroundColor: ['#1A73E8', '#4285F4', '#9AA0A6', '#34A853', '#FBBC05', '#EA4335', '#8E44AD', '#FF5733'],
+                        hoverBackgroundColor: ['#1557B0', '#3367D6', '#80868B', '#248A3D', '#F4B400', '#D93025', '#732D91', '#C70039'],
                         hoverBorderColor: "rgba(234, 236, 244, 1)",
                     }],
                 },
