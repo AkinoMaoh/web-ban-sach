@@ -295,11 +295,11 @@ KHUNG ẢNH PHÓNG TO
     <h5 class="serif-font font-weight-bold mb-3">Số lượng :</h5>
     <div class="input-group" style="width: 140px;">
         <div class="input-group-prepend">
-            <button class="btn btn-outline-secondary font-weight-bold" type="button" onclick="let q=document.getElementById('o-so-luong'); if(q.value>1)q.value--; q.dispatchEvent(new Event('input'))">-</button>
+            <button class="btn btn-outline-secondary font-weight-bold" type="button" id="btn-minus-qty">-</button>
         </div>
-        <input type="number" name="quantity" id="o-so-luong" class="form-control text-center font-weight-bold" value="1" min="1">
+        <input type="number" name="quantity" id="o-so-luong" class="form-control text-center font-weight-bold" value="1" min="1" max="{{ $variant ? $variant->stock : 1 }}">
         <div class="input-group-append">
-            <button class="btn btn-outline-secondary font-weight-bold" type="button" onclick="let q=document.getElementById('o-so-luong'); q.value++; q.dispatchEvent(new Event('input'))">+</button>
+            <button class="btn btn-outline-secondary font-weight-bold" type="button" id="btn-plus-qty">+</button>
         </div>
     </div>
 </div>
@@ -1069,20 +1069,23 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 
-    // 4. XỬ LÝ BIẾN THỂ VÀ GIÁ SẢN PHẨM
+    // 4. XỬ LÝ BIẾN THỂ VÀ GIÁ SẢN PHẨM CÙNG TỒN KHO
     const moneyFormatter = new Intl.NumberFormat('vi-VN');
     
     function updateVariant(radio) {
         const price = Number(radio.dataset.price || 0);
         const salePrice = Number(radio.dataset.salePrice || 0);
         const discount = Number(radio.dataset.discount || 0);
+        const stock = Number(radio.dataset.stock || 0); // Lấy tồn kho của phiên bản đang chọn
 
         const priceText = document.getElementById('sale-price');
         const oldPrice = document.getElementById('old-price');
         const discountBall = document.getElementById('discount-ball');
+        const qtyInput = document.getElementById('o-so-luong');
 
         if (!priceText) return;
 
+        // --- BẮT ĐẦU CẬP NHẬT GIAO DIỆN GIÁ ---
         const hasSale = salePrice > 0 && salePrice < price;
         priceText.innerHTML = moneyFormatter.format(hasSale ? salePrice : price) + ' ₫';
 
@@ -1095,13 +1098,72 @@ document.addEventListener('DOMContentLoaded', function () {
             discountBall.style.display = (hasSale && discount > 0) ? 'flex' : 'none';
             discountBall.innerHTML = `-${discount}%`;
         }
+
+        // --- BẮT ĐẦU CẬP NHẬT GIỚI HẠN SỐ LƯỢNG TỒN KHO ---
+        if (qtyInput) {
+            qtyInput.setAttribute('max', stock);
+            
+            // Tự động kéo giảm số lượng nếu số hiện tại vượt quá tồn kho của bản mới
+            let currentQty = parseInt(qtyInput.value) || 1;
+            if (currentQty > stock && stock > 0) {
+                qtyInput.value = stock;
+                showNotification('info', `Phiên bản này chỉ còn ${stock} sản phẩm.`);
+            }
+        }
     }
 
+    // Bắt sự kiện chuyển đổi phiên bản
     document.querySelectorAll('input[name="product_variant_id"]').forEach(radio => {
         radio.addEventListener('change', function () { updateVariant(this); });
     });
+    
+    // Gọi khởi tạo lần đầu khi trang vừa load
     const checkedVariant = document.querySelector('input[name="product_variant_id"]:checked');
     if (checkedVariant) updateVariant(checkedVariant);
+
+
+    // 4.1 XỬ LÝ NÚT TĂNG GIẢM SỐ LƯỢNG KHÔNG ĐƯỢC QUÁ STOCK
+    const qtyInput = document.getElementById('o-so-luong');
+    const btnMinusQty = document.getElementById('btn-minus-qty');
+    const btnPlusQty = document.getElementById('btn-plus-qty');
+
+    if (qtyInput && btnMinusQty && btnPlusQty) {
+        
+        // Nút Giảm
+        btnMinusQty.addEventListener('click', function() {
+            let val = parseInt(qtyInput.value) || 1;
+            if (val > 1) {
+                qtyInput.value = val - 1;
+                qtyInput.dispatchEvent(new Event('input'));
+            }
+        });
+
+        // Nút Tăng
+        btnPlusQty.addEventListener('click', function() {
+            let val = parseInt(qtyInput.value) || 1;
+            let max = parseInt(qtyInput.getAttribute('max')) || 9999;
+            
+            if (val < max) {
+                qtyInput.value = val + 1;
+                qtyInput.dispatchEvent(new Event('input'));
+            } else {
+                showNotification('warning', `Chỉ còn ${max} sản phẩm trong kho!`);
+            }
+        });
+
+        // Xử lý khi người dùng tự gõ số tay vào ô input
+        qtyInput.addEventListener('change', function() {
+            let val = parseInt(this.value) || 1;
+            let max = parseInt(this.getAttribute('max')) || 9999;
+            
+            if (val > max) {
+                this.value = max;
+                showNotification('warning', `Chỉ còn ${max} sản phẩm trong kho!`);
+            } else if (val < 1) {
+                this.value = 1;
+            }
+        });
+    }
 
     // 5. XỬ LÝ GALLERY & PHÓNG TO (ZOOM) ẢNH
     const mainImage = document.getElementById('main-product-image');
