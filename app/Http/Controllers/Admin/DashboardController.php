@@ -17,18 +17,18 @@ class DashboardController extends Controller
     /**
      * HÀM CHÍNH GỌI GIAO DIỆN DASHBOARD
      */
-    public function index()
+    public function index(Request $request) 
     {
         $hienTai = Carbon::now();
 
-        // Lần lượt gọi các hàm xử lý bên dưới (Code cực sạch và dễ hiểu)
+        // Lần lượt gọi các hàm xử lý bên dưới
         $taiChinh   = $this->getThongKeTaiChinh($hienTai);
         $donHang    = $this->getThongKeDonHang();
         $sanPham    = $this->getThongKeSanPham();
         $khachHang  = $this->getThongKeKhachHang($hienTai);
-        $bieuDo     = $this->getDuLieuBieuDo($hienTai);
+        $bieuDo     = $this->getDuLieuBieuDo($hienTai, $request); 
 
-        // Gộp tất cả các mảng dữ liệu lại thành 1 mảng lớn để truyền sang View
+     
         $duLieuTruyenSangView = array_merge($taiChinh, $donHang, $sanPham, $khachHang, $bieuDo);
 
         return view('admin.dashboard', $duLieuTruyenSangView);
@@ -102,11 +102,11 @@ class DashboardController extends Controller
             ->get();
 
         // Sản phẩm sắp hết hàng (kho < 5)
-        // Sản phẩm sắp hết hàng (kho < 5)
         $sapHetHang = ProductVariants::with('product') // Lấy kèm thông tin sản phẩm cha
                 ->where('stock', '<', 5)
                 ->take(5)
                 ->get();
+
         return compact('topSanPham', 'sapHetHang');
     }
 
@@ -121,7 +121,6 @@ class DashboardController extends Controller
             ->whereMonth('created_at', $hienTai->month)
             ->count();
 
-        
         // Khách VIP (Chi nhiều tiền nhất)
         $khachVIP = DB::table('orders')
             ->join('users', 'orders.user_id', '=', 'users.id')
@@ -140,29 +139,75 @@ class DashboardController extends Controller
     | 5. NHÓM BIỂU ĐỒ TRỰC QUAN (CHARTS)
     |--------------------------------------------------------------------------
     */
-    private function getDuLieuBieuDo($hienTai)
+    private function getDuLieuBieuDo($hienTai, $request) // <-- Nhận thêm $request vào hàm
     {
-        // 5.1 Biểu đồ đường (12 tháng)
         $bieuDoDoanhThu = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $bieuDoDoanhThu[] = Order::where('status', 'completed')
-                ->whereMonth('created_at', $i)
-                ->whereYear('created_at', $hienTai->year)
-                ->sum('total_amount');
+        $bieuDoDoanhThuLabels = [];
+
+        // 5.1 Xử lý Biểu đồ đường (Doanh thu)
+        if ($request->filled('start_date') || $request->filled('end_date')) {
+            // NẾU CÓ CHỌN NGÀY LỌC
+            $query = Order::where('status', 'completed');
+
+            if ($request->filled('start_date')) {
+                $query->whereDate('created_at', '>=', $request->start_date);
+            }
+            if ($request->filled('end_date')) {
+                $query->whereDate('created_at', '<=', $request->end_date);
+            }
+
+            // Sắp xếp tăng dần theo thời gian
+            $orders = $query->orderBy('created_at', 'asc')->get();
+
+            // Nhóm kết quả theo ngày/tháng
+            $revenueByDate = $orders->groupBy(function($order) {
+                return Carbon::parse($order->created_at)->format('d/m/Y');
+            });
+
+            foreach ($revenueByDate as $date => $dayOrders) {
+                $bieuDoDoanhThuLabels[] = $date;
+                $bieuDoDoanhThu[] = $dayOrders->sum('total_amount');
+            }
+
+            // Phòng trường hợp lọc nhưng không có đơn nào
+            if (empty($bieuDoDoanhThuLabels)) {
+                $bieuDoDoanhThuLabels = ['Không có dữ liệu'];
+                $bieuDoDoanhThu = [0];
+            }
+
+        } else {
+            // NẾU KHÔNG LỌC (MẶC ĐỊNH: Lấy 12 tháng)
+            for ($i = 1; $i <= 12; $i++) {
+                $bieuDoDoanhThu[] = Order::where('status', 'completed')
+                    ->whereMonth('created_at', $i)
+                    ->whereYear('created_at', $hienTai->year)
+                    ->sum('total_amount');
+            }
+            $bieuDoDoanhThuLabels = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
         }
 
-        // 5.2 Biểu đồ tròn (Tỷ trọng theo danh mục)
-        $bieuDoDanhMuc = DB::table('order_details')
+        // 5.2 Xử lý Biểu đồ tròn (Tỷ trọng theo danh mục)
+        $queryDanhMuc = DB::table('order_details')
             ->join('orders', 'order_details.order_id', '=', 'orders.id')
             ->join('product_variants', 'order_details.product_variant_id', '=', 'product_variants.id')
             ->join('products', 'product_variants.product_id', '=', 'products.id')
             ->join('categories', 'products.category_id', '=', 'categories.id')
-            ->where('orders.status', 'completed')
-            ->select('categories.name', DB::raw('SUM(order_details.quantity) as total_sold'))
+            ->where('orders.status', 'completed');
+
+        // Áp dụng luôn bộ lọc ngày cho biểu đồ Tròn (nếu có lọc thì dữ liệu 2 chart sẽ đồng nhất)
+        if ($request->filled('start_date')) {
+            $queryDanhMuc->whereDate('orders.created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $queryDanhMuc->whereDate('orders.created_at', '<=', $request->end_date);
+        }
+
+        $bieuDoDanhMuc = $queryDanhMuc->select('categories.name', DB::raw('SUM(order_details.quantity) as total_sold'))
             ->groupBy('categories.id', 'categories.name')
             ->pluck('total_sold', 'name')
             ->toArray();
 
-        return compact('bieuDoDoanhThu', 'bieuDoDanhMuc');
+        // Trả thêm $bieuDoDoanhThuLabels ra view
+        return compact('bieuDoDoanhThu', 'bieuDoDoanhThuLabels', 'bieuDoDanhMuc');
     }
 }
