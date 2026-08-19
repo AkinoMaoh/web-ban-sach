@@ -30,15 +30,23 @@ class shopDetailsController extends Controller
             ->where('status', 1)
             ->take(6)
             ->get();
+        
+        // 3. Lấy sách liên quan cùng danh mục
+        $relatedCategoryProducts = products::with('firstVariant')
+            ->where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->where('status', 1)
+            ->take(6)
+            ->get();
 
-        // 3. Thống kê đánh giá
+        // 4. Thống kê đánh giá
         $stats = Review::getProductRatingStats($id);
 
         $avgRating = $stats['avg'];
         $totalReviews = $stats['total'];
         $ratingPercentages = $stats['percentages'];
 
-        // 4. Lấy danh sách Voucher còn hiệu lực
+        // 5. Lấy danh sách Voucher còn hiệu lực
         $vouchers = \App\Models\Voucher::where('is_active', true)
             ->where(function ($query) {
                 $query->whereNull('end_date')->orWhere('end_date', '>=', now());
@@ -48,7 +56,7 @@ class shopDetailsController extends Controller
             })
             ->get();
 
-        // 5. LẤY DANH SÁCH ID SẢN PHẨM ĐÃ THÊM VÀO WISHLIST
+        // 6. LẤY DANH SÁCH ID SẢN PHẨM ĐÃ THÊM VÀO WISHLIST
         $wishlistIds = [];
         if (Auth::check()) {
             $wishlistIds = DB::table('wishlists')
@@ -57,10 +65,11 @@ class shopDetailsController extends Controller
                 ->toArray();
         }
 
-        // 6. Trả về view kèm wishlistIds
+        // 7. Trả về view kèm wishlistIds
         return view('User.shop-details', compact(
             'product',
             'relatedProducts',
+            'relatedCategoryProducts',
             'avgRating',
             'totalReviews',
             'ratingPercentages',
