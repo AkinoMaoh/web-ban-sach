@@ -471,6 +471,129 @@ KHUNG ẢNH PHÓNG TO
 </div>
         
          {{-- BẮT ĐẦU PHẦN SẢN PHẨM LIÊN QUAN (SLIDER TRƯỢT) --}}
+<!-- Sách cùng thể loại -->
+@if($relatedCategoryProducts->isNotEmpty())
+    <div class="bg-white p-4 rounded shadow-sm border mb-4 related-products-section mt-5 pt-4 position-relative">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <h4 class="serif-font font-weight-bold mb-0"
+                style="color: var(--text-main); border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; display: inline-block;">
+                Sách có thể bạn sẽ thích
+            </h4>
+
+            {{-- Nút mũi tên qua lại --}}
+            <div class="slider-nav-btns">
+                <button type="button"
+                        id="categoryPrevBtn"
+                        class="btn btn-outline-secondary btn-sm rounded-circle">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+
+                <button type="button"
+                        id="categoryNextBtn"
+                        class="btn btn-outline-secondary btn-sm rounded-circle ml-2">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+        </div>
+
+        {{-- Container trượt --}}
+        <div class="related-slider-container" id="categoryRelatedSlider">
+
+            @foreach($relatedCategoryProducts as $relProduct)
+
+                <div class="related-slider-item">
+
+                    <div class="card h-100 border-0 shadow-sm product-card-hover rounded-lg overflow-hidden position-relative">
+
+                        {{-- 1. NÚT WISHLIST --}}
+                        <button type="button"
+                                class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist-v2 position-absolute"
+                                data-id="{{ $relProduct->id }}"
+                                style="top:10px; right:10px; width:34px; height:34px; border:none; z-index:20; display:flex; align-items:center; justify-content:center;">
+
+                            <i class="{{ in_array((int)$relProduct->id, array_map('intval', $wishlistIds ?? [])) ? 'fas' : 'far' }} fa-heart"
+                               style="color:#D35400"></i>
+
+                        </button>
+
+                        {{-- 2. NỘI DUNG SẢN PHẨM --}}
+                        <a href="{{ url('product/' . $relProduct->id) }}"
+                           class="text-decoration-none d-flex flex-column h-100">
+
+                            <div class="position-relative text-center p-2 bg-white">
+
+                                <img src="{{ asset('uploads/products/' . $relProduct->image) }}"
+                                     class="card-img-top"
+                                     alt="{{ $relProduct->name }}"
+                                     style="height: 180px; object-fit: contain;">
+
+                            </div>
+
+                            <div class="card-body p-3 text-center bg-light">
+
+                                <h6 class="card-title text-dark mb-2 text-truncate"
+                                    title="{{ $relProduct->name }}"
+                                    style="font-size: 14px; font-weight: 600;">
+
+                                    {{ $relProduct->name }}
+
+                                </h6>
+
+                                @php
+                                    $relVariant = $relProduct->firstVariant;
+                                    $relPrice = $relVariant ? $relVariant->price : $relProduct->price;
+                                    $relSalePrice = $relVariant ? $relVariant->sale_price : 0;
+                                @endphp
+
+                                <div class="price-box">
+
+                                    @if($relSalePrice > 0 && $relSalePrice < $relPrice)
+
+                                        <span class="d-block font-weight-bold text-danger"
+                                              style="font-size: 15px;">
+
+                                            {{ number_format($relSalePrice, 0, ',', '.') }} ₫
+
+                                        </span>
+
+                                        <span class="text-muted"
+                                              style="font-size: 12px; text-decoration: line-through;">
+
+                                            {{ number_format($relPrice, 0, ',', '.') }} ₫
+
+                                        </span>
+
+                                    @else
+
+                                        <span class="d-block font-weight-bold text-danger"
+                                              style="font-size: 15px;">
+
+                                            {{ number_format($relPrice, 0, ',', '.') }} ₫
+
+                                        </span>
+
+                                    @endif
+
+                                </div>
+
+                            </div>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            @endforeach
+
+        </div>
+
+    </div>
+@endif
+<!-- Sách cùng tác giả -->
 @if($relatedProducts->isNotEmpty())
     <div class="bg-white p-4 rounded shadow-sm border mb-4 related-products-section mt-5 pt-4 position-relative">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -1059,7 +1182,28 @@ document.addEventListener('DOMContentLoaded', function () {
         nextBtn.addEventListener("click", () => sliderContainer.scrollBy({ left: scrollAmount, behavior: "smooth" }));
     }
 
-    // 3. COPY MÃ VOUCHER
+    // 3. SLIDER SÁCH CÙNG THỂ LOẠI
+    const categorySliderContainer = document.getElementById("categoryRelatedSlider");
+    const categoryPrevBtn = document.getElementById("categoryPrevBtn");
+    const categoryNextBtn = document.getElementById("categoryNextBtn");
+
+    if (categorySliderContainer && categoryPrevBtn && categoryNextBtn) {
+        const categoryScrollAmount = 300;
+        categoryPrevBtn.addEventListener("click", () => {
+            categorySliderContainer.scrollBy({
+                left: -categoryScrollAmount,
+                behavior: "smooth"
+            });
+        });
+        categoryNextBtn.addEventListener("click", () => {
+            categorySliderContainer.scrollBy({
+                left: categoryScrollAmount,
+                behavior: "smooth"
+            });
+        });
+    }
+
+    // 4. COPY MÃ VOUCHER
     window.copyVoucherCode = function(code) {
         navigator.clipboard.writeText(code).then(() => {
             showNotification('success', `Đã copy mã: ${code}<br>Hãy dán mã này ở trang Thanh toán nhé!`);
@@ -1069,7 +1213,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 
-    // 4. XỬ LÝ BIẾN THỂ VÀ GIÁ SẢN PHẨM CÙNG TỒN KHO
+    // 5. XỬ LÝ BIẾN THỂ VÀ GIÁ SẢN PHẨM CÙNG TỒN KHO
     const moneyFormatter = new Intl.NumberFormat('vi-VN');
     
     function updateVariant(radio) {
@@ -1122,7 +1266,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (checkedVariant) updateVariant(checkedVariant);
 
 
-    // 4.1 XỬ LÝ NÚT TĂNG GIẢM SỐ LƯỢNG KHÔNG ĐƯỢC QUÁ STOCK
+    // 5.1 XỬ LÝ NÚT TĂNG GIẢM SỐ LƯỢNG KHÔNG ĐƯỢC QUÁ STOCK
     const qtyInput = document.getElementById('o-so-luong');
     const btnMinusQty = document.getElementById('btn-minus-qty');
     const btnPlusQty = document.getElementById('btn-plus-qty');
@@ -1165,7 +1309,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // 5. XỬ LÝ GALLERY & PHÓNG TO (ZOOM) ẢNH
+    // 6. XỬ LÝ GALLERY & PHÓNG TO (ZOOM) ẢNH
     const mainImage = document.getElementById('main-product-image');
     const overlay = document.getElementById('imageZoomOverlay');
     const zoomImage = document.getElementById('zoomMainImage');
@@ -1213,7 +1357,7 @@ document.addEventListener('DOMContentLoaded', function () {
         overlay.addEventListener('click', (e) => { if (e.target === overlay) closeZoom(); });
     }
 
-    // 6. THUMBNAILS SLIDER (NGOÀI VÀ POPUP)
+    // 7. THUMBNAILS SLIDER (NGOÀI VÀ POPUP)
     let thumbIndex = 0, zoomThumbIndex = 0;
     const thumbnailList = document.getElementById('thumbnailList');
     const thumbnailView = document.querySelector('.thumbnail-view');
