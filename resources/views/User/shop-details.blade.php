@@ -471,6 +471,7 @@ KHUNG ẢNH PHÓNG TO
 </div>
         
          {{-- BẮT ĐẦU PHẦN SẢN PHẨM LIÊN QUAN (SLIDER TRƯỢT) --}}
+
 <!-- Sách cùng thể loại -->
 @if($relatedCategoryProducts->isNotEmpty())
     <div class="bg-white p-4 rounded shadow-sm border mb-4 related-products-section mt-5 pt-4 position-relative">
@@ -484,17 +485,19 @@ KHUNG ẢNH PHÓNG TO
 
             {{-- Nút mũi tên qua lại --}}
             <div class="slider-nav-btns">
+
                 <button type="button"
                         id="categoryPrevBtn"
-                        class="btn btn-outline-secondary btn-sm rounded-circle">
+                        class="btn btn-outline-secondary slider-arrow">
                     <i class="fas fa-chevron-left"></i>
                 </button>
 
                 <button type="button"
                         id="categoryNextBtn"
-                        class="btn btn-outline-secondary btn-sm rounded-circle ml-2">
+                        class="btn btn-outline-secondary slider-arrow ml-2">
                     <i class="fas fa-chevron-right"></i>
                 </button>
+
             </div>
 
         </div>
@@ -519,7 +522,7 @@ KHUNG ẢNH PHÓNG TO
 
                         </button>
 
-                        {{-- 2. NỘI DUNG SẢN PHẨM --}}
+                        {{-- 2. THẺ SẢN PHẨM --}}
                         <a href="{{ url('product/' . $relProduct->id) }}"
                            class="text-decoration-none d-flex flex-column h-100">
 
@@ -554,25 +557,19 @@ KHUNG ẢNH PHÓNG TO
 
                                         <span class="d-block font-weight-bold text-danger"
                                               style="font-size: 15px;">
-
                                             {{ number_format($relSalePrice, 0, ',', '.') }} ₫
-
                                         </span>
 
                                         <span class="text-muted"
                                               style="font-size: 12px; text-decoration: line-through;">
-
                                             {{ number_format($relPrice, 0, ',', '.') }} ₫
-
                                         </span>
 
                                     @else
 
                                         <span class="d-block font-weight-bold text-danger"
                                               style="font-size: 15px;">
-
                                             {{ number_format($relPrice, 0, ',', '.') }} ₫
-
                                         </span>
 
                                     @endif
@@ -593,53 +590,82 @@ KHUNG ẢNH PHÓNG TO
 
     </div>
 @endif
+
+
 <!-- Sách cùng tác giả -->
 @if($relatedProducts->isNotEmpty())
+
     <div class="bg-white p-4 rounded shadow-sm border mb-4 related-products-section mt-5 pt-4 position-relative">
+
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="serif-font font-weight-bold mb-0" style="color: var(--text-main); border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; display: inline-block;">
+
+            <h4 class="serif-font font-weight-bold mb-0"
+                style="color: var(--text-main); border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; display: inline-block;">
                 Sách cùng tác giả
             </h4>
-            
+
             {{-- Nút mũi tên qua lại --}}
             <div class="slider-nav-btns">
-                <button type="button" id="slidePrevBtn" class="btn btn-outline-secondary btn-sm rounded-circle">
+
+                <button type="button"
+                        id="slidePrevBtn"
+                        class="btn btn-outline-secondary slider-arrow">
                     <i class="fas fa-chevron-left"></i>
                 </button>
-                <button type="button" id="slideNextBtn" class="btn btn-outline-secondary btn-sm rounded-circle ml-2">
+
+                <button type="button"
+                        id="slideNextBtn"
+                        class="btn btn-outline-secondary slider-arrow ml-2">
                     <i class="fas fa-chevron-right"></i>
                 </button>
+
             </div>
+
         </div>
-        
+
         {{-- Container trượt --}}
         <div class="related-slider-container" id="relatedSlider">
+
             @foreach($relatedProducts as $relProduct)
+
                 <div class="related-slider-item">
+
                     <div class="card h-100 border-0 shadow-sm product-card-hover rounded-lg overflow-hidden position-relative">
-                        
-                        {{-- 1. NÚT WISHLIST NẰM NGOÀI THẺ <a> ĐỂ TRÁNH BỊ CHUYỂN TRANG --}}
-                        <button type="button" 
-                                class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist-v2 position-absolute" 
-                                data-id="{{ $relProduct->id }}" 
+
+                        {{-- 1. NÚT WISHLIST --}}
+                        <button type="button"
+                                class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist-v2"
+                                data-id="{{ $relProduct->id }}"
                                 style="top:10px; right:10px; width:34px; height:34px; border:none; z-index:20; display:flex; align-items:center; justify-content:center;">
-                            <i class="{{ in_array((int)$relProduct->id, array_map('intval', $wishlistIds ?? [])) ? 'fas' : 'far' }} fa-heart" style="color:#D35400"></i>
+
+                            <i class="{{ in_array((int)$relProduct->id, array_map('intval', $wishlistIds ?? [])) ? 'fas' : 'far' }} fa-heart"
+                               style="color:#D35400"></i>
+
                         </button>
 
-                        {{-- 2. THẺ <a> CHỈ BỌC NỘI DUNG SẢN PHẨM --}}
-                        <a href="{{ url('product/' . $relProduct->id) }}" class="text-decoration-none d-flex flex-column h-100">
+                        {{-- 2. THẺ SẢN PHẨM --}}
+                        <a href="{{ url('product/' . $relProduct->id) }}"
+                           class="text-decoration-none d-flex flex-column h-100">
+
                             <div class="position-relative text-center p-2 bg-white">
-                                <img src="{{ asset('uploads/products/' . $relProduct->image) }}" 
-                                     class="card-img-top" 
-                                     alt="{{ $relProduct->name }}" 
+
+                                <img src="{{ asset('uploads/products/' . $relProduct->image) }}"
+                                     class="card-img-top"
+                                     alt="{{ $relProduct->name }}"
                                      style="height: 180px; object-fit: contain;">
+
                             </div>
-                            
+
                             <div class="card-body p-3 text-center bg-light">
-                                <h6 class="card-title text-dark mb-2 text-truncate" title="{{ $relProduct->name }}" style="font-size: 14px; font-weight: 600;">
+
+                                <h6 class="card-title text-dark mb-2 text-truncate"
+                                    title="{{ $relProduct->name }}"
+                                    style="font-size: 14px; font-weight: 600;">
+
                                     {{ $relProduct->name }}
+
                                 </h6>
-                                
+
                                 @php
                                     $relVariant = $relProduct->firstVariant;
                                     $relPrice = $relVariant ? $relVariant->price : $relProduct->price;
@@ -647,28 +673,46 @@ KHUNG ẢNH PHÓNG TO
                                 @endphp
 
                                 <div class="price-box">
+
                                     @if($relSalePrice > 0 && $relSalePrice < $relPrice)
-                                        <span class="d-block font-weight-bold text-danger" style="font-size: 15px;">
+
+                                        <span class="d-block font-weight-bold text-danger"
+                                              style="font-size: 15px;">
                                             {{ number_format($relSalePrice, 0, ',', '.') }} ₫
                                         </span>
-                                        <span class="text-muted" style="font-size: 12px; text-decoration: line-through;">
+
+                                        <span class="text-muted"
+                                              style="font-size: 12px; text-decoration: line-through;">
                                             {{ number_format($relPrice, 0, ',', '.') }} ₫
                                         </span>
+
                                     @else
-                                        <span class="d-block font-weight-bold text-danger" style="font-size: 15px;">
+
+                                        <span class="d-block font-weight-bold text-danger"
+                                              style="font-size: 15px;">
                                             {{ number_format($relPrice, 0, ',', '.') }} ₫
                                         </span>
+
                                     @endif
+
                                 </div>
+
                             </div>
+
                         </a>
 
                     </div>
+
                 </div>
+
             @endforeach
+
         </div>
+
     </div>
+
 @endif
+
 {{-- KẾT THÚC PHẦN SẢN PHẨM LIÊN QUAN --}}
     </div>
 </section>
@@ -1110,6 +1154,30 @@ body.dark .chon-phien-ban input:disabled + .hop-phien-ban,
     opacity: 0.4;
     background-color: #18181b !important;
     border-color: #27272a !important;
+}
+
+/* ================================
+   NÚT ĐIỀU HƯỚNG SLIDER
+================================ */
+
+.slider-arrow {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+
+    padding: 0 !important;
+
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50% !important;
+    line-height: 1 !important;
+}
+
+.slider-arrow i {
+    font-size: 13px;
 }
 </style>
 
