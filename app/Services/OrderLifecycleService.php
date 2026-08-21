@@ -196,6 +196,15 @@ class OrderLifecycleService
                 ]);
             }
 
+            if (! in_array($lockedOrder->refund_status, [
+                Order::REFUND_REQUESTED,
+                Order::REFUND_PENDING,
+            ], true)) {
+                throw ValidationException::withMessages([
+                    'refund' => 'Đơn hàng chưa có yêu cầu hoàn tiền hợp lệ.',
+                ]);
+            }
+
             Payment::query()
                 ->where('order_id', $lockedOrder->id)
                 ->where('status', Payment::STATUS_PAID)
