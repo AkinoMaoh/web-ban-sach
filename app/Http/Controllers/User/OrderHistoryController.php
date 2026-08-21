@@ -43,7 +43,7 @@ class OrderHistoryController extends Controller
 
         // Kiểm tra bảo mật URL
         if (!$order) {
-            return redirect()->route('user.history')->with('error', 'Đơn hàng không tồn tại hoặc không thuộc quyền sở hữu của bạn!');
+            return redirect()->route('user.orderHistory')->with('error', 'Đơn hàng không tồn tại hoặc không thuộc quyền sở hữu của bạn!');
         }
 
         // 2. Lấy chi tiết đơn hàng (Dùng Model OrderDetail)
