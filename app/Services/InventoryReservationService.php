@@ -15,48 +15,50 @@ class InventoryReservationService
      */
     public function reserve(Order $order, array $items): void
     {
-        if (InventoryReservation::query()->where('order_id', $order->id)->exists()) {
-            return;
-        }
+        DB::transaction(function () use ($order, $items): void {
+            if (InventoryReservation::query()->where('order_id', $order->id)->exists()) {
+                return;
+            }
 
-        foreach ($items as $item) {
-            $variant = productVariants::query()
-                ->whereKey((int) $item['product_variant_id'])
-                ->lockForUpdate()
-                ->first();
+            foreach ($items as $item) {
+                $variant = productVariants::query()
+                    ->whereKey((int) $item['product_variant_id'])
+                    ->lockForUpdate()
+                    ->first();
 
-            $quantity = max((int) $item['quantity'], 1);
+                $quantity = max((int) $item['quantity'], 1);
 
-            if (! $variant || (int) $variant->stock < $quantity) {
-                throw ValidationException::withMessages([
-                    'cart' => 'Một sản phẩm đã hết hàng hoặc không đủ số lượng. Vui lòng kiểm tra lại giỏ hàng.',
+                if (! $variant || (int) $variant->stock < $quantity) {
+                    throw ValidationException::withMessages([
+                        'cart' => 'Một sản phẩm đã hết hàng hoặc không đủ số lượng. Vui lòng kiểm tra lại giỏ hàng.',
+                    ]);
+                }
+
+                $updated = productVariants::query()
+                    ->whereKey($variant->id)
+                    ->where('stock', '>=', $quantity)
+                    ->decrement('stock', $quantity);
+
+                if ($updated !== 1) {
+                    throw ValidationException::withMessages([
+                        'cart' => 'Tồn kho vừa thay đổi. Vui lòng kiểm tra lại giỏ hàng.',
+                    ]);
+                }
+
+                InventoryReservation::query()->create([
+                    'order_id' => $order->id,
+                    'product_variant_id' => $variant->id,
+                    'quantity' => $quantity,
+                    'status' => InventoryReservation::STATUS_RESERVED,
+                    'reserved_at' => now(),
                 ]);
             }
 
-            $updated = productVariants::query()
-                ->whereKey($variant->id)
-                ->where('stock', '>=', $quantity)
-                ->decrement('stock', $quantity);
-
-            if ($updated !== 1) {
-                throw ValidationException::withMessages([
-                    'cart' => 'Tồn kho vừa thay đổi. Vui lòng kiểm tra lại giỏ hàng.',
-                ]);
-            }
-
-            InventoryReservation::query()->create([
-                'order_id' => $order->id,
-                'product_variant_id' => $variant->id,
-                'quantity' => $quantity,
-                'status' => InventoryReservation::STATUS_RESERVED,
-                'reserved_at' => now(),
-            ]);
-        }
-
-        $order->forceFill([
-            'stock_reserved_at' => now(),
-            'stock_released_at' => null,
-        ])->save();
+            $order->forceFill([
+                'stock_reserved_at' => now(),
+                'stock_released_at' => null,
+            ])->save();
+        });
     }
 
     public function release(Order|int $order): bool
