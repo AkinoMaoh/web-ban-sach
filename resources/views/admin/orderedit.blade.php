@@ -16,7 +16,7 @@
 
     <!-- Tiêu đề và Nút quay lại -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Cập nhật đơn hàng <span class="text-primary">#{{ $order->id }}</span></h1>
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Cập nhật đơn hàng <span class="text-primary">{{ $order->order_number ?? '#'.$order->id }}</span></h1>
         <a href="{{ route('admin.orders') }}" class="btn btn-sm btn-secondary shadow-sm">
             <i class="fas fa-arrow-left fa-sm text-white-50 mr-1"></i> Quay lại danh sách
         </a>
@@ -170,6 +170,12 @@
                                 <span class="badge badge-dark px-2 py-1">{{ strtoupper($order->payment_method ?? 'COD') }}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2 text-muted small">
+                                <span>Thanh toán:</span>
+                                <span class="badge badge-{{ $order->payment_status === 'paid' ? 'success' : ($order->payment_status === 'refunded' ? 'info' : 'warning') }} px-2 py-1">
+                                    {{ strtoupper($order->payment_status ?? 'unpaid') }}
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 text-muted small">
                                 <span>Ngày đặt:</span>
                                 <span>{{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y H:i') }}</span>
                             </div>
@@ -284,6 +290,31 @@
         </div>
 
     </form>
+
+    @if(in_array($order->refund_status, ['requested', 'pending'], true))
+        <div class="card border-warning shadow-sm mb-4">
+            <div class="card-header bg-warning text-dark font-weight-bold">
+                <i class="fas fa-undo-alt mr-2"></i>Yêu cầu hoàn tiền đang chờ xử lý
+            </div>
+            <div class="card-body">
+                <p><strong>Lý do:</strong> {{ $order->cancel_request_reason ?? 'Không có lý do cụ thể.' }}</p>
+                <p class="text-danger">
+                    Hệ thống không tự gọi API hoàn tiền VNPAY. Chỉ bấm xác nhận sau khi bạn đã hoàn tiền thực tế trên cổng thanh toán.
+                </p>
+                <form action="{{ route('admin.orders.refund', $order->id) }}" method="POST" onsubmit="return confirm('Bạn chắc chắn giao dịch đã được hoàn tiền thực tế?');">
+                    @csrf
+                    @method('PATCH')
+                    <div class="form-group">
+                        <label for="refund_reference" class="font-weight-bold">Mã tham chiếu hoàn tiền</label>
+                        <input type="text" class="form-control" id="refund_reference" name="refund_reference" maxlength="100" placeholder="Nhập mã từ VNPAY hoặc hệ thống đối soát">
+                    </div>
+                    <button type="submit" class="btn btn-warning font-weight-bold">
+                        <i class="fas fa-check mr-1"></i>Xác nhận đã hoàn tiền
+                    </button>
+                </form>
+            </div>
+        </div>
+    @endif
 
 </div>
 
