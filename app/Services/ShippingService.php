@@ -90,7 +90,7 @@ class ShippingService
 
         $weights = DB::table('product_variants')
             ->whereIn('id', $variantIds)
-            ->pluck('weight', 'id');
+            ->pluck('weight_grams', 'id');
 
         $defaultWeight = max((int) config('services.ghn.default_item_weight', 500), 1);
         $totalWeight = collect($items)->sum(function (array $item) use ($weights, $defaultWeight): int {

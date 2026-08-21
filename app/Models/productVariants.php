@@ -17,7 +17,7 @@ class productVariants extends Model
         'sale_price',
         'discount_percent',
         'stock',
-        'weight',
+        'weight_grams',
     ];
 
     protected function casts(): array
@@ -26,7 +26,7 @@ class productVariants extends Model
             'price' => 'decimal:2',
             'sale_price' => 'decimal:2',
             'stock' => 'integer',
-            'weight' => 'integer',
+            'weight_grams' => 'integer',
         ];
     }
 
