@@ -14,6 +14,7 @@ use App\Services\CheckoutCartService;
 use App\Services\CheckoutService;
 use App\Services\PaymentCallbackService;
 use App\Services\OrderNotificationService;
+use App\Services\OrderLifecycleService;
 use App\Services\ShippingService;
 use App\Services\VnpayService;
 use App\Services\VoucherService;
@@ -37,7 +38,8 @@ class PaymentController extends Controller
         private readonly CheckoutService $checkoutService,
         private readonly VnpayService $vnpayService,
         private readonly PaymentCallbackService $paymentCallbackService,
-        private readonly OrderNotificationService $notificationService
+        private readonly OrderNotificationService $notificationService,
+        private readonly OrderLifecycleService $orderLifecycleService
     ) {
     }
 
@@ -308,6 +310,15 @@ class PaymentController extends Controller
                 'message' => 'Đặt hàng thành công!',
                 'clearCheckoutDraft' => true,
             ]);
+        }
+
+        if ($order->payment_expires_at?->isPast()) {
+            $this->orderLifecycleService->expirePayment($order);
+            session()->forget('checkout_token');
+
+            return back()
+                ->withInput()
+                ->with('error', 'Phiên VNPAY đã hết hạn. Tồn kho và voucher đã được hoàn lại.');
         }
 
         if (! $result['payment']) {
