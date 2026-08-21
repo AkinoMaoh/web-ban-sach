@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\variantController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\User\UserNewsController;
 use App\Http\Controllers\User\SearchController;
+use App\Http\Controllers\User\GuestOrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,6 +80,11 @@ Route::middleware(['user_only'])->group(function () {
     Route::post('/checkout/apply-voucher', [PaymentController::class, 'applyVoucher'])
         ->middleware('throttle:20,1')
         ->name('checkout.apply_voucher');
+
+    Route::get('/order/track/{orderNumber}/{token}', [GuestOrderController::class, 'show'])
+        ->where('token', '[A-Fa-f0-9]{64}')
+        ->middleware('throttle:30,1')
+        ->name('order.track');
 
     Route::get('/news', [UserNewsController::class, 'index'])->name('user.news');
     Route::get('/news/{id}', [UserNewsController::class, 'show'])->name('user.news.show');
