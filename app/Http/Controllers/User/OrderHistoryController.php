@@ -6,13 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderDetail;
-use App\Services\VoucherService;
+use App\Models\Notification;
+use App\Models\User;
+use App\Services\OrderLifecycleService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class OrderHistoryController extends Controller
 {
-    public function __construct(private readonly VoucherService $voucherService)
+    public function __construct(private readonly OrderLifecycleService $lifecycleService)
     {
     }
 
@@ -54,21 +56,42 @@ class OrderHistoryController extends Controller
         return view('User.order_detail', compact('order', 'orderDetails'));
     }
 
-    public function cancel($id)
+    public function cancel(Request $request, $id)
     {
-        // Dùng Eloquent Model 
         $order = Order::where('id', $id)->where('user_id', Auth::id())->first();
 
-        if (!$order || !in_array($order->status, ['pending'])) {
+        if (! $order || $order->status !== Order::STATUS_PENDING) {
             return back()->with('error', 'Đơn hàng này không thể hủy!');
         }
 
-        DB::transaction(function () use ($order): void {
-            $order->status = 'cancelled';
-            $order->save();
-            $this->voucherService->releaseForOrder($order);
-        });
-        
-        return back()->with('success', 'Đơn hàng đã được hủy!');
+        $validated = $request->validate([
+            'cancel_reason' => ['nullable', 'string', 'max:500'],
+        ]);
+        $reason = $validated['cancel_reason'] ?? 'Khách hàng yêu cầu hủy đơn.';
+
+        try {
+            $result = $this->lifecycleService->requestCancellation($order, $reason);
+        } catch (ValidationException $exception) {
+            return back()->withErrors($exception->errors());
+        }
+
+        if ($result === 'refund_requested') {
+            User::query()->where('role', 1)->each(function (User $admin) use ($order): void {
+                Notification::query()->create([
+                    'user_id' => $admin->id,
+                    'order_id' => $order->id,
+                    'message' => "Khách yêu cầu hủy và hoàn tiền đơn {$order->order_number}.",
+                    'is_read' => false,
+                    'target_url' => route('admin.orders.edit', $order->id),
+                ]);
+            });
+
+            return back()->with(
+                'success',
+                'Đã gửi yêu cầu hủy và hoàn tiền. Quản trị viên sẽ kiểm tra giao dịch.'
+            );
+        }
+
+        return back()->with('success', 'Đơn hàng đã được hủy và tồn kho đã được hoàn lại!');
     }
 }
