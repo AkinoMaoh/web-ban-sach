@@ -23,6 +23,7 @@ return new class extends Migration
             'order_details',
             'payments',
             'notifications',
+            'user_addresses',
         ];
 
         foreach ($tables as $table) {
