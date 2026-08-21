@@ -346,12 +346,12 @@ Route::get('/author/{id}', [ShopController::class, 'author'])
 // --- API NỘI BỘ LẤY ĐỊA CHỈ (Tỉnh / Huyện / Xã) ---
 Route::get('/api/locations/provinces', function () {
     return response()->json(DB::table('provinces')->orderBy('name', 'asc')->get());
-});
+})->middleware('throttle:60,1');
 
 Route::get('/api/locations/districts/{province_id}', function ($province_id) {
     return response()->json(DB::table('districts')->where('province_id', $province_id)->orderBy('name', 'asc')->get());
-});
+})->whereNumber('province_id')->middleware('throttle:60,1');
 
 Route::get('/api/locations/wards/{district_id}', function ($district_id) {
     return response()->json(DB::table('wards')->where('district_id', $district_id)->orderBy('name', 'asc')->get());
-});
+})->whereNumber('district_id')->middleware('throttle:60,1');
