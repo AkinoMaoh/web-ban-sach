@@ -66,7 +66,7 @@ Route::middleware(['user_only'])->group(function () {
     // Thanh toán
     Route::get('/checkout', [PaymentController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/process', [PaymentController::class, 'process'])
-        ->middleware('throttle:10,1')
+        ->middleware('throttle:30,1')
         ->name('checkout.process');
     Route::get('/checkout/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
     Route::get('/checkout/vnpay-ipn', [PaymentController::class, 'vnpayIpn'])
