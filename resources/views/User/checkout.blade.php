@@ -56,7 +56,7 @@
                         <div class="row">
                             <div class="col-md-6 form-group mb-4">
                                 <label class="font-weight-bold text-dark">Email <span class="text-danger">*</span></label>
-                                <input type="email" name="billing_email" value="{{ old('billing_email', auth()->user()->email ?? '') }}" class="form-control form-control-lg custom-input" placeholder="ten@gmail.com">
+                                <input type="email" id="billing_email" name="billing_email" value="{{ old('billing_email', auth()->user()->email ?? '') }}" class="form-control form-control-lg custom-input" placeholder="ten@gmail.com">
                             </div>
                             <div class="col-md-6 form-group mb-4">
                                 <label class="font-weight-bold text-dark">Số điện thoại <span class="text-danger">*</span></label>
@@ -69,7 +69,7 @@
                         <div class="row">
                             <div class="col-md-4 form-group mb-3">
                                 <label class="text-muted small font-weight-bold text-uppercase">Tỉnh / Thành <span class="text-danger">*</span></label>
-                                <select id="province" class="custom-select custom-select-lg custom-input">
+                                <select id="province" name="province_id" class="custom-select custom-select-lg custom-input">
                                     <option value="">Chọn Tỉnh/Thành</option>
                                     @if(isset($provinces))
                                         @foreach($provinces as $province)
@@ -82,13 +82,13 @@
                             </div>
                             <div class="col-md-4 form-group mb-3">
                                 <label class="text-muted small font-weight-bold text-uppercase">Quận / Huyện <span class="text-danger">*</span></label>
-                                <select id="district" class="custom-select custom-select-lg custom-input">
+                                <select id="district" name="district_id" class="custom-select custom-select-lg custom-input">
                                     <option value="">Chọn Quận/Huyện</option>
                                 </select>
                             </div>
                             <div class="col-md-4 form-group mb-3">
                                 <label class="text-muted small font-weight-bold text-uppercase">Phường / Xã <span class="text-danger">*</span></label>
-                                <select id="ward" class="custom-select custom-select-lg custom-input">
+                                <select id="ward" name="ward_code" class="custom-select custom-select-lg custom-input">
                                     <option value="">Chọn Phường/Xã</option>
                                 </select>
                             </div>
@@ -96,7 +96,7 @@
 
                         <div class="form-group mb-4">
                             <label class="text-muted small font-weight-bold text-uppercase">Số nhà, Tên đường <span class="text-danger">*</span></label>
-                            <input type="text" id="street" class="form-control form-control-lg custom-input" placeholder="Ví dụ: 123 Đường Lê Lợi..." value="{{ old('specific_address', $defaultAddress->specific_address ?? '') }}">
+                            <input type="text" id="street" name="specific_address" class="form-control form-control-lg custom-input" placeholder="Ví dụ: 123 Đường Lê Lợi..." value="{{ old('specific_address', $defaultAddress->specific_address ?? '') }}">
                         </div>
                         
                         <!-- Hidden input chứa full địa chỉ cho Controller -->
@@ -163,15 +163,18 @@
                         <!-- KHU VỰC NHẬP MÃ GIẢM GIÁ -->
                         <div class="voucher-section mb-3 pt-3 border-top">
                             <div class="input-group">
-                                <input type="text" id="voucher_code" class="form-control custom-input" placeholder="Nhập hoặc chọn mã..." style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                <input type="text" id="voucher_code" class="form-control custom-input text-uppercase" placeholder="Nhập hoặc chọn mã..." autocomplete="off" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#voucherModal" style="border-radius: 0;">
                                         <i class="fas fa-list mr-1"></i> Chọn mã
                                     </button>
                                     <button type="button" id="btn-apply-voucher" class="btn btn-dark" style="border-top-right-radius: 8px; border-bottom-right-radius: 8px;">Áp dụng</button>
+                                    <button type="button" id="btn-remove-voucher" class="btn btn-outline-danger d-none" title="Bỏ voucher">
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 </div>
                             </div>
-                            <small id="voucher-message" class="mt-1 d-block font-weight-bold"></small>
+                            <small id="voucher-message" class="mt-1 d-block font-weight-bold" role="status"></small>
                         </div>
 
                         <!-- KHU VỰC HIỂN THỊ TIỀN TỆ -->
@@ -222,6 +225,7 @@
             <div class="modal-body bg-light pt-2">
                 @if(isset($vouchers) && $vouchers->count() > 0)
                     @foreach($vouchers as $vc)
+                        @php($isEligible = ($totalAmount ?? 0) >= (float) $vc->min_order_value)
                         <div class="card shadow-sm mb-3 border-0 rounded-lg">
                             <div class="card-body p-3 d-flex align-items-center">
                                 <div class="bg-primary text-white rounded p-2 text-center mr-3" style="min-width: 80px;">
@@ -231,19 +235,30 @@
                                     <h6 class="font-weight-bold mb-1 text-dark" style="font-size: 15px;">
                                         @if($vc->type == 'percent')
                                             Giảm {{ $vc->discount_value }}% 
-                                            <span class="text-muted" style="font-size: 12px;">(Tối đa {{ number_format($vc->max_discount_value) }}đ)</span>
+                                            @if($vc->max_discount_value)
+                                                <span class="text-muted" style="font-size: 12px;">(Tối đa {{ number_format($vc->max_discount_value) }}đ)</span>
+                                            @endif
                                         @else
                                             Giảm {{ number_format($vc->discount_value) }}đ
                                         @endif
                                     </h6>
                                     <p class="text-muted mb-0" style="font-size: 12px;">Đơn tối thiểu: {{ number_format($vc->min_order_value) }}đ</p>
+                                    @if($vc->usage_limit_per_customer)
+                                        <p class="text-muted mb-0" style="font-size: 12px;">Mỗi khách: {{ $vc->usage_limit_per_customer }} lượt</p>
+                                    @endif
+                                    @if($vc->description)
+                                        <p class="text-muted mb-0" style="font-size: 12px;">{{ $vc->description }}</p>
+                                    @endif
                                     <small class="text-danger">
                                         HSD: {{ $vc->end_date ? \Carbon\Carbon::parse($vc->end_date)->format('d/m/Y') : 'Vô thời hạn' }}
                                     </small>
+                                    @unless($isEligible)
+                                        <small class="d-block text-warning">Cần mua thêm {{ number_format($vc->min_order_value - ($totalAmount ?? 0)) }}đ</small>
+                                    @endunless
                                 </div>
                                 <div>
-                                    <button type="button" class="btn btn-sm btn-outline-primary btn-select-voucher font-weight-bold" data-code="{{ $vc->code }}">
-                                        Chọn
+                                    <button type="button" class="btn btn-sm btn-outline-primary btn-select-voucher font-weight-bold" data-code="{{ $vc->code }}" @disabled(!$isEligible)>
+                                        {{ $isEligible ? 'Chọn' : 'Chưa đủ' }}
                                     </button>
                                 </div>
                             </div>
@@ -406,7 +421,7 @@ $(document).ready(function() {
     }
 
     // ==========================================
-    // LOGIC VOUCHER 
+    // LOGIC VOUCHER
     // ==========================================
     $(document).on('click', '.btn-select-voucher', function(e) {
         e.preventDefault();
@@ -418,42 +433,88 @@ $(document).ready(function() {
         }
     });
 
+    function resetVoucher(message = '', clearCode = false) {
+        currentDiscount = 0;
+        $('#discount-row').hide();
+        $('#discount_amount_text').text('-0 đ');
+        $('#applied_voucher_input').val('');
+        $('#btn-remove-voucher').addClass('d-none');
+
+        if (clearCode) {
+            $('#voucher_code').val('');
+        }
+
+        if (message) {
+            $('#voucher-message').text(message).removeClass('text-success').addClass('text-danger');
+        }
+
+        calculateTotal();
+    }
+
+    $('#voucher_code').on('input', function() {
+        this.value = this.value.toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+    }).on('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            $('#btn-apply-voucher').click();
+        }
+    });
+
     $('#btn-apply-voucher').click(function() {
         let code = $('#voucher_code').val().trim();
         let messageEl = $('#voucher-message');
+        let button = $(this);
 
         if(!code) {
-            messageEl.text('Vui lòng nhập mã giảm giá!').removeClass('text-success').addClass('text-danger');
+            resetVoucher('Vui lòng nhập mã giảm giá.');
             return;
         }
 
+        button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Đang kiểm tra');
+
         axios.post('{{ route("checkout.apply_voucher") }}', {
             voucher_code: code,
-            total_order: subTotal,
+            billing_email: $('#billing_email').val(),
             _token: '{{ csrf_token() }}'
         })
         .then(response => {
             if(response.data.success) {
                 messageEl.text(response.data.message).removeClass('text-danger').addClass('text-success');
-                currentDiscount = response.data.discount_amount;
+                currentDiscount = Number(response.data.discount_amount) || 0;
                 
                 $('#discount-row').show();
                 $('#discount_amount_text').text('-' + new Intl.NumberFormat('vi-VN').format(currentDiscount) + ' đ');
                 $('#applied_voucher_input').val(response.data.voucher_code);
-                
-                calculateTotal();
-            } else {
-                messageEl.text(response.data.message).removeClass('text-success').addClass('text-danger');
-                currentDiscount = 0;
-                $('#discount-row').hide();
-                $('#applied_voucher_input').val('');
+                $('#voucher_code').val(response.data.voucher_code);
+                $('#btn-remove-voucher').removeClass('d-none');
                 
                 calculateTotal();
             }
         })
         .catch(error => {
-            messageEl.text('Lỗi kết nối máy chủ!').removeClass('text-success').addClass('text-danger');
+            let serverMessage = error.response?.data?.message;
+            let validationErrors = error.response?.data?.errors;
+
+            if (!serverMessage && validationErrors) {
+                serverMessage = Object.values(validationErrors).flat()[0];
+            }
+
+            resetVoucher(serverMessage || 'Không thể kiểm tra voucher. Vui lòng thử lại.');
+        })
+        .finally(() => {
+            button.prop('disabled', false).text('Áp dụng');
         });
+    });
+
+    $('#btn-remove-voucher').click(function() {
+        resetVoucher('', true);
+        $('#voucher-message').text('Đã bỏ mã giảm giá.').removeClass('text-danger').addClass('text-muted');
+    });
+
+    $('#billing_email').on('change', function() {
+        if ($('#applied_voucher_input').val()) {
+            resetVoucher('Email đã thay đổi, vui lòng áp dụng lại voucher.');
+        }
     });
 
     // ==========================================

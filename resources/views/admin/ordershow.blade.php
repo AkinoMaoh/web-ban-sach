@@ -117,13 +117,19 @@
                                 <td class="text-dark">{{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y H:i:s') }}</td>
                             </tr>
                             <tr>
-                                <th class="text-muted">Tiền hàng:</th>
+                                <th class="text-muted">Tạm tính:</th>
                                 <td>
                                     <span class="font-weight-bold text-dark">
-                                        {{ number_format($order->total_amount - $order->shipping_fee, 0, ',', '.') }} đ
+                                        {{ number_format($order->subtotal_amount ?: ($order->total_amount - $order->shipping_fee + $order->discount_amount), 0, ',', '.') }} đ
                                     </span>
                                 </td>
                             </tr>
+                            @if($order->discount_amount > 0)
+                                <tr>
+                                    <th class="text-muted">Voucher {{ $order->voucher_code ? '(' . $order->voucher_code . ')' : '' }}:</th>
+                                    <td class="font-weight-bold text-success">-{{ number_format($order->discount_amount, 0, ',', '.') }} đ</td>
+                                </tr>
+                            @endif
                             <tr>
                                 <th class="text-muted">Phí vận chuyển:</th>
                                 <td>

@@ -174,9 +174,15 @@
                                 <span>{{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y H:i') }}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2 text-muted">
-                                <span>Tiền sản phẩm:</span>
-                                <span>{{ number_format($order->total_amount - ($order->shipping_fee ?? 0), 0, ',', '.') }} đ</span>
+                                <span>Tạm tính:</span>
+                                <span>{{ number_format($order->subtotal_amount ?: ($order->total_amount - ($order->shipping_fee ?? 0) + $order->discount_amount), 0, ',', '.') }} đ</span>
                             </div>
+                            @if($order->discount_amount > 0)
+                                <div class="d-flex justify-content-between mb-2 text-success">
+                                    <span>Voucher {{ $order->voucher_code ? '(' . $order->voucher_code . ')' : '' }}:</span>
+                                    <span class="font-weight-bold">-{{ number_format($order->discount_amount, 0, ',', '.') }} đ</span>
+                                </div>
+                            @endif
                             <div class="d-flex justify-content-between mb-2 text-muted">
                                 <span>Phí vận chuyển:</span>
                                 <span>{{ number_format($order->shipping_fee ?? 0, 0, ',', '.') }} đ</span>
