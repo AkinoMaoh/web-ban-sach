@@ -135,6 +135,9 @@ class VoucherServiceTest extends TestCase
         Schema::create('orders', function (Blueprint $table): void {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('order_number')->nullable()->unique();
+            $table->uuid('checkout_token')->nullable()->unique();
+            $table->string('tracking_token', 64)->nullable()->unique();
             $table->string('billing_email')->nullable();
             $table->unsignedBigInteger('voucher_id')->nullable();
             $table->string('voucher_code')->nullable();
