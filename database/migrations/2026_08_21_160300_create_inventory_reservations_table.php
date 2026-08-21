@@ -21,6 +21,14 @@ return new class extends Migration
 
             $table->unique(['order_id', 'product_variant_id'], 'inventory_order_variant_unique');
             $table->index(['product_variant_id', 'status'], 'inventory_variant_status_index');
+            $table->foreign('order_id')
+                ->references('id')
+                ->on('orders')
+                ->cascadeOnDelete();
+            $table->foreign('product_variant_id')
+                ->references('id')
+                ->on('product_variants')
+                ->restrictOnDelete();
         });
     }
 
