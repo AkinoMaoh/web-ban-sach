@@ -46,6 +46,16 @@ class OrderLifecycleService
                     : $lockedOrder->payment_status,
             ]);
 
+            Payment::query()
+                ->where('order_id', $lockedOrder->id)
+                ->whereIn('status', [Payment::STATUS_UNPAID, Payment::STATUS_PENDING])
+                ->update([
+                    'status' => $lockedOrder->payment_method === 'vnpay'
+                        ? Payment::STATUS_FAILED
+                        : Payment::STATUS_CANCELLED,
+                    'updated_at' => now(),
+                ]);
+
             $this->inventoryService->release($lockedOrder);
             $this->voucherService->releaseForOrder($lockedOrder);
 
