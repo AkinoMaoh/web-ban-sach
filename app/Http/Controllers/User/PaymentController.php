@@ -286,12 +286,16 @@ class PaymentController extends Controller
         }
 
         if ($order->status === Order::STATUS_CANCELLED) {
-            session()->forget('checkout_token');
+                session()->forget('checkout_token');
 
-            return back()
-                ->withInput()
-                ->with('error', 'Đơn hàng của phiên thanh toán này đã bị hủy. Vui lòng thử lại.');
-        }
+                return redirect()
+                    ->route('checkout.index')
+                    ->withInput($request->except([
+                        'checkout_token',
+                        'shipping_quote_token',
+                    ]))
+                    ->with('error', 'Đơn hàng của phiên thanh toán này đã bị hủy. Một phiên mới đã được tạo, vui lòng đặt lại.');
+            }
 
         if ($order->payment_method === 'cod') {
             $this->clearOrderCart($order);
@@ -311,20 +315,29 @@ class PaymentController extends Controller
                 'clearCheckoutDraft' => true,
             ]);
         }
+            if ($order->payment_expires_at?->isPast()) {
+                $this->orderLifecycleService->expirePayment($order);
+                session()->forget('checkout_token');
 
-        if ($order->payment_expires_at?->isPast()) {
-            $this->orderLifecycleService->expirePayment($order);
+                return redirect()
+                    ->route('checkout.index')
+                    ->withInput($request->except([
+                        'checkout_token',
+                        'shipping_quote_token',
+                    ]))
+                    ->with('error', 'Phiên VNPAY đã hết hạn. Tồn kho và voucher đã được hoàn lại.');
+            }
+
+       if (! $result['payment']) {
             session()->forget('checkout_token');
 
-            return back()
-                ->withInput()
-                ->with('error', 'Phiên VNPAY đã hết hạn. Tồn kho và voucher đã được hoàn lại.');
-        }
-
-        if (! $result['payment']) {
-            return back()
-                ->withInput()
-                ->with('error', 'Không tìm thấy phiên thanh toán VNPAY còn hiệu lực.');
+            return redirect()
+                ->route('checkout.index')
+                ->withInput($request->except([
+                    'checkout_token',
+                    'shipping_quote_token',
+                ]))
+                ->with('error', 'Không tìm thấy phiên thanh toán VNPAY còn hiệu lực. Vui lòng thử lại.');
         }
 
         return redirect()->to($this->vnpayService->paymentUrl(
