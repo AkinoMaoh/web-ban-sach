@@ -43,7 +43,7 @@ class PaymentCallbackService
 
         $payment->update([
             'status' => Payment::STATUS_PAID,
-            'gateway_transaction_no' => $data['vnp_TransactionNo'] ?? $payment->gateway_transaction_no,
+            'gateway_transaction_no' => $this->gatewayTransactionNo($data) ?? $payment->gateway_transaction_no,
             'response_code' => $data['vnp_ResponseCode'] ?? null,
             'bank_code' => $data['vnp_BankCode'] ?? null,
             'card_type' => $data['vnp_CardType'] ?? null,
@@ -61,7 +61,7 @@ class PaymentCallbackService
         $order->update([
             'payment_status' => Order::PAYMENT_PAID,
             'paid_at' => $order->paid_at ?? now(),
-            'payment_reference' => $data['vnp_TransactionNo'] ?? $order->payment_reference,
+            'payment_reference' => $this->gatewayTransactionNo($data) ?? $order->payment_reference,
             'payment_expires_at' => null,
             'refund_status' => $needsRefund ? Order::REFUND_REQUESTED : $order->refund_status,
             'cancel_requested_at' => $needsRefund ? now() : $order->cancel_requested_at,
@@ -99,7 +99,7 @@ class PaymentCallbackService
 
         $payment->update([
             'status' => Payment::STATUS_FAILED,
-            'gateway_transaction_no' => $data['vnp_TransactionNo'] ?? $payment->gateway_transaction_no,
+            'gateway_transaction_no' => $this->gatewayTransactionNo($data) ?? $payment->gateway_transaction_no,
             'response_code' => $data['vnp_ResponseCode'] ?? null,
             'bank_code' => $data['vnp_BankCode'] ?? null,
             'card_type' => $data['vnp_CardType'] ?? null,
@@ -130,5 +130,13 @@ class PaymentCallbackService
             'payment' => $payment->refresh(),
             'first_success' => false,
         ];
+    }
+
+    /** @param array<string, mixed> $data */
+    private function gatewayTransactionNo(array $data): ?string
+    {
+        $transactionNo = trim((string) ($data['vnp_TransactionNo'] ?? ''));
+
+        return $transactionNo === '' || $transactionNo === '0' ? null : $transactionNo;
     }
 }
