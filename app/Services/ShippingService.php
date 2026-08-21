@@ -59,7 +59,9 @@ class ShippingService
         $ttlSeconds = max((int) config('services.ghn.quote_ttl_minutes', 15), 1) * 60;
         $issuedAt = (int) ($payload['issued_at'] ?? 0);
 
-        if ($issuedAt <= 0 || now()->timestamp - $issuedAt > $ttlSeconds) {
+        if ($issuedAt <= 0
+            || $issuedAt > now()->timestamp + 60
+            || now()->timestamp - $issuedAt > $ttlSeconds) {
             $this->invalidQuote('Phí vận chuyển đã hết hiệu lực. Vui lòng tính lại phí.');
         }
 
