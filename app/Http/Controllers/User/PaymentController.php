@@ -6,15 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ApplyVoucherRequest;
 use App\Http\Requests\User\CheckoutRequest;
 use App\Http\Requests\User\ShippingFeeRequest;
-use App\Models\Notification;
 use App\Models\Order;
 use App\Models\Payment;
-use App\Models\User;
 use App\Models\Voucher;
 use App\Services\CheckoutAddressService;
 use App\Services\CheckoutCartService;
 use App\Services\CheckoutService;
 use App\Services\PaymentCallbackService;
+use App\Services\OrderNotificationService;
 use App\Services\ShippingService;
 use App\Services\VnpayService;
 use App\Services\VoucherService;
@@ -37,7 +36,8 @@ class PaymentController extends Controller
         private readonly CheckoutAddressService $addressService,
         private readonly CheckoutService $checkoutService,
         private readonly VnpayService $vnpayService,
-        private readonly PaymentCallbackService $paymentCallbackService
+        private readonly PaymentCallbackService $paymentCallbackService,
+        private readonly OrderNotificationService $notificationService
     ) {
     }
 
@@ -208,10 +208,11 @@ class PaymentController extends Controller
             session()->forget('checkout_token');
 
             if ($result['first_success']) {
-                $this->notifyAdmins(
+                $this->notificationService->notifyAdmins(
                     $result['order'],
                     "Có đơn hàng mới (đã thanh toán VNPAY): {$result['order']->order_number}"
                 );
+                $this->notificationService->sendOrderConfirmation($result['order']);
             }
 
             return view('User.thankyou', [
@@ -248,10 +249,11 @@ class PaymentController extends Controller
                 $this->clearOrderCart($result['order']);
 
                 if ($result['first_success']) {
-                    $this->notifyAdmins(
+                    $this->notificationService->notifyAdmins(
                         $result['order'],
                         "Có đơn hàng mới (đã thanh toán VNPAY): {$result['order']->order_number}"
                     );
+                    $this->notificationService->sendOrderConfirmation($result['order']);
                 }
             }
 
@@ -294,10 +296,11 @@ class PaymentController extends Controller
             session()->forget('checkout_token');
 
             if ($result['created']) {
-                $this->notifyAdmins(
+                $this->notificationService->notifyAdmins(
                     $order,
                     "Có đơn hàng mới (COD): {$order->order_number} từ khách {$order->shipping_name}"
                 );
+                $this->notificationService->sendOrderConfirmation($order);
             }
 
             return view('User.thankyou', [
@@ -334,22 +337,4 @@ class PaymentController extends Controller
         );
     }
 
-    private function notifyAdmins(Order $order, string $message): void
-    {
-        try {
-            User::query()
-                ->where('role', 1)
-                ->each(function (User $admin) use ($order, $message): void {
-                    Notification::query()->create([
-                        'user_id' => $admin->id,
-                        'order_id' => $order->id,
-                        'message' => $message,
-                        'is_read' => false,
-                        'target_url' => route('admin.orders.edit', $order->id),
-                    ]);
-                });
-        } catch (Throwable $exception) {
-            report($exception);
-        }
-    }
 }
