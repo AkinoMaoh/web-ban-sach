@@ -217,9 +217,15 @@
                     <!-- Phần tổng kết tiền -->
                     <div class="p-4 bg-light text-right">
                         <div class="d-flex justify-content-end mb-2">
-                            <span class="text-muted mr-4">Tổng tiền sản phẩm:</span>
-                            <span class="font-weight-bold text-dark" style="width: 120px;">{{ number_format($order->total_amount - $order->shipping_fee, 0, ',', '.') }} đ</span>
+                            <span class="text-muted mr-4">Tạm tính:</span>
+                            <span class="font-weight-bold text-dark" style="width: 120px;">{{ number_format($order->subtotal_amount ?: ($order->total_amount - $order->shipping_fee + $order->discount_amount), 0, ',', '.') }} đ</span>
                         </div>
+                        @if($order->discount_amount > 0)
+                            <div class="d-flex justify-content-end mb-2 text-success">
+                                <span class="mr-4">Voucher {{ $order->voucher_code ? '(' . $order->voucher_code . ')' : '' }}:</span>
+                                <span class="font-weight-bold" style="width: 120px;">-{{ number_format($order->discount_amount, 0, ',', '.') }} đ</span>
+                            </div>
+                        @endif
                         <div class="d-flex justify-content-end mb-3">
                             <span class="text-muted mr-4">Phí vận chuyển:</span>
                             <span class="font-weight-bold text-dark" style="width: 120px;">{{ number_format($order->shipping_fee, 0, ',', '.') }} đ</span>

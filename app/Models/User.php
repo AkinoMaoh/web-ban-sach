@@ -65,5 +65,10 @@ class User extends Authenticatable
     {
         // Lấy địa chỉ mặc định của user
         return $this->hasOne(UserAddress::class, 'user_id')->where('is_default', true);
-}
+    }
+
+    public function voucherUsages()
+    {
+        return $this->hasMany(VoucherUsage::class, 'user_id');
+    }
 }
