@@ -70,7 +70,7 @@ class PaymentCallbackService
                 : $order->cancel_request_reason,
         ]);
 
-        if (! $needsRefund) {
+        if (! $needsRefund && $firstSuccess) {
             $this->voucherService->markUsedForOrder($order);
         }
 
