@@ -8,10 +8,15 @@ use App\Models\OrderDetail;
 use App\Models\Notification;
 use App\Models\products;
 use App\Models\productVariants;
+use App\Services\VoucherService;
 use Illuminate\Http\Request;
 
 class ordersController extends Controller
 {
+    public function __construct(private readonly VoucherService $voucherService)
+    {
+    }
+
     public function index(Request $request)
     {
         $query = Order::with(['user', 'orderDetails']);
@@ -135,6 +140,7 @@ class ordersController extends Controller
                         $order->status = 'cancelled';
                         $order->cancel_reason = $dbCancelReason;
                         $order->save();
+                        $this->voucherService->releaseForOrder($order);
 
                         if ($order->user_id) {
                             Notification::create([
@@ -192,6 +198,12 @@ class ordersController extends Controller
         // Cập nhật trạng thái mới
         $order->status = $request->status;
         $order->save();
+
+        if ($order->status === 'cancelled') {
+            $this->voucherService->releaseForOrder($order);
+        } elseif ($order->status === 'completed') {
+            $this->voucherService->markUsedForOrder($order);
+        }
 
         $statusLabels = [
             'pending'   => 'Chờ xác nhận',

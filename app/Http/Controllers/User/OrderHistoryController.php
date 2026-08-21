@@ -6,10 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Services\VoucherService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class OrderHistoryController extends Controller
 {
+    public function __construct(private readonly VoucherService $voucherService)
+    {
+    }
+
     public function index()
     {
         // 1. Lấy danh sách đơn hàng của User đang đăng nhập, load kèm chi tiết
@@ -57,8 +63,11 @@ class OrderHistoryController extends Controller
             return back()->with('error', 'Đơn hàng này không thể hủy!');
         }
 
-        $order->status = 'cancelled';
-        $order->save();
+        DB::transaction(function () use ($order): void {
+            $order->status = 'cancelled';
+            $order->save();
+            $this->voucherService->releaseForOrder($order);
+        });
         
         return back()->with('success', 'Đơn hàng đã được hủy!');
     }
