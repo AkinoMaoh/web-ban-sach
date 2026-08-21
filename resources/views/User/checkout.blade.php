@@ -1,38 +1,37 @@
 @extends('layout.user')
 
 @section('content')
-<!-- Breadcrumb -->
+@vite(['resources/css/checkout.css', 'resources/js/checkout.js'])
+
 <div class="bg-white py-3 mb-4 shadow-sm border-bottom">
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb bg-transparent px-0 mb-0 py-0">
-                <li class="breadcrumb-item"><a href="{{ route('user.index') }}" class="text-muted"><i class="fas fa-home"></i> Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('user.index') }}" class="text-muted">Trang chủ</a></li>
                 <li class="breadcrumb-item"><a href="{{ route('cart.index') }}" class="text-muted">Giỏ hàng</a></li>
-                <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color); font-weight: 600;">Thanh toán</li>
+                <li class="breadcrumb-item active" aria-current="page">Thanh toán</li>
             </ol>
         </nav>
     </div>
 </div>
 
-<section class="checkout-section spad mb-5 pb-5">
+<section class="checkout-section pb-5">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="serif-font font-weight-bold" style="color: var(--text-main);">Hoàn tất đơn hàng</h2>
-            <p class="text-muted">Vui lòng điền đầy đủ thông tin bên dưới để chúng tôi giao sách đến bạn.</p>
+            <h2 class="serif-font font-weight-bold">Hoàn tất đơn hàng</h2>
+            <p class="text-muted">Thông tin bạn nhập sẽ được giữ lại nếu cần sửa lỗi hoặc tải lại trang.</p>
         </div>
 
-        {{-- Hiển thị thông báo lỗi từ Controller --}}
         @if(session('error'))
-            <div class="alert alert-danger shadow-sm border-0 mb-4" style="border-left: 5px solid #dc3545; border-radius: 6px;">
-                <i class="fas fa-exclamation-triangle mr-2"></i> <strong>Lỗi thanh toán:</strong> {{ session('error') }}
+            <div class="alert alert-danger checkout-alert" role="alert">
+                <i class="fas fa-exclamation-triangle mr-2"></i>{{ session('error') }}
             </div>
         @endif
 
-        {{-- Hiển thị lỗi Validate (nhập thiếu) --}}
         @if ($errors->any())
-            <div class="alert alert-danger shadow-sm border-0 mb-4" style="border-left: 5px solid #dc3545; border-radius: 6px;">
-                <h6 class="font-weight-bold mb-2"><i class="fas fa-exclamation-circle mr-1"></i> Vui lòng kiểm tra lại:</h6>
-                <ul class="mb-0 pl-3">
+            <div class="alert alert-danger checkout-alert" role="alert">
+                <strong>Vui lòng kiểm tra lại thông tin:</strong>
+                <ul class="mb-0 mt-2 pl-3">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -40,171 +39,247 @@
             </div>
         @endif
 
-        <form action="{{ route('checkout.process') }}" method="POST" id="checkoutForm">
+        <form
+            action="{{ route('checkout.process') }}"
+            method="POST"
+            id="checkoutForm"
+            data-csrf="{{ csrf_token() }}"
+            data-fee-url="{{ route('payment.calculate_fee') }}"
+            data-voucher-url="{{ route('checkout.apply_voucher') }}"
+            data-district-url="{{ url('/api/locations/districts') }}"
+            data-ward-url="{{ url('/api/locations/wards') }}"
+            data-has-old-input="{{ session()->hasOldInput() ? '1' : '0' }}"
+        >
             @csrf
+            <input type="hidden" name="checkout_token" value="{{ $checkoutToken }}">
+            <input type="hidden" name="shipping_quote_token" id="shipping_quote_token" value="">
+            <input type="hidden" name="applied_voucher" id="applied_voucher_input" value="{{ old('applied_voucher') }}">
+            <input type="hidden" name="address_id" id="address_id" value="{{ old('address_id') }}">
+
             <div class="row">
-                <!-- Cột Thông tin giao hàng -->
                 <div class="col-lg-7 mb-4">
-                    <div class="bg-white p-4 p-md-5 rounded shadow-sm border">
-                        <h4 class="serif-font font-weight-bold mb-4 border-bottom pb-3">1. Thông tin giao hàng</h4>
-                        
-                        <div class="form-group mb-4">
-                            <label class="font-weight-bold text-dark">Họ và tên <span class="text-danger">*</span></label>
-                            <input type="text" name="shipping_name" value="{{ old('shipping_name', $defaultAddress->receiver_name ?? (auth()->user()->name ?? '')) }}" class="form-control form-control-lg custom-input" placeholder="Nhập tên người nhận">
-                        </div>
+                    <div class="checkout-card">
+                        <h4 class="checkout-heading">1. Thông tin giao hàng</h4>
 
-                        <div class="row">
-                            <div class="col-md-6 form-group mb-4">
-                                <label class="font-weight-bold text-dark">Email <span class="text-danger">*</span></label>
-                                <input type="email" id="billing_email" name="billing_email" value="{{ old('billing_email', auth()->user()->email ?? '') }}" class="form-control form-control-lg custom-input" placeholder="ten@gmail.com">
-                            </div>
-                            <div class="col-md-6 form-group mb-4">
-                                <label class="font-weight-bold text-dark">Số điện thoại <span class="text-danger">*</span></label>
-                                <input type="text" name="shipping_phone" value="{{ old('shipping_phone', $defaultAddress->receiver_phone ?? (auth()->user()->phone ?? '')) }}" class="form-control form-control-lg custom-input" placeholder="098...">
-                            </div>
-                        </div>
-
-                        <h5 class="serif-font font-weight-bold mb-3 mt-2">Địa chỉ chi tiết</h5>
-                        
-                        <div class="row">
-                            <div class="col-md-4 form-group mb-3">
-                                <label class="text-muted small font-weight-bold text-uppercase">Tỉnh / Thành <span class="text-danger">*</span></label>
-                                <select id="province" name="province_id" class="custom-select custom-select-lg custom-input">
-                                    <option value="">Chọn Tỉnh/Thành</option>
-                                    @if(isset($provinces))
-                                        @foreach($provinces as $province)
-                                            <option value="{{ $province->id }}" data-name="{{ $province->name }}" {{ old('province_id', $defaultAddress->province_id ?? '') == $province->id ? 'selected' : '' }}>
-                                                {{ $province->name }}
+                        @auth
+                            @if($addresses->isNotEmpty())
+                                <div class="form-group">
+                                    <label for="saved_address" class="font-weight-bold">Địa chỉ đã lưu</label>
+                                    <select id="saved_address" class="custom-select custom-input">
+                                        <option value="">Nhập địa chỉ khác</option>
+                                        @foreach($addresses as $address)
+                                            <option
+                                                value="{{ $address->id }}"
+                                                data-name="{{ $address->receiver_name }}"
+                                                data-phone="{{ $address->receiver_phone }}"
+                                                data-province="{{ $address->province_id }}"
+                                                data-district="{{ $address->district_id }}"
+                                                data-ward="{{ $address->ward_code }}"
+                                                data-street="{{ $address->specific_address }}"
+                                                @selected((string) old('address_id') === (string) $address->id)
+                                            >
+                                                {{ $address->is_default ? 'Mặc định · ' : '' }}{{ $address->receiver_name }} — {{ $address->specific_address }}, {{ $address->ward?->name }}, {{ $address->district?->name }}
                                             </option>
                                         @endforeach
-                                    @endif
+                                    </select>
+                                </div>
+                            @endif
+                        @endauth
+
+                        <div class="form-group">
+                            <label for="shipping_name" class="font-weight-bold">Họ và tên <span class="text-danger">*</span></label>
+                            <input
+                                id="shipping_name"
+                                type="text"
+                                name="shipping_name"
+                                value="{{ old('shipping_name', $defaultAddress->receiver_name ?? (auth()->user()->name ?? '')) }}"
+                                class="form-control custom-input @error('shipping_name') is-invalid @enderror"
+                                maxlength="255"
+                                autocomplete="name"
+                                required
+                            >
+                            @error('shipping_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label for="billing_email" class="font-weight-bold">Email <span class="text-danger">*</span></label>
+                                <input
+                                    id="billing_email"
+                                    type="email"
+                                    name="billing_email"
+                                    value="{{ old('billing_email', auth()->user()->email ?? '') }}"
+                                    class="form-control custom-input @error('billing_email') is-invalid @enderror"
+                                    maxlength="255"
+                                    autocomplete="email"
+                                    required
+                                >
+                                @error('billing_email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label for="shipping_phone" class="font-weight-bold">Số điện thoại <span class="text-danger">*</span></label>
+                                <input
+                                    id="shipping_phone"
+                                    type="tel"
+                                    name="shipping_phone"
+                                    value="{{ old('shipping_phone', $defaultAddress->receiver_phone ?? (auth()->user()->phone ?? '')) }}"
+                                    class="form-control custom-input @error('shipping_phone') is-invalid @enderror"
+                                    maxlength="20"
+                                    inputmode="tel"
+                                    autocomplete="tel"
+                                    required
+                                >
+                                @error('shipping_phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+
+                        <h5 class="font-weight-bold mt-3 mb-3">Địa chỉ chi tiết</h5>
+                        <div class="row">
+                            <div class="col-md-4 form-group">
+                                <label for="province" class="checkout-label">Tỉnh / Thành <span class="text-danger">*</span></label>
+                                <select id="province" name="province_id" class="custom-select custom-input @error('province_id') is-invalid @enderror" required>
+                                    <option value="">Chọn Tỉnh/Thành</option>
+                                    @foreach($provinces as $province)
+                                        <option value="{{ $province->id }}" @selected((string) old('province_id', $defaultAddress->province_id ?? '') === (string) $province->id)>
+                                            {{ $province->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-4 form-group mb-3">
-                                <label class="text-muted small font-weight-bold text-uppercase">Quận / Huyện <span class="text-danger">*</span></label>
-                                <select id="district" name="district_id" class="custom-select custom-select-lg custom-input">
+                            <div class="col-md-4 form-group">
+                                <label for="district" class="checkout-label">Quận / Huyện <span class="text-danger">*</span></label>
+                                <select
+                                    id="district"
+                                    name="district_id"
+                                    class="custom-select custom-input @error('district_id') is-invalid @enderror"
+                                    data-selected="{{ old('district_id', $defaultAddress->district_id ?? '') }}"
+                                    required
+                                >
                                     <option value="">Chọn Quận/Huyện</option>
                                 </select>
                             </div>
-                            <div class="col-md-4 form-group mb-3">
-                                <label class="text-muted small font-weight-bold text-uppercase">Phường / Xã <span class="text-danger">*</span></label>
-                                <select id="ward" name="ward_code" class="custom-select custom-select-lg custom-input">
+                            <div class="col-md-4 form-group">
+                                <label for="ward" class="checkout-label">Phường / Xã <span class="text-danger">*</span></label>
+                                <select
+                                    id="ward"
+                                    name="ward_code"
+                                    class="custom-select custom-input @error('ward_code') is-invalid @enderror"
+                                    data-selected="{{ old('ward_code', $defaultAddress->ward_code ?? '') }}"
+                                    required
+                                >
                                     <option value="">Chọn Phường/Xã</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="form-group mb-4">
-                            <label class="text-muted small font-weight-bold text-uppercase">Số nhà, Tên đường <span class="text-danger">*</span></label>
-                            <input type="text" id="street" name="specific_address" class="form-control form-control-lg custom-input" placeholder="Ví dụ: 123 Đường Lê Lợi..." value="{{ old('specific_address', $defaultAddress->specific_address ?? '') }}">
+                        <div class="form-group">
+                            <label for="specific_address" class="checkout-label">Số nhà, tên đường <span class="text-danger">*</span></label>
+                            <input
+                                id="specific_address"
+                                type="text"
+                                name="specific_address"
+                                value="{{ old('specific_address', $defaultAddress->specific_address ?? '') }}"
+                                class="form-control custom-input @error('specific_address') is-invalid @enderror"
+                                maxlength="500"
+                                autocomplete="street-address"
+                                required
+                            >
+                            @error('specific_address')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                        
-                        <!-- Hidden input chứa full địa chỉ cho Controller -->
-                        <input type="hidden" name="full_address" id="full_address">
 
-                        <div class="form-group mb-4 mt-4">
-                            <label class="font-weight-bold text-dark">Ghi chú đơn hàng (Tùy chọn)</label>
-                            <textarea name="order_notes" rows="3" class="form-control custom-input" placeholder="Ghi chú về thời gian giao hàng, chỉ dẫn địa chỉ...">{{ old('order_notes') }}</textarea>
+                        @auth
+                            <div class="address-options p-3 mb-3">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="save_address" name="save_address" value="1" @checked(old('save_address'))>
+                                    <label class="custom-control-label" for="save_address">Lưu địa chỉ này cho lần sau</label>
+                                </div>
+                                <div class="custom-control custom-checkbox mt-2" id="default_address_wrap">
+                                    <input type="checkbox" class="custom-control-input" id="set_default_address" name="set_default_address" value="1" @checked(old('set_default_address'))>
+                                    <label class="custom-control-label" for="set_default_address">Đặt làm địa chỉ mặc định</label>
+                                </div>
+                            </div>
+                        @endauth
+
+                        <div class="form-group">
+                            <label for="order_notes" class="font-weight-bold">Ghi chú đơn hàng</label>
+                            <textarea id="order_notes" name="order_notes" rows="3" maxlength="2000" class="form-control custom-input" placeholder="Thời gian giao phù hợp, chỉ dẫn địa chỉ...">{{ old('order_notes') }}</textarea>
                         </div>
 
-                        <h4 class="serif-font font-weight-bold mb-4 mt-5 border-bottom pb-3">2. Phương thức thanh toán</h4>
-                        
-                        <!-- Thanh toán COD -->
+                        <h4 class="checkout-heading mt-5">2. Phương thức thanh toán</h4>
                         <label class="payment-method-card mb-3 w-100">
-                            <input type="radio" name="payment_method" value="cod" checked>
-                            <div class="payment-card-content d-flex align-items-center p-3 border rounded shadow-sm">
-                                <img src="https://cdn-icons-png.flaticon.com/512/6491/6491490.png" width="40" class="mr-3" alt="COD">
-                                <div>
-                                    <h6 class="font-weight-bold mb-1 text-dark">Thanh toán khi nhận hàng (COD)</h6>
-                                    <span class="text-muted small">Khách hàng thanh toán bằng tiền mặt khi shipper giao sách tới.</span>
-                                </div>
-                            </div>
+                            <input type="radio" name="payment_method" value="cod" @checked(old('payment_method', 'cod') === 'cod')>
+                            <span class="payment-card-content d-flex align-items-center">
+                                <i class="fas fa-money-bill-wave payment-icon text-success"></i>
+                                <span><strong>Thanh toán khi nhận hàng (COD)</strong><small>Thanh toán cho shipper khi nhận sách.</small></span>
+                            </span>
                         </label>
-                        
-                        <!-- Thanh toán VNPAY -->
                         <label class="payment-method-card w-100">
-                            <input type="radio" name="payment_method" value="vnpay">
-                            <div class="payment-card-content d-flex align-items-center p-3 border rounded shadow-sm">
-                                <img src="https://vnpay.vn/s1/vnpay/logo.svg" width="40" class="mr-3" alt="VNPAY">
-                                <div>
-                                    <h6 class="font-weight-bold mb-1 text-dark">Thanh toán trực tuyến VNPAY</h6>
-                                    <span class="text-muted small">Thanh toán an toàn qua thẻ ATM, Internet Banking hoặc ví VNPAY.</span>
-                                </div>
-                            </div>
+                            <input type="radio" name="payment_method" value="vnpay" @checked(old('payment_method') === 'vnpay')>
+                            <span class="payment-card-content d-flex align-items-center">
+                                <i class="fas fa-credit-card payment-icon text-primary"></i>
+                                <span><strong>Thanh toán trực tuyến VNPAY</strong><small>Thẻ ATM, Internet Banking hoặc ví VNPAY.</small></span>
+                            </span>
                         </label>
                     </div>
                 </div>
 
-                <!-- Cột Tóm tắt đơn hàng -->
                 <div class="col-lg-5">
-                    <div class="bg-light p-4 rounded shadow-sm border sticky-top" style="top: 100px;">
-                        <h4 class="serif-font font-weight-bold mb-4 border-bottom pb-3">Đơn hàng của bạn</h4>
-                        
-                        <div class="order-items-list mb-4" style="max-height: 350px; overflow-y: auto; padding-right: 10px;">
-                            @if(!empty($cart))
-                                @foreach($cart as $id => $details)
-                                    <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
-                                        <div class="pr-3">
-                                            <h6 class="mb-1 text-dark" style="font-size: 15px; line-height: 1.4;">{{ $details['name'] ?? 'Sách ID '.$id }}</h6>
-                                            <span class="text-muted small">Số lượng: <strong class="text-dark">{{ $details['quantity'] }}</strong></span>
-                                            
-                                            @if(isset($details['original_price']) && $details['original_price'] > $details['price'])
-                                                <span class="text-muted small ml-2"><del>{{ number_format($details['original_price']) }} đ</del></span>
-                                            @endif
-                                        </div>
-                                        <span class="font-weight-bold" style="color: var(--primary-color);">{{ number_format($details['price'] * $details['quantity']) }} đ</span>
+                    <div class="checkout-summary sticky-top">
+                        <h4 class="checkout-heading">Đơn hàng của bạn</h4>
+                        <div class="order-items-list mb-3">
+                            @forelse($cart as $id => $details)
+                                <div class="order-line">
+                                    <div class="pr-3">
+                                        <strong>{{ $details['name'] ?? 'Sách ID '.$id }}</strong>
+                                        <small>Số lượng: {{ $details['quantity'] }}</small>
                                     </div>
-                                @endforeach
-                            @else
-                                <div class="text-muted text-center py-3">Giỏ hàng rỗng.</div>
-                            @endif
+                                    <span>{{ number_format($details['price'] * $details['quantity']) }}đ</span>
+                                </div>
+                            @empty
+                                <p class="text-muted text-center py-3">Giỏ hàng rỗng.</p>
+                            @endforelse
                         </div>
 
-                        <!-- KHU VỰC NHẬP MÃ GIẢM GIÁ -->
-                        <div class="voucher-section mb-3 pt-3 border-top">
+                        <div class="voucher-section">
+                            <label for="voucher_code" class="font-weight-bold">Mã giảm giá</label>
                             <div class="input-group">
-                                <input type="text" id="voucher_code" class="form-control custom-input text-uppercase" placeholder="Nhập hoặc chọn mã..." autocomplete="off" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                <input type="text" id="voucher_code" class="form-control custom-input text-uppercase" value="{{ old('applied_voucher') }}" maxlength="100" autocomplete="off" placeholder="Nhập hoặc chọn mã">
                                 <div class="input-group-append">
-                                    <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#voucherModal" style="border-radius: 0;">
-                                        <i class="fas fa-list mr-1"></i> Chọn mã
-                                    </button>
-                                    <button type="button" id="btn-apply-voucher" class="btn btn-dark" style="border-top-right-radius: 8px; border-bottom-right-radius: 8px;">Áp dụng</button>
-                                    <button type="button" id="btn-remove-voucher" class="btn btn-outline-danger d-none" title="Bỏ voucher">
-                                        <i class="fas fa-times"></i>
-                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#voucherModal">Chọn</button>
+                                    <button type="button" id="btn-apply-voucher" class="btn btn-dark">Áp dụng</button>
                                 </div>
                             </div>
-                            <small id="voucher-message" class="mt-1 d-block font-weight-bold" role="status"></small>
+                            <button type="button" id="btn-remove-voucher" class="btn btn-link text-danger px-0 d-none">Bỏ mã đang dùng</button>
+                            <small id="voucher-message" class="d-block font-weight-bold" aria-live="polite"></small>
                         </div>
 
-                        <!-- KHU VỰC HIỂN THỊ TIỀN TỆ -->
-                        <div class="d-flex justify-content-between mb-3 text-muted">
+                        <div class="summary-line">
                             <span>Tạm tính</span>
-                            <span id="subtotal_text" data-value="{{ $totalAmount ?? 0 }}">{{ number_format($totalAmount ?? 0) }} đ</span>
+                            <span id="subtotal_text" data-value="{{ $totalAmount ?? 0 }}">{{ number_format($totalAmount ?? 0) }}đ</span>
                         </div>
-
-                        <div class="d-flex justify-content-between mb-3 text-success" id="discount-row" style="display: none;">
-                            <span class="font-weight-bold">Giảm giá (Voucher)</span>
-                            <span id="discount_amount_text" class="font-weight-bold">-0 đ</span>
+                        <div class="summary-line text-success d-none" id="discount-row">
+                            <span>Giảm giá</span>
+                            <strong id="discount_amount_text">-0đ</strong>
                         </div>
-
-                        <div class="d-flex justify-content-between mb-3 text-muted">
+                        <div class="summary-line">
                             <span>Phí vận chuyển</span>
                             <span id="shipping_fee_text">Vui lòng chọn địa chỉ</span>
                         </div>
-
-                        <div class="d-flex justify-content-between align-items-center mb-4 pt-3 border-top">
-                            <span class="font-weight-bold text-dark" style="font-size: 18px;">TỔNG CỘNG:</span>
-                            <span class="font-weight-bold" id="total_amount_text" style="color: #e74c3c; font-size: 24px;">{{ number_format($totalAmount ?? 0) }} đ</span>
+                        <div class="summary-total">
+                            <span>Tổng cộng</span>
+                            <strong id="total_amount_text">{{ number_format($totalAmount ?? 0) }}đ</strong>
                         </div>
 
-                        <!-- CÁC THẺ INPUT ẨN GỬI VỀ CONTROLLER -->
-                        <input type="hidden" name="applied_voucher" id="applied_voucher_input" value="">
-                        <input type="hidden" name="shipping_fee" id="hidden_shipping_fee" value="0">
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input" id="agree_terms" name="agree_terms" value="1" @checked(old('agree_terms')) required>
+                            <label class="custom-control-label small" for="agree_terms">Tôi xác nhận thông tin và đồng ý với chính sách đặt hàng.</label>
+                        </div>
 
-                        <button type="submit" class="btn btn-orange btn-block rounded-pill py-3 font-weight-bold shadow-sm text-uppercase" style="font-size: 16px; letter-spacing: 0.5px;">
-                            <i class="fas fa-check-circle mr-2"></i> Đặt hàng ngay
+                        <button type="submit" id="checkout-submit" class="btn btn-orange btn-block rounded-pill py-3 font-weight-bold text-uppercase">
+                            <span class="submit-label"><i class="fas fa-lock mr-2"></i>Đặt hàng an toàn</span>
+                            <span class="submit-loading d-none"><i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...</span>
                         </button>
+                        <small class="text-muted d-block text-center mt-2"><i class="fas fa-shield-alt mr-1"></i>Giá và tồn kho được kiểm tra lại trên máy chủ.</small>
                     </div>
                 </div>
             </div>
@@ -212,327 +287,33 @@
     </div>
 </section>
 
-<!-- Modal Danh Sách Voucher -->
 <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-light">
-                <h5 class="modal-title font-weight-bold" id="voucherModalLabel"><i class="fas fa-ticket-alt text-orange mr-2"></i>Chọn Mã Giảm Giá</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            <div class="modal-header">
+                <h5 class="modal-title font-weight-bold" id="voucherModalLabel">Chọn mã giảm giá</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Đóng"><span aria-hidden="true">&times;</span></button>
             </div>
-            <div class="modal-body bg-light pt-2">
-                @if(isset($vouchers) && $vouchers->count() > 0)
-                    @foreach($vouchers as $vc)
-                        @php($isEligible = ($totalAmount ?? 0) >= (float) $vc->min_order_value)
-                        <div class="card shadow-sm mb-3 border-0 rounded-lg">
-                            <div class="card-body p-3 d-flex align-items-center">
-                                <div class="bg-primary text-white rounded p-2 text-center mr-3" style="min-width: 80px;">
-                                    <h6 class="font-weight-bold mb-0" style="font-size: 14px;">{{ $vc->code }}</h6>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="font-weight-bold mb-1 text-dark" style="font-size: 15px;">
-                                        @if($vc->type == 'percent')
-                                            Giảm {{ $vc->discount_value }}% 
-                                            @if($vc->max_discount_value)
-                                                <span class="text-muted" style="font-size: 12px;">(Tối đa {{ number_format($vc->max_discount_value) }}đ)</span>
-                                            @endif
-                                        @else
-                                            Giảm {{ number_format($vc->discount_value) }}đ
-                                        @endif
-                                    </h6>
-                                    <p class="text-muted mb-0" style="font-size: 12px;">Đơn tối thiểu: {{ number_format($vc->min_order_value) }}đ</p>
-                                    @if($vc->usage_limit_per_customer)
-                                        <p class="text-muted mb-0" style="font-size: 12px;">Mỗi khách: {{ $vc->usage_limit_per_customer }} lượt</p>
-                                    @endif
-                                    @if($vc->description)
-                                        <p class="text-muted mb-0" style="font-size: 12px;">{{ $vc->description }}</p>
-                                    @endif
-                                    <small class="text-danger">
-                                        HSD: {{ $vc->end_date ? \Carbon\Carbon::parse($vc->end_date)->format('d/m/Y') : 'Vô thời hạn' }}
-                                    </small>
-                                    @unless($isEligible)
-                                        <small class="d-block text-warning">Cần mua thêm {{ number_format($vc->min_order_value - ($totalAmount ?? 0)) }}đ</small>
-                                    @endunless
-                                </div>
-                                <div>
-                                    <button type="button" class="btn btn-sm btn-outline-primary btn-select-voucher font-weight-bold" data-code="{{ $vc->code }}" @disabled(!$isEligible)>
-                                        {{ $isEligible ? 'Chọn' : 'Chưa đủ' }}
-                                    </button>
-                                </div>
-                            </div>
+            <div class="modal-body bg-light">
+                @forelse($vouchers as $voucher)
+                    @php($isEligible = ($totalAmount ?? 0) >= (float) $voucher->min_order_value)
+                    <div class="voucher-card">
+                        <div class="voucher-code">{{ $voucher->code }}</div>
+                        <div class="flex-grow-1 px-3">
+                            <strong>
+                                {{ $voucher->type === 'percent' ? 'Giảm '.$voucher->discount_value.'%' : 'Giảm '.number_format($voucher->discount_value).'đ' }}
+                            </strong>
+                            <small>Đơn tối thiểu {{ number_format($voucher->min_order_value) }}đ · HSD {{ $voucher->end_date?->format('d/m/Y') ?? 'không giới hạn' }}</small>
                         </div>
-                    @endforeach
-                @else
-                    <div class="text-center py-4 text-muted">
-                        <i class="fas fa-box-open fa-3x mb-3 text-light"></i>
-                        <p>Hiện tại không có mã giảm giá nào phù hợp.</p>
+                        <button type="button" class="btn btn-sm btn-outline-primary btn-select-voucher" data-code="{{ $voucher->code }}" @disabled(!$isEligible)>
+                            {{ $isEligible ? 'Chọn' : 'Chưa đủ' }}
+                        </button>
                     </div>
-                @endif
+                @empty
+                    <p class="text-center text-muted my-4">Hiện chưa có mã phù hợp.</p>
+                @endforelse
             </div>
         </div>
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<style>
-    .custom-input { border: 1px solid #E0E0E0; border-radius: 8px; font-size: 15px; transition: all 0.3s; }
-    .custom-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(211,84,0,0.15); }
-    
-    .payment-method-card { cursor: pointer; }
-    .payment-method-card input[type="radio"] { display: none; }
-    .payment-card-content { background: #fff; transition: all 0.3s; }
-    .payment-card-content:hover { border-color: #ccc !important; }
-    
-    .payment-method-card input[type="radio"]:checked + .payment-card-content {
-        border-color: var(--primary-color) !important;
-        background-color: #FFF6F0;
-        box-shadow: 0 4px 10px rgba(211,84,0,0.1) !important;
-    }
-</style>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
-<script>
-$(document).ready(function() {
-    let subTotal = parseInt($('#subtotal_text').attr('data-value')) || 0;
-    let currentShippingFee = 0;
-    let currentDiscount = 0;
-
-    function calculateTotal() {
-        let finalTotal = subTotal + currentShippingFee - currentDiscount;
-        if (finalTotal < 0) finalTotal = 0; 
-        $('#total_amount_text').text(new Intl.NumberFormat('vi-VN').format(finalTotal) + ' đ');
-    }
-
-    // ==========================================
-    // TỰ ĐỘNG TẢI ĐỊA CHỈ TỪ USER_ADDRESSES
-    // ==========================================
-    let savedDistrict = "{{ old('district_id', $defaultAddress->district_id ?? '') }}";
-    let savedWard = "{{ old('ward_code', $defaultAddress->ward_code ?? '') }}";
-
-    function loadDistricts(province_id, selected_district = null) {
-        if (province_id) {
-            $('#district').html('<option value="">Đang tải...</option>');
-            axios.get(`/api/locations/districts/${province_id}`)
-                .then((response) => {
-                    let html = '<option value="">Chọn Quận/Huyện</option>';
-                    let districts = response.data.data || response.data;
-                    districts.forEach(element => {
-                        let selected = (element.id == selected_district) ? 'selected' : '';
-                        html += `<option data-name="${element.name}" value="${element.id}" ${selected}>${element.name}</option>`;
-                    });
-                    $('#district').html(html);
-
-                    if (selected_district) {
-                        loadWards(selected_district, savedWard);
-                    } else {
-                        $('#ward').html('<option value="">Chọn Phường/Xã</option>');
-                    }
-                });
-        } else {
-            $('#district').html('<option value="">Chọn Quận/Huyện</option>');
-            $('#ward').html('<option value="">Chọn Phường/Xã</option>');
-        }
-    }
-
-    function loadWards(district_id, selected_ward = null) {
-        if (district_id) {
-            $('#ward').html('<option value="">Đang tải...</option>');
-            axios.get(`/api/locations/wards/${district_id}`)
-                .then((response) => {
-                    let html = '<option value="">Chọn Phường/Xã</option>';
-                    let wards = response.data.data || response.data;
-                    wards.forEach(element => {
-                        let selected = (element.code == selected_ward) ? 'selected' : '';
-                        html += `<option data-name="${element.name}" value="${element.code}" ${selected}>${element.name}</option>`;
-                    });
-                    $('#ward').html(html);
-
-                    // Khi nạp xong phường/xã, tự động kích hoạt tính phí ship
-                    if (selected_ward) {
-                        $('#ward').trigger('change');
-                    }
-                });
-        } else {
-            $('#ward').html('<option value="">Chọn Phường/Xã</option>');
-        }
-    }
-
-    // Sự kiện khi người dùng thay đổi Tỉnh/Thành
-    $("#province").on("change", function() {
-        savedDistrict = null;
-        savedWard = null;
-        resetShippingFee(); 
-        loadDistricts($(this).val());
-    });
-
-    // Sự kiện khi người dùng thay đổi Quận/Huyện
-    $("#district").on("change", function() {
-        savedWard = null;
-        resetShippingFee(); 
-        loadWards($(this).val());
-    });
-
-    // Tự động load dữ liệu khi vào trang (nếu đã có Tỉnh được chọn sẵn)
-    if ($('#province').val()) {
-        loadDistricts($('#province').val(), savedDistrict);
-    }
-
-    // ==========================================
-    // TÍNH PHÍ VẬN CHUYỂN GHN
-    // ==========================================
-    $("#ward").on("change", function() {
-        let wardCode = $(this).val();
-        let districtId = $("#district").val();
-
-        if (wardCode && districtId) {
-            $('#shipping_fee_text').html('<i class="fas fa-spinner fa-spin"></i> Đang tính phí...');
-            
-            axios.post('{{ route('payment.calculate_fee') }}', {
-                district_id: districtId,
-                ward_code: wardCode,
-                _token: '{{ csrf_token() }}'
-            }).then((response) => {
-                if(response.data.success) {
-                    updateShippingFee(response.data.fee);
-                } else {
-                    updateShippingFee(response.data.fee || 30000); 
-                }
-            }).catch(err => {
-                updateShippingFee(30000); 
-            });
-        }
-    });
-
-    function updateShippingFee(fee) {
-        currentShippingFee = fee;
-        $('#shipping_fee_text').text(new Intl.NumberFormat('vi-VN').format(fee) + ' đ');
-        $('#hidden_shipping_fee').val(fee);
-        calculateTotal();
-    }
-
-    function resetShippingFee() {
-        currentShippingFee = 0;
-        $('#shipping_fee_text').text('Vui lòng chọn địa chỉ');
-        $('#hidden_shipping_fee').val(0);
-        calculateTotal();
-    }
-
-    // ==========================================
-    // LOGIC VOUCHER
-    // ==========================================
-    $(document).on('click', '.btn-select-voucher', function(e) {
-        e.preventDefault();
-        let selectedCode = $(this).attr('data-code'); 
-        if (selectedCode) {
-            $('#voucher_code').val(selectedCode); 
-            $('#voucherModal').modal('hide');     
-            $('#btn-apply-voucher').click();      
-        }
-    });
-
-    function resetVoucher(message = '', clearCode = false) {
-        currentDiscount = 0;
-        $('#discount-row').hide();
-        $('#discount_amount_text').text('-0 đ');
-        $('#applied_voucher_input').val('');
-        $('#btn-remove-voucher').addClass('d-none');
-
-        if (clearCode) {
-            $('#voucher_code').val('');
-        }
-
-        if (message) {
-            $('#voucher-message').text(message).removeClass('text-success').addClass('text-danger');
-        }
-
-        calculateTotal();
-    }
-
-    $('#voucher_code').on('input', function() {
-        this.value = this.value.toUpperCase().replace(/[^A-Z0-9_-]/g, '');
-    }).on('keydown', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            $('#btn-apply-voucher').click();
-        }
-    });
-
-    $('#btn-apply-voucher').click(function() {
-        let code = $('#voucher_code').val().trim();
-        let messageEl = $('#voucher-message');
-        let button = $(this);
-
-        if(!code) {
-            resetVoucher('Vui lòng nhập mã giảm giá.');
-            return;
-        }
-
-        button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Đang kiểm tra');
-
-        axios.post('{{ route("checkout.apply_voucher") }}', {
-            voucher_code: code,
-            billing_email: $('#billing_email').val(),
-            _token: '{{ csrf_token() }}'
-        })
-        .then(response => {
-            if(response.data.success) {
-                messageEl.text(response.data.message).removeClass('text-danger').addClass('text-success');
-                currentDiscount = Number(response.data.discount_amount) || 0;
-                
-                $('#discount-row').show();
-                $('#discount_amount_text').text('-' + new Intl.NumberFormat('vi-VN').format(currentDiscount) + ' đ');
-                $('#applied_voucher_input').val(response.data.voucher_code);
-                $('#voucher_code').val(response.data.voucher_code);
-                $('#btn-remove-voucher').removeClass('d-none');
-                
-                calculateTotal();
-            }
-        })
-        .catch(error => {
-            let serverMessage = error.response?.data?.message;
-            let validationErrors = error.response?.data?.errors;
-
-            if (!serverMessage && validationErrors) {
-                serverMessage = Object.values(validationErrors).flat()[0];
-            }
-
-            resetVoucher(serverMessage || 'Không thể kiểm tra voucher. Vui lòng thử lại.');
-        })
-        .finally(() => {
-            button.prop('disabled', false).text('Áp dụng');
-        });
-    });
-
-    $('#btn-remove-voucher').click(function() {
-        resetVoucher('', true);
-        $('#voucher-message').text('Đã bỏ mã giảm giá.').removeClass('text-danger').addClass('text-muted');
-    });
-
-    $('#billing_email').on('change', function() {
-        if ($('#applied_voucher_input').val()) {
-            resetVoucher('Email đã thay đổi, vui lòng áp dụng lại voucher.');
-        }
-    });
-
-    // ==========================================
-    // TẠO CHUỖI ĐỊA CHỈ KHI SUBMIT FORM
-    // ==========================================
-    $('#checkoutForm').on('submit', function(e) {
-        let provinceName = $("#province option:selected").attr('data-name');
-        let districtName = $("#district option:selected").attr('data-name');
-        let wardName = $("#ward option:selected").attr('data-name');
-        let street = $('#street').val();
-
-        let fullAddress = "";
-        if (provinceName && districtName && wardName && street) {
-            fullAddress = street + ", " + wardName + ", " + districtName + ", " + provinceName;
-        }
-        
-        $('#full_address').val(fullAddress);
-    });
-});
-</script>
-@endpush
