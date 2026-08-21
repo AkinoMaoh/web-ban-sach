@@ -12,8 +12,12 @@ class CheckoutCartService
      *
      * @return array{display_items: array, order_items: array, subtotal: float}
      */
-    public function selectAndSnapshot(?string $requestedItems): array
+    public function selectAndSnapshot(string|array|null $requestedItems): array
     {
+        if (is_array($requestedItems)) {
+            $requestedItems = implode(',', $requestedItems);
+        }
+
         if ($requestedItems === null || trim($requestedItems) === '') {
             session()->forget('checkout_item_ids');
         } else {
@@ -36,14 +40,12 @@ class CheckoutCartService
     /**
      * @param array<int, array{product_variant_id: int, price: float, quantity: int}> $orderItems
      */
-    public function clearPurchasedItems(array $orderItems, ?int $userId = null): void
+    public function clearPurchasedItems(array $orderItems, ?int $userId): void
     {
         $variantIds = collect($orderItems)
             ->pluck('product_variant_id')
             ->map(fn ($id) => (int) $id)
             ->all();
-
-        $userId ??= Auth::id();
 
         if ($userId !== null) {
             DB::table('carts')

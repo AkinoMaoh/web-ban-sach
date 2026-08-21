@@ -196,6 +196,7 @@ class PaymentController extends Controller
 
         return redirect()->to($this->vnpayUrl($order, $request));
     }
+
     public function applyVoucher(ApplyVoucherRequest $request): JsonResponse
     {
         $snapshot = $this->cartService->snapshot();
@@ -281,7 +282,7 @@ class PaymentController extends Controller
         }
 
         if (($inputData['vnp_ResponseCode'] ?? null) === '00') {
-            if ($order->status === 'cancelled' && $order->payment_status !== 'paid') {
+            if ($order->status === 'cancelled') {
                 return redirect()
                     ->route('checkout.index')
                     ->with('error', 'Đơn hàng này đã bị hủy trước khi thanh toán được xác nhận.');
@@ -478,16 +479,20 @@ class PaymentController extends Controller
 
     private function notifyAdmins(Order $order, string $message): void
     {
-        User::query()
-            ->where('role', 1)
-            ->each(function (User $admin) use ($order, $message): void {
-                Notification::create([
-                    'user_id' => $admin->id,
-                    'order_id' => $order->id,
-                    'message' => $message,
-                    'is_read' => false,
-                    'target_url' => route('admin.orders.edit', $order->id),
-                ]);
-            });
+        try {
+            User::query()
+                ->where('role', 1)
+                ->each(function (User $admin) use ($order, $message): void {
+                    Notification::create([
+                        'user_id' => $admin->id,
+                        'order_id' => $order->id,
+                        'message' => $message,
+                        'is_read' => false,
+                        'target_url' => route('admin.orders.edit', $order->id),
+                    ]);
+                });
+        } catch (Throwable $exception) {
+            report($exception);
+        }
     }
 }
