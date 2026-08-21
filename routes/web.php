@@ -64,12 +64,21 @@ Route::middleware(['user_only'])->group(function () {
 
     // Thanh toán
     Route::get('/checkout', [PaymentController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
+    Route::post('/checkout/process', [PaymentController::class, 'process'])
+        ->middleware('throttle:10,1')
+        ->name('checkout.process');
     Route::get('/checkout/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
-    Route::post('/payment/calculate-fee', [\App\Http\Controllers\User\PaymentController::class, 'calculateShippingFee'])->name('payment.calculate_fee');
+    Route::get('/checkout/vnpay-ipn', [PaymentController::class, 'vnpayIpn'])
+        ->middleware('throttle:120,1')
+        ->name('vnpay.ipn');
+    Route::post('/payment/calculate-fee', [PaymentController::class, 'calculateShippingFee'])
+        ->middleware('throttle:30,1')
+        ->name('payment.calculate_fee');
 
     // THÊM DÒNG NÀY ĐỂ CHECK VOUCHER QUA AJAX
-    Route::post('/checkout/apply-voucher', [PaymentController::class, 'applyVoucher'])->name('checkout.apply_voucher');
+    Route::post('/checkout/apply-voucher', [PaymentController::class, 'applyVoucher'])
+        ->middleware('throttle:20,1')
+        ->name('checkout.apply_voucher');
 
     Route::get('/news', [UserNewsController::class, 'index'])->name('user.news');
     Route::get('/news/{id}', [UserNewsController::class, 'show'])->name('user.news.show');
