@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\variantController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\User\UserNewsController;
 use App\Http\Controllers\User\SearchController;
+use App\Http\Controllers\User\GuestOrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,12 +65,26 @@ Route::middleware(['user_only'])->group(function () {
 
     // Thanh toán
     Route::get('/checkout', [PaymentController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout/process', [PaymentController::class, 'process'])->name('checkout.process');
+    Route::post('/checkout/process', [PaymentController::class, 'process'])
+        ->middleware('throttle:10,1')
+        ->name('checkout.process');
     Route::get('/checkout/vnpay-return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
-    Route::post('/payment/calculate-fee', [\App\Http\Controllers\User\PaymentController::class, 'calculateShippingFee'])->name('payment.calculate_fee');
+    Route::get('/checkout/vnpay-ipn', [PaymentController::class, 'vnpayIpn'])
+        ->middleware('throttle:120,1')
+        ->name('vnpay.ipn');
+    Route::post('/payment/calculate-fee', [PaymentController::class, 'calculateShippingFee'])
+        ->middleware('throttle:30,1')
+        ->name('payment.calculate_fee');
 
     // THÊM DÒNG NÀY ĐỂ CHECK VOUCHER QUA AJAX
-    Route::post('/checkout/apply-voucher', [PaymentController::class, 'applyVoucher'])->name('checkout.apply_voucher');
+    Route::post('/checkout/apply-voucher', [PaymentController::class, 'applyVoucher'])
+        ->middleware('throttle:20,1')
+        ->name('checkout.apply_voucher');
+
+    Route::get('/order/track/{orderNumber}/{token}', [GuestOrderController::class, 'show'])
+        ->where('token', '[A-Fa-f0-9]{64}')
+        ->middleware('throttle:30,1')
+        ->name('order.track');
 
     Route::get('/news', [UserNewsController::class, 'index'])->name('user.news');
     Route::get('/news/{id}', [UserNewsController::class, 'show'])->name('user.news.show');
@@ -210,6 +225,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/orders/{id}', [ordersController::class, 'show'])->name('admin.orders.show');
     Route::get('/orders/{id}/edit', [ordersController::class, 'edit'])->name('admin.orders.edit');
     Route::put('/orders/{id}/update', [ordersController::class, 'update'])->name('admin.orders.update');
+    Route::patch('/orders/{id}/refund', [ordersController::class, 'markRefunded'])
+        ->name('admin.orders.refund');
     Route::delete('/orders/{id}', [ordersController::class, 'destroy'])->name('admin.orders.destroy');
     Route::post('/orders/{id}/toggleStatus', [ordersController::class, 'toggleStatus'])->name('admin.orders.toggleStatus');
 
@@ -329,12 +346,12 @@ Route::get('/author/{id}', [ShopController::class, 'author'])
 // --- API NỘI BỘ LẤY ĐỊA CHỈ (Tỉnh / Huyện / Xã) ---
 Route::get('/api/locations/provinces', function () {
     return response()->json(DB::table('provinces')->orderBy('name', 'asc')->get());
-});
+})->middleware('throttle:60,1');
 
 Route::get('/api/locations/districts/{province_id}', function ($province_id) {
     return response()->json(DB::table('districts')->where('province_id', $province_id)->orderBy('name', 'asc')->get());
-});
+})->whereNumber('province_id')->middleware('throttle:60,1');
 
 Route::get('/api/locations/wards/{district_id}', function ($district_id) {
     return response()->json(DB::table('wards')->where('district_id', $district_id)->orderBy('name', 'asc')->get());
-});
+})->whereNumber('district_id')->middleware('throttle:60,1');

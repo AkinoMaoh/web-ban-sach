@@ -127,7 +127,7 @@
                     @forelse($orders as $order)
                         <tr class="clickable-row" data-href="{{ route('admin.orders.edit', $order->id) }}" style="cursor: pointer;">
                             
-                            <td class="pl-4 font-weight-bold text-primary">#{{ $order->id }}</td>
+                            <td class="pl-4 font-weight-bold text-primary">{{ $order->order_number ?? '#'.$order->id }}</td>
 
                             <td>
                                 <span class="font-weight-bold text-dark">

@@ -6,7 +6,7 @@
 
     <!-- Tiêu đề trang & Các nút hành động -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Chi tiết đơn hàng <span class="text-primary">#{{ $order->id }}</span></h1>
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Chi tiết đơn hàng <span class="text-primary">{{ $order->order_number ?? '#'.$order->id }}</span></h1>
         
         <div class="d-flex align-items-center">
             <!-- Nút Cập nhật trạng thái đơn -->

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class productVariants extends Model
 {
@@ -16,7 +17,18 @@ class productVariants extends Model
         'sale_price',
         'discount_percent',
         'stock',
+        'weight_grams',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'price' => 'decimal:2',
+            'sale_price' => 'decimal:2',
+            'stock' => 'integer',
+            'weight_grams' => 'integer',
+        ];
+    }
 
     // product_variants thuộc về một sản phẩm
     public function product()
@@ -28,6 +40,11 @@ class productVariants extends Model
     public function variant()
     {
         return $this->belongsTo(Variant::class, 'variant_id');
+    }
+
+    public function inventoryReservations(): HasMany
+    {
+        return $this->hasMany(InventoryReservation::class, 'product_variant_id');
     }
 
     // Tự tính % giảm

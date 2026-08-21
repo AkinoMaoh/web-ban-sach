@@ -50,7 +50,7 @@
                             @foreach($orders as $order)
                                 <tr class="border-bottom">
                                     <!-- Mã đơn -->
-                                    <td class="align-middle font-weight-bold text-dark">#{{ $order->id }}</td>
+                                    <td class="align-middle font-weight-bold text-dark">{{ $order->order_number ?? '#'.$order->id }}</td>
                                     
                                     <!-- Ngày đặt -->
                                     <td class="align-middle text-muted">

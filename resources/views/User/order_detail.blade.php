@@ -22,7 +22,7 @@
             <ol class="breadcrumb bg-transparent px-0 mb-0 py-0">
                 <li class="breadcrumb-item"><a href="{{ route('user.index') }}" class="text-muted"><i class="fas fa-home"></i> Trang chủ</a></li>
                 <li class="breadcrumb-item"><a href="{{ route('user.orderHistory') }}" class="text-muted">Lịch sử mua hàng</a></li>
-                <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color, #1a73e8); font-weight: 600;">Chi tiết đơn hàng #{{ $order->id }}</li>
+                <li class="breadcrumb-item active" aria-current="page" style="color: var(--primary-color, #1a73e8); font-weight: 600;">Chi tiết {{ $order->order_number ?? '#'.$order->id }}</li>
             </ol>
         </nav>
     </div>
@@ -33,7 +33,7 @@
         
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
             <h3 class="serif-font font-weight-bold mb-2 mb-md-0 text-dark">
-                Chi tiết đơn hàng <span style="color: var(--primary-color, #1a73e8);">#{{ $order->id }}</span>
+                Chi tiết đơn hàng <span style="color: var(--primary-color, #1a73e8);">{{ $order->order_number ?? '#'.$order->id }}</span>
             </h3>
             <div>
                 @if($order->status == 'pending')
@@ -80,6 +80,12 @@
                                 {{ strtoupper($order->payment_method) }}
                             @endif
                         </p>
+                    </div>
+                    <div class="mb-3">
+                        <p class="mb-1 text-muted small text-uppercase font-weight-bold">Trạng thái thanh toán</p>
+                        <span class="badge badge-{{ $order->payment_status === 'paid' ? 'success' : ($order->payment_status === 'refunded' ? 'info' : 'warning') }} px-3 py-2">
+                            {{ strtoupper($order->payment_status ?? 'unpaid') }}
+                        </span>
                     </div>
                     @if($order->notes)
                     <div class="mb-0">
@@ -239,6 +245,13 @@
             </div>
         </div>
         
+        @if(in_array($order->refund_status, ['requested', 'pending'], true))
+            <div class="alert alert-warning mt-4">
+                <strong>Yêu cầu hoàn tiền đang được xử lý.</strong>
+                Đơn hàng chỉ chuyển sang đã hủy sau khi quản trị viên xác nhận hoàn tiền thực tế.
+            </div>
+        @endif
+
         <div class="text-center mt-4">
             <!-- Nút Quay lại -->
             <a href="{{ route('user.orderHistory') }}" class="btn btn-outline-dark rounded-pill px-4 py-2 font-weight-bold mr-2">
@@ -246,11 +259,13 @@
             </a>
 
             <!-- Nút Hủy (Chỉ hiện nếu là pending) -->
-            @if(in_array($order->status, ['pending']))
-                <form action="{{ route('user.history.cancel', $order->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?');">
+            @if($order->status === 'pending' && $order->refund_status === 'none')
+                <form action="{{ route('user.history.cancel', $order->id) }}" method="POST" class="d-inline-block mt-3" onsubmit="return confirm('Bạn có chắc chắn muốn gửi yêu cầu hủy đơn hàng này không?');">
                     @csrf
+                    <input type="text" name="cancel_reason" class="form-control mb-2" maxlength="500" placeholder="Lý do hủy (không bắt buộc)">
                     <button type="submit" class="btn btn-danger rounded-pill px-4 py-2 font-weight-bold">
-                        <i class="fas fa-times mr-2"></i> Hủy đơn hàng
+                        <i class="fas fa-times mr-2"></i>
+                        {{ $order->payment_status === 'paid' ? 'Yêu cầu hủy và hoàn tiền' : 'Hủy đơn hàng' }}
                     </button>
                 </form>
             @endif

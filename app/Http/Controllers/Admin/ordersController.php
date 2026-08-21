@@ -3,239 +3,223 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Order;
-use App\Models\OrderDetail;
 use App\Models\Notification;
-use App\Models\products;
-use App\Models\productVariants;
-use App\Services\VoucherService;
+use App\Models\Order;
+use App\Services\OrderLifecycleService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class ordersController extends Controller
 {
-    public function __construct(private readonly VoucherService $voucherService)
+    public function __construct(private readonly OrderLifecycleService $lifecycleService)
     {
     }
 
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $query = Order::with(['user', 'orderDetails']);
+        $query = Order::query()->with(['user', 'orderDetails']);
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('status', (string) $request->input('status'));
         }
 
         if ($request->filled('keyword')) {
-            $query->where('shipping_phone', 'like', $request->keyword . '%');
+            $keyword = trim((string) $request->input('keyword'));
+            $query->where(function ($subQuery) use ($keyword): void {
+                $subQuery
+                    ->where('order_number', 'like', "%{$keyword}%")
+                    ->orWhere('shipping_phone', 'like', "%{$keyword}%")
+                    ->orWhere('billing_email', 'like', "%{$keyword}%");
+            });
         }
 
-        $orders = $query->orderBy('created_at', 'desc')->paginate(15);
+        $orders = $query->latest()->paginate(15)->withQueryString();
 
         return view('admin.orders', compact('orders'));
     }
 
-    public function show($id)
+    public function show(int $id): View
     {
-        $order = Order::with(['user', 'orderDetails'])->findOrFail($id);
+        $order = $this->findOrder($id);
 
         return view('admin.ordershow', compact('order'));
     }
 
-    public function edit($id)
+    public function edit(int $id): View
     {
-        $order = Order::with(['user', 'orderDetails'])->findOrFail($id);
+        $order = $this->findOrder($id);
 
         return view('admin.orderedit', compact('order'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
-        $request->validate([
-            'status' => 'required|in:pending,confirmed,shipping,completed,cancelled',
-            'cancel_reason' => 'nullable|string|max:255'
+        $validated = $request->validate([
+            'status' => ['required', Rule::in([
+                Order::STATUS_PENDING,
+                Order::STATUS_CONFIRMED,
+                Order::STATUS_SHIPPING,
+                Order::STATUS_COMPLETED,
+                Order::STATUS_CANCELLED,
+            ])],
+            'cancel_reason' => ['nullable', 'required_if:status,cancelled', 'string', 'max:500'],
+        ]);
+        $order = $this->findOrder($id);
+        $newStatus = $validated['status'];
+
+        if ($newStatus === $order->status) {
+            return back()->with('success', 'Trạng thái đơn hàng không thay đổi.');
+        }
+
+        try {
+            if ($newStatus === Order::STATUS_CANCELLED) {
+                $result = $this->lifecycleService->requestCancellation(
+                    $order,
+                    $validated['cancel_reason']
+                );
+
+                if ($result === 'refund_requested') {
+                    $this->notifyCustomer(
+                        $order,
+                        "Đơn {$order->order_number} đang chờ xử lý hoàn tiền trước khi hủy."
+                    );
+
+                    return back()->with(
+                        'success',
+                        'Đã tạo yêu cầu hoàn tiền. Chỉ đánh dấu đã hoàn tiền sau khi giao dịch thực tế hoàn tất.'
+                    );
+                }
+
+                $order->refresh();
+            } else {
+                $this->assertNextStatus($order, $newStatus);
+
+                if ($newStatus === Order::STATUS_COMPLETED) {
+                    $order = $this->lifecycleService->complete($order);
+                } else {
+                    $order->update(['status' => $newStatus, 'cancel_reason' => null]);
+                }
+            }
+        } catch (ValidationException $exception) {
+            return back()->withErrors($exception->errors());
+        }
+
+        $this->notifyCustomer(
+            $order,
+            "Đơn {$order->order_number} đã chuyển sang trạng thái: ".$this->statusLabel($order->status)
+        );
+
+        return back()->with('success', "Đơn {$order->order_number} đã được cập nhật.");
+    }
+
+    public function markRefunded(Request $request, int $id): RedirectResponse
+    {
+        $validated = $request->validate([
+            'refund_reference' => ['nullable', 'string', 'max:100'],
         ]);
 
-        $order = Order::with('orderDetails')->findOrFail($id);
-
-        $statusOrder = ['pending', 'confirmed', 'shipping', 'completed'];
-
-        $currentIndex = array_search($order->status, $statusOrder);
-        $newIndex = array_search($request->status, $statusOrder);
-
-        // Chặn hủy đơn khi đang giao hoặc hoàn thành
-        if ($request->status === 'cancelled' && in_array($order->status, ['shipping', 'completed'])) {
-            return back()->with('error', 'Không thể hủy đơn hàng khi đang giao hoặc đã hoàn thành.');
+        try {
+            $order = $this->lifecycleService->markRefunded(
+                $id,
+                $validated['refund_reference'] ?? null
+            );
+        } catch (ValidationException $exception) {
+            return back()->withErrors($exception->errors());
         }
 
-        // Chặn lùi trạng thái hoặc nhảy cóc
-        if ($request->status !== 'cancelled' && $currentIndex !== false && $newIndex !== false) {
-            if ($newIndex < $currentIndex) {
-                return back()->with('error', 'Không thể chuyển về trạng thái trước đó.');
-            }
-            if ($newIndex - $currentIndex > 1) {
-                return back()->with('error', 'Không thể chuyển nhiều trạng thái. Vui lòng cập nhật lần lượt.');
-            }
-        }
+        $this->notifyCustomer(
+            $order,
+            "Đơn {$order->order_number} đã hoàn tiền và được hủy thành công."
+        );
 
-        // --- BẮT ĐẦU KIỂM TRA SẢN PHẨM BỊ XÓA / HẾT HÀNG (HOẠT ĐỘNG TRÊN MỌI TRẠNG THÁI) ---
-        if ($request->status !== 'cancelled') {
-
-            foreach ($order->orderDetails as $detail) {
-                $variant = null;
-                $product = null;
-
-                // Lấy biến thể, nếu biến thể còn sống thì phải dò tiếp xem sản phẩm cha còn sống không
-                if ($detail->product_variant_id) {
-                    $variant = productVariants::find($detail->product_variant_id);
-                    if ($variant) {
-                        $product = products::find($variant->product_id); // <-- BỔ SUNG QUAN TRỌNG
-                    }
-                }
-
-                $dbCancelReason = "";
-                $adminFlashError = "";
-                $productName = $detail->product_name . ' (' . $detail->variant_name . ')';
-
-                // TRƯỜNG HỢP 1: Sản phẩm HOẶC Biến thể đã bị xóa khỏi cơ sở dữ liệu
-                if (!$variant || !$product) {
-                    $dbCancelReason = "Sản phẩm '{$productName}' hiện đã ngừng kinh doanh.";
-                    $adminFlashError = "Hệ thống chặn cập nhật: Sản phẩm '{$productName}' đã bị xóa khỏi hệ thống.";
-                }
-                // TRƯỜNG HỢP 2: Hết hàng / không đủ số lượng (Chỉ kiểm tra khi duyệt đơn: pending -> confirmed)
-                elseif ($request->status === 'confirmed' && $order->status === 'pending' && $variant->stock < $detail->quantity) {
-
-                    // Phân biệt rõ 2 tình huống: HẾT HÀNG HẲN (stock = 0) và KHÔNG ĐỦ SỐ LƯỢNG (còn hàng nhưng ít hơn yêu cầu)
-                    if ($variant->stock <= 0) {
-                        $dbCancelReason = "Sản phẩm '{$productName}' hiện đã hết hàng.";
-                        $adminFlashError = "Hệ thống tự động hủy: Sản phẩm '{$productName}' đã HẾT HÀNG (Yêu cầu: {$detail->quantity}, Tồn kho: 0).";
-                    } else {
-                        $dbCancelReason = "Sản phẩm '{$productName}' hiện không đủ số lượng trong kho (Hết hàng một phần).";
-                        $adminFlashError = "Hệ thống tự động hủy: Sản phẩm '{$productName}' KHÔNG ĐỦ SỐ LƯỢNG (Yêu cầu: {$detail->quantity}, Chỉ còn: {$variant->stock}).";
-                    }
-                }
-
-                // NẾU PHÁT HIỆN LỖI (Bị xóa hoặc Hết hàng/Thiếu kho)
-                if ($adminFlashError !== "") {
-
-                    // Nếu đơn đang Chờ xử lý hoặc Đã xác nhận -> Lập tức tự động HỦY ĐƠN
-                    if (in_array($order->status, ['pending', 'confirmed'])) {
-
-                        // Nếu đơn đã ở trạng thái "confirmed" thì kho đã bị trừ ở bước duyệt đơn
-                        // trước đó (pending -> confirmed). Trước khi hủy, phải HOÀN LẠI kho cho toàn bộ
-                        // sản phẩm trong đơn (những sản phẩm/biến thể còn tồn tại trong hệ thống),
-                        // tránh tình trạng kho bị trừ oan cho một đơn đã hủy.
-                        if ($order->status === 'confirmed') {
-                            foreach ($order->orderDetails as $restoreDetail) {
-                                if ($restoreDetail->product_variant_id) {
-                                    $restoreVariant = productVariants::find($restoreDetail->product_variant_id);
-                                    if ($restoreVariant) {
-                                        $restoreVariant->stock += $restoreDetail->quantity;
-                                        $restoreVariant->save();
-                                    }
-                                    // Nếu biến thể đã bị xóa thì không còn bản ghi để hoàn kho
-                                }
-                            }
-                        }
-
-                        $order->status = 'cancelled';
-                        $order->cancel_reason = $dbCancelReason;
-                        $order->save();
-                        $this->voucherService->releaseForOrder($order);
-
-                        if ($order->user_id) {
-                            Notification::create([
-                                'user_id' => $order->user_id,
-                                'order_id' => $order->id,
-                                'message' => "Đơn hàng #{$order->id} của bạn đã bị hủy. Lý do: {$dbCancelReason}",
-                                'is_read' => false
-                            ]);
-                        }
-                        return back()->with('error', $adminFlashError . ' Đơn hàng đã tự động bị hủy!');
-                    }
-                    // Nếu đơn Đang giao (shipping) mà phát hiện sản phẩm bị xóa -> Chặn lại không cho hoàn thành
-                    else {
-                        return back()->with('error', $adminFlashError . ' Không thể tiếp tục cập nhật trạng thái.');
-                    }
-                }
-            }
-        }
-        // --- KẾT THÚC KIỂM TRA LỖI SẢN PHẨM ---
-
-
-        // --- TRỪ KHO (CHỈ CHẠY KHI DUYỆT ĐƠN HỢP LỆ) ---
-        if ($request->status === 'confirmed' && $order->status === 'pending') {
-            foreach ($order->orderDetails as $detail) {
-                $variant = productVariants::find($detail->product_variant_id);
-                if ($variant) {
-                    $variant->stock -= $detail->quantity;
-                    $variant->stock = max(0, $variant->stock);
-                    $variant->save();
-                }
-            }
-        }
-
-        // Xử lý nếu ADMIN CHỦ ĐỘNG HỦY TỪ FORM (Nhập tay)
-        if ($request->status === 'cancelled') {
-            // Nếu admin chủ động hủy đơn đang ở trạng thái "confirmed" (kho đã bị trừ),
-            // cũng cần hoàn lại kho tương tự như trường hợp tự động hủy ở trên.
-            if ($order->status === 'confirmed') {
-                foreach ($order->orderDetails as $restoreDetail) {
-                    if ($restoreDetail->product_variant_id) {
-                        $restoreVariant = productVariants::find($restoreDetail->product_variant_id);
-                        if ($restoreVariant) {
-                            $restoreVariant->stock += $restoreDetail->quantity;
-                            $restoreVariant->save();
-                        }
-                    }
-                }
-            }
-
-            $order->cancel_reason = $request->input('cancel_reason', 'Đơn hàng bị hủy từ hệ thống quản trị.');
-        } else {
-            $order->cancel_reason = null;
-        }
-
-        // Cập nhật trạng thái mới
-        $order->status = $request->status;
-        $order->save();
-
-        if ($order->status === 'cancelled') {
-            $this->voucherService->releaseForOrder($order);
-        } elseif ($order->status === 'completed') {
-            $this->voucherService->markUsedForOrder($order);
-        }
-
-        $statusLabels = [
-            'pending'   => 'Chờ xác nhận',
-            'confirmed' => 'Đã xác nhận',
-            'shipping'  => 'Đang giao hàng',
-            'completed' => 'Đã hoàn thành',
-            'cancelled' => 'Đã hủy'
-        ];
-
-        $statusVi = $statusLabels[$order->status] ?? $order->status;
-
-        // Tạo thông báo cho khách hàng khi chuyển trạng thái bình thường
-        if ($order->user_id) {
-            Notification::create([
-                'user_id' => $order->user_id,
-                'order_id' => $order->id,
-                'message' => "Đơn hàng #{$order->id} đã chuyển sang trạng thái: " . $statusVi,
-                'is_read' => false
-            ]);
-        }
-
-        return back()->with('success', 'Đơn hàng #' . $order->id . ' đã được cập nhật thành công.');
+        return back()->with('success', 'Đã xác nhận hoàn tiền, hoàn tồn kho và hoàn lượt voucher.');
     }
 
     public function search(Request $request)
     {
-        $orders = Order::where('shipping_phone', 'like', $request->keyword . '%')
-            ->select('shipping_phone')
-            ->distinct()
-            ->limit(5)
+        $keyword = trim((string) $request->input('keyword'));
+        $orders = Order::query()
+            ->where(function ($query) use ($keyword): void {
+                $query
+                    ->where('order_number', 'like', "%{$keyword}%")
+                    ->orWhere('shipping_phone', 'like', "%{$keyword}%");
+            })
+            ->select(['id', 'order_number', 'shipping_phone'])
+            ->latest('id')
+            ->limit(8)
             ->get();
 
         return response()->json($orders);
+    }
+
+    private function findOrder(int $id): Order
+    {
+        return Order::query()
+            ->with(['user', 'orderDetails', 'payments', 'inventoryReservations'])
+            ->findOrFail($id);
+    }
+
+    private function assertNextStatus(Order $order, string $newStatus): void
+    {
+        if ($order->status === Order::STATUS_CANCELLED) {
+            throw ValidationException::withMessages([
+                'status' => 'Không thể khôi phục đơn đã hủy bằng thao tác đổi trạng thái.',
+            ]);
+        }
+
+        if ($order->refund_status !== Order::REFUND_NONE) {
+            throw ValidationException::withMessages([
+                'status' => 'Đơn hàng đang trong quy trình hoàn tiền.',
+            ]);
+        }
+
+        $nextStatuses = [
+            Order::STATUS_PENDING => Order::STATUS_CONFIRMED,
+            Order::STATUS_CONFIRMED => Order::STATUS_SHIPPING,
+            Order::STATUS_SHIPPING => Order::STATUS_COMPLETED,
+        ];
+
+        if (($nextStatuses[$order->status] ?? null) !== $newStatus) {
+            throw ValidationException::withMessages([
+                'status' => 'Vui lòng cập nhật đơn hàng lần lượt theo đúng quy trình.',
+            ]);
+        }
+
+        if ($newStatus === Order::STATUS_CONFIRMED
+            && $order->payment_method === 'vnpay'
+            && ! $order->isPaid()) {
+            throw ValidationException::withMessages([
+                'payment' => 'Không thể xác nhận đơn VNPAY chưa thanh toán.',
+            ]);
+        }
+    }
+
+    private function notifyCustomer(Order $order, string $message): void
+    {
+        if (! $order->user_id) {
+            return;
+        }
+
+        Notification::query()->create([
+            'user_id' => $order->user_id,
+            'order_id' => $order->id,
+            'message' => $message,
+            'is_read' => false,
+            'target_url' => route('user.orderHistory.show', $order->id),
+        ]);
+    }
+
+    private function statusLabel(string $status): string
+    {
+        return [
+            Order::STATUS_PENDING => 'Chờ xác nhận',
+            Order::STATUS_CONFIRMED => 'Đã xác nhận',
+            Order::STATUS_SHIPPING => 'Đang giao hàng',
+            Order::STATUS_COMPLETED => 'Đã hoàn thành',
+            Order::STATUS_CANCELLED => 'Đã hủy',
+        ][$status] ?? $status;
     }
 }
