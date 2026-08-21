@@ -52,4 +52,16 @@ return [
         'quote_ttl_minutes' => (int) env('GHN_QUOTE_TTL_MINUTES', 15),
     ],
 
+    'vnpay' => [
+        'payment_url' => env('VNP_PAYMENT_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'),
+        'tmn_code' => env('VNP_TMN_CODE'),
+        'hash_secret' => env('VNP_HASH_SECRET'),
+        'version' => env('VNP_VERSION', '2.1.0'),
+        'command' => env('VNP_COMMAND', 'pay'),
+        'order_type' => env('VNP_ORDER_TYPE', 'billpayment'),
+        'locale' => env('VNP_LOCALE', 'vn'),
+        'currency' => 'VND',
+        'expiry_minutes' => (int) env('VNP_PAYMENT_EXPIRY_MINUTES', 15),
+    ],
+
 ];
