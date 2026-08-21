@@ -136,7 +136,16 @@ class CheckoutService
                     );
                 }
 
-                $payment = $isVnpay ? $this->vnpayService->createAttempt($order) : null;
+                $payment = $isVnpay
+                    ? $this->vnpayService->createAttempt($order)
+                    : Payment::query()->create([
+                        'order_id' => $order->id,
+                        'payment_method' => 'cod',
+                        'amount' => $order->total_amount,
+                        'status' => Payment::STATUS_UNPAID,
+                        'currency' => 'VND',
+                        'attempt' => 1,
+                    ]);
 
                 return ['order' => $order, 'payment' => $payment, 'created' => true];
             }, 3);
