@@ -160,7 +160,11 @@ class CheckoutService
         }
 
         if ($result['created']) {
-            $this->addressService->saveForUser($userId, $validated);
+            try {
+                $this->addressService->saveForUser($userId, $validated);
+            } catch (Throwable $exception) {
+                report($exception);
+            }
         }
 
         return $result;
