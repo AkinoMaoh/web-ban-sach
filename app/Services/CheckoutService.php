@@ -22,6 +22,16 @@ class CheckoutService
     ) {
     }
 
+    /** @param array<string, mixed> $validated */
+    public function findExisting(array $validated, ?int $userId): ?array
+    {
+        $order = Order::query()
+            ->where('checkout_token', $validated['checkout_token'] ?? null)
+            ->first();
+
+        return $order ? $this->existingResult($order, $validated, $userId) : null;
+    }
+
     /**
      * @param array<string, mixed> $validated
      * @param array{order_items: array<int, array{product_variant_id: int, price: float, quantity: int}>, subtotal: float} $snapshot
