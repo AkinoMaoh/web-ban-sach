@@ -254,8 +254,8 @@
     @include('User.footer')
 
 
-    <!-- Axios -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <!-- JavaScript dùng chung được Vite đóng gói, bao gồm Axios -->
+    @vite('resources/js/app.js')
 
     <!-- jQuery - CHỈ LOAD 1 LẦN -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
