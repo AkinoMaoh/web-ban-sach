@@ -219,6 +219,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/orders/{id}', [ordersController::class, 'show'])->name('admin.orders.show');
     Route::get('/orders/{id}/edit', [ordersController::class, 'edit'])->name('admin.orders.edit');
     Route::put('/orders/{id}/update', [ordersController::class, 'update'])->name('admin.orders.update');
+    Route::patch('/orders/{id}/refund', [ordersController::class, 'markRefunded'])
+        ->name('admin.orders.refund');
     Route::delete('/orders/{id}', [ordersController::class, 'destroy'])->name('admin.orders.destroy');
     Route::post('/orders/{id}/toggleStatus', [ordersController::class, 'toggleStatus'])->name('admin.orders.toggleStatus');
 
