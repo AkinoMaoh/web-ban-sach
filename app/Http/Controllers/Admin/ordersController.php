@@ -23,7 +23,7 @@ class ordersController extends Controller
         $query = Order::query()->with(['user', 'orderDetails']);
 
         if ($request->filled('status')) {
-            $query->where('status', $request->string('status'));
+            $query->where('status', (string) $request->input('status'));
         }
 
         if ($request->filled('keyword')) {
