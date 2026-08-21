@@ -129,6 +129,35 @@ class OrderLifecycleService
 
         return DB::transaction(function () use ($orderId): Order {
             $lockedOrder = Order::query()->lockForUpdate()->findOrFail($orderId);
+
+            if ($lockedOrder->payment_method === 'vnpay' && ! $lockedOrder->isPaid()) {
+                throw ValidationException::withMessages([
+                    'payment' => 'Chưa thể hoàn thành đơn VNPAY chưa thanh toán.',
+                ]);
+            }
+
+            if ($lockedOrder->refund_status !== Order::REFUND_NONE) {
+                throw ValidationException::withMessages([
+                    'refund' => 'Đơn hàng đang có yêu cầu hoàn tiền.',
+                ]);
+            }
+
+            if ($lockedOrder->payment_method === 'cod') {
+                Payment::query()
+                    ->where('order_id', $lockedOrder->id)
+                    ->whereIn('status', [Payment::STATUS_UNPAID, Payment::STATUS_PENDING])
+                    ->update([
+                        'status' => Payment::STATUS_PAID,
+                        'paid_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                $lockedOrder->forceFill([
+                    'payment_status' => Order::PAYMENT_PAID,
+                    'paid_at' => now(),
+                ]);
+            }
+
             $lockedOrder->update(['status' => Order::STATUS_COMPLETED]);
             $this->inventoryService->consume($lockedOrder);
             $this->voucherService->markUsedForOrder($lockedOrder);
