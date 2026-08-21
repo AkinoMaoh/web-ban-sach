@@ -81,6 +81,13 @@ class OrderLifecycleService
                 return 'cancelled';
             }
 
+            if (in_array($lockedOrder->refund_status, [
+                Order::REFUND_REQUESTED,
+                Order::REFUND_PENDING,
+            ], true)) {
+                return 'refund_requested';
+            }
+
             if ($lockedOrder->status !== Order::STATUS_PENDING) {
                 throw ValidationException::withMessages([
                     'order' => 'Chỉ có thể yêu cầu hủy đơn đã thanh toán khi đơn đang chờ xác nhận.',
