@@ -36,16 +36,18 @@ class CheckoutCartService
     /**
      * @param array<int, array{product_variant_id: int, price: float, quantity: int}> $orderItems
      */
-    public function clearPurchasedItems(array $orderItems): void
+    public function clearPurchasedItems(array $orderItems, ?int $userId = null): void
     {
         $variantIds = collect($orderItems)
             ->pluck('product_variant_id')
             ->map(fn ($id) => (int) $id)
             ->all();
 
-        if (Auth::check()) {
+        $userId ??= Auth::id();
+
+        if ($userId !== null) {
             DB::table('carts')
-                ->where('user_id', Auth::id())
+                ->where('user_id', $userId)
                 ->whereIn('product_variant_id', $variantIds)
                 ->delete();
         } else {
