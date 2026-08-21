@@ -51,7 +51,7 @@
             data-has-old-input="{{ session()->hasOldInput() ? '1' : '0' }}"
         >
             @csrf
-            <input type="hidden" name="checkout_token" value="{{ $checkoutToken }}">
+            <input type="hidden" name="checkout_token" id="checkout_token" value="{{ $checkoutToken }}">
             <input type="hidden" name="shipping_quote_token" id="shipping_quote_token" value="">
             <input type="hidden" name="applied_voucher" id="applied_voucher_input" value="{{ old('applied_voucher') }}">
             <input type="hidden" name="address_id" id="address_id" value="{{ old('address_id') }}">

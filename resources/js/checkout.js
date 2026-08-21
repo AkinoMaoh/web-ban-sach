@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const draftKey = 'web-ban-sach:checkout-draft:v2';
     const csrf = form.dataset.csrf;
+    const checkoutToken = document.getElementById('checkout_token');
     const province = document.getElementById('province');
     const district = document.getElementById('district');
     const ward = document.getElementById('ward');
@@ -64,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             save_address: Boolean(saveAddress?.checked),
             set_default_address: Boolean(setDefaultAddress?.checked),
             agree_terms: Boolean(document.getElementById('agree_terms')?.checked),
+            checkout_token: checkoutToken.value,
         };
 
         try {
@@ -113,6 +115,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ward.dataset.selected = draft.ward_code || '';
         voucherCode.value = draft.voucher_code || '';
         addressId.value = draft.address_id || '';
+
+        if (typeof draft.checkout_token === 'string' && draft.checkout_token !== '') {
+            checkoutToken.value = draft.checkout_token;
+        }
 
         if (savedAddress) {
             savedAddress.value = draft.address_id || '';
@@ -287,7 +293,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    restoreDraft(readDraft());
+    const restoredDraft = readDraft();
+
+    if (!restoredDraft && form.dataset.hasOldInput !== '1' && window.crypto?.randomUUID) {
+        checkoutToken.value = window.crypto.randomUUID();
+    }
+
+    restoreDraft(restoredDraft);
     toggleDefaultAddress();
 
     const initialDistrict = district.dataset.selected || '';
