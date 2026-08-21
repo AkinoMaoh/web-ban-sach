@@ -4,11 +4,11 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use Illuminate\View\View;
+use Illuminate\Http\Response;
 
 class GuestOrderController extends Controller
 {
-    public function show(string $orderNumber, string $token): View
+    public function show(string $orderNumber, string $token): Response
     {
         $order = Order::query()
             ->with('orderDetails')
@@ -16,6 +16,9 @@ class GuestOrderController extends Controller
             ->where('tracking_token', $token)
             ->firstOrFail();
 
-        return view('User.order_tracking', compact('order'));
+        return response()
+            ->view('User.order_tracking', compact('order'))
+            ->header('Cache-Control', 'private, no-store, max-age=0')
+            ->header('Referrer-Policy', 'no-referrer');
     }
 }
