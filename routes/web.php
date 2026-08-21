@@ -123,6 +123,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
+    Route::patch('/vouchers/{voucher}/toggle', [\App\Http\Controllers\Admin\VoucherController::class, 'toggle'])
+        ->name('admin.vouchers.toggle');
+    Route::patch('/vouchers/{voucher}/restore', [\App\Http\Controllers\Admin\VoucherController::class, 'restore'])
+        ->name('admin.vouchers.restore');
+
     Route::get('/profile', [AdminAuthController::class, 'editProfile'])->name('admin.profile.edit');
     Route::put('/profile', [AdminAuthController::class, 'updateProfile'])->name('admin.profile.update');
 
