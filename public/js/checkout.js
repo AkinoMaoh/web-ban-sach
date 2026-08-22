@@ -1,4 +1,7 @@
 /* global axios */
+    document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('checkoutForm');
+    
     if (!form) {
         return;
     }
