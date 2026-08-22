@@ -81,7 +81,310 @@
 
         </div>
     </div>
+    
+    <!-- Lịch sử mua hàng -->
+    <div class="card shadow mt-4">
+        <div class="card-body">
 
+            <h4 class="mb-4">
+                <i class="fas fa-shopping-cart mr-2"></i>
+                Lịch sử mua hàng
+            </h4>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Mã đơn hàng</th>
+                            <th>Ngày đặt</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @forelse($orders as $order)
+                            <tr>
+                                <td>{{ $order->order_number }}</td>
+
+                                <td>
+                                    {{ $order->created_at->format('d/m/Y H:i') }}
+                                </td>
+
+                                <td>
+                                    {{ number_format($order->total_amount, 0, ',', '.') }} đ
+                                </td>
+
+                                <td>
+                                    @if($order->status == 'pending')
+                                        <span class="badge badge-warning">Chờ xử lý</span>
+                                    @elseif($order->status == 'confirmed')
+                                        <span class="badge badge-info">Đã xác nhận</span>
+                                    @elseif($order->status == 'shipping')
+                                        <span class="badge badge-primary">Đang giao</span>
+                                    @elseif($order->status == 'completed')
+                                        <span class="badge badge-success">Hoàn thành</span>
+                                    @elseif($order->status == 'cancelled')
+                                        <span class="badge badge-danger">Đã hủy</span>
+                                    @else
+                                        <span class="badge badge-secondary">{{ $order->status }}</span>
+                                    @endif
+                                </td>
+
+                                <td class="text-center">
+                                    <button type="button"
+                                            class="btn btn-sm btn-info text-white"
+                                            data-toggle="collapse"
+                                            data-target="#order{{ $order->id }}"
+                                            title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+
+                            </tr>
+
+                            <!-- Chi tiết đơn hàng -->
+                            <tr class="collapse" id="order{{ $order->id }}">
+                                <td colspan="5" class="p-0">
+                                    <div class="p-4 bg-light">
+
+                                        {{-- Tiêu đề --}}
+                                        <div class="d-flex align-items-center mb-4">
+                                            <div class="mr-2">
+                                                <i class="fas fa-box-open text-primary"></i>
+                                            </div>
+
+                                            <div>
+                                                <h5 class="font-weight-bold text-dark mb-0">
+                                                    Chi tiết đơn hàng
+                                                </h5>
+
+                                                <small class="text-muted">
+                                                    {{ $order->order_number }}
+                                                </small>
+                                            </div>
+                                        </div>
+
+
+                                        {{-- Danh sách sản phẩm --}}
+                                        <div class="bg-white border rounded">
+
+                                            @forelse($order->orderDetails as $detail)
+
+                                                <div class="p-3 border-bottom">
+                                                    <div class="row align-items-center">
+
+                                                        {{-- Thông tin sản phẩm --}}
+                                                        <div class="col-md-7">
+                                                            <div class="font-weight-bold text-dark">
+                                                                {{ $detail->product_name }}
+                                                            </div>
+
+                                                            @if($detail->variant_name)
+                                                                <div class="small text-muted mt-1">
+                                                                    Phân loại:
+                                                                    {{ $detail->variant_name }}
+                                                                </div>
+                                                            @endif
+                                                        </div>
+
+                                                        {{-- Số lượng --}}
+                                                        <div class="col-md-2 text-md-center mt-2 mt-md-0">
+                                                            <span class="small text-muted">
+                                                                Số lượng
+                                                            </span>
+
+                                                            <div class="font-weight-bold">
+                                                                {{ $detail->quantity }}
+                                                            </div>
+                                                        </div>
+
+                                                        {{-- Thành tiền --}}
+                                                        <div class="col-md-3 text-md-right mt-2 mt-md-0">
+                                                            <span class="small text-muted">
+                                                                Thành tiền
+                                                            </span>
+
+                                                            <div class="font-weight-bold text-dark">
+                                                                {{ number_format($detail->subtotal, 0, ',', '.') }} đ
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                            @empty
+
+                                                <div class="text-center text-muted py-4">
+                                                    <i class="fas fa-box-open fa-2x mb-2"></i>
+                                                    <div>Đơn hàng này chưa có sản phẩm.</div>
+                                                </div>
+
+                                            @endforelse
+
+                                        </div>
+
+
+                                        {{-- Tổng tiền --}}
+                                        <div class="row justify-content-end mt-4">
+                                            <div class="col-md-5">
+
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="text-muted">Tạm tính</span>
+                                                    <span>
+                                                        {{ number_format($order->subtotal_amount, 0, ',', '.') }} đ
+                                                    </span>
+                                                </div>
+
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="text-muted">Giảm giá</span>
+
+                                                    <span class="text-danger">
+                                                        -{{ number_format($order->discount_amount, 0, ',', '.') }} đ
+                                                    </span>
+                                                </div>
+
+                                                <div class="d-flex justify-content-between mb-3">
+                                                    <span class="text-muted">Phí vận chuyển</span>
+
+                                                    <span>
+                                                        {{ number_format($order->shipping_fee, 0, ',', '.') }} đ
+                                                    </span>
+                                                </div>
+
+                                                <div class="border-top pt-3 d-flex justify-content-between align-items-center">
+                                                    <strong class="text-dark">
+                                                        Tổng tiền
+                                                    </strong>
+
+                                                    <strong class="text-primary" style="font-size: 1.15rem;">
+                                                        {{ number_format($order->total_amount, 0, ',', '.') }} đ
+                                                    </strong>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+
+                                        {{-- Thanh toán + Giao hàng --}}
+                                        <div class="row mt-4">
+
+                                            {{-- Thanh toán --}}
+                                            <div class="col-md-6 mb-3 mb-md-0">
+                                                <div class="bg-white border rounded p-3 h-100">
+
+                                                    <h6 class="font-weight-bold text-dark mb-3">
+                                                        <i class="fas fa-credit-card text-primary mr-2"></i>
+                                                        Thông tin thanh toán
+                                                    </h6>
+
+                                                    <div class="mb-2">
+                                                        <span class="text-muted">
+                                                            Phương thức:
+                                                        </span>
+
+                                                        @if($order->payment_method == 'cod')
+                                                            <strong>COD</strong>
+                                                        @else
+                                                            <strong>
+                                                                {{ $order->payment_method ?? 'Chưa cập nhật' }}
+                                                            </strong>
+                                                        @endif
+                                                    </div>
+
+                                                    <div>
+                                                        <span class="text-muted">
+                                                            Trạng thái:
+                                                        </span>
+
+                                                        @if($order->payment_status == 'paid')
+                                                            <span class="badge badge-success">
+                                                                Đã thanh toán
+                                                            </span>
+                                                        @elseif($order->payment_status == 'pending')
+                                                            <span class="badge badge-warning">
+                                                                Chờ thanh toán
+                                                            </span>
+                                                        @elseif($order->payment_status == 'unpaid')
+                                                            <span class="badge badge-secondary">
+                                                                Chưa thanh toán
+                                                            </span>
+                                                        @elseif($order->payment_status == 'failed')
+                                                            <span class="badge badge-danger">
+                                                                Thanh toán thất bại
+                                                            </span>
+                                                        @else
+                                                            <span class="badge badge-secondary">
+                                                                {{ $order->payment_status ?? 'Chưa cập nhật' }}
+                                                            </span>
+                                                        @endif
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+
+                                            {{-- Giao hàng --}}
+                                            <div class="col-md-6">
+                                                <div class="bg-white border rounded p-3 h-100">
+
+                                                    <h6 class="font-weight-bold text-dark mb-3">
+                                                        <i class="fas fa-truck text-primary mr-2"></i>
+                                                        Thông tin giao hàng
+                                                    </h6>
+
+                                                    <div class="mb-2">
+                                                        <span class="text-muted">
+                                                            Người nhận:
+                                                        </span>
+
+                                                        <strong>
+                                                            {{ $order->shipping_name ?? 'Chưa cập nhật' }}
+                                                        </strong>
+                                                    </div>
+
+                                                    <div class="mb-2">
+                                                        <span class="text-muted">
+                                                            Số điện thoại:
+                                                        </span>
+
+                                                        {{ $order->shipping_phone ?? 'Chưa cập nhật' }}
+                                                    </div>
+
+                                                    <div>
+                                                        <span class="text-muted">
+                                                            Địa chỉ:
+                                                        </span>
+
+                                                        {{ $order->shipping_address ?? 'Chưa cập nhật' }}
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    Người dùng chưa có đơn hàng nào.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-center mt-3">
+                {{ $orders->links('pagination::bootstrap-5') }}
+            </div>
+
+        </div>
+    </div>
 </div>
 
 @endsection
