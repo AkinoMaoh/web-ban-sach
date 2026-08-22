@@ -634,12 +634,12 @@ KHUNG ẢNH PHÓNG TO
 
                         {{-- 1. NÚT WISHLIST --}}
                         <button type="button"
-                                class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist-v2"
+                                class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist-v2 position-absolute"
                                 data-id="{{ $relProduct->id }}"
                                 style="top:10px; right:10px; width:34px; height:34px; border:none; z-index:20; display:flex; align-items:center; justify-content:center;">
 
                             <i class="{{ in_array((int)$relProduct->id, array_map('intval', $wishlistIds ?? [])) ? 'fas' : 'far' }} fa-heart"
-                               style="color:#D35400"></i>
+                            style="color:#D35400"></i>
 
                         </button>
 

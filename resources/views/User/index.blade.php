@@ -150,9 +150,22 @@ $('#heroCarousel').carousel({
         <div class="col-lg-6 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
                 <h3 class="serif-font font-weight-bold mb-0"><i class="fas fa-clock mr-2" style="color: #D35400;"></i> Sách mới nhất</h3>
-                <div>
-                    <a href="#newBooksCarousel" role="button" data-slide="prev" class="btn btn-sm btn-light rounded-circle shadow-sm mx-1 text-muted"><i class="fas fa-chevron-left"></i></a>
-                    <a href="#newBooksCarousel" role="button" data-slide="next" class="btn btn-sm btn-light rounded-circle shadow-sm mx-1 text-muted"><i class="fas fa-chevron-right"></i></a>
+                <div class="slider-nav-btns">
+
+                    <a href="#newBooksCarousel"
+                    role="button"
+                    data-slide="prev"
+                    class="btn btn-outline-secondary slider-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+
+                    <a href="#newBooksCarousel"
+                    role="button"
+                    data-slide="next"
+                    class="btn btn-outline-secondary slider-arrow ml-2">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+
                 </div>
             </div>
             <div id="newBooksCarousel" class="carousel slide" data-ride="carousel" data-interval="3500">
@@ -200,9 +213,22 @@ $('#heroCarousel').carousel({
         <div class="col-lg-6 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
                 <h3 class="serif-font font-weight-bold mb-0"><i class="fas fa-fire mr-2" style="color: #e74c3c;"></i> Sách bán chạy</h3>
-                <div>
-                    <a href="#bestSellingCarousel" role="button" data-slide="prev" class="btn btn-sm btn-light rounded-circle shadow-sm mx-1 text-muted"><i class="fas fa-chevron-left"></i></a>
-                    <a href="#bestSellingCarousel" role="button" data-slide="next" class="btn btn-sm btn-light rounded-circle shadow-sm mx-1 text-muted"><i class="fas fa-chevron-right"></i></a>
+                <div class="slider-nav-btns">
+
+                    <a href="#bestSellingCarousel"
+                    role="button"
+                    data-slide="prev"
+                    class="btn btn-outline-secondary slider-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+
+                    <a href="#bestSellingCarousel"
+                    role="button"
+                    data-slide="next"
+                    class="btn btn-outline-secondary slider-arrow ml-2">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+
                 </div>
             </div>
             <div id="bestSellingCarousel" class="carousel slide" data-ride="carousel" data-interval="4000">
@@ -339,3 +365,25 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @endpush
+
+<style>
+    .slider-arrow {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+
+    padding: 0 !important;
+
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50% !important;
+    line-height: 1 !important;
+    }
+
+    .slider-arrow i {
+        font-size: 13px;
+    }
+</style>

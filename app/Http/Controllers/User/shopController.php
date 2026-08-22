@@ -36,15 +36,12 @@ class ShopController extends Controller
 
             if ($request->filled('keyword')) {
                 $keyword = mb_strtolower(trim($request->keyword), 'UTF-8');
-                $truyVan->where(function($query) use ($keyword) {
-                    $query->where(DB::raw('LOWER(name)'), 'LIKE', '%' . $keyword . '%')
-                          ->orWhereHas('category', function($q) use ($keyword) {
-                              $q->where(DB::raw('LOWER(name)'), 'LIKE', '%' . $keyword . '%');
-                          })
-                          ->orWhereHas('author', function($q) use ($keyword) {
-                              $q->where(DB::raw('LOWER(name)'), 'LIKE', '%' . $keyword . '%');
-                          });
-                });
+
+                $truyVan->where(
+                    DB::raw('LOWER(name)'),
+                    'LIKE',
+                    '%' . $keyword . '%'
+                );
             }
 
             // 2. Xử lý Lọc theo Danh mục
