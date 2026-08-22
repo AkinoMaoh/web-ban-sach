@@ -65,31 +65,6 @@
                     <div class="checkout-card">
                         <h4 class="checkout-heading">1. Thông tin giao hàng</h4>
 
-                        @auth
-                            @if($addresses->isNotEmpty())
-                                <div class="form-group">
-                                    <label for="saved_address" class="font-weight-bold">Địa chỉ đã lưu</label>
-                                    <select id="saved_address" class="custom-select custom-input">
-                                        <option value="">Nhập địa chỉ khác</option>
-                                        @foreach($addresses as $address)
-                                            <option
-                                                value="{{ $address->id }}"
-                                                data-name="{{ $address->receiver_name }}"
-                                                data-phone="{{ $address->receiver_phone }}"
-                                                data-province="{{ $address->province_id }}"
-                                                data-district="{{ $address->district_id }}"
-                                                data-ward="{{ $address->ward_code }}"
-                                                data-street="{{ $address->specific_address }}"
-                                                @selected((string) old('address_id') === (string) $address->id)
-                                            >
-                                                {{ $address->is_default ? 'Mặc định · ' : '' }}{{ $address->receiver_name }} — {{ $address->specific_address }}, {{ $address->ward?->name }}, {{ $address->district?->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            @endif
-                        @endauth
-
                         <div class="form-group">
                             <label for="shipping_name" class="font-weight-bold">Họ và tên <span class="text-danger">*</span></label>
                             <input
@@ -136,6 +111,31 @@
                                 @error('shipping_phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                         </div>
+
+                        @auth
+                            @if($addresses->isNotEmpty())
+                                <div class="form-group">
+                                    <label for="saved_address" class="font-weight-bold">Địa chỉ đã lưu</label>
+                                    <select id="saved_address" class="custom-select custom-input">
+                                        <option value="">Nhập địa chỉ khác</option>
+                                        @foreach($addresses as $address)
+                                            <option
+                                                value="{{ $address->id }}"
+                                                data-name="{{ $address->receiver_name }}"
+                                                data-phone="{{ $address->receiver_phone }}"
+                                                data-province="{{ $address->province_id }}"
+                                                data-district="{{ $address->district_id }}"
+                                                data-ward="{{ $address->ward_code }}"
+                                                data-street="{{ $address->specific_address }}"
+                                                @selected((string) old('address_id') === (string) $address->id)
+                                            >
+                                                {{ $address->is_default ? 'Mặc định · ' : '' }}{{ $address->receiver_name }} — {{ $address->specific_address }}, {{ $address->ward?->name }}, {{ $address->district?->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+                        @endauth
 
                         <h5 class="font-weight-bold mt-3 mb-3">Địa chỉ chi tiết</h5>
                         <div class="row">
