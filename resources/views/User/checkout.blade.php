@@ -1,10 +1,14 @@
 @extends('layout.user')
 
 @section('content')
-@vite(['resources/css/checkout.css', 'resources/js/checkout.js'])
+{{-- Xóa dòng @vite và thay bằng 3 dòng dưới đây --}}
+<link rel="stylesheet" href="{{ asset('css/checkout.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="{{ asset('js/checkout.js') }}"></script>
 
 <div class="bg-white py-3 mb-4 shadow-sm border-bottom">
     <div class="container">
+<!-- ... phần còn lại giữ nguyên ... -->
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb bg-transparent px-0 mb-0 py-0">
                 <li class="breadcrumb-item"><a href="{{ route('user.index') }}" class="text-muted">Trang chủ</a></li>

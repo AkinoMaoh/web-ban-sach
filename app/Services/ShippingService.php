@@ -133,8 +133,13 @@ class ShippingService
         }
 
         try {
-            $response = Http::timeout(8)
-                ->retry(2, 200)
+            $http = Http::timeout(8)->retry(2, 200);
+
+            if (app()->environment('local')) {
+                $http = $http->withoutVerifying();
+            }
+
+            $response = $http
                 ->withHeaders([
                     'Token' => $token,
                     'ShopId' => $shopId,
