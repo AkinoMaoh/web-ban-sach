@@ -9,11 +9,17 @@
     .btn-outline-primary { color: var(--primary-color, #1a73e8); border-color: var(--primary-color, #1a73e8); }
     .btn-outline-primary:hover { background-color: var(--primary-color, #1a73e8); color: #fff; }
     
-    /* CSS hiệu ứng chọn sao */
-    .star-rating { display: flex; flex-direction: row-reverse; justify-content: center; }
+   /* CSS hiệu ứng chọn sao (Đã fix lỗi ngược) */
+    .star-rating { 
+        display: flex !important; 
+        flex-direction: row-reverse !important; /* Bắt buộc đảo ngược */
+        justify-content: center; 
+        margin-bottom: 1rem; 
+    }
     .star-rating input { display: none; }
-    .star-rating label { color: #ddd; font-size: 2rem; padding: 0 0.2rem; cursor: pointer; transition: color 0.2s; }
-    .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #ffc107; }
+    .star-rating label { color: #e4e5e9; font-size: 2.5rem; padding: 0 4px; cursor: pointer; transition: color 0.2s, transform 0.1s; margin-bottom: 0; }
+    .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #ffc107 !important; }
+    .star-rating label:active { transform: scale(0.85); }
 </style>
 
 <div class="bg-white py-3 mb-4 shadow-sm border-bottom">
@@ -135,57 +141,79 @@
                                                     @if($order->status == 'completed')
                                                         <!-- NẾU SẢN PHẨM GỐC VẪN CÒN TỒN TẠI TRONG DB -->
                                                         @if($item->productVariant && $item->productVariant->product)
-                                                            <div class="mt-2">
-                                                                <button type="button" class="btn btn-outline-primary font-weight-bold px-3 py-2 shadow-sm d-inline-flex align-items-center" 
-                                                                        data-toggle="modal" data-target="#reviewModal-{{ $item->id }}"
-                                                                        style="border-radius: 8px; font-size: 13px; border-width: 2px;">
-                                                                    <i class="fas fa-star text-warning mr-2" style="font-size: 15px;"></i> Viết đánh giá sản phẩm
-                                                                </button>
-                                                            </div>
+                                                            
+                                                            <!-- KIỂM TRA XEM ĐÃ ĐÁNH GIÁ HAY CHƯA -->
+                                                            @php 
+                                                                $hasReviewed = \App\Models\Review::where('order_detail_id', $item->id)->exists(); 
+                                                            @endphp
+                                                            
+                                                            @if(!$hasReviewed)
+                                                                <div class="mt-2">
+                                                                    <button type="button" class="btn btn-outline-primary font-weight-bold px-3 py-2 shadow-sm d-inline-flex align-items-center" 
+                                                                            data-toggle="modal" data-target="#reviewModal-{{ $item->id }}"
+                                                                            style="border-radius: 8px; font-size: 13px; border-width: 2px;">
+                                                                        <i class="fas fa-star text-warning mr-2" style="font-size: 15px;"></i> Viết đánh giá sản phẩm
+                                                                    </button>
+                                                                </div>
 
-                                                            <!-- Modal Đánh giá -->
-                                                            <div class="modal fade" id="reviewModal-{{ $item->id }}" tabindex="-1" role="dialog" aria-hidden="true">
-                                                                <div class="modal-dialog modal-dialog-centered" role="document">
-                                                                    <div class="modal-content border-0 shadow">
-                                                                        <form action="{{ route('review.store') }}" method="POST">
-                                                                            @csrf
-                                                                            <input type="hidden" name="product_id" value="{{ $item->productVariant->product->id }}">
-                                                                            <input type="hidden" name="order_detail_id" value="{{ $item->id }}">
+                                                                <!-- Modal Đánh giá -->
+                                                                <div class="modal fade" id="reviewModal-{{ $item->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                                                        <div class="modal-content border-0 shadow">
+                                                                            <form action="{{ route('review.store') }}" method="POST" enctype="multipart/form-data">
+                                                                                @csrf
+                                                                                <input type="hidden" name="product_id" value="{{ $item->productVariant->product->id }}">
+                                                                                <input type="hidden" name="order_detail_id" value="{{ $item->id }}">
 
-                                                                            <div class="modal-header bg-light border-0">
-                                                                                <h5 class="modal-title font-weight-bold">Đánh giá: {{ $item->product_name }}</h5>
-                                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                                    <span aria-hidden="true">&times;</span>
-                                                                                </button>
-                                                                            </div>
-                                                                            
-                                                                            <div class="modal-body p-4 text-left">
-                                                                                <p class="text-muted small mb-3">Phiên bản: <strong>{{ $item->variant_name ?? 'Tiêu chuẩn' }}</strong></p>
-                                                                                <h6 class="font-weight-bold mb-3 text-center">Vui lòng chọn mức độ hài lòng</h6>
-                                                                                
-                                                                                <div class="star-rating mb-4 justify-content-center">
-                                                                                    <input type="radio" id="star5_{{ $item->id }}" name="rating" value="5" required>
-                                                                                    <label for="star5_{{ $item->id }}" title="5 sao"><i class="fas fa-star"></i></label>
-                                                                                    <input type="radio" id="star4_{{ $item->id }}" name="rating" value="4">
-                                                                                    <label for="star4_{{ $item->id }}" title="4 sao"><i class="fas fa-star"></i></label>
-                                                                                    <input type="radio" id="star3_{{ $item->id }}" name="rating" value="3">
-                                                                                    <label for="star3_{{ $item->id }}" title="3 sao"><i class="fas fa-star"></i></label>
-                                                                                    <input type="radio" id="star2_{{ $item->id }}" name="rating" value="2">
-                                                                                    <label for="star2_{{ $item->id }}" title="2 sao"><i class="fas fa-star"></i></label>
-                                                                                    <input type="radio" id="star1_{{ $item->id }}" name="rating" value="1">
-                                                                                    <label for="star1_{{ $item->id }}" title="1 sao"><i class="fas fa-star"></i></label>
+                                                                                <div class="modal-header bg-light border-0">
+                                                                                    <h5 class="modal-title font-weight-bold">Đánh giá: {{ $item->product_name }}</h5>
+                                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                                        <span aria-hidden="true">&times;</span>
+                                                                                    </button>
                                                                                 </div>
                                                                                 
-                                                                                <textarea class="form-control shadow-sm" name="comment" rows="3" placeholder="Nhận xét của bạn về chất lượng sách, đóng gói, giao hàng..." required style="resize: none;"></textarea>
-                                                                            </div>
-                                                                            <div class="modal-footer border-0 bg-light">
-                                                                                <button type="button" class="btn btn-secondary rounded-pill px-4" data-dismiss="modal">Hủy</button>
-                                                                                <button type="submit" class="btn btn-primary rounded-pill px-4">Gửi nhận xét</button>
-                                                                            </div>
-                                                                        </form>
+                                                                                <div class="modal-body p-4 text-left">
+                                                                                    <p class="text-muted small mb-3">Phiên bản: <strong>{{ $item->variant_name ?? 'Tiêu chuẩn' }}</strong></p>
+                                                                                    <h6 class="font-weight-bold mb-3 text-center">Vui lòng chọn mức độ hài lòng</h6>
+                                                                                    
+                                                                                    <div class="star-rating justify-content-center">
+                                                                                        <input type="radio" id="star5_{{ $item->id }}" name="rating" value="5" required>
+                                                                                        <label for="star5_{{ $item->id }}" title="5 sao"><i class="fas fa-star"></i></label>
+                                                                                        <input type="radio" id="star4_{{ $item->id }}" name="rating" value="4">
+                                                                                        <label for="star4_{{ $item->id }}" title="4 sao"><i class="fas fa-star"></i></label>
+                                                                                        <input type="radio" id="star3_{{ $item->id }}" name="rating" value="3">
+                                                                                        <label for="star3_{{ $item->id }}" title="3 sao"><i class="fas fa-star"></i></label>
+                                                                                        <input type="radio" id="star2_{{ $item->id }}" name="rating" value="2">
+                                                                                        <label for="star2_{{ $item->id }}" title="2 sao"><i class="fas fa-star"></i></label>
+                                                                                        <input type="radio" id="star1_{{ $item->id }}" name="rating" value="1">
+                                                                                        <label for="star1_{{ $item->id }}" title="1 sao"><i class="fas fa-star"></i></label>
+                                                                                    </div>
+                                                                                    
+                                                                                    <textarea class="form-control shadow-sm mb-3" name="comment" rows="3" placeholder="Nhận xét của bạn về chất lượng sách, đóng gói, giao hàng..." required style="resize: none;"></textarea>
+                                                                                    
+                                                                                    <!-- KHOẢNG CHỨA UPLOAD ẢNH NẰM Ở ĐÂY -->
+                                                                                    <div class="text-left">
+                                                                                        <label for="reviewImage_{{ $item->id }}" class="form-label small text-muted font-weight-bold mb-1"><i class="fas fa-camera mr-1"></i> Đính kèm ảnh (Tùy chọn)</label>
+                                                                                        <input type="file" name="image" id="reviewImage_{{ $item->id }}" class="form-control form-control-sm border-0 bg-white" accept="image/png, image/jpeg, image/jpg, image/webp" style="padding: 0;">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="modal-footer border-0 bg-light">
+                                                                                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-dismiss="modal">Hủy</button>
+                                                                                    <button type="submit" class="btn btn-primary rounded-pill px-4">Gửi nhận xét</button>
+                                                                                </div>
+                                                                            </form>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            @else
+                                                                <!-- NẾU ĐÃ ĐÁNH GIÁ RỒI THÌ HIỆN NHÃN NÀY -->
+                                                                <div class="mt-2">
+                                                                    <span class="badge badge-success py-2 px-3 shadow-sm" style="font-size: 13px; border-radius: 8px;">
+                                                                        <i class="fas fa-check-circle mr-1"></i> Đã đánh giá
+                                                                    </span>
+                                                                </div>
+                                                            @endif
+
                                                         <!-- NẾU SẢN PHẨM ĐÃ BỊ ADMIN XÓA -->
                                                         @else
                                                             <div class="mt-2">

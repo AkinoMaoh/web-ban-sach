@@ -135,18 +135,9 @@ KHUNG ẢNH PHÓNG TO
              src=""
              alt="{{ $product->name }}">
     </div>
-
-   
-
-   
-
 </div>
 
-
-</div>
-
-                 
-                    
+</div>                 
                     <!-- Thông tin Sách -->
                     <div class="col-lg-7 pl-lg-5">
                         <h1 class="serif-font font-weight-bold mb-3" style="color: var(--text-main); line-height: 1.3;">{{ $product->name }}</h1>
@@ -373,7 +364,7 @@ KHUNG ẢNH PHÓNG TO
                             <p class="text-muted mb-0 font-weight-bold">Bạn chưa mua sản phẩm này</p>
                         </div>
                     @elseif($unreviewedDetails->count() > 0)
-                        <form action="{{ route('review.store') }}" method="POST" id="form-danh-gia">
+                        <form action="{{ route('review.store') }}" method="POST" id="form-danh-gia" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
                             <h6 class="font-weight-bold mb-2">Gửi đánh giá của bạn</h6>
@@ -391,6 +382,10 @@ KHUNG ẢNH PHÓNG TO
                                 <input type="radio" id="star1" name="rating" value="1"><label for="star1"><i class="fas fa-star"></i></label>
                             </div>
                             <textarea class="form-control mb-2 shadow-sm" name="comment" rows="2" placeholder="Nhận xét của bạn..." required style="resize: none;"></textarea>
+                            <div class="mb-3 text-left">
+                                <label for="reviewImage" class="form-label small text-muted font-weight-bold mb-1"><i class="fas fa-camera mr-1"></i> Đính kèm ảnh (Tùy chọn)</label>
+                                <input type="file" name="image" id="reviewImage" class="form-control form-control-sm border-0 bg-white" accept="image/png, image/jpeg, image/jpg, image/webp" style="padding: 0;">
+                            </div>
                             <button type="submit" class="btn btn-dark btn-sm rounded-pill px-4">Gửi nhận xét</button>
                         </form>
                     @else
@@ -442,6 +437,18 @@ KHUNG ẢNH PHÓNG TO
                         </div>
                         
                         <p class="text-muted mb-0" style="font-size: 0.95rem;">{{ $review->comment }}</p>
+
+                        <!-- HIỂN THỊ ẢNH REVIEW (NẾU CÓ) -->
+                        @if($review->image)
+                            <div class="mt-3">
+                                <img src="{{ asset('uploads/reviews/' . $review->image) }}" 
+                                     alt="Ảnh đánh giá" 
+                                     class="rounded shadow-sm" 
+                                     style="width: 80px; height: 80px; object-fit: cover; border: 2px solid #eee; cursor: zoom-in;"
+                                     onclick="openZoom(this.src)"> 
+                                     <!-- Tận dụng luôn hàm openZoom() có sẵn của bạn để phóng to ảnh! -->
+                            </div>
+                        @endif
 
                         @if($review->admin_reply)
                             <div class="admin-reply-box mt-3 p-3 rounded shadow-sm bg-light">
@@ -1145,6 +1152,37 @@ body.dark .chon-phien-ban input:checked + .hop-phien-ban .text-success,
 .dark .chon-phien-ban input:checked + .hop-phien-ban .text-danger,
 .dark .chon-phien-ban input:checked + .hop-phien-ban .text-success {
     color: #ffffff !important;
+}
+
+.star-rating {
+    display: inline-flex;
+    flex-direction: row-reverse; /* Đảo ngược giao diện để hiển thị đúng 1, 2, 3, 4, 5 */
+    justify-content: flex-end;
+}
+
+.star-rating input {
+    display: none; /* Ẩn cái nút chấm tròn radio mặc định đi */
+}
+
+.star-rating label {
+    font-size: 35px; /* TĂNG KÍCH THƯỚC SAO Ở ĐÂY (Sửa số 35px to nhỏ tùy ý) */
+    color: #e4e5e9; /* Màu sao mặc định lúc chưa chọn (xám nhạt) */
+    cursor: pointer;
+    padding: 0 4px;
+    margin-bottom: 0;
+    transition: transform 0.2s, color 0.2s;
+}
+
+/* Hiệu ứng khi rê chuột hoặc khi đã click chọn sao */
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #ffc107; /* Đổi thành màu vàng cam nổi bật */
+}
+
+/* Hiệu ứng nhún nhẹ khi click vào sao */
+.star-rating label:active {
+    transform: scale(0.85); 
 }
 
 /* DISABLED - Dark Mode */
