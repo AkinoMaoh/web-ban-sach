@@ -1,8 +1,4 @@
-import axios from 'axios';
-
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('checkoutForm');
-
+/* global axios */
     if (!form) {
         return;
     }
