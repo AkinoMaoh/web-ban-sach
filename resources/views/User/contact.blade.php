@@ -76,27 +76,39 @@
                         </div>
                     @endif
 
-                    <form action="#" method="POST">
+                    <form action="{{ route('user.contact.send') }}" method="POST">
                         @csrf
                         <div class="row">
                             <div class="col-md-6 form-group mb-4">
                                 <label class="font-weight-bold text-dark">Họ và tên <span class="text-danger">*</span></label>
-                                <input type="text" name="name" class="form-control form-control-lg custom-input" placeholder="Tên của bạn" required>
+                                <input type="text" name="name" class="form-control form-control-lg custom-input @error('name') is-invalid @enderror" placeholder="Tên của bạn" value="{{ old('name') }}" required>
+                                @error('name')
+                                    <small class="text-danger mt-1 d-block">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col-md-6 form-group mb-4">
                                 <label class="font-weight-bold text-dark">Email <span class="text-danger">*</span></label>
-                                <input type="email" name="email" class="form-control form-control-lg custom-input" placeholder="Email liên hệ" required>
+                                <input type="email" name="email" class="form-control form-control-lg custom-input @error('email') is-invalid @enderror" placeholder="Email liên hệ" value="{{ old('email') }}" required>
+                                @error('email')
+                                    <small class="text-danger mt-1 d-block">{{ $message }}</small>
+                                @enderror
                             </div>
                         </div>
                         
                         <div class="form-group mb-4">
                             <label class="font-weight-bold text-dark">Tiêu đề <span class="text-danger">*</span></label>
-                            <input type="text" name="subject" class="form-control form-control-lg custom-input" placeholder="Bạn cần hỗ trợ vấn đề gì?" required>
+                            <input type="text" name="subject" class="form-control form-control-lg custom-input @error('subject') is-invalid @enderror" placeholder="Bạn cần hỗ trợ vấn đề gì?" value="{{ old('subject') }}" required>
+                            @error('subject')
+                                <small class="text-danger mt-1 d-block">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="form-group mb-4">
                             <label class="font-weight-bold text-dark">Nội dung <span class="text-danger">*</span></label>
-                            <textarea name="message" rows="5" class="form-control custom-input" placeholder="Nhập chi tiết nội dung tin nhắn..." required></textarea>
+                            <textarea name="message" rows="5" class="form-control custom-input @error('message') is-invalid @enderror" placeholder="Nhập chi tiết nội dung tin nhắn..." required>{{ old('message') }}</textarea>
+                            @error('message')
+                                <small class="text-danger mt-1 d-block">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <button type="submit" class="btn btn-orange rounded-pill px-5 py-3 font-weight-bold shadow-sm mt-2">
@@ -112,9 +124,11 @@
 
 @push('scripts')
 <style>
-    /* CSS Làm đẹp Input dùng chung (Có thể tận dụng từ trang checkout) */
+    /* CSS Làm đẹp Input dùng chung */
     .custom-input { border: 1px solid #E0E0E0; border-radius: 8px; font-size: 15px; transition: all 0.3s; }
     .custom-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(211,84,0,0.15); }
     .text-orange { color: var(--primary-color); }
+    .btn-orange { background-color: var(--primary-color); color: white; }
+    .btn-orange:hover { background-color: #d35400; color: white; } /* Hiệu ứng hover cho nút submit */
 </style>
 @endpush

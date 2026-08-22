@@ -33,6 +33,8 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\User\UserNewsController;
 use App\Http\Controllers\User\SearchController;
 use App\Http\Controllers\User\GuestOrderController;
+use App\Http\Controllers\Admin\ContactController as AdminContactController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -271,6 +273,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/banners/{id}', [BannerController::class, 'destroy'])->name('admin.banners.destroy');
     Route::post('/banners/{id}/toggleStatus', [BannerController::class, 'toggleStatus'])->name('admin.banners.toggleStatus');
     Route::get('/banners/{id}', [BannerController::class, 'show'])->name('admin.banners.show');
+
+// Quản lý liên hệ
+    Route::get('/contact', [AdminContactController::class, 'index'])->name('admin.contact.index');
+    Route::get('/contact/status/{id}', [AdminContactController::class, 'updateStatus'])->name('admin.contact.status');
+    Route::get('/contact/delete/{id}', [AdminContactController::class, 'destroy'])->name('admin.contact.destroy');
+    Route::get('/contact/show/{id}', [AdminContactController::class, 'show'])->name('admin.contact.show');
 });
 
 
