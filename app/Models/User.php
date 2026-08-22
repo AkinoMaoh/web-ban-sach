@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\OrderDetail;
+use App\Models\Order;
 
 #[Fillable(['name', 'email', 'password', 'role', 'is_active', 'phone', 'gender', 'address','google_id'])]
 #[Hidden(['password', 'remember_token'])]
@@ -70,5 +71,10 @@ class User extends Authenticatable
     public function voucherUsages()
     {
         return $this->hasMany(VoucherUsage::class, 'user_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id');
     }
 }
