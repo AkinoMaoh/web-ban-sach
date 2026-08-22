@@ -196,3 +196,8 @@
         margin-top: 0.75rem;
     }
 }
+/* Điều chỉnh vị trí ghim của khung tóm tắt đơn hàng */
+.checkout-summary.sticky-top {
+    top: 90px !important; /* Khoảng cách bằng chiều cao header + 1 khoảng đệm */
+    z-index: 900 !important; /* Thấp hơn z-index: 1000 của header */
+}
