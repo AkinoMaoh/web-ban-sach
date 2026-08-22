@@ -272,6 +272,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             GhnLocationSeeder::class,
+            NewsSeeder::class,
         ]);
     }
 }
