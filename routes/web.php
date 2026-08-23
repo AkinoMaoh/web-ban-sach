@@ -164,12 +164,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
         // Quản lý tài khoản nhân viên
+        Route::get('/admin/manage-admins/autocomplete', [AdminAuthController::class, 'autocompleteAdmins'])->name('admin.manage-admins.autocomplete');
         Route::get('/manage-admins', [AdminAuthController::class, 'manageAdmins'])->name('admin.manage');
         Route::post('/manage-admins/{id}/approve', [AdminAuthController::class, 'approveAdmin'])->name('admin.approve');
         Route::delete('/manage-admins/{id}/reject', [AdminAuthController::class, 'rejectAdmin'])->name('admin.reject');
         Route::patch('/toggle-status/{id}', [AdminAuthController::class, 'toggleStatus'])->name('admin.toggle-status');
 
         // Quản lý tài khoản khách hàng
+        Route::get('/admin/users/autocomplete', [UserController::class, 'autocomplete'])->name('admin.users.autocomplete');
         Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users.index');
         Route::delete('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy');
         Route::get('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'show'])->name('admin.users.show');

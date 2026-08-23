@@ -10,18 +10,28 @@ use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
     /**
-     * Hiển thị danh sách người dùng
+     * Hiển thị danh sách người dùng (Đã bổ sung Logic tìm kiếm)
      */
-    public function index()
+    public function index(Request $request)
     {
         // Chặn Nhân viên (role != 1) truy cập
         if (Auth::check() && Auth::user()->role != 1) {
             return redirect()->route('admin.products')->with('error', 'Bạn không có quyền truy cập trang Quản lý người dùng!');
         }
 
-        $users = User::where('role', 0)
-            ->latest()
-            ->paginate(10);
+        $query = User::where('role', 0);
+
+        // Lọc theo từ khóa tìm kiếm nếu có
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->input('keyword'));
+            $query->where(function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', "%{$keyword}%")
+                    ->orWhere('email', 'LIKE', "%{$keyword}%")
+                    ->orWhere('phone', 'LIKE', "%{$keyword}%");
+            });
+        }
+
+        $users = $query->latest()->paginate(10);
 
         return view('admin.users', compact('users'));
     }
@@ -65,5 +75,30 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->back()->with('success', 'Xóa người dùng thành công!');
+    }
+
+    /**
+     * API Gợi ý Autocomplete
+     */
+    public function autocomplete(Request $request)
+    {
+        $keyword = trim($request->input('query'));
+
+        if (empty($keyword)) {
+            return response()->json([]);
+        }
+
+        // Lấy tối đa 5 khách hàng khớp với từ khóa
+        $suggestions = User::where('role', 0)
+            ->where(function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', "%{$keyword}%")
+                    ->orWhere('email', 'LIKE', "%{$keyword}%")
+                    ->orWhere('phone', 'LIKE', "%{$keyword}%");
+            })
+            ->select('id', 'name', 'email', 'phone')
+            ->limit(5)
+            ->get();
+
+        return response()->json($suggestions);
     }
 }

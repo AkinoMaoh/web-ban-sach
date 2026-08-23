@@ -1,7 +1,19 @@
 @extends('admin.layout')
 
 @section('admin_content')
-
+<style>
+    .suggestion-item {
+        padding: 8px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #f1f1f1;
+    }
+    .suggestion-item:last-child {
+        border-bottom: none;
+    }
+    .suggestion-item:hover {
+        background-color: #eaecf4;
+    }
+</style>
 <div class="container-fluid">
 
     <!-- Tiêu đề trang -->
@@ -90,7 +102,39 @@
             @endif
         </div>
     </div>
+<!-- Khung Tìm Kiếm có Autocomplete -->
+<div class="d-flex justify-content-end mb-3">
+    <form action="{{ route('admin.manage') }}" method="GET" class="form-inline">
+        <!-- Bổ sung position-relative để hộp gợi ý định vị chính xác -->
+        <div class="input-group position-relative" style="width: 320px;">
+            <!-- Đã thêm id="search-input" -->
+            <input type="text" 
+                   id="search-input" 
+                   name="keyword" 
+                   class="form-control" 
+                   placeholder="Tìm theo tên, email" 
+                   value="{{ request('keyword') }}"
+                   autocomplete="off">
 
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-search"></i> Tìm kiếm
+                </button>
+                @if(request('keyword'))
+                    <a href="{{ route('admin.manage') }}" class="btn btn-outline-secondary" title="Xóa lọc">
+                        <i class="fas fa-times"></i>
+                    </a>
+                @endif
+            </div>
+
+            <!-- Đã thêm khung chứa danh sách gợi ý id="suggestion-box" -->
+            <div id="suggestion-box" 
+                 class="dropdown-menu w-100 shadow-sm" 
+                 style="display: none; position: absolute; top: 100%; left: 0; z-index: 1000; max-height: 250px; overflow-y: auto;">
+            </div>
+        </div>
+    </form>
+</div>
     <!-- 2. CÁC NHÂN VIÊN KHÁC TRÊN HỆ THỐNG (is_active = 1 hoặc 2) -->
     <div class="card shadow mb-4 border-0 rounded-lg border-left-success">
         <div class="card-header py-3 bg-white d-flex align-items-center">
@@ -166,5 +210,75 @@
     </div>
 
 </div>
+<script>
+(function() {
+    function initAdminAutocomplete() {
+        const searchInput = document.getElementById('search-input');
+        const suggestionBox = document.getElementById('suggestion-box');
+        let timeout = null;
 
+        if (!searchInput || !suggestionBox) return;
+
+        searchInput.addEventListener('input', function () {
+            clearTimeout(timeout);
+            const query = this.value.trim();
+
+            if (query.length < 1) {
+                suggestionBox.style.display = 'none';
+                suggestionBox.innerHTML = '';
+                return;
+            }
+
+            timeout = setTimeout(() => {
+                fetch(`{{ route('admin.manage-admins.autocomplete') }}?query=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        suggestionBox.innerHTML = '';
+                        if (Array.isArray(data) && data.length > 0) {
+                            data.forEach(admin => {
+                                const item = document.createElement('div');
+                                item.className = 'suggestion-item';
+                                const statusBadge = admin.status == 1 
+                                    ? '<span class="badge badge-success float-right">Hoạt động</span>' 
+                                    : '<span class="badge badge-warning float-right">Chờ duyệt</span>';
+
+                                item.innerHTML = `
+                                    <div class="font-weight-bold text-dark small">${admin.name} ${statusBadge}</div>
+                                    <div class="text-muted small">${admin.email} ${admin.phone ? ' - ' + admin.phone : ''}</div>
+                                `;
+                                
+                                item.addEventListener('mousedown', function (e) {
+                                    e.preventDefault();
+                                    const searchUrl = `{{ route('admin.manage') }}?keyword=${encodeURIComponent(admin.name)}`;
+                                    window.location.href = searchUrl;
+                                });
+                                
+                                suggestionBox.appendChild(item);
+                            });
+                            suggestionBox.style.display = 'block';
+                        } else {
+                            suggestionBox.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Lỗi gợi ý:', error);
+                        suggestionBox.style.display = 'none';
+                    });
+            }, 300);
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+                suggestionBox.style.display = 'none';
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAdminAutocomplete);
+    } else {
+        initAdminAutocomplete();
+    }
+})();
+</script>
 @endsection
