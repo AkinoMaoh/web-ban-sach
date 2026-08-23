@@ -163,6 +163,23 @@
                     Đăng nhập
                 </a>
             @endauth
+            <!-- CHỈ HIỂN THỊ NÚT TRA CỨU CHO KHÁCH VÃNG LAI -->
+            @guest
+                <a href="{{ url('/tra-cuu-don') }}" class="btn mr-3 d-inline-flex align-items-center tra-cuu-btn" style="border: 1.5px solid #f56a00; color: #f56a00; background-color: #fff; border-radius: 25px; padding: 6px 18px; text-decoration: none; transition: 0.3s;" title="Tra cứu đơn hàng">
+                    <i class="fas fa-search-location" style="font-size: 1rem;"></i>
+                    <span class="ml-2 d-none d-md-inline" style="font-weight: 600;">Tra đơn</span>
+                </a>
+            @endguest
+
+<!-- Nút Đăng nhập / User Profile của bạn ở ngay bên dưới đây -->
+
+            <!-- Thêm hiệu ứng hover (đổi màu khi di chuột vào) -->
+            <style>
+                .tra-cuu-btn:hover {
+                    background-color: #f56a00 !important;
+                    color: #fff !important;
+                }
+            </style>
         </div>
     </div>
 </header>

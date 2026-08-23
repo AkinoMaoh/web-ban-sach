@@ -87,6 +87,13 @@ Route::middleware(['user_only'])->group(function () {
         ->where('token', '[A-Fa-f0-9]{64}')
         ->middleware('throttle:30,1')
         ->name('order.track');
+    // Form tra cứu đơn hàng cho khách vãng lai
+    Route::get('/tra-cuu-don', [GuestOrderController::class, 'showTrackForm'])
+        ->name('order.track.search');
+        
+    Route::post('/tra-cuu-don', [GuestOrderController::class, 'processTrackForm'])
+        ->middleware('throttle:30,1') // Chống spam brute-force để bảo vệ SĐT khách hàng
+        ->name('order.track.process');
 
     Route::get('/news', [UserNewsController::class, 'index'])->name('user.news');
     Route::get('/news/{id}', [UserNewsController::class, 'show'])->name('user.news.show');
