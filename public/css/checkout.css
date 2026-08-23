@@ -43,7 +43,9 @@
     border: 1px solid #dedede;
     border-radius: 8px;
     min-height: 46px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .custom-input:focus {
@@ -73,7 +75,9 @@
     border: 2px solid #e5e5e5;
     border-radius: 10px;
     padding: 1rem;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
+    transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease;
 }
 
 .payment-card-content strong,
@@ -200,4 +204,303 @@
 .checkout-summary.sticky-top {
     top: 90px !important; /* Khoảng cách bằng chiều cao header + 1 khoảng đệm */
     z-index: 900 !important; /* Thấp hơn z-index: 1000 của header */
+}
+/* =========================================
+   CHECKOUT - DARK MODE
+   Theme sử dụng html.dark-mode
+========================================= */
+
+/* =========================================
+   CARD
+========================================= */
+
+html.dark-mode .checkout-card,
+html.dark-mode .checkout-summary {
+    color: #f5f5f5 !important;
+    border-color: #343434 !important;
+}
+
+html.dark-mode .checkout-card {
+    background: #1f1f1f !important;
+}
+
+html.dark-mode .checkout-summary {
+    background: #181818 !important;
+}
+
+/* =========================================
+   TIÊU ĐỀ
+========================================= */
+
+html.dark-mode .checkout-heading {
+    color: #f5f5f5 !important;
+    border-bottom-color: #383838 !important;
+}
+
+/* =========================================
+   LABEL
+========================================= */
+
+html.dark-mode .checkout-card label,
+html.dark-mode .checkout-summary label,
+html.dark-mode .checkout-label {
+    color: #dddddd !important;
+}
+
+/* =========================================
+   INPUT / TEXTAREA
+========================================= */
+
+html.dark-mode .checkout-card .custom-input,
+html.dark-mode .checkout-summary .custom-input {
+    background-color: #252525 !important;
+    border-color: #444444 !important;
+    color: #f5f5f5 !important;
+}
+
+html.dark-mode .checkout-card .custom-input::placeholder,
+html.dark-mode .checkout-summary .custom-input::placeholder {
+    color: #888888 !important;
+}
+
+html.dark-mode .checkout-card .custom-input:focus,
+html.dark-mode .checkout-summary .custom-input:focus {
+    background-color: #292929 !important;
+    border-color: var(--primary-color, #d35400) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 0.2rem rgba(211, 84, 0, 0.15) !important;
+}
+
+/* =========================================
+   SELECT
+========================================= */
+
+html.dark-mode .checkout-card .custom-select,
+html.dark-mode .checkout-summary .custom-select {
+    background-color: #252525 !important;
+    border-color: #444444 !important;
+    color: #f5f5f5 !important;
+}
+
+html.dark-mode .checkout-card .custom-select option,
+html.dark-mode .checkout-summary .custom-select option {
+    background-color: #252525;
+    color: #f5f5f5;
+}
+
+/* =========================================
+   ADDRESS OPTIONS
+========================================= */
+
+html.dark-mode .address-options {
+    background-color: #252525 !important;
+    border-color: #444444 !important;
+    color: #dddddd !important;
+}
+
+html.dark-mode .address-options label {
+    color: #dddddd !important;
+}
+
+/* =========================================
+   PAYMENT
+========================================= */
+
+html.dark-mode .payment-card-content {
+    background-color: #252525 !important;
+    border-color: #444444 !important;
+    color: #f5f5f5 !important;
+}
+
+html.dark-mode .payment-card-content strong {
+    color: #ffffff !important;
+}
+
+html.dark-mode .payment-card-content small {
+    color: #999999 !important;
+}
+
+html.dark-mode .payment-method-card input:checked + .payment-card-content {
+    background: rgba(211, 84, 0, 0.12) !important;
+    border-color: #d35400 !important;
+}
+
+/* =========================================
+   ORDER ITEMS
+========================================= */
+
+html.dark-mode .order-line {
+    border-bottom-color: #383838 !important;
+}
+
+html.dark-mode .order-line strong {
+    color: #f5f5f5 !important;
+}
+
+html.dark-mode .order-line small {
+    color: #999999 !important;
+}
+
+html.dark-mode .order-line > span {
+    color: #eeeeee !important;
+}
+
+/* =========================================
+   VOUCHER
+========================================= */
+
+html.dark-mode .voucher-section {
+    border-top-color: #383838 !important;
+    border-bottom-color: #383838 !important;
+}
+
+html.dark-mode .voucher-card {
+    background-color: #252525 !important;
+    color: #f5f5f5 !important;
+}
+
+html.dark-mode .voucher-card strong {
+    color: #ffffff !important;
+}
+
+html.dark-mode .voucher-card small {
+    color: #999999 !important;
+}
+
+html.dark-mode .voucher-code {
+    color: #ffffff !important;
+}
+
+/* =========================================
+   SUMMARY
+========================================= */
+
+html.dark-mode .summary-line {
+    color: #aaaaaa !important;
+}
+
+html.dark-mode .summary-line span {
+    color: #aaaaaa !important;
+}
+
+html.dark-mode .summary-total {
+    border-top-color: #444444 !important;
+    color: #f5f5f5 !important;
+}
+
+html.dark-mode .summary-total span {
+    color: #f5f5f5 !important;
+}
+
+html.dark-mode .summary-total strong {
+    color: #ff6b35 !important;
+}
+
+/* =========================================
+   DISCOUNT
+========================================= */
+
+html.dark-mode #discount-row {
+    color: #4ade80 !important;
+}
+
+html.dark-mode #discount_amount_text {
+    color: #4ade80 !important;
+}
+
+/* =========================================
+   TEXT MUTED
+========================================= */
+
+html.dark-mode .checkout-section .text-muted {
+    color: #999999 !important;
+}
+
+/* =========================================
+   VOUCHER INPUT
+========================================= */
+
+html.dark-mode .checkout-summary .input-group-text {
+    background-color: #252525 !important;
+    border-color: #444444 !important;
+    color: #dddddd !important;
+}
+
+html.dark-mode .checkout-summary .btn-outline-secondary {
+    background-color: #252525 !important;
+    border-color: #444444 !important;
+    color: #dddddd !important;
+}
+
+html.dark-mode .checkout-summary .btn-outline-secondary:hover {
+    background-color: #333333 !important;
+    border-color: #555555 !important;
+    color: #ffffff !important;
+}
+
+/* =========================================
+   APPLY VOUCHER BUTTON
+========================================= */
+
+html.dark-mode #btn-apply-voucher {
+    background-color: #d35400 !important;
+    border-color: #d35400 !important;
+    color: #ffffff !important;
+}
+
+html.dark-mode #btn-apply-voucher:hover {
+    background-color: #e56716 !important;
+    border-color: #e56716 !important;
+}
+
+/* =========================================
+   CHECKBOX
+========================================= */
+
+html.dark-mode .checkout-summary .custom-control-label {
+    color: #aaaaaa !important;
+}
+
+/* =========================================
+   AUTOFILL CHROME
+========================================= */
+
+html.dark-mode .checkout-card input:-webkit-autofill,
+html.dark-mode .checkout-card input:-webkit-autofill:hover,
+html.dark-mode .checkout-card input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #f5f5f5 !important;
+    -webkit-box-shadow: 0 0 0 1000px #252525 inset !important;
+}
+
+/* =========================================
+   MODAL VOUCHER
+========================================= */
+
+html.dark-mode .modal-content {
+    background-color: #1f1f1f !important;
+    border-color: #383838 !important;
+    color: #f5f5f5 !important;
+}
+
+html.dark-mode .modal-header {
+    border-bottom-color: #383838 !important;
+}
+
+html.dark-mode .modal-title {
+    color: #ffffff !important;
+}
+
+html.dark-mode .modal-header .close {
+    color: #ffffff !important;
+    text-shadow: none;
+}
+
+/* =========================================
+   ALERT
+========================================= */
+
+html.dark-mode .checkout-alert {
+    background-color: #351c1c !important;
+    border-left-color: #dc3545 !important;
+    color: #ffb3b3 !important;
 }
