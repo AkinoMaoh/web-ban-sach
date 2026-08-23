@@ -27,7 +27,7 @@
             <i class="fas fa-book-open" style="color: var(--admin-orange, #f0f0f0);"></i>
         </div>
         <div class="sidebar-brand-text mx-3 serif-font" style="text-transform: none; font-size: 22px; letter-spacing: 0;">
-            SachHay<span style="color: var(--admin-orange, #bebebe);">.</span>
+            BookZone<span style="color: var(--admin-orange, #bebebe);">.</span>
         </div>
     </a>
 
