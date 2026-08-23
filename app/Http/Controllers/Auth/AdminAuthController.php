@@ -140,23 +140,69 @@ class AdminAuthController extends Controller
     */
 
     // 8. Hiển thị danh sách Admin Chờ Duyệt và Các Admin Khác
-    public function manageAdmins()
+    public function manageAdmins(Request $request)
     {
-        $user = Auth::user();
+        $keyword = trim($request->input('keyword'));
+        $currentUserId = Auth::id(); // Lấy ID của Super Admin đang đăng nhập
 
-        // Cho phép nếu ID = 1 HOẶC email khớp với tài khoản admin tối cao của bạn
-        // (Thay 'email_that_cua_ban@gmail.com' bằng email bạn dùng đăng nhập)
-        $isMasterAdmin = ($user->id == 1 || $user->email === 'email_that_cua_ban@gmail.com');
+        // 1. Danh sách nhân viên/admin đang chờ duyệt (is_active = 0, loại trừ chính mình)
+        $pendingAdmins = User::where('role', 1)
+            ->where('id', '!=', $currentUserId)
+            ->where('is_active', 0)
+            ->when($keyword, function ($query, $keyword) {
+                return $query->where(function ($q) use ($keyword) {
+                    $q->where('name', 'LIKE', "%{$keyword}%")
+                        ->orWhere('email', 'LIKE', "%{$keyword}%")
+                        ->orWhere('phone', 'LIKE', "%{$keyword}%");
+                });
+            })
+            ->get();
 
-        if (!$isMasterAdmin) {
-            return redirect()->route('admin.products')->with('error', 'Chỉ Administrator cấp cao mới có quyền vào trang này!');
+        // 2. Danh sách nhân viên/admin đã duyệt/khóa (is_active khác 0, loại trừ chính mình)
+        $activeAdmins = User::where('role', 1)
+            ->where('id', '!=', $currentUserId)
+            ->where('is_active', '!=', 0)
+            ->when($keyword, function ($query, $keyword) {
+                return $query->where(function ($q) use ($keyword) {
+                    $q->where('name', 'LIKE', "%{$keyword}%")
+                        ->orWhere('email', 'LIKE', "%{$keyword}%")
+                        ->orWhere('phone', 'LIKE', "%{$keyword}%");
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->appends(['keyword' => $keyword]);
+
+        return view('admin.manage-admins', compact('pendingAdmins', 'activeAdmins', 'keyword'));
+    }
+
+    /**
+     * Gợi ý Autocomplete cho trang quản lý Admin/Nhân viên
+     */
+    public function autocompleteAdmins(Request $request)
+    {
+        $keyword = trim($request->input('query'));
+        $currentUserId = Auth::id(); // Lấy ID tài khoản hiện tại để loại trừ
+
+        if (empty($keyword)) {
+            return response()->json([]);
         }
 
-        $pendingAdmins = User::where('role', 1)->where('is_active', 0)->get();
-        $activeAdmins = User::where('role', 1)->where('is_active', '!=', 0)->where('id', '!=', $user->id)->get();
+        // Lấy tối đa 5 admin/nhân viên khớp với từ khóa (không gồm tài khoản đang đăng nhập)
+        $suggestions = User::where('role', 1)
+            ->where('id', '!=', $currentUserId)
+            ->where(function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', "%{$keyword}%")
+                    ->orWhere('email', 'LIKE', "%{$keyword}%")
+                    ->orWhere('phone', 'LIKE', "%{$keyword}%");
+            })
+            ->select('id', 'name', 'email', 'phone', 'is_active as status')
+            ->limit(5)
+            ->get();
 
-        return view('Admin.manage-admins', compact('pendingAdmins', 'activeAdmins'));
+        return response()->json($suggestions);
     }
+
     // 9. Phê duyệt tài khoản Admin mới
     public function approveAdmin($id)
     {
