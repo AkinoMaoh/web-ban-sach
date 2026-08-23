@@ -6,8 +6,8 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="{{ asset('js/checkout.js') }}"></script>
 
-<div class="bg-white py-3 mb-4 shadow-sm border-bottom">
-    <div class="container">
+<div class="checkout-breadcrumb py-3 mb-4 shadow-sm border-bottom">
+        <div class="container">
 <!-- ... phần còn lại giữ nguyên ... -->
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb bg-transparent px-0 mb-0 py-0">
@@ -298,8 +298,8 @@
                 <h5 class="modal-title font-weight-bold" id="voucherModalLabel">Chọn mã giảm giá</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Đóng"><span aria-hidden="true">&times;</span></button>
             </div>
-            <div class="modal-body bg-light">
-                @forelse($vouchers as $voucher)
+            <div class="modal-body voucher-modal-body">
+                    @forelse($vouchers as $voucher)
                     @php($isEligible = ($totalAmount ?? 0) >= (float) $voucher->min_order_value)
                     <div class="voucher-card">
                         <div class="voucher-code">{{ $voucher->code }}</div>
