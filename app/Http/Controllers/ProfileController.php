@@ -37,33 +37,28 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        // 1. Validate toàn bộ dữ liệu đầu vào
+        // 1. Validate dữ liệu
         $request->validate([
             'name'             => ['required', 'string', 'max:255'],
-            'phone'            => ['required', 'regex:/^(0)[0-9]{9}$/'], // Bắt buộc đúng 10 số VN
-            'gender'           => ['nullable', 'in:male,female'],
+            'phone'            => ['required', 'regex:/^(0)[0-9]{9}$/'],
+            'gender'           => ['nullable', 'in:male,female'], // Đã validate
             'province_id'      => ['required'],
             'district_id'      => ['required'],
             'ward_code'        => ['required'],
             'specific_address' => ['required', 'string', 'max:500'],
         ], [
-            'name.required'             => 'Vui lòng nhập họ và tên.',
-            'phone.required'            => 'Vui lòng nhập số điện thoại.',
-            'phone.regex'               => 'Số điện thoại không hợp lệ (gồm 10 số bắt đầu bằng số 0).',
-            'province_id.required'      => 'Vui lòng chọn Tỉnh/Thành phố.',
-            'district_id.required'      => 'Vui lòng chọn Quận/Huyện.',
-            'ward_code.required'        => 'Vui lòng chọn Phường/Xã.',
-            'specific_address.required' => 'Vui lòng nhập số nhà, tên đường cụ thể.',
+            // Các câu thông báo lỗi...
         ]);
 
-        // 2. Cập nhật thông tin vào bảng `users`
+        // 2. Cập nhật vào bảng `users` (BỔ SUNG THÊM GENDER Ở ĐÂY)
         DB::table('users')->where('id', $user->id)->update([
             'name'       => $request->name,
             'phone'      => $request->phone,
+            'gender'     => $request->gender, // <--- Bổ sung dòng này
             'updated_at' => now(),
         ]);
 
-        // 3. Cập nhật hoặc Thêm mới vào bảng `user_addresses`
+        // 3. Cập nhật bảng `user_addresses`
         DB::table('user_addresses')->updateOrInsert(
             ['user_id' => $user->id],
             [

@@ -31,53 +31,66 @@
                 @endif
             </div>
 
-            <table class="table table-bordered">
-                <tr>
-                    <th width="25%">ID</th>
-                    <td>{{ $user->id }}</td>
-                </tr>
+          <table class="table table-bordered">
+    <tr>
+        <th width="25%">ID</th>
+        <td>{{ $user->id }}</td>
+    </tr>
 
-                <tr>
-                    <th>Họ và tên</th>
-                    <td>{{ $user->name }}</td>
-                </tr>
+    <tr>
+        <th>Họ và tên</th>
+        <td>{{ $user->name }}</td>
+    </tr>
 
-                <tr>
-                    <th>Email</th>
-                    <td>{{ $user->email }}</td>
-                </tr>
+    <tr>
+        <th>Email</th>
+        <td>{{ $user->email }}</td>
+    </tr>
 
-                <tr>
-                    <th>Số điện thoại</th>
-                    <td>{{ $user->phone ?? 'Chưa cập nhật' }}</td>
-                </tr>
-                <tr>
-                    <th>Địa chỉ</th>
-                    <td>{{ $user->address ?? 'Chưa cập nhật' }}</td>
-                </tr>
-                <tr>
-                    <th>Giới tính</th>
-                    <td>
-                        {{ $user->gender == 1 ? 'Nam' : ($user->gender == 0 ? 'Nữ' : 'Chưa cập nhật') }}
-                    </td>
-                </tr>
-                <tr>
-                    <th>Vai trò</th>
-                    <td>
-                        {{ $user->role == 1 ? 'Admin' : 'Khách hàng' }}
-                    </td>
-                </tr>
+    <tr>
+        <th>Số điện thoại</th>
+        <td>{{ $user->phone ?? 'Chưa cập nhật' }}</td>
+    </tr>
 
-                <tr>
-                    <th>Ngày tạo</th>
-                    <td>{{ $user->created_at->format('d/m/Y H:i:s') }}</td>
-                </tr>
+    <tr>
+        <th>Địa chỉ</th>
+        <td>
+            {{-- Lấy địa chỉ từ bảng user_addresses nếu có, ngược lại fallback về cột address cũ --}}
+            {{ $user->defaultAddress->specific_address ?? $user->address ?? 'Chưa cập nhật' }}
+        </td>
+    </tr>
 
-                <tr>
-                    <th>Cập nhật lần cuối</th>
-                    <td>{{ $user->updated_at->format('d/m/Y H:i:s') }}</td>
-                </tr>
-            </table>
+    <tr>
+        <th>Giới tính</th>
+        <td>
+            {{-- So sánh trực tiếp chuỗi 'male' / 'female' --}}
+            @if($user->gender === 'male')
+                Nam
+            @elseif($user->gender === 'female')
+                Nữ
+            @else
+                Chưa cập nhật
+            @endif
+        </td>
+    </tr>
+
+    <tr>
+        <th>Vai trò</th>
+        <td>
+            {{ $user->role == 1 ? 'Admin' : 'Khách hàng' }}
+        </td>
+    </tr>
+
+    <tr>
+        <th>Ngày tạo</th>
+        <td>{{ $user->created_at ? $user->created_at->format('d/m/Y H:i:s') : 'Chưa cập nhật' }}</td>
+    </tr>
+
+    <tr>
+        <th>Cập nhật lần cuối</th>
+        <td>{{ $user->updated_at ? $user->updated_at->format('d/m/Y H:i:s') : 'Chưa cập nhật' }}</td>
+    </tr>
+</table>
 
         </div>
     </div>

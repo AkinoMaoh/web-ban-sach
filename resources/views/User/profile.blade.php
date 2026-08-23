@@ -113,11 +113,13 @@
                                 <label class="font-weight-bold text-dark small d-block">Giới tính</label>
                                 <div class="d-flex align-items-center" style="height: 45px;">
                                     <div class="custom-control custom-radio custom-control-inline mr-4">
-                                        <input type="radio" id="genderMale" name="gender" value="male" class="custom-control-input" {{ old('gender', Auth::user()->gender ?? '') === 'male' ? 'checked' : '' }}>
+                                        <input type="radio" id="genderMale" name="gender" value="male" class="custom-control-input" 
+                                            {{ old('gender', $user->gender ?? '') === 'male' ? 'checked' : '' }}>
                                         <label class="custom-control-label text-secondary font-weight-normal" for="genderMale">Nam</label>
                                     </div>
                                     <div class="custom-control custom-radio custom-control-inline">
-                                        <input type="radio" id="genderFemale" name="gender" value="female" class="custom-control-input" {{ old('gender', Auth::user()->gender ?? '') === 'female' ? 'checked' : '' }}>
+                                        <input type="radio" id="genderFemale" name="gender" value="female" class="custom-control-input" 
+                                            {{ old('gender', $user->gender ?? '') === 'female' ? 'checked' : '' }}>
                                         <label class="custom-control-label text-secondary font-weight-normal" for="genderFemale">Nữ</label>
                                     </div>
                                 </div>
