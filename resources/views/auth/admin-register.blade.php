@@ -145,7 +145,7 @@
                 </div>
 
                 <button class="btn btn-admin w-100 py-2 mb-3" type="submit">
-                    <i class="fas fa-plus-circle me-2"></i> TẠO TÀI KHOẢN ADMIN
+                    <i class="fas fa-plus-circle me-2"></i> TẠO TÀI KHOẢN NHÂN VIÊN MỚI
                 </button>
 
                 <div class="text-center mt-3">

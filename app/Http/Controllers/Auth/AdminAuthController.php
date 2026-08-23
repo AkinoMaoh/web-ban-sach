@@ -13,26 +13,35 @@ use Illuminate\Validation\ValidationException;
 class AdminAuthController extends Controller
 {
     // 1. Hiển thị Form Đăng Nhập Admin
-    public function showLoginForm() {
+    public function showLoginForm()
+    {
         return view('auth.admin-login');
     }
 
-    // 2. Xử lý Đăng Nhập Admin (Có kiểm tra trạng thái kích hoạt)
-    public function login(Request $request) {
+    // 2. Xử lý Đăng Nhập Admin (Cập nhật chặn tài khoản chưa duyệt (0) hoặc đã khóa (2))
+    public function login(Request $request)
+    {
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
 
         if (Auth::attempt($request->only('email', 'password'), $request->filled('remember'))) {
-            // Đăng nhập thành công -> Kiểm tra quyền xem có phải admin không (So sánh bằng số 1)
+            // Kiểm tra xem có phải tài khoản Quản trị/Nhân viên không
             if ((int)Auth::user()->role === 1) {
-                
-                // KIỂM TRA XEM ĐÃ ĐƯỢC DUYỆT CHƯA
+
+                // Kiểm tra trạng thái tài khoản
                 if ((int)Auth::user()->is_active === 0) {
-                    Auth::logout(); // Đăng xuất ngay lập tức
+                    Auth::logout();
                     throw ValidationException::withMessages([
-                        'email' => 'Tài khoản Admin của bạn đang chờ phê duyệt. Vui lòng quay lại sau!',
+                        'email' => 'Tài khoản Admin/Nhân viên của bạn đang chờ phê duyệt!',
+                    ]);
+                }
+
+                if ((int)Auth::user()->is_active === 2) {
+                    Auth::logout();
+                    throw ValidationException::withMessages([
+                        'email' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Quản trị viên cấp cao!',
                     ]);
                 }
 
@@ -40,7 +49,6 @@ class AdminAuthController extends Controller
                 return redirect()->intended(route('admin.dashboard'));
             }
 
-            // Nếu không phải Admin -> Đăng xuất ngay và báo lỗi
             Auth::logout();
             throw ValidationException::withMessages(['email' => 'Tài khoản này không có quyền Quản trị!']);
         }
@@ -49,33 +57,34 @@ class AdminAuthController extends Controller
     }
 
     // 3. Hiển thị Form Đăng Ký Admin
-    public function showRegisterForm() {
+    public function showRegisterForm()
+    {
         return view('auth.admin-register');
     }
 
-    // 4. Xử lý Đăng Ký Admin (Mặc định bắt chờ admin cũ duyệt)
-    public function register(Request $request) {
+    // 4. Xử lý Đăng Ký Admin
+    public function register(Request $request)
+    {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Tạo tài khoản và để trạng thái is_active = 0 (Chờ duyệt)
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 1,          // ĐỔI THÀNH SỐ 1: Cố định quyền quản trị trong Database kiểu INT
-            'is_active' => 0,     // Mặc định là 0 (Chờ duyệt)
+            'role' => 1,
+            'is_active' => 0, // Mặc định là 0 (Chờ duyệt)
         ]);
 
-        // Đá về trang đăng nhập kèm thông báo màu xanh lá
         return redirect()->route('admin.login')->with('status', 'Đăng ký Admin thành công! Vui lòng đợi Quản trị viên cấp cao phê duyệt tài khoản.');
     }
 
     // 5. Đăng xuất Admin
-    public function logout(Request $request) {
+    public function logout(Request $request)
+    {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -84,26 +93,26 @@ class AdminAuthController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | TÍNH NĂNG BỔ SUNG: QUẢN LÝ HỒ SƠ ADMIN
+    | QUẢN LÝ HỒ SƠ ADMIN
     |--------------------------------------------------------------------------
     */
 
     // 6. Hiển thị trang Hồ sơ Admin
-    public function editProfile() {
-        $admin = Auth::user(); // Lấy thông tin admin hiện tại đang đăng nhập
-        return view('Admin.profile', compact('admin')); // Trỏ tới file view bạn sẽ tạo ở resources/views/Admin/profile.blade.php
+    public function editProfile()
+    {
+        $admin = Auth::user();
+        return view('Admin.profile', compact('admin'));
     }
 
     // 7. Xử lý Cập nhật Hồ sơ Admin
-    public function updateProfile(Request $request) {
+    public function updateProfile(Request $request)
+    {
         $admin = Auth::user();
 
-        // Kiểm tra dữ liệu đầu vào
         $request->validate([
             'name' => 'required|string|max:255',
-            // Loại trừ kiểm tra unique email của chính id tài khoản admin này
             'email' => 'required|string|email|max:255|unique:users,email,' . $admin->id,
-            'password' => 'nullable|string|min:6|confirmed', // Mật khẩu mới không bắt buộc điền
+            'password' => 'nullable|string|min:6|confirmed',
         ], [
             'name.required' => 'Họ và tên không được để trống.',
             'email.required' => 'Email không được để trống.',
@@ -112,11 +121,9 @@ class AdminAuthController extends Controller
             'password.confirmed' => 'Xác nhận lại mật khẩu mới không khớp.'
         ]);
 
-        // Gán giá trị mới
         $admin->name = $request->name;
         $admin->email = $request->email;
 
-        // Nếu admin điền mật khẩu mới thì tiến hành mã hóa Hash và thay đổi
         if ($request->filled('password')) {
             $admin->password = Hash::make($request->password);
         }
@@ -126,39 +133,72 @@ class AdminAuthController extends Controller
         return redirect()->back()->with('success', 'Cập nhật thông tin hồ sơ Admin thành công!');
     }
 
-    // Thêm hàm hiển thị danh sách và xử lý phê duyệt vào cuối class AdminAuthController
+    /*
+    |--------------------------------------------------------------------------
+    | QUẢN LÝ TÀI KHOẢN NHÂN VIÊN/ADMIN KHÁC
+    |--------------------------------------------------------------------------
+    */
 
-// 1. Hiển thị danh sách Admin Chờ Duyệt và Admin Đã Duyệt
-public function manageAdmins()
-{
-    // Lấy ra danh sách admin đang chờ duyệt (is_active = 0)
-    $pendingAdmins = User::where('role', 1)->where('is_active', 0)->get();
+    // 8. Hiển thị danh sách Admin Chờ Duyệt và Các Admin Khác
+    public function manageAdmins()
+    {
+        $user = Auth::user();
 
-    // Lấy ra danh sách admin đã hoạt động (is_active = 1), loại trừ chính bản thân người đang đăng nhập
-    $activeAdmins = User::where('role', 1)->where('is_active', 1)->where('id', '!=', Auth::id())->get();
+        // Cho phép nếu ID = 1 HOẶC email khớp với tài khoản admin tối cao của bạn
+        // (Thay 'email_that_cua_ban@gmail.com' bằng email bạn dùng đăng nhập)
+        $isMasterAdmin = ($user->id == 1 || $user->email === 'email_that_cua_ban@gmail.com');
 
-    return view('Admin.manage-admins', compact('pendingAdmins', 'activeAdmins'));
-}
+        if (!$isMasterAdmin) {
+            return redirect()->route('admin.products')->with('error', 'Chỉ Administrator cấp cao mới có quyền vào trang này!');
+        }
 
-// 2. Xử lý Duyệt tài khoản Admin mới
-public function approveAdmin($id)
-{
-    $admin = User::findOrFail($id);
-    
-    // Đổi trạng thái từ 0 sang 1 để kích hoạt tài khoản
-    $admin->is_active = 1;
-    $admin->save();
+        $pendingAdmins = User::where('role', 1)->where('is_active', 0)->get();
+        $activeAdmins = User::where('role', 1)->where('is_active', '!=', 0)->where('id', '!=', $user->id)->get();
 
-    return redirect()->back()->with('success', 'Đã phê duyệt kích hoạt tài khoản cho Admin: ' . $admin->name);
-}
+        return view('Admin.manage-admins', compact('pendingAdmins', 'activeAdmins'));
+    }
+    // 9. Phê duyệt tài khoản Admin mới
+    public function approveAdmin($id)
+    {
+        $admin = User::findOrFail($id);
+        $admin->is_active = 1; // Duyệt tài khoản -> Chuyển thành 1 (Hoạt động)
+        $admin->save();
 
-// 3. Xử lý Từ chối / Xóa tài khoản Admin (Nếu thông tin đăng ký không hợp lệ)
-public function rejectAdmin($id)
-{
-    $admin = User::findOrFail($id);
-    $adminName = $admin->name;
-    $admin->delete(); // Xóa tài khoản khỏi hệ thống
+        return redirect()->back()->with('success', 'Đã phê duyệt kích hoạt tài khoản cho Admin: ' . $admin->name);
+    }
 
-    return redirect()->back()->with('success', 'Đã hủy bỏ và xóa yêu cầu đăng ký của: ' . $adminName);
-}
+    // 10. Từ chối / Xóa yêu cầu đăng ký Admin
+    public function rejectAdmin($id)
+    {
+        $admin = User::findOrFail($id);
+        $adminName = $admin->name;
+        $admin->delete();
+
+        return redirect()->back()->with('success', 'Đã hủy bỏ và xóa yêu cầu đăng ký của: ' . $adminName);
+    }
+
+    // 11. BẬT / TẮT TRẠNG THÁI (KHÓA / MỞ KHÓA TÀI KHOẢN ADMIN)
+    public function toggleStatus($id)
+    {
+        if (Auth::id() == $id) {
+            return redirect()->back()->with('error', 'Bạn không thể khóa tài khoản của chính mình!');
+        }
+
+        $admin = User::findOrFail($id);
+
+        // Ép kiểu int để so sánh chính xác 100%
+        $currentStatus = (int) $admin->is_active;
+
+        if ($currentStatus === 1) {
+            $admin->is_active = 2; // Đang 1 -> Đổi thành 2 (Khóa)
+            $msg = "Đã KHÓA tài khoản thành công!";
+        } else {
+            $admin->is_active = 1; // Đang 2 (hoặc khác 1) -> Đổi thành 1 (Mở khóa)
+            $msg = "Đã MỞ KHÓA tài khoản thành công!";
+        }
+
+        $admin->save();
+
+        return redirect()->back()->with('success', $msg);
+    }
 }

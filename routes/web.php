@@ -90,7 +90,7 @@ Route::middleware(['user_only'])->group(function () {
     // Form tra cứu đơn hàng cho khách vãng lai
     Route::get('/tra-cuu-don', [GuestOrderController::class, 'showTrackForm'])
         ->name('order.track.search');
-        
+
     Route::post('/tra-cuu-don', [GuestOrderController::class, 'processTrackForm'])
         ->middleware('throttle:30,1') // Chống spam brute-force để bảo vệ SĐT khách hàng
         ->name('order.track.process');
@@ -158,6 +158,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/manage-admins', [AdminAuthController::class, 'manageAdmins'])->name('admin.manage');
     Route::post('/manage-admins/{id}/approve', [AdminAuthController::class, 'approveAdmin'])->name('admin.approve');
     Route::delete('/manage-admins/{id}/reject', [AdminAuthController::class, 'rejectAdmin'])->name('admin.reject');
+    Route::patch('/toggle-status/{id}', [AdminAuthController::class, 'toggleStatus'])->name('admin.toggle-status');
 
     // Tìm kiếm sản phẩm
     Route::get('/products/search', [productsController::class, 'search'])->name('admin.products.search');
@@ -281,7 +282,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/banners/{id}/toggleStatus', [BannerController::class, 'toggleStatus'])->name('admin.banners.toggleStatus');
     Route::get('/banners/{id}', [BannerController::class, 'show'])->name('admin.banners.show');
 
-// Quản lý liên hệ
+    // Quản lý liên hệ
     Route::get('/contact', [AdminContactController::class, 'index'])->name('admin.contact.index');
     Route::get('/contact/status/{id}', [AdminContactController::class, 'updateStatus'])->name('admin.contact.status');
     Route::get('/contact/delete/{id}', [AdminContactController::class, 'destroy'])->name('admin.contact.destroy');
