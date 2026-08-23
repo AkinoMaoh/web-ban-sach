@@ -18,7 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('order_detail_id'); // Liên kết tới chi tiết đơn hàng
             $table->string('user_name');      // Lưu tên người dùng tại thời điểm đánh giá
             $table->string('variant_name');   // Lưu tên phiên bản tại thời điểm đánh giá
-            $table->tinyInteger('rating');    // Số sao
+            $table->tinyInteger('rating');
+            $table->string('image')->nullable();    // Đường dẫn ảnh
             $table->text('comment');          // Nội dung nhận xét
             $table->boolean('is_buyer')->default(false); // Tích xanh đã mua
             $table->timestamps();

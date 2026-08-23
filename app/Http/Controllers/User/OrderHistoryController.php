@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Services\OrderLifecycleService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use App\Models\Review;
 
 class OrderHistoryController extends Controller
 {
@@ -53,7 +54,11 @@ class OrderHistoryController extends Controller
                             ->where('order_id', $id)
                             ->get();
 
-        return view('User.order_detail', compact('order', 'orderDetails'));
+        $reviewedDetailIds = Review::whereIn('order_detail_id', $orderDetails->pluck('id'))
+                                ->pluck('order_detail_id')
+                                ->toArray();
+
+        return view('User.order_detail', compact('order', 'orderDetails', 'reviewedDetailIds'));
     }
 
     public function cancel(Request $request, $id)

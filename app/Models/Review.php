@@ -22,7 +22,8 @@ class Review extends Model
         'rating',
         'comment',
         'is_buyer',
-        'admin_reply'
+        'admin_reply',
+        'image'
     ];
 
     public function user()
