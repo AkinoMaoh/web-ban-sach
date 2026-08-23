@@ -4,7 +4,7 @@
     <div class="container d-flex justify-content-between align-items-center">
         <!-- Logo -->
         <a href="{{ route('user.index') }}" class="text-decoration-none mr-3">
-            <h2 class="serif-font mb-0 font-weight-bold" style="color: var(--primary-color, #FF7A00); letter-spacing: -0.5px; font-size: 28px;">BookStore</h2>
+            <h2 class="serif-font mb-0 font-weight-bold" style="color: var(--primary-color, #FF7A00); letter-spacing: -0.5px; font-size: 28px;">BookZone</h2>
         </a>
         
         <!-- Menu -->

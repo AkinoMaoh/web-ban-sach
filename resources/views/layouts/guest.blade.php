@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         
-        <title>Thư Viện Sách - Hệ thống</title>
+        <title>BookZone - Hệ thống</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -80,7 +80,7 @@
             <!-- Logo Thư Viện -->
             <div class="text-center">
                 <a href="/">
-                    <img src="{{ asset('img/logoWebMoi.png') }}" alt="Logo Thư Viện Sách" class="guest-logo">
+                    <img src="{{ asset('img/bookzone.png') }}" alt="Logo BookZone" class="guest-logo" style="width: 100px; height: 100px; object-fit: contain; padding: 12px; background-color: #ffffff; border-radius: 50%;">
                 </a>
             </div>
 
