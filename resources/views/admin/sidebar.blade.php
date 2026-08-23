@@ -105,4 +105,10 @@
         <span>Quản lý Banner</span>
     </a>
 </li>
+
+<li class="nav-item {{ request()->routeIs('admin.contact.index') ? 'active' : '' }}">
+    <a class="nav-link" href="{{ route('admin.contact.index') }}">
+        <i class="fas fa-fw fa-envelope"></i>
+        <span>Quản lý Liên hệ</span>
+    </a>
 </ul>
