@@ -34,8 +34,7 @@
     <hr class="sidebar-divider my-0">
 
     {{-- ==================== CHỈ ADMIN TỐI CAO MỚI THẤY KHỐI NÀY ==================== --}}
-   {{-- Kiểm tra ID = 1 hoặc đúng email Admin tối cao --}}
-@if(Auth::check() && (Auth::id() == 1 || Auth::user()->email === 'ankinoto20@gmail.com'))
+    @if(Auth::check() && (Auth::id() == 1 || Auth::user()->email === 'ankinoto20@gmail.com'))
 
     <!-- Dashboard -->
     <li class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
@@ -78,7 +77,7 @@
 
     <hr class="sidebar-divider">
 
-@endif
+    @endif
     {{-- ==================== KẾT THÚC KHỐI ADMIN TỐI CAO ==================== --}}
 
 
@@ -134,20 +133,23 @@
         </a>
     </li>
 
-    <!-- Quản lý Bình luận -->
-    <li class="nav-item {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route('admin.reviews.index') }}">
+    <!-- Quản lý Tương tác (Gộp Bình luận & Liên hệ) -->
+    @php
+        $isInteractionGroupActive = request()->routeIs('admin.reviews*') || 
+                                   request()->routeIs('admin.contact*');
+    @endphp
+    <li class="nav-item {{ $isInteractionGroupActive ? 'active' : '' }}">
+        <a class="nav-link {{ $isInteractionGroupActive ? '' : 'collapsed' }}" href="#" data-toggle="collapse" data-target="#collapseInteractionManagement"
+            aria-expanded="{{ $isInteractionGroupActive ? 'true' : 'false' }}" aria-controls="collapseInteractionManagement">
             <i class="fas fa-fw fa-comments"></i>
-            <span>Quản lý Bình luận</span>
+            <span>Quản lý Tương tác</span>
         </a>
-    </li>
-
-    <!-- Quản lý Liên hệ -->
-    <li class="nav-item {{ request()->routeIs('admin.contact*') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route('admin.contact.index') }}">
-            <i class="fas fa-fw fa-envelope"></i>
-            <span>Quản lý Liên hệ</span>
-        </a>
+        <div id="collapseInteractionManagement" class="collapse {{ $isInteractionGroupActive ? 'show' : '' }}" aria-labelledby="headingInteraction" data-parent="#accordionSidebar">
+            <div class="py-2 collapse-inner rounded">
+                <a class="collapse-item {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}" href="{{ route('admin.reviews.index') }}">Bình luận & Đánh giá</a>
+                <a class="collapse-item {{ request()->routeIs('admin.contact*') ? 'active' : '' }}" href="{{ route('admin.contact.index') }}">Liên hệ từ khách hàng</a>
+            </div>
+        </div>
     </li>
 
 </ul>
