@@ -16,18 +16,38 @@
                 <strong class="d-block mt-1" style="font-size: 26px; color: var(--primary-color);">{{ $order->order_number }}</strong>
             </div>
 
-            <div class="row text-left mb-4">
-                <div class="col-md-6 mb-3 mb-md-0">
-                    <h6 class="font-weight-bold">Giao đến</h6>
-                    <p class="mb-1"><strong>{{ $order->shipping_name }}</strong> · {{ $order->shipping_phone }}</p>
-                    <p class="text-muted mb-0">{{ $order->shipping_address }}</p>
+            <!-- Bắt đầu khối thông tin tối ưu -->
+            <div class="row text-left mb-4 p-3 bg-light rounded border">
+                <!-- Cột Thông tin nhận hàng (Tỷ lệ 7) -->
+                <div class="col-md-7 mb-3 mb-md-0" style="border-right: 1px solid #dee2e6;">
+                    <h6 class="font-weight-bold text-secondary mb-2 text-uppercase" style="font-size: 0.85rem;">
+                        <i class="fas fa-map-marker-alt mr-2"></i>Thông tin nhận hàng
+                    </h6>
+                    <p class="mb-1">
+                        <strong>{{ $order->shipping_name }}</strong> 
+                        <span class="text-muted mx-1">|</span> 
+                        {{ $order->shipping_phone }}
+                    </p>
+                    <p class="text-muted mb-0" style="font-size: 0.9rem; line-height: 1.4;">
+                        {{ $order->shipping_address }}
+                    </p>
                 </div>
-                <div class="col-md-6">
-                    <h6 class="font-weight-bold">Thanh toán</h6>
-                    <p class="mb-1">{{ $order->payment_method === 'vnpay' ? 'VNPAY' : 'Thanh toán khi nhận hàng' }}</p>
-                    <p class="mb-0">Tổng cộng: <strong class="text-danger">{{ number_format($order->total_amount, 0, ',', '.') }}đ</strong></p>
+                
+                <!-- Cột Hình thức thanh toán (Tỷ lệ 5) -->
+                <div class="col-md-5 pl-md-4">
+                    <h6 class="font-weight-bold text-secondary mb-2 text-uppercase" style="font-size: 0.85rem;">
+                        <i class="fas fa-credit-card mr-2"></i>Hình thức thanh toán
+                    </h6>
+                    <p class="mb-2" style="font-size: 0.95rem;">
+                        {{ $order->payment_method === 'vnpay' ? 'Thanh toán trực tuyến (VNPAY)' : 'Thanh toán khi nhận hàng (COD)' }}
+                    </p>
+                    <div class="pt-2 mt-2" style="border-top: 1px dashed #ced4da;">
+                        <span class="text-muted">Tổng cộng:</span> 
+                        <strong class="text-danger ml-1" style="font-size: 1.15rem;">{{ number_format($order->total_amount, 0, ',', '.') }}đ</strong>
+                    </div>
                 </div>
             </div>
+            <!-- Kết thúc khối thông tin tối ưu -->
 
             @if($order->discount_amount > 0)
                 <p class="alert alert-success py-2">
