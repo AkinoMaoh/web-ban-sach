@@ -97,12 +97,12 @@
                                 <td class="text-center pr-4">
                                     <div class="d-inline-flex align-items-center justify-content-center">
                                         <!-- Sửa -->
-                                        <!-- <a href="{{ route('admin.authors.edit', $author->id) }}" 
+                                        <a href="{{ route('admin.authors.edit', $author->id) }}" 
                                            class="btn btn-sm btn-success text-white mr-1" title="Sửa">
                                             <i class="fas fa-edit"></i>
-                                        </a> -->
+                                        </a> 
 
-                                        <!-- Ẩn / Hiện (Toggle Status) -->
+                                        {{-- <!-- Ẩn / Hiện (Toggle Status) -->
                                         <form action="{{ route('admin.authors.toggleStatus', $author->id) }}" method="POST" class="d-inline mr-1" onsubmit="event.stopPropagation();">
                                             @csrf
                                             <button type="submit"
@@ -110,7 +110,7 @@
                                                 title="{{ $author->status ? 'Ẩn tác giả' : 'Hiện tác giả' }}">
                                                 <i class="fas {{ $author->status ? 'fa-eye-slash' : 'fa-eye' }}"></i>
                                             </button>
-                                        </form>
+                                        </form> --}}
 
                                         <!-- Xóa -->
                                         <a href="{{ route('admin.authors.destroy', $author->id) }}" 

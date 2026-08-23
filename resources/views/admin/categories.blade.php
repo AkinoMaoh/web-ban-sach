@@ -111,7 +111,7 @@
                                             <i class="fas fa-edit"></i>
                                         </a>
 
-                                        <!-- Ẩn / Hiện (Toggle Status) -->
+                                        {{-- <!-- Ẩn / Hiện (Toggle Status) -->
                                         <form action="{{ route('admin.categories.toggleStatus', $category->id) }}" method="POST" class="d-inline mr-1" onsubmit="event.stopPropagation();">
                                             @csrf
                                             <button type="submit"
@@ -119,7 +119,7 @@
                                                 title="{{ $category->status ? 'Ẩn' : 'Hiện' }}">
                                                 <i class="fas {{ $category->status ? 'fa-eye-slash' : 'fa-eye' }}"></i>
                                             </button>
-                                        </form>
+                                        </form> --}}
 
                                         <!-- Xóa -->
                                         <a href="{{ route('admin.categories.destroy', $category->id) }}"
