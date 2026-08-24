@@ -50,7 +50,7 @@ class DatabaseSeeder extends Seeder
             ['id' => 8, 'name' => 'Eiichiro Oda', 'bio' => 'Họa sĩ manga người Nhật Bản, tác giả của bộ truyện tranh huyền thoại bán chạy nhất One Piece.', 'avatar' => 'eiichiro_oda.jpg', 'status' => 1],
             ['id' => 9, 'name' => 'Gosho Aoyama', 'bio' => 'Cha đẻ của bộ truyện tranh trinh thám đình đám Thám tử lừng danh Conan.', 'avatar' => 'gosho_aoyama.jpg', 'status' => 1],
             ['id' => 10, 'name' => 'Dale Carnegie', 'bio' => 'Nhà văn và nhà thuyết trình người Mỹ, tác giả cuốn sách nghệ thuật ứng xử Đắc Nhân Tâm.', 'avatar' => 'dale_carnegie.jpg', 'status' => 1],
-            ['id' => 11, 'name' => 'iphone 16', 'bio' => 'sdrttyuio2', 'avatar' => '1781515638_anh1.jpg', 'status' => 0],
+
         ]);
 
         // 5. Seed Publishers
@@ -153,8 +153,8 @@ class DatabaseSeeder extends Seeder
             ['id' => 76, 'category_id' => 5, 'author_id' => 8, 'publisher_id' => 4, 'name' => 'Slam Dunk - Tập 1', 'description' => 'Tác phẩm manga thể thao bóng rổ huyền thoại của Takehiko Inoue.', 'price' => 45000.00,  'image' => 'slamdunk_1.jpg', 'status' => 1],
             ['id' => 77, 'category_id' => 5, 'author_id' => 9, 'publisher_id' => 4, 'name' => 'Attack on Titan - Tập 1', 'description' => 'Cuộc chiến sinh tồn tàn khốc của nhân loại trước loài khổng lồ.', 'price' => 40000.00,  'image' => 'aot_1.jpg', 'status' => 1],
             ['id' => 78, 'category_id' => 5, 'author_id' => 10, 'publisher_id' => 4, 'name' => 'Spy x Family - Tập 1', 'description' => 'Gia đình điệp viên hư cấu siêu hài hước và đáng yêu.', 'price' => 45000.00,  'image' => 'spy_1.jpg', 'status' => 1],
-            ['id' => 79, 'category_id' => 5, 'author_id' => 11, 'publisher_id' => 4, 'name' => 'Haikyu!! (Chàng Trai Bóng Chuyền) - Tập 1', 'description' => 'Ý chí và đam mê cháy bỏng trên sân đấu bóng chuyền học đường.', 'price' => 35000.00,  'image' => 'haikyu_1.jpg', 'status' => 1],
-            ['id' => 80, 'category_id' => 5, 'author_id' => 12, 'publisher_id' => 4, 'name' => 'Monster (Quái Vật) - Tập 1', 'description' => 'Kiệt tác manga trinh thám tâm lý ly kỳ của Naoki Urasawa.', 'price' => 85000.00, 'image' => 'monster_1.jpg', 'status' => 1],
+            ['id' => 79, 'category_id' => 5, 'author_id' => 10, 'publisher_id' => 4, 'name' => 'Haikyu!! (Chàng Trai Bóng Chuyền) - Tập 1', 'description' => 'Ý chí và đam mê cháy bỏng trên sân đấu bóng chuyền học đường.', 'price' => 35000.00,  'image' => 'haikyu_1.jpg', 'status' => 1],
+            ['id' => 80, 'category_id' => 5, 'author_id' => 10, 'publisher_id' => 4, 'name' => 'Monster (Quái Vật) - Tập 1', 'description' => 'Kiệt tác manga trinh thám tâm lý ly kỳ của Naoki Urasawa.', 'price' => 85000.00, 'image' => 'monster_1.jpg', 'status' => 1],
 
             // Thể loại: Cổ tích
             ['id' => 81, 'category_id' => 6, 'author_id' => 1, 'publisher_id' => 1, 'name' => 'Truyện Cổ Grimm Toàn Tập', 'description' => 'Kho tàng truyện cổ tích nổi tiếng thế giới của hai anh em nhà Grimm.', 'price' => 180000.00,  'image' => 'co_tich_grimm.jpg', 'status' => 1],
@@ -186,9 +186,9 @@ class DatabaseSeeder extends Seeder
             ['id' => 105, 'category_id' => 7, 'author_id' => 9, 'publisher_id' => 2, 'name' => 'Chúa Tể Những Chiếc Nhẫn - Tập 1', 'description' => 'Bản hùng ca giả tưởng vĩ đại đặt nền móng cho fantasy hiện đại.', 'price' => 165000.00, 'image' => 'lord_of_the_rings_1.jpg', 'status' => 1],
             ['id' => 106, 'category_id' => 7, 'author_id' => 9, 'publisher_id' => 2, 'name' => 'Anh Chàng Hobbit', 'description' => 'Hành trình phiêu lưu bất ngờ của Bilbo Baggins trước kỷ nguyên Chúa Nhẫn.', 'price' => 115000.00, 'image' => 'hobbit.jpg', 'status' => 1],
             ['id' => 107, 'category_id' => 7, 'author_id' => 10, 'publisher_id' => 6, 'name' => 'Mối Tình Đầu', 'description' => 'Tác phẩm lãng mạn nhẹ nhàng nhưng u sầu của Ivan Turgenev.', 'price' => 60000.00, 'image' => 'moi_tinh_dau.jpg', 'status' => 1],
-            ['id' => 108, 'category_id' => 7, 'author_id' => 11, 'publisher_id' => 2, 'name' => 'Tiếng Gọi Nơi Hoang Dã', 'description' => 'Bản năng sinh tồn mạnh mẽ của chú chó Buck giữa vùng tuyết trắng.', 'price' => 68000.00,  'image' => 'tieng_goi_noi_hoang_da.jpg', 'status' => 1],
-            ['id' => 109, 'category_id' => 7, 'author_id' => 12, 'publisher_id' => 1, 'name' => 'Trà Hoa Nữ', 'description' => 'Câu chuyện tình yêu đầy đau đớn và định kiến xã hội của Alexandre Dumas con.', 'price' => 85000.00, 'image' => 'tra_hoa_nu.jpg', 'status' => 1],
-            ['id' => 110, 'category_id' => 7, 'author_id' => 13, 'publisher_id' => 2, 'name' => 'Tên Của Đóa Hồng', 'description' => 'Sự kết hợp hoàn hảo giữa trinh thám trung cổ và triết học ký hiệu học.', 'price' => 175000.00, 'image' => 'ten_cua_doa_hong.jpg', 'status' => 1],
+            ['id' => 108, 'category_id' => 7, 'author_id' => 1, 'publisher_id' => 2, 'name' => 'Tiếng Gọi Nơi Hoang Dã', 'description' => 'Bản năng sinh tồn mạnh mẽ của chú chó Buck giữa vùng tuyết trắng.', 'price' => 68000.00,  'image' => 'tieng_goi_noi_hoang_da.jpg', 'status' => 1],
+            ['id' => 109, 'category_id' => 7, 'author_id' => 2, 'publisher_id' => 1, 'name' => 'Trà Hoa Nữ', 'description' => 'Câu chuyện tình yêu đầy đau đớn và định kiến xã hội của Alexandre Dumas con.', 'price' => 85000.00, 'image' => 'tra_hoa_nu.jpg', 'status' => 1],
+            ['id' => 110, 'category_id' => 7, 'author_id' => 3, 'publisher_id' => 2, 'name' => 'Tên Của Đóa Hồng', 'description' => 'Sự kết hợp hoàn hảo giữa trinh thám trung cổ và triết học ký hiệu học.', 'price' => 175000.00, 'image' => 'ten_cua_doa_hong.jpg', 'status' => 1],
 
             // Thể loại: Triết lý sống
             ['id' => 111, 'category_id' => 8, 'author_id' => 1, 'publisher_id' => 6, 'name' => 'Đắc Nhân Tâm', 'description' => 'Cuốn sách nghệ thuật ứng xử kinh điển, bán chạy nhất mọi thời đại.', 'price' => 86000.00,  'image' => 'dac_nhan_tam.jpg', 'status' => 1],
