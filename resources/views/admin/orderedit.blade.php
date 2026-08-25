@@ -22,8 +22,7 @@
         </a>
     </div>
 
-    <!-- THÔNG BÁO THÀNH CÔNG -->
-    @if (session('success'))
+    @if (session('success') && $order->status !== 'cancelled')
         <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-4" role="alert">
             <i class="fas fa-check-circle mr-1"></i> <strong>Thành công!</strong> {{ session('success') }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -31,13 +30,24 @@
             </button>
         </div>
     @endif
-    <!-- NẾU ĐƠN HÀNG ĐÃ BỊ HỦY -> HIỂN THỊ CHUNG 1 KHUNG -->
+
+    <!-- NẾU ĐƠN HÀNG ĐÃ BỊ HỦY -> HIỆN KHUNG ĐỎ (KÈM DÒNG CHÚ THÍCH THÀNH CÔNG NẾU VỪA LƯU) -->
     @if ($order->status === 'cancelled')
         <div class="alert alert-danger shadow-sm border-0 mb-4">
-            <h6 class="font-weight-bold mb-1"><i class="fas fa-times-circle mr-1"></i> Đơn hàng đã bị hủy</h6>
-            <p class="mb-0"><strong>Lý do:</strong> {{ $order->cancel_reason ?? 'Không có lý do cụ thể' }}</p>
             
-            <!-- Nhúng trực tiếp chi tiết kỹ thuật của Admin vào chung một hộp -->
+            <!-- Nếu vừa thao tác hủy xong, chèn nhẹ dòng chữ xanh lá báo thành công vào đây -->
+            @if(session('success'))
+                <div class="text-success mb-2" style="font-size: 0.95rem;">
+                    <i class="fas fa-check-circle mr-1"></i> <strong>Thành công!</strong> {{ session('success') }}
+                </div>
+                <hr class="my-2 border-danger" style="opacity: 0.2;">
+            @endif
+
+            <!-- Nội dung cố định của đơn hủy -->
+            <h6 class="font-weight-bold mb-1 text-danger"><i class="fas fa-times-circle mr-1"></i> Đơn hàng đã bị hủy</h6>
+            <p class="mb-0 text-dark"><strong>Lý do:</strong> {{ $order->cancel_reason ?? 'Không có lý do cụ thể' }}</p>
+
+            <!-- Lỗi kỹ thuật (nếu có) -->
             @if (session('error'))
                 <hr class="my-2 border-danger" style="opacity: 0.3;">
                 <p class="mb-0 text-dark" style="font-size: 0.9rem;">
