@@ -22,6 +22,15 @@
         </a>
     </div>
 
+    <!-- THÔNG BÁO THÀNH CÔNG -->
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-4" role="alert">
+            <i class="fas fa-check-circle mr-1"></i> <strong>Thành công!</strong> {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
     <!-- NẾU ĐƠN HÀNG ĐÃ BỊ HỦY -> HIỂN THỊ CHUNG 1 KHUNG -->
     @if ($order->status === 'cancelled')
         <div class="alert alert-danger shadow-sm border-0 mb-4">
