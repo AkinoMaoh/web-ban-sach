@@ -12,12 +12,18 @@
             <a href="{{ route('user.index') }}" class="menu-item px-3 py-2 rounded-pill {{ request()->routeIs('user.index') ? 'active' : '' }}">
                 Trang chủ
             </a>
+        </nav>
+        <nav class="main-menu d-flex align-items-center">
             <a href="{{ route('user.shop') }}" class="menu-item px-3 py-2 rounded-pill {{ request()->routeIs('user.shop','user.category', 'user.productDetails') ? 'active' : '' }}">
                 Tủ sách
             </a>
+        </nav>
+        <nav class="main-menu d-flex align-items-center">
             <a href="{{ route('user.news') }}" class="menu-item px-3 py-2 rounded-pill {{ request()->routeIs('user.news', 'user.news.show') ? 'active' : '' }}">
                 Tin tức
             </a>
+        </nav>
+        <nav class="main-menu d-flex align-items-center">
             <a href="{{ route('user.contact') }}" class="menu-item px-3 py-2 rounded-pill {{ request()->routeIs('user.contact') ? 'active' : '' }}">
                 Liên hệ
             </a>
@@ -26,12 +32,11 @@
         <!-- Search & Actions -->
         <div class="d-flex align-items-center" style="gap: 12px;">
             
-            <!-- Ô TÌM KIẾM AJAX -->
             <div class="search-wrapper position-relative d-none d-lg-block" id="headerSearchWrapper" style="width: 230px;">
-                <form action="{{ route('user.shop') }}" method="GET" id="searchForm">
-                    <div class="custom-search-bar position-relative d-flex align-items-center">
-                        <input type="text" id="searchInput" name="keyword" value="{{ request('keyword') }}" placeholder="Tìm tên sách..." class="form-control shadow-none" autocomplete="off">
-                        <button class="btn text-white d-flex align-items-center justify-content-center glow-pill-btn" type="submit" aria-label="Tìm kiếm" style="width: 34px; height: 34px; border-radius: 50%;">
+                <form action="{{ route('user.shop') }}" method="GET" id="searchForm" class="m-0">
+                    <div class="custom-search-bar position-relative w-100">
+                        <input type="text" id="searchInput" name="keyword" value="{{ request('keyword') }}" placeholder="Tìm tên sách..." class="form-control shadow-none w-100" style="height: 42px; border-radius: 21px; padding-right: 42px;" autocomplete="off">
+                        <button class="btn text-white d-flex align-items-center justify-content-center glow-pill-btn position-absolute" type="submit" aria-label="Tìm kiếm" style="width: 34px; height: 34px; border-radius: 50%; right: 4px; top: 50%; transform: translateY(-50%); z-index: 10;">
                             <i class="fas fa-search" style="font-size: 11px;"></i>
                         </button>
                     </div>
@@ -60,10 +65,8 @@
                 }
             @endphp
 
-           <!-- ICON YÊU THÍCH -->
-            <a href="{{ route('user.wishlist') }}" 
-            class="header-icon-btn position-relative {{ request()->routeIs('user.wishlist*') ? 'active' : '' }}" 
-            title="Sách yêu thích">
+            <!-- ICON YÊU THÍCH -->
+            <a href="{{ route('user.wishlist') }}" class="header-icon-btn position-relative {{ request()->routeIs('user.wishlist*') ? 'active' : '' }}" title="Sách yêu thích">
                 <i class="far fa-heart"></i>
                 @if($wishlistCount > 0)
                     <span class="badge badge-danger rounded-circle header-badge">
@@ -73,9 +76,7 @@
             </a>
 
             <!-- GIỎ HÀNG -->
-            <a href="{{ route('cart.index') }}" 
-            class="header-icon-btn position-relative {{ request()->routeIs('cart.*') ? 'active' : '' }}" 
-            title="Giỏ hàng">
+            <a href="{{ route('cart.index') }}" class="header-icon-btn position-relative {{ request()->routeIs('cart.*') ? 'active' : '' }}" title="Giỏ hàng">
                 <i class="fas fa-shopping-bag"></i>
                 @if($cartCount > 0)
                     <span class="badge badge-danger rounded-circle header-badge">
@@ -84,7 +85,7 @@
                 @endif
             </a>
             
-            <!-- THÔNG BÁO (THIẾT KẾ MỚI TỐI GIẢN, SANG TRỌNG, KHÔNG LỖI VIỀN) -->
+            <!-- THÔNG BÁO -->
             @auth
                 @php
                     $notifs = \App\Models\Notification::where('user_id', Auth::id())->latest()->take(5)->get();
@@ -98,7 +99,6 @@
                         @endif
                     </a>
                     <div class="dropdown-menu dropdown-menu-right shadow-lg mt-2 search-dropdown-menu notification-dropdown" style="width: 360px; z-index: 9999; border-radius: 24px; overflow: hidden; border: 1px solid rgba(0,0,0,0.08);">
-                        <!-- Header tối giản, sang trọng -->
                         <div class="py-3 px-4 font-weight-bold d-flex align-items-center justify-content-between notification-dropdown-header" style="font-size: 14px; border-bottom: 1px solid rgba(0,0,0,0.06);">
                             <span class="text-dark dark-mode-link"><i class="fas fa-bell mr-2" style="color: var(--primary-color, #D35400);"></i> Thông báo của bạn</span>
                             @if($count > 0)
@@ -106,7 +106,6 @@
                             @endif
                         </div>
 
-                        <!-- Danh sách thông báo -->
                         <div class="notification-list px-2 py-2" style="max-height: 340px; overflow-y: auto;">
                             @forelse($notifs as $n)
                                 <div class="dropdown-item d-flex align-items-start py-2 px-3 my-1 rounded-lg notification-item {{ !$n->is_read ? 'unread-notification' : '' }}" style="white-space: normal;">
@@ -130,7 +129,6 @@
                             @endforelse
                         </div>
 
-                        <!-- Footer thông báo -->
                         @if($notifs->count() > 0)
                             <div class="p-2 text-center border-top notification-footer">
                                 <a class="text-decoration-none font-weight-bold d-block py-2" href="{{ route('notifications.read.all') }}" style="font-size: 13px; color: var(--primary-color, #D35400);">
@@ -144,12 +142,8 @@
             
             <!-- USER / LOGIN -->
             @auth
-               <a href="{{ route('profile.edit') }}"
-                class="user-profile-btn rounded-pill px-3 py-2 text-decoration-none shadow-sm d-flex align-items-center
-                {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
-
+               <a href="{{ route('profile.edit') }}" class="user-profile-btn rounded-pill px-3 py-2 text-decoration-none shadow-sm d-flex align-items-center {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
                     <i class="fas fa-user-circle mr-2 user-profile-icon"></i>
-
                     <div class="user-name-container">
                         <span class="user-name-text">
                             {{ Auth::user()->name }}
@@ -157,23 +151,19 @@
                     </div>
                 </a>
             @else
-                <a href="{{ route('login') }}"
-                class="btn text-white text-decoration-none font-weight-bold shadow-sm glow-pill-btn px-4 py-2"
-                style="border-radius: 50rem; white-space: nowrap; font-size: 14px;">
+                <a href="{{ route('login') }}" class="btn text-white text-decoration-none font-weight-bold shadow-sm glow-pill-btn px-4 py-2" style="border-radius: 50rem; white-space: nowrap; font-size: 14px;">
                     Đăng nhập
                 </a>
             @endauth
-            <!-- CHỈ HIỂN THỊ NÚT TRA CỨU CHO KHÁCH VÃNG LAI -->
+
+            <!-- TRA CỨU ĐƠN -->
             @guest
                 <a href="{{ url('/tra-cuu-don') }}" class="btn mr-3 d-inline-flex align-items-center tra-cuu-btn" style="border: 1.5px solid #f56a00; color: #f56a00; background-color: #fff; border-radius: 25px; padding: 6px 18px; text-decoration: none; transition: 0.3s;" title="Tra cứu đơn hàng">
                     <i class="fas fa-search-location" style="font-size: 1rem;"></i>
                     <span class="ml-2 d-none d-md-inline" style="font-weight: 600;">Tra đơn</span>
                 </a>
             @endguest
-
-<!-- Nút Đăng nhập / User Profile của bạn ở ngay bên dưới đây -->
-
-            <!-- Thêm hiệu ứng hover (đổi màu khi di chuột vào) -->
+            
             <style>
                 .tra-cuu-btn:hover {
                     background-color: #f56a00 !important;
