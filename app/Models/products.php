@@ -8,6 +8,7 @@ use App\Models\categories;
 use App\Models\authors;
 use App\Models\publishers;
 use App\Models\Review;
+use App\Models\ProductImage;
 
 class products extends Model
 {
@@ -45,17 +46,21 @@ class products extends Model
         return $this->hasMany(productVariants::class, 'product_id');
     }
 
-    function reviews()
+    public function reviews()
     {
-        return $this->hasMany(Review::class, 'product_id')->orderBy('created_at', 'desc');
+        return $this->hasMany(Review::class, 'product_id')
+            ->orderBy('created_at', 'desc');
     }
+
     public function firstVariant()
     {
         return $this->hasOne(productVariants::class, 'product_id')
             ->oldest('id');
     }
+
     public function images()
     {
-        return $this->hasMany(ProductImage::class, 'product_id');
+        return $this->hasMany(ProductImage::class, 'product_id')
+            ->orderBy('sort_order', 'asc');
     }
 }

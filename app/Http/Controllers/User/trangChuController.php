@@ -8,64 +8,63 @@ use App\Models\products;
 use App\Models\categories;
 use App\Models\authors;
 use App\Models\publishers;
-use Illuminate\Support\Facades\DB;
 use App\Models\Banner;
-use Carbon\Carbon;
-
-
+use Illuminate\Support\Facades\DB;
 
 class trangChuController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Lấy danh mục, tác giả, nhà xuất bản để hiển thị lên thanh bộ lọc (Sidebar)
+        // 1. Danh mục đang hoạt động
         $categories = categories::where('status', 1)->get();
-        $authors = authors::all();
-        $publishers = publishers::all();
+
+        // 2. Top 5 sản phẩm mới nhất
         $product5 = products::with('firstVariant')
             ->where('status', 1)
-            ->orderByDesc('id')
+            ->latest('id')
             ->take(5)
             ->get();
+
+        // 3. Top 5 sản phẩm bán chạy nhất (Bảo toàn thứ tự từ SQL)
         $topIds = DB::table('order_details')
             ->join('orders', 'order_details.order_id', '=', 'orders.id')
             ->join('product_variants', 'order_details.product_variant_id', '=', 'product_variants.id')
             ->where('orders.status', 'completed')
-            ->select(
-                'product_variants.product_id',
-                DB::raw('SUM(order_details.quantity) as total_sold')
-            )
+            ->select('product_variants.product_id', DB::raw('SUM(order_details.quantity) as total_sold'))
             ->groupBy('product_variants.product_id')
             ->orderByDesc('total_sold')
             ->take(5)
-            ->pluck('product_id');
+            ->pluck('product_id')
+            ->toArray();
 
-        $topSanPham = Products::with('firstVariant')
-            ->whereIn('id', $topIds)
-            ->get();
-
-        // 2. Khởi tạo Query lấy sản phẩm đang hoạt động
-        $query = products::with('firstVariant')
-            ->where('status', 1);
-
-        // Kiểm tra điều kiện ràng buộc tác giả (Nếu bạn có setup quan hệ 'author' trong model products)
-        if (method_exists(products::class, 'author')) {
-            $query->whereHas('author', function ($q) {
-                $q->where('status', 1);
-            });
+        $topSanPham = collect();
+        if (!empty($topIds)) {
+            $idsString = implode(',', $topIds);
+            $topSanPham = products::with('firstVariant')
+                ->whereIn('id', $topIds)
+                ->orderByRaw("FIELD(id, {$idsString})")
+                ->get();
         }
 
-        // 7. Thực thi lấy dữ liệu kèm phân trang (15 sản phẩm/trang) và giữ tham số trên URL
-        $products = $query->inRandomOrder()->take(15)->get();
+        // 4. Danh sách sản phẩm hiển thị trên trang chủ
+        $products = products::with('firstVariant')
+            ->where('status', 1)
+            ->whereHas('author', function ($q) {
+                $q->where('status', 1);
+            })
+            ->inRandomOrder()
+            ->take(15)
+            ->get();
+
+        // 5. Banner trang chủ đang hoạt động
+        $now = now();
         $banners = Banner::where('status', 1)
             ->where('position', 'home')
-            ->where(function ($q) {
-                $q->whereNull('start_date')
-                    ->orWhere('start_date', '<=', now());
+            ->where(function ($q) use ($now) {
+                $q->whereNull('start_date')->orWhere('start_date', '<=', $now);
             })
-            ->where(function ($q) {
-                $q->whereNull('end_date')
-                    ->orWhere('end_date', '>=', now());
+            ->where(function ($q) use ($now) {
+                $q->whereNull('end_date')->orWhere('end_date', '>=', $now);
             })
             ->orderBy('sort_order')
             ->get();
@@ -73,12 +72,9 @@ class trangChuController extends Controller
         return view('User.index', compact(
             'products',
             'categories',
-            'authors',
-            'publishers',
             'product5',
             'topSanPham',
             'banners'
         ));
     }
-
 }

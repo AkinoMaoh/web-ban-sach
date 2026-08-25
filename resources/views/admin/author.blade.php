@@ -64,7 +64,7 @@
                     <thead class="bg-light text-uppercase font-weight-bold text-dark" style="font-size: 0.85rem;">
                         <tr>
                             <th class="py-3 pl-4" width="8%">ID</th>
-                            <th class="py-3" width="14%">Ảnh đại diện</th> <!-- Đưa cột Ảnh lên đầu và tăng chiều rộng -->
+                            <th class="py-3" width="14%">Ảnh đại diện</th> 
                             <th class="py-3" width="35%">Tên tác giả</th>
                             <th class="py-3 text-center pr-4" width="43%">Hành động</th>
                         </tr>
@@ -72,12 +72,11 @@
                     
                     <tbody>
                         @forelse ($authors as $author)
-                            <!-- Click vào dòng là vào trang sửa -->
+                            <!-- Trang sửa -->
                             <tr class="clickable-row" data-href="{{ route('admin.authors.edit', $author->id) }}" style="cursor: pointer;" title="Nhấn để sửa">
                                 
                                 <td class="pl-4 font-weight-bold text-primary">#{{ $author->id }}</td>
                                 
-                                <!-- Ảnh đại diện kích thước lớn ở cột đầu tiên -->
                                 <td>
                                     @if($author->avatar)
                                         <img src="{{ asset('uploads/authors/' . $author->avatar) }}" 
@@ -101,16 +100,6 @@
                                            class="btn btn-sm btn-success text-white mr-1" title="Sửa">
                                             <i class="fas fa-edit"></i>
                                         </a> 
-
-                                        {{-- <!-- Ẩn / Hiện (Toggle Status) -->
-                                        <form action="{{ route('admin.authors.toggleStatus', $author->id) }}" method="POST" class="d-inline mr-1" onsubmit="event.stopPropagation();">
-                                            @csrf
-                                            <button type="submit"
-                                                class="btn btn-sm {{ $author->status ? 'btn-warning text-white' : 'btn-secondary' }}"
-                                                title="{{ $author->status ? 'Ẩn tác giả' : 'Hiện tác giả' }}">
-                                                <i class="fas {{ $author->status ? 'fa-eye-slash' : 'fa-eye' }}"></i>
-                                            </button>
-                                        </form> --}}
 
                                         <!-- Xóa -->
                                         <a href="{{ route('admin.authors.destroy', $author->id) }}" 

@@ -103,17 +103,30 @@
                                 <td class="pl-4 font-weight-bold text-primary">#{{ $product->id }}</td>
                                 
                                 <!-- Ảnh sản phẩm kích thước lớn hơn ở cột đầu tiên -->
-                                <td>
-                                    @if($product->image)
-                                        <img src="{{ asset('uploads/products/' . $product->image) }}" 
-                                             alt="Ảnh sản phẩm" 
-                                             class="rounded shadow-sm border" 
-                                             width="75" height="75" 
-                                             style="object-fit: cover;">
-                                    @else
-                                        <span class="text-muted small font-italic">Không có ảnh</span>
-                                    @endif
-                                </td>
+                               <td>
+    @if(!empty($product->image) && file_exists(public_path('uploads/products/' . $product->image)))
+        {{-- 1. Ưu tiên lấy ảnh chính từ cột `image` của bảng `products` --}}
+        <img src="{{ asset('uploads/products/' . $product->image) }}" 
+             alt="{{ $product->name }}" 
+             class="rounded shadow-sm border" 
+             width="75" height="75" 
+             style="object-fit: cover;">
+    @elseif($product->images && $product->images->first())
+        {{-- 2. Nếu cột `image` rỗng/lỗi, lấy ảnh đầu tiên trong quan hệ `images` --}}
+        <img src="{{ asset('uploads/products/' . $product->images->first()->image) }}" 
+             alt="{{ $product->name }}" 
+             class="rounded shadow-sm border" 
+             width="75" height="75" 
+             style="object-fit: cover;">
+    @else
+        {{-- 3. Hiển thị ảnh mặc định nếu hoàn toàn không có ảnh --}}
+        <img src="{{ asset('images/no-image.png') }}" 
+             alt="No image" 
+             class="rounded shadow-sm border" 
+             width="75" height="75" 
+             style="object-fit: cover;">
+    @endif
+</td>
 
                                 <td>
                                     <span class="font-weight-bold text-dark">{{ $product->name }}</span>
