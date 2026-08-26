@@ -353,11 +353,26 @@ class productsController extends Controller
 
     public function search(Request $request)
     {
-        $products = products::where('name', 'like', '%' . $request->keyword . '%')
-            ->select('id', 'name', 'image')
-            ->distinct()
-            ->limit(5)
-            ->get();
+        $products = products::where(
+            'name',
+            'like',
+            '%' . $request->keyword . '%'
+        )
+        ->select('id', 'name', 'image')
+        ->distinct()
+        ->limit(5)
+        ->get()
+        ->map(function ($product) {
+
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'image_url' => $product->image
+                    ? asset('uploads/products/' . $product->image)
+                    : null,
+            ];
+
+        });
 
         return response()->json($products);
     }

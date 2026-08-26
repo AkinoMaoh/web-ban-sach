@@ -29,11 +29,10 @@ $(document).ready(function () {
 
                         let imageHtml = '';
 
-                        // Nếu kết quả có ảnh thì hiển thị ảnh
-                        if (item.image) {
+                        if (item.image_url) {
                             imageHtml = `
                                 <img
-                                    src="/uploads/products/${item.image}"
+                                    src="${item.image_url}"
                                     class="admin-search-image"
                                     alt="${item[searchField]}"
                                 >
