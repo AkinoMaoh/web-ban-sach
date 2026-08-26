@@ -253,15 +253,20 @@ html.dark-mode .custom-card-header i{
     border-top: none;
     display: none;
     z-index: 9999;
-    max-height: 220px;
+    max-height: 300px;
     overflow-y: auto;
 }
 
+/* Một kết quả tìm kiếm */
 .search-order-item{
-    display: block;
-    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
     color: #333;
     text-decoration: none;
+    border-bottom: 1px solid #f1f1f1;
+    transition: background 0.2s ease;
 }
 
 .search-order-item:hover{
@@ -270,6 +275,25 @@ html.dark-mode .custom-card-header i{
     text-decoration: none;
 }
 
+/* Ảnh sản phẩm */
+.admin-search-image{
+    width: 40px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    flex-shrink: 0;
+}
+
+/* Tên sản phẩm */
+.admin-search-name{
+    font-size: 14px;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Không tìm thấy */
 .search-empty{
     padding: 10px;
     color: #999;

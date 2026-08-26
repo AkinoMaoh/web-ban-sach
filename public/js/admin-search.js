@@ -27,9 +27,26 @@ $(document).ready(function () {
 
                     data.forEach(function(item){
 
+                        let imageHtml = '';
+
+                        // Nếu kết quả có ảnh thì hiển thị ảnh
+                        if (item.image) {
+                            imageHtml = `
+                                <img
+                                    src="/uploads/products/${item.image}"
+                                    class="admin-search-image"
+                                    alt="${item[searchField]}"
+                                >
+                            `;
+                        }
+
                         html += `
                             <a href="#" class="search-order-item">
-                                ${item[searchField]}
+                                ${imageHtml}
+
+                                <span class="admin-search-name">
+                                    ${item[searchField]}
+                                </span>
                             </a>
                         `;
 
