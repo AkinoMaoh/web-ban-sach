@@ -274,6 +274,7 @@ class DatabaseSeeder extends Seeder
             GhnLocationSeeder::class,
             NewsSeeder::class,
             ProductImageSeeder::class,
+            BannerSeeder::class,
         ]);
     }
 }
