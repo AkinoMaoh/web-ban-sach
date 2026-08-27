@@ -124,9 +124,24 @@ class categoriesController extends Controller
     // Tìm kiếm danh mục ajax
     public function search(Request $request)
     {
-        $categories = categories::where('name', 'like', '%' . $request->keyword . '%')
-            ->limit(5)
-            ->get();
+        $categories = categories::where(
+            'name',
+            'like',
+            '%' . $request->keyword . '%'
+        )
+        ->limit(5)
+        ->get()
+        ->map(function ($category) {
+
+            return [
+                'id' => $category->id,
+                'name' => $category->name,
+                'image_url' => $category->image
+                    ? asset('uploads/categories/' . $category->image)
+                    : null,
+            ];
+
+        });
 
         return response()->json($categories);
     }
