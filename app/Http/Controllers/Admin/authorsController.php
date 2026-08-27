@@ -119,9 +119,25 @@ class authorsController extends Controller
     // Tìm kiếm tác giả ajax
     public function search(Request $request)
     {
-        $authors = authors::where('name', 'like', '%' . $request->keyword . '%')
-            ->limit(5)
-            ->get();
+        $authors = authors::where(
+            'name',
+            'like',
+            '%' . $request->keyword . '%'
+        )
+        ->select('id', 'name', 'avatar')
+        ->limit(5)
+        ->get()
+        ->map(function ($author) {
+
+            return [
+                'id' => $author->id,
+                'name' => $author->name,
+                'image_url' => $author->avatar
+                    ? asset('uploads/authors/' . $author->avatar)
+                    : null,
+            ];
+
+        });
 
         return response()->json($authors);
     }
