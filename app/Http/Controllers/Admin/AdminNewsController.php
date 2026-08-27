@@ -172,9 +172,25 @@ class AdminNewsController extends Controller
     // Tìm kiếm tin tức ajax
     public function search(Request $request)
     {
-        $news = News::where('title', 'like', '%' . $request->keyword . '%')
-            ->limit(5)
-            ->get();
+        $news = News::where(
+            'title',
+            'like',
+            '%' . $request->keyword . '%'
+        )
+        ->select('id', 'title', 'image')
+        ->limit(5)
+        ->get()
+        ->map(function ($item) {
+
+            return [
+                'id' => $item->id,
+                'title' => $item->title,
+                'image_url' => $item->image
+                    ? asset('uploads/news/' . $item->image)
+                    : null,
+            ];
+
+        });
 
         return response()->json($news);
     }
