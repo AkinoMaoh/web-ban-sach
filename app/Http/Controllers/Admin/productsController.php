@@ -354,7 +354,7 @@ class productsController extends Controller
     public function search(Request $request)
     {
         $products = products::where('name', 'like', '%' . $request->keyword . '%')
-            ->select('name')
+            ->select('id', 'name', 'image')
             ->distinct()
             ->limit(5)
             ->get();
