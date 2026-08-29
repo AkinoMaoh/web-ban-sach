@@ -58,15 +58,6 @@
     </div>
 </section>
 
-<script>
-$('#heroCarousel').carousel({
-    interval: 5000,
-    pause: false,
-    wrap: true,
-    keyboard: true
-});
-</script>
-
 <!-- 2. Danh mục sách -->
 <section class="container mb-5">
     <div class="d-flex flex-wrap justify-content-center gap-2">

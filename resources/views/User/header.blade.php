@@ -1263,54 +1263,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    const searchInput = document.getElementById('searchInput');
-    const searchWrapper = document.getElementById('headerSearchWrapper');
-    const searchContentBox = document.getElementById('searchContentBox');
-    let typingTimer;
-    let cachedSuggestions = null;
-
-    if(searchInput && searchWrapper) {
-        searchInput.addEventListener('focus', function() {
-            searchWrapper.classList.add('show');
-            performSearch(this.value);
-        });
-
-        document.addEventListener('click', function(event) {
-            if (!searchWrapper.contains(event.target)) {
-                searchWrapper.classList.remove('show');
-            }
-        });
-
-        searchInput.addEventListener('keyup', function() {
-            clearTimeout(typingTimer);
-            let keyword = this.value;
-            typingTimer = setTimeout(() => performSearch(keyword), 300);
-        });
-    }
-
-    function performSearch(keyword) {
-        if(keyword === '' && cachedSuggestions !== null) {
-            renderSuggestions(cachedSuggestions);
-            return;
-        }
-
-        let url = `{{ route('api.search') }}?keyword=${encodeURIComponent(keyword)}`;
-
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if(data.status === 'suggestions') {
-                    cachedSuggestions = data;
-                    renderSuggestions(data);
-                } else if(data.status === 'products') {
-                    renderProducts(data.data, keyword);
-                }
-            })
-            .catch(error => {
-                searchContentBox.innerHTML = `<div class="text-center text-danger my-3">Có lỗi xảy ra khi tìm kiếm.</div>`;
-            });
-    }
-
     function renderSuggestions(data) {
         let html = ``;
         if(data.hot_keywords && data.hot_keywords.length > 0) {
@@ -1411,4 +1363,3 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 </script>
-<script src="{{ asset('js/search.js') }}"></script>

@@ -48,9 +48,10 @@ class SearchController extends Controller
 
     // Đã nhập từ khóa
     $products = products::where('name', 'like', '%' . $keyword . '%')
-        ->where('status', 1)
-        ->limit(8)
-        ->get();
+    ->where('status', 1)
+    ->orderBy('id', 'desc')
+    ->limit(8)
+    ->get();
 
     return response()->json([
         'status' => 'products',
