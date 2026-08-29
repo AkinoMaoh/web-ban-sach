@@ -261,6 +261,8 @@
     <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
+    <script src="{{ asset('js/search.js') }}"></script>
+
 
     <!-- Wishlist -->
     <script>
@@ -314,14 +316,6 @@
 
         });
     </script>
-
-
-    <!-- Search -->
-    <script>
-        const searchUrl = "{{ route('api.search') }}";
-    </script>
-
-    <script src="{{ asset('js/search.js') }}"></script>
 
 
     <!-- Dark Mode -->

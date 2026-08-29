@@ -166,6 +166,12 @@ $(document).ready(function () {
                     response.status === 'products' &&
                     response.data.length > 0
                 ) {
+                    html += `
+                        <div class="search-section-title">
+                            <i class="fas fa-book"></i>
+                            Sách tìm thấy
+                        </div>
+                    `;
 
                     // Hiển thị sản phẩm
                     response.data.forEach(function (product) {
