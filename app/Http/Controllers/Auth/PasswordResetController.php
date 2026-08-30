@@ -23,13 +23,16 @@ class PasswordResetController extends Controller
         try {
             $user = Auth::user();
             if (!$user) {
-                return response()->json(['success' => false, 'msg' => 'Phiên đăng nhập đã hết hạn.']);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Phiên đăng nhập đã hết hạn.'
+                ], 401);
             }
-            
+
             // Tạo mã OTP ngẫu nhiên gồm 6 chữ số
             $otp = rand(100000, 999999);
-            
-            // Đồng bộ đồng thời cả 2 cấu trúc Session cũ và mới để không làm lỗi tính năng khác
+
+            // Lưu OTP và thời gian hết hạn vào Session
             session([
                 'password_reset_otp' => $otp,
                 'password_reset_expires_at' => now()->addMinutes(5),
@@ -41,29 +44,47 @@ class PasswordResetController extends Controller
                 $message->to($user->email)->subject('[BookStore] Mã xác thực đổi mật khẩu');
             });
 
-            return response()->json(['success' => true, 'msg' => 'Mã xác thực đã được gửi tới email của bạn!']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Mã xác thực đã được gửi tới email của bạn!'
+            ]);
         } catch (Exception $e) {
-            return response()->json(['success' => false, 'msg' => 'Không thể gửi mail, vui lòng thử lại!']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể gửi mail, vui lòng thử lại!'
+            ], 500);
         }
     }
 
-    // Kiểm tra mã OTP khớp hay sai (Giữ nguyên cho các router cũ)
+    // 2. Kiểm tra mã OTP khớp hay sai (Dùng cho Ajax xác thực trước khi submit form)
     public function verifyOtp(Request $request)
     {
-        $request->validate(['otp' => 'required|numeric']);
+        $request->validate([
+            'otp' => 'required|numeric'
+        ]);
+
         $sessionOtp = session('password_reset_otp');
         $expiresAt = session('password_reset_expires_at');
 
         if (!$sessionOtp || !$expiresAt || now()->isAfter($expiresAt)) {
-            return response()->json(['success' => false, 'message' => 'Mã OTP đã hết hạn, vui lòng nhận mã mới!']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Mã OTP đã hết hạn hoặc chưa được tạo, vui lòng bấm nhận mã mới!'
+            ], 400);
         }
 
         if ((int)$request->otp === (int)$sessionOtp) {
             session(['otp_verified' => true]);
-            session()->forget(['password_reset_otp', 'password_reset_expires_at']);
-            return response()->json(['success' => true, 'redirect' => route('password.reset.fields')]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Mã OTP hợp lệ!'
+            ]);
         }
-        return response()->json(['success' => false, 'message' => 'Mã xác thực nhập vào không chính xác!']);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Mã xác thực OTP không chính xác!'
+        ], 400);
     }
 
     // Hiển thị trang thiết lập mật khẩu mới (Giữ nguyên cho các router cũ)
@@ -75,7 +96,7 @@ class PasswordResetController extends Controller
         return view('auth.password-reset-fields');
     }
 
-    // 2. Xử lý cập nhật chính thức mật khẩu từ Form Profile gửi lên
+    // 3. Xử lý cập nhật chính thức mật khẩu từ Form Profile gửi lên
     public function updatePassword(Request $request)
     {
         // Xác thực dữ liệu form gửi lên
@@ -103,8 +124,14 @@ class PasswordResetController extends Controller
             return back()->withErrors(['otp_code' => 'Mã xác thực OTP không chính xác!']);
         }
 
-        // Hợp lệ tiến hành đổi mật khẩu cho User đang đăng nhập
+        // Tiến hành đổi mật khẩu cho User đang đăng nhập
+        /** @var \App\Models\User|null $user */
         $user = Auth::user();
+
+        if (!$user) {
+            return back()->withErrors(['otp_code' => 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!']);
+        }
+
         $user->password = Hash::make($request->password);
         $user->save();
 
