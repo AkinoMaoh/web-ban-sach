@@ -225,7 +225,7 @@
                         <div class="form-group mb-4" id="otp-group" style="display: none;">
                             <label class="font-weight-bold text-danger small">Mã xác nhận (OTP)</label>
                             <div class="input-group">
-                                <input type="text" name="otp_code" id="otp_code" class="form-control font-weight-bold text-center text-dark" placeholder="Nhập 6 số mã xác nhận..." style="border-radius: 8px; height: 45px; letter-spacing: 4px; font-size: 1.1rem;">
+                                <input type="text" name="otp_code" id="otp_code" maxlength="6" class="form-control font-weight-bold text-center text-dark" placeholder="Nhập 6 số mã xác nhận..." style="border-radius: 8px; height: 45px; letter-spacing: 4px; font-size: 1.1rem;">
                             </div>
                         </div>
                         
@@ -316,7 +316,110 @@
         });
 
         // ==========================================
-        // XỬ LÝ AJAX LẤY ĐỊA CHỈ & GIỮ DỮ LIỆU ĐÃ LƯU
+        // KHÓA/MỞ NÚT CẬP NHẬT KHI NHẬP ĐỦ 6 SỐ OTP
+        // ==========================================
+        $('#otp_code').on('input propertychange', function() {
+            let value = $(this).val().replace(/[^0-9]/g, '');
+            $(this).val(value);
+
+            let $btnSubmit = $('#btn-submit-password');
+
+            if (value.length === 6) {
+                $btnSubmit.prop('disabled', false);
+            } else {
+                $btnSubmit.prop('disabled', true);
+            }
+        });
+
+        // ==========================================
+        // 1. XỬ LÝ GỬI MÃ OTP ĐỔI MẬT KHẨU
+        // ==========================================
+        $(document).on('click', '#btn-send-otp', function(e) {
+            e.preventDefault();
+
+            let passNew = $('#pass_new').val() ? $('#pass_new').val().trim() : '';
+            let passConfirm = $('#pass_confirm').val() ? $('#pass_confirm').val().trim() : '';
+            let $btn = $(this);
+
+            if (!passNew || !passConfirm) {
+                alert('Vui lòng nhập mật khẩu mới và xác nhận mật khẩu trước!');
+                return;
+            }
+
+            if (passNew !== passConfirm) {
+                alert('Mật khẩu mới và xác nhận mật khẩu không khớp!');
+                return;
+            }
+
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Đang gửi...');
+
+            $.ajax({
+                url: "{{ route('password.verify.send') }}",
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    email: '{{ Auth::user()->email }}'
+                },
+                success: function(response) {
+                    alert('Mã xác nhận OTP đã được gửi về Email của bạn!');
+                    
+                    $('#otp-group').slideDown();
+
+                    let countdown = 60;
+                    let timer = setInterval(function() {
+                        countdown--;
+                        $btn.html(`<i class="fas fa-clock mr-2"></i> Gửi lại (${countdown}s)`);
+                        if (countdown <= 0) {
+                            clearInterval(timer);
+                            $btn.prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i> GỬI MÃ XÁC NHẬN');
+                        }
+                    }, 1000);
+                },
+                error: function(xhr) {
+                    $btn.prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i> GỬI MÃ XÁC NHẬN');
+                    let msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Có lỗi xảy ra, vui lòng thử lại!';
+                    alert(msg);
+                }
+            });
+        });
+
+        // ==========================================
+        // 2. XỬ LÝ BẤM CẬP NHẬT MẬT KHẨU
+        // ==========================================
+        $(document).on('click', '#btn-submit-password', function(e) {
+            e.preventDefault();
+
+            let $btn = $(this);
+            let $form = $('#password-change-form');
+            let otpCode = $('#otp_code').val() ? $('#otp_code').val().trim() : '';
+
+            if (otpCode.length !== 6) {
+                alert('Mã OTP phải gồm đủ 6 chữ số!');
+                return;
+            }
+
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Đang xác thực OTP...');
+
+            $.ajax({
+                url: "{{ route('password.verify.match') }}",
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    otp: otpCode
+                },
+                success: function(response) {
+                    $form[0].submit();
+                },
+                error: function(xhr) {
+                    $btn.prop('disabled', false).html('<i class="fas fa-key mr-2"></i> CẬP NHẬT MẬT KHẨU');
+                    let msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Mã OTP không chính xác hoặc đã hết hạn!';
+                    alert(msg);
+                }
+            });
+        });
+
+        // ==========================================
+        // 3. XỬ LÝ AJAX LẤY ĐỊA CHỈ & GIỮ DỮ LIỆU ĐÃ LƯU
         // ==========================================
         let savedDistrict = "{{ old('district_id', $defaultAddress->district_id ?? '') }}";
         let savedWard = "{{ old('ward_code', $defaultAddress->ward_code ?? '') }}";
@@ -336,7 +439,6 @@
                         });
                         $('#district').html(html);
                         
-                        // Nếu có quận cũ/đang chọn thì tự động tải tiếp phường/xã
                         if (selected_district) {
                             loadWards(selected_district, savedWard);
                         } else {
@@ -377,20 +479,17 @@
             }
         }
 
-        // Sự kiện khi người dùng đổi Tỉnh/Thành
         $('#province').change(function() {
-            savedDistrict = null; // Xóa cache quận cũ
-            savedWard = null;     // Xóa cache xã cũ
+            savedDistrict = null;
+            savedWard = null;
             loadDistricts($(this).val());
         });
 
-        // Sự kiện khi người dùng đổi Quận/Huyện
         $('#district').change(function() {
-            savedWard = null;     // Xóa cache xã cũ
+            savedWard = null;
             loadWards($(this).val());
         });
 
-        // TỰ ĐỘNG CHẠY KHI VÀO TRANG: Nạp dữ liệu cũ đã lưu từ DB
         let initialProvince = $('#province').val();
         if (initialProvince) {
             loadDistricts(initialProvince, savedDistrict);
