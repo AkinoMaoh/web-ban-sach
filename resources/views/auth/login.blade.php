@@ -11,7 +11,6 @@
                         <i class="fas fa-envelope me-2"></i>Email / Mật khẩu
                     </button>
                 </li>
-               
             </ul>
 
             <form id="form-email-login" method="POST" action="{{ route('login') }}">
@@ -26,7 +25,8 @@
                     <label for="password" class="form-label fw-semibold">Mật khẩu</label>
                     <div class="input-group">
                         <input id="password" class="form-control border-end-0" type="password" name="password" autocomplete="current-password" placeholder="Nhập mật khẩu...">
-                        <button class="btn btn-outline-secondary border-start-0 btn-toggle-password" type="button">
+                        <!-- Đã sửa: Đảm bảo có type="button" và class btn-toggle-password -->
+                        <button class="btn btn-outline-secondary border-start-0 btn-toggle-password" type="button" id="togglePasswordBtn">
                             <i class="fas fa-eye text-muted"></i>
                         </button>
                     </div>
@@ -54,7 +54,6 @@
                 </div>
             </form>
 
-          
             <div class="d-flex align-items-center my-4">
                 <hr class="flex-grow-1">
                 <span class="mx-3 text-muted small">Hoặc tiếp tục bằng</span>
@@ -77,93 +76,66 @@
     </div>
 
     <script>
-        document.getElementById('tab-email').addEventListener('click', function() {
-            this.classList.add('active', 'text-primary');
-            this.classList.remove('text-muted');
-            this.style.borderBottomColor = '#0d6efd';
-            
-            const phoneTab = document.getElementById('tab-phone');
-            phoneTab.classList.remove('active', 'text-primary');
-            phoneTab.classList.add('text-muted');
-            phoneTab.style.borderBottomColor = 'transparent';
-            
-            document.getElementById('form-email-login').classList.remove('d-none');
-            document.getElementById('form-phone-login').classList.add('d-none');
-        });
-
-        document.getElementById('tab-phone').addEventListener('click', function() {
-            this.classList.add('active', 'text-primary');
-            this.classList.remove('text-muted');
-            this.style.borderBottomColor = '#0d6efd';
-            
-            const emailTab = document.getElementById('tab-email');
-            emailTab.classList.remove('active', 'text-primary');
-            emailTab.classList.add('text-muted');
-            emailTab.style.borderBottomColor = 'transparent';
-            
-            document.getElementById('form-phone-login').classList.remove('d-none');
-            document.getElementById('form-email-login').classList.add('d-none');
-        });
-
-        document.querySelector('.btn-toggle-password').addEventListener('click', function () {
-            const input = document.getElementById('password');
-            const icon = this.querySelector('i');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.className = "fas fa-eye-slash text-danger";
-            } else {
-                input.type = 'password';
-                icon.className = "fas fa-eye text-muted";
+        // Xử lý ẩn / hiện mật khẩu (Đã tối ưu hóa kiểm tra element tồn tại)
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.querySelector('.btn-toggle-password');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function (e) {
+                    e.preventDefault(); // Tránh submit form
+                    const input = document.getElementById('password');
+                    const icon = this.querySelector('i');
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.className = "fas fa-eye-slash text-danger";
+                    } else {
+                        input.type = 'password';
+                        icon.className = "fas fa-eye text-muted";
+                    }
+                });
             }
         });
 
-        document.getElementById('btn-send-sms').addEventListener('click', function() {
-            let phoneInput = document.getElementById('txt-phone').value.trim();
-            if(!phoneInput || phoneInput.length < 10) { alert('Số điện thoại không hợp lệ!'); return; }
-            this.innerText = 'Đang xử lý...';
-            this.disabled = true;
-
-            fetch("{{ route('phone.sendOtp') }}", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({ phone: phoneInput })
-            }).then(res => res.json()).then(data => {
-                if(data.success) {
-                    alert(data.msg);
-                    document.getElementById('phone-input-block').classList.add('d-none');
-                    document.getElementById('otp-input-block').classList.remove('d-none');
-                } else {
-                    alert('Có lỗi xảy ra, vui lòng thử lại!');
-                    location.reload();
+        // Xử lý chuyển Tab (kiểm tra tồn tại trước khi addEventListener tránh lỗi Console)
+        const tabEmail = document.getElementById('tab-email');
+        if (tabEmail) {
+            tabEmail.addEventListener('click', function() {
+                this.classList.add('active', 'text-primary');
+                this.classList.remove('text-muted');
+                this.style.borderBottomColor = '#0d6efd';
+                
+                const phoneTab = document.getElementById('tab-phone');
+                if (phoneTab) {
+                    phoneTab.classList.remove('active', 'text-primary');
+                    phoneTab.classList.add('text-muted');
+                    phoneTab.style.borderBottomColor = 'transparent';
                 }
-            }).catch(err => {
-                alert('Yêu cầu gửi OTP thất bại!');
-                location.reload();
+                
+                const emailForm = document.getElementById('form-email-login');
+                const phoneForm = document.getElementById('form-phone-login');
+                if (emailForm) emailForm.classList.remove('d-none');
+                if (phoneForm) phoneForm.classList.add('d-none');
             });
-        });
+        }
 
-        document.getElementById('btn-verify-otp').addEventListener('click', function() {
-            const code = document.getElementById('txt-otp').value.trim();
-            const phoneInput = document.getElementById('txt-phone').value.trim();
-            if(code.length !== 6) { alert('Mã OTP gồm 6 chữ số!'); return; }
-            this.innerText = 'Đang xác thực...';
-            this.disabled = true;
-
-            fetch("{{ route('login.phone.verify') }}", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({ otp: code, phone: phoneInput })
-            }).then(res => res.json()).then(data => {
-                if(data.success) { window.location.href = data.redirect; }
-                else {
-                    alert(data.message || 'Mã OTP sai hoặc đã hết hạn!');
-                    this.innerText = 'XÁC NHẬN ĐĂNG NHẬP';
-                    this.disabled = false;
+        const tabPhone = document.getElementById('tab-phone');
+        if (tabPhone) {
+            tabPhone.addEventListener('click', function() {
+                this.classList.add('active', 'text-primary');
+                this.classList.remove('text-muted');
+                this.style.borderBottomColor = '#0d6efd';
+                
+                const emailTab = document.getElementById('tab-email');
+                if (emailTab) {
+                    emailTab.classList.remove('active', 'text-primary');
+                    emailTab.classList.add('text-muted');
+                    emailTab.style.borderBottomColor = 'transparent';
                 }
-            }).catch(err => {
-                alert('Mã OTP không đúng hoặc hệ thống gặp sự cố!');
-                location.reload();
+                
+                const phoneForm = document.getElementById('form-phone-login');
+                const emailForm = document.getElementById('form-email-login');
+                if (phoneForm) phoneForm.classList.remove('d-none');
+                if (emailForm) emailForm.classList.add('d-none');
             });
-        });
+        }
     </script>
 </x-guest-layout>
