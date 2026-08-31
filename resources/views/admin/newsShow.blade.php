@@ -32,12 +32,6 @@
                         <h4 class="text-dark font-weight-bold">{{ $news->title }}</h4>
                     </div>
 
-                    <!-- Slug -->
-                    <div class="form-group mb-4">
-                        <label class="font-weight-bold text-uppercase small text-muted d-block mb-1">Slug (Đường dẫn)</label>
-                        <code class="p-2 bg-light text-dark border rounded d-inline-block">{{ $news->slug }}</code>
-                    </div>
-
                     <!-- Mô tả ngắn -->
                     <div class="form-group mb-4">
                         <label class="font-weight-bold text-uppercase small text-muted d-block mb-1">Mô tả ngắn</label>
