@@ -52,21 +52,6 @@
                             @enderror
                         </div>
 
-                        <!-- Slug -->
-                        <div class="form-group mb-3">
-                            <label for="slug" class="font-weight-bold text-dark">Slug <span class="text-danger">*</span></label>
-                            <input type="text"
-                                   class="form-control @error('slug') is-invalid @enderror"
-                                   id="slug"
-                                   name="slug"
-                                   value="{{ old('slug', $news->slug) }}"
-                                   placeholder="Nhập slug đường dẫn..."
-                                   required>
-                            @error('slug')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
                         <!-- Mô tả ngắn -->
                         <div class="form-group mb-3">
                             <label for="summary" class="font-weight-bold text-dark">Mô tả ngắn <span class="text-danger">*</span></label>
