@@ -28,12 +28,8 @@ class ordersController extends Controller
 
         if ($request->filled('keyword')) {
             $keyword = trim((string) $request->input('keyword'));
-            $query->where(function ($subQuery) use ($keyword): void {
-                $subQuery
-                    ->where('order_number', 'like', "%{$keyword}%")
-                    ->orWhere('shipping_phone', 'like', "%{$keyword}%")
-                    ->orWhere('billing_email', 'like', "%{$keyword}%");
-            });
+
+            $query->where('shipping_phone', 'like', "%{$keyword}%");
         }
 
         $orders = $query->latest()->paginate(15)->withQueryString();
@@ -141,14 +137,11 @@ class ordersController extends Controller
     public function search(Request $request)
     {
         $keyword = trim((string) $request->input('keyword'));
+
         $orders = Order::query()
-            ->where(function ($query) use ($keyword): void {
-                $query
-                    ->where('order_number', 'like', "%{$keyword}%")
-                    ->orWhere('shipping_phone', 'like', "%{$keyword}%");
-            })
-            ->select(['id', 'order_number', 'shipping_phone'])
-            ->latest('id')
+            ->where('shipping_phone', 'like', "%{$keyword}%")
+            ->select('shipping_phone')
+            ->distinct()
             ->limit(8)
             ->get();
 
