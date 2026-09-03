@@ -137,7 +137,7 @@
                                     @endif
                                 </td>
                                 <td><span class="text-muted small">{{ $user->created_at->format('d/m/Y H:i') }}</span></td>
-                                <td class="text-center pr-4">
+                                <td class="text-muted small">
                                     <a href="{{ route('admin.users.show', $user->id) }}" 
                                        class="btn btn-sm btn-info text-white mr-1" 
                                        title="Chi tiết">
