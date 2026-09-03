@@ -82,6 +82,55 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
+
+    /* ==========================================
+       --- BỔ SUNG CSS SỬA LỖI CHO DARK MODE ---
+       ========================================== */
+    /* Tuỳ chỉnh các selector này khớp với class Dark mode trên thẻ <body> của dự án (thường là .dark-mode) */
+    body.dark-mode .custom-card-header,
+    [data-theme="dark"] .custom-card-header {
+        background-color: #2b2b40 !important; /* Màu nền header tối (khớp với sidebar/card) */
+        border-bottom: 1px solid #3f4254 !important;
+    }
+    
+    body.dark-mode .bg-white,
+    [data-theme="dark"] .bg-white {
+        background-color: #2b2b40 !important;
+    }
+
+    body.dark-mode .list-group-item,
+    [data-theme="dark"] .list-group-item {
+        background-color: #1e1e2d !important; /* Xoá mảng trắng ở các danh sách top dưới cùng */
+        border-color: #3f4254 !important;
+        color: #cdcdde !important;
+    }
+
+    body.dark-mode .custom-list-item:hover,
+    [data-theme="dark"] .custom-list-item:hover {
+        background-color: #2b2b40 !important;
+    }
+
+    body.dark-mode .text-dark,
+    [data-theme="dark"] .text-dark {
+        color: #ffffff !important; /* Làm nổi bật chữ trên nền tối */
+    }
+
+    /* Fix khu vực bộ lọc ngày */
+    body.dark-mode .date-filter-wrapper,
+    [data-theme="dark"] .date-filter-wrapper {
+        background-color: #1e1e2d !important;
+        border-color: #3f4254 !important;
+    }
+
+    body.dark-mode .date-filter-wrapper input[type="date"],
+    [data-theme="dark"] .date-filter-wrapper input[type="date"] {
+        color: #cdcdde !important;
+    }
+
+    body.dark-mode .date-filter-wrapper input[type="date"]::-webkit-calendar-picker-indicator,
+    [data-theme="dark"] .date-filter-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1) opacity(0.7); /* Đảo màu icon lịch sang trắng để dễ nhìn */
+    }
 </style>
 
 <div class="container-fluid">

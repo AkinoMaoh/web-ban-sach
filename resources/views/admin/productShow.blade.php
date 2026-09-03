@@ -38,19 +38,19 @@
                         <!-- Danh mục -->
                         <div class="col-md-4 form-group mb-3">
                             <label class="font-weight-bold text-uppercase small text-muted d-block mb-1">Danh mục</label>
-                            <span class="badge badge-light border px-2 py-1 font-weight-bold text-dark">{{ $product->category->name ?? 'N/A' }}</span>
+                            <span class="badge badge-light border px-2 py-1">{{ $product->category->name ?? 'N/A' }}</span>
                         </div>
 
                         <!-- Tác giả -->
                         <div class="col-md-4 form-group mb-3">
                             <label class="font-weight-bold text-uppercase small text-muted d-block mb-1">Tác giả</label>
-                            <span class="font-weight-bold text-dark">{{ $product->author->name ?? 'N/A' }}</span>
+                            <span class="badge badge-light border px-2 py-1">{{ $product->author->name ?? ($product->authors->name ?? 'N/A') }}</span>
                         </div>
 
                         <!-- Nhà xuất bản -->
                         <div class="col-md-4 form-group mb-3">
                             <label class="font-weight-bold text-uppercase small text-muted d-block mb-1">NXB</label>
-                            <span class="font-weight-bold text-dark">{{ $product->publisher->name ?? ($product->publishers->name ?? 'N/A') }}</span>
+                            <span class="badge badge-light border px-2 py-1">{{ $product->publisher->name ?? ($product->publishers->name ?? 'N/A') }}</span>
                         </div>
                     </div>
 
